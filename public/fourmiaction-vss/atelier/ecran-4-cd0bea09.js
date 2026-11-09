@@ -2,7 +2,7 @@
   "use strict";
   var F = window.FA, X = FAX, esc = X.esc, PREVIEW = window.FA_PREVIEW;
   var KEY = "fa-vss-direct";
-  var st = { i: 0, code: null, key: null, offline: false, timers: {}, ui: {} };
+  var st = { i: 0, code: null, key: null, offline: false, timers: {}, ui: {}, ng: 4 };
   try { var sv = JSON.parse(localStorage.getItem(KEY) || "null"); if (sv) st = Object.assign(st, sv); } catch (e) { }
   var save = function () { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } };
   var live = { v: 0, entries: {} };
@@ -17,7 +17,8 @@
   var partURL = function () { return X.base + "participer.html" + (st.code ? "?c=" + st.code : ""); };
   var E = function (act) { var x = live.entries && live.entries[act]; return Array.isArray(x) ? x : x && typeof x === "object" ? Object.keys(x).map(function (k) { return x[k]; }) : []; };
   var byGroup = function (act) { var o = {}; E(act).forEach(function (e) { o[e.g] = e; }); return o; };
-  var joined = function () { var p = {}, g = { 1: 0, 2: 0, 3: 0, 4: 0 }; E("join").forEach(function (e) { if (!p[e.p]) { p[e.p] = 1; g[e.g] = (g[e.g] || 0) + 1; } }); return { n: Object.keys(p).length, g: g }; };
+  var NG = function () { return X.clampG(st.ng); };
+  var joined = function () { var p = {}, g = {}; E("join").forEach(function (e) { if (!p[e.p]) { p[e.p] = 1; g[e.g] = (g[e.g] || 0) + 1; } }); return { n: Object.keys(p).length, g: g }; };
   var isNew = function (id) { if (seen[id]) return ""; seen[id] = 1; return " new"; };
   var waiting = function (t) { return st.code ? '<div class="waiting"><div>' + (t || "Les réponses apparaissent ici dès qu’elles arrivent.") + '<br><span class="dotl"><i></i><i></i><i></i></span></div></div>' : '<div class="waiting"><div><span class="offline">Séance sans participants connectés : l’échange se fait à l’oral.</span></div></div>'; };
   var tog = function (k) { return !!st.ui[k]; };
@@ -45,7 +46,7 @@
   };
   var TILES = function (act, inner) {
     var g = byGroup(act);
-    return '<div class="gtiles">' + [1, 2, 3, 4].map(function (n) {
+    return '<div class="gtiles n' + NG() + '">' + X.range(NG()).map(function (n) {
       var e = g[n];
       return '<div class="gt' + (e ? isNew(e.id + e.t) : "") + '" style="--gc:' + X.GCOL[n] + '"><h3>Groupe ' + n + (e ? '<small>reçu</small>' : "") + "</h3>" + inner(n, e) + "</div>";
     }).join("") + "</div>";
@@ -70,11 +71,11 @@
       live: function () { return WALL("mur", X.MUR, "col"); },
       notes: "Reformuler une idée ambiguë sans faire cours. Annoncer la cible : chacun choisit pour lui la compétence qu’il veut consolider. Survoler une contribution permet de la masquer si besoin." },
     { id: "sit", act: "sit", kick: "Activité 2 · 13 à 25 min", min: 12, t: "Atelier des situations",
-      cons: "Chaque groupe lit <b>ses trois situations</b> sur téléphone, en choisit une et remplit le tapis d’analyse.",
+      cons: "Chaque groupe lit <b>ses situations</b> sur téléphone, en choisit une et remplit le tapis d’analyse.",
       live: function () {
         return TILES("sit", function (n, e) {
           var v = (e && e.v) || {};
-          return '<div class="mini">' + X.GROUPS[n].map(function (c) { return '<span class="' + (v.s === c ? "on" : "") + '">' + c + "</span>"; }).join("") + "</div>"
+          return '<div class="mini">' + (X.groupsFor(NG())[n] || []).map(function (c) { return '<span class="' + (v.s === c ? "on" : "") + '">' + c + "</span>"; }).join("") + "</div>"
             + (e ? '<div class="lab">' + esc(v.s ? F.S[v.s].t : "") + "</div>" + field("Faits connus", v.faits) + field("Première réponse", v.reponse, 1) : '<div class="empty">En cours…</div>');
         });
       },
@@ -175,13 +176,17 @@
   }
   function refreshLive() { var s = SLIDES[st.i]; if (s.home) return renderHome(); var l = document.getElementById("live"); if (l) l.innerHTML = s.live(); var j = joined(), n = stage.querySelector(".join-chip .n"); if (n) n.textContent = j.n + " connecté" + (j.n > 1 ? "s" : ""); }
 
+  function ngPicker() {
+    return '<div class="ngpick"><span>Nombre de groupes</span><button class="ngb" data-act="ng-" aria-label="Un groupe de moins"' + (NG() <= X.MING ? " disabled" : "") + '>−</button><b aria-live="polite">' + NG() + '</b><button class="ngb" data-act="ng+" aria-label="Un groupe de plus"' + (NG() >= X.MAXG ? " disabled" : "") + ">+</button></div>";
+  }
+  function pushGroups() { if (st.code && st.key) X.api({ a: "control", c: st.code, key: st.key, groups: NG() }); }
   function renderHome(err) {
     var j = joined();
     var right;
     if (st.code) {
-      right = '<div class="qrbox">' + X.qr(partURL(), "#04355A") + '</div><div class="url">Flashez le code, ou allez sur<br>' + esc(X.base.replace(/^https?:\/\//, "")) + "participer.html<b>" + st.code + '</b></div><div class="gcount">' + [1, 2, 3, 4].map(function (g) { return "<div><b>" + (j.g[g] || 0) + "</b>Groupe " + g + "</div>"; }).join("") + '</div><button class="big o" data-act="next" style="width:430px">Commencer la séance →</button>';
+      right = '<div class="qrbox">' + X.qr(partURL(), "#04355A") + '</div><div class="url">Flashez le code, ou allez sur<br>' + esc(X.base.replace(/^https?:\/\//, "")) + "participer.html<b>" + st.code + '</b></div><div class="gcount">' + X.range(NG()).map(function (g) { return "<div><b>" + (j.g[g] || 0) + "</b>Groupe " + g + "</div>"; }).join("") + '</div>' + ngPicker() + '<button class="big o" data-act="next" style="width:430px">Commencer la séance →</button>';
     } else {
-      right = '<div class="startbox">' + (err ? '<div class="err">' + esc(err) + "</div>" : "") + (PREVIEW ? '<p class="note">Aperçu : la séance en direct fonctionne une fois les fichiers installés sur votre site (voir le mode d’emploi).</p>' : '<button class="big o" data-act="create">Lancer une séance en direct</button><p class="note">Les participants rejoignent avec leur téléphone, sans compte ni application. Leurs réponses s’affichent ici, sans nom.</p>') + '<button class="big ghost" data-act="offline">Présenter sans participants connectés</button></div>';
+      right = '<div class="startbox">' + (err ? '<div class="err">' + esc(err) + "</div>" : "") + ngPicker() + (PREVIEW ? '<p class="note">Aperçu : la séance en direct fonctionne une fois les fichiers installés sur votre site (voir le mode d’emploi).</p>' : '<button class="big o" data-act="create">Lancer une séance en direct</button><p class="note">Les participants rejoignent avec leur téléphone, sans compte ni application. Leurs réponses s’affichent ici, sans nom.</p>') + '<button class="big ghost" data-act="offline">Présenter sans participants connectés</button></div>';
     }
     stage.innerHTML = '<div class="home"><div class="l"><div class="lg2" role="img" aria-label="Fourmi’Action"></div><p class="k">Atelier · 1 h 15</p><h1>Prévenir les violences sexistes et sexuelles<span>et agir en accueil collectif de mineurs</span></h1><div class="ill">' + F.HERO + '</div></div><div class="r">' + right + "</div></div>";
   }
@@ -220,7 +225,7 @@
     var w = window.open("", "_blank"); if (!w) return;
     var sec = function (t, html) { return "<h2>" + t + "</h2>" + html; };
     var li = function (l) { return "<ul>" + l.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"; };
-    var g = function (act, keys) { var b = byGroup(act); return [1, 2, 3, 4].map(function (n) { var v = (b[n] || {}).v; return v ? "<h3>Groupe " + n + "</h3>" + li(keys.map(function (k) { return k[1] + " : " + (Array.isArray(v[k[0]]) ? v[k[0]].join(", ") : (v[k[0]] || "—")); })) : ""; }).join(""); };
+    var g = function (act, keys) { var b = byGroup(act); return X.range(NG()).map(function (n) { var v = (b[n] || {}).v; return v ? "<h3>Groupe " + n + "</h3>" + li(keys.map(function (k) { return k[1] + " : " + (Array.isArray(v[k[0]]) ? v[k[0]].join(", ") : (v[k[0]] || "—")); })) : ""; }).join(""); };
     var html = "<!DOCTYPE html><meta charset=utf-8><title>Synthèse de la séance</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:800px;margin:30px auto;color:#1E2A36}h1{color:#054F85}h2{color:#054F85;border-bottom:2px solid #D35A0B;padding-bottom:4px;margin-top:28px}h3{margin:14px 0 4px}</style><h1>Prévenir les VSS et agir en ACM · synthèse de la séance</h1><p>" + new Date().toLocaleDateString("fr-FR") + "</p>"
       + sec("Le mur des certitudes", X.MUR.map(function (c) { return "<h3>" + c[1] + "</h3>" + li(E("mur").filter(function (e) { return e.v.col === c[0]; }).map(function (e) { return e.v.txt; })); }).join(""))
       + sec("Atelier des situations", g("sit", [["s", "Situation"]].concat(X.TAPIS)))
@@ -241,6 +246,7 @@
     if (b.dataset.hide) { var p = b.dataset.hide.split(":"); X.api({ a: "control", c: st.code, key: st.key, act: p[0], hide: p[1] }).then(function () { live.v = 0; poll(); }); return; }
     switch (b.dataset.act) {
       case "next": return go(st.i + 1);
+      case "ng-": case "ng+": st.ng = X.clampG(NG() + (b.dataset.act === "ng+" ? 1 : -1)); save(); pushGroups(); return renderHome();
       case "prev": return go(st.i - 1);
       case "notes": st.ui.notes = !st.ui.notes; save(); return render();
       case "full": try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); } catch (e) { } return;
@@ -251,7 +257,7 @@
         b.disabled = true; b.textContent = "Création…";
         return X.api({ a: "create" }).then(function (r) {
           if (!r.ok) return renderHome(r.error || "Impossible de créer la séance.");
-          st.code = r.code; st.key = r.key; st.offline = false; seen = {}; live = { v: 0, entries: {} }; save(); pushStep(); renderHome(); poll();
+          st.code = r.code; st.key = r.key; st.offline = false; seen = {}; live = { v: 0, entries: {} }; save(); pushStep(); pushGroups(); renderHome(); poll();
         });
       case "summary": return summary();
       case "end":
@@ -268,5 +274,5 @@
   });
 
   render(true);
-  if (st.code) { pushStep(); poll(); }
+  if (st.code) { pushStep(); pushGroups(); poll(); }
 })();

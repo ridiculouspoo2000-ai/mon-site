@@ -10,7 +10,7 @@
   if (urlCode && urlCode !== me.code) { me.code = urlCode; me.g = 0; me.joined = false; }
   var save = function () { try { localStorage.setItem(KEY, JSON.stringify(me)); } catch (e) { } };
   save();
-  var state = { v: 0, step: null, mine: {} }, draft = {}, sentFor = {}, err = "";
+  var state = { v: 0, step: null, mine: {}, groups: 0 }, draft = {}, sentFor = {}, err = "";
   var app = document.getElementById("app");
 
   /* ce que chaque étape demande au participant */
@@ -44,7 +44,9 @@
     shell('<div class="card"><p class="kick">Rejoindre</p><h1>Entrez le code affiché à l’écran</h1><input type="text" class="code-in" id="code" maxlength="8" autocomplete="off" autocapitalize="characters" value="' + esc(me.code || "") + '" aria-label="Code de la séance"></div>', "Rejoindre");
   }
   function screenGroup() {
-    shell('<div class="card"><p class="kick">Séance ' + esc(me.code) + '</p><h1>Votre groupe</h1><p class="muted">Le formateur vous indique votre numéro.</p><div class="groups">' + [1, 2, 3, 4].map(function (g) { return '<button class="gbtn" style="--gc:' + X.GCOL[g] + '" data-g="' + g + '" aria-pressed="' + (me.g === g) + '">Groupe ' + g + "</button>"; }).join("") + '</div><label class="f" for="name">Prénom ou initiales <span class="muted">(facultatif)</span></label><input type="text" id="name" maxlength="30" value="' + esc(me.name) + '"><p class="muted" style="margin-top:8px">Il n’est jamais affiché à l’écran. Seul le formateur le voit pour le défi express.</p></div>', "C’est parti", me.g ? true : false);
+    if (!state.groups) { fetchGroups(); }
+    var ng = state.groups || 4;
+    shell('<div class="card"><p class="kick">Séance ' + esc(me.code) + '</p><h1>Votre groupe</h1><p class="muted">Le formateur vous indique votre numéro. Plusieurs téléphones peuvent rejoindre le même groupe.</p><div class="groups">' + X.range(ng).map(function (g) { return '<button class="gbtn" style="--gc:' + X.GCOL[g] + '" data-g="' + g + '" aria-pressed="' + (me.g === g) + '">Groupe ' + g + "</button>"; }).join("") + '</div><label class="f" for="name">Votre prénom ou vos initiales <span class="muted">(facultatif)</span></label><input type="text" id="name" maxlength="30" value="' + esc(me.name) + '"><p class="muted" style="margin-top:8px">Un téléphone, une personne : indiquez seulement le vôtre. Il n’est jamais affiché à l’écran ; seul le formateur le voit au défi express.</p></div>', "C’est parti", me.g ? true : false);
   }
   function waitScreen(msg) {
     shell('<div class="card wait"><div class="ant">' + F.HERO.replace("<svg", '<svg style="width:100%;filter:invert(.15) hue-rotate(180deg) saturate(.6)"') + "</div><h2>" + esc(msg || "Regardez l’écran") + '</h2><p class="muted">La prochaine question apparaîtra ici automatiquement.</p></div>');
@@ -60,16 +62,17 @@
     if (A.none) return shell('<div class="card"><p class="kick">' + esc(A.kick) + "</p><h1>" + esc(A.t) + "</h1><p>" + esc(A.msg) + "</p></div>");
     if (step === "join") return waitScreen("Vous êtes connecté. La séance va commencer.");
     var prev = A.mode === "group" ? groupEntry(step) : mineOf(step);
-    if (draft.__step !== step) { draft = Object.assign({ __step: step }, A.mode === "append" ? {} : ((prev && prev.v) || {})); }
+    var fresh = A.mode === "group" && !draft.__dirty && prev && prev.t !== draft.__t;
+    if (draft.__step !== step || fresh) { draft = Object.assign({ __step: step, __t: prev && prev.t }, A.mode === "append" ? {} : ((prev && prev.v) || {})); }
     var sent = sentFor[step] || (A.mode !== "append" && prev);
-    var h = '<div class="card"><p class="kick">' + esc(A.kick) + "</p><h1>" + esc(A.t) + "</h1>";
+    var h = '<div class="card"><p class="kick">' + esc(A.kick) + "</p><h1>" + esc(A.t) + "</h1>" + (A.mode === "group" ? '<p class="gnote">Fiche commune au groupe : une personne écrit, les autres la voient se mettre à jour et peuvent la compléter.</p>' : "");
     if (step === "d0" || step === "d1") {
       h += X.DQ.map(function (q) { return '<div class="q"><p><b class="c">' + q[0] + "</b>" + esc(q[1]) + '</p><div class="seg3">' + X.DOPT.map(function (o) { return opt(q[0], o[0], o[1], draft[q[0]] === o[0]); }).join("") + "</div></div>"; }).join("");
     } else if (step === "mur") {
       h += '<div class="opts">' + X.MUR.map(function (c) { return opt("col", c[0], c[1], draft.col === c[0]); }).join("") + "</div>" + ta("txt", "Notre idée", 3);
     } else if (step === "sit") {
-      var cs = X.GROUPS[me.g] || [];
-      h += '<p class="muted">Lisez les trois situations, puis choisissez celle qui fait débat.</p>' + cs.map(sitCard).join("") + '<label class="f">La situation que nous analysons</label><div class="opts">' + cs.map(function (c) { return opt("s", c, '<span class="code">' + c + "</span>" + esc(F.S[c].t), draft.s === c); }).join("") + "</div>" + X.TAPIS.map(function (k, i) { return ta(k[0], k[1], 2, i > 1); }).join("");
+      var cs = (X.groupsFor(state.groups || 4) || {})[me.g] || [];
+      h += '<p class="muted">Lisez vos situations, puis choisissez celle qui fait débat.</p>' + cs.map(sitCard).join("") + '<label class="f">La situation que nous analysons</label><div class="opts">' + cs.map(function (c) { return opt("s", c, '<span class="code">' + c + "</span>" + esc(F.S[c].t), draft.s === c); }).join("") + "</div>" + X.TAPIS.map(function (k, i) { return ta(k[0], k[1], 2, i > 1); }).join("");
     } else if (step === "rep") {
       var chosen = draft.reps || [];
       h += '<p class="muted">Trois repères au plus. Touchez un repère pour le lire.</p><div class="chips">' + Object.keys(F.R).map(function (r) { return opt("reps", r, '<span class="code">' + r + "</span>" + esc(F.R[r].t), chosen.indexOf(r) >= 0, "o"); }).join("") + "</div>"
@@ -95,6 +98,11 @@
     shell(h, A.mode === "append" ? "Envoyer" : sent ? "Mettre à jour" : "Envoyer", sent && A.mode !== "append" ? "ok" : true);
   }
 
+  var fetching = false;
+  function fetchGroups() {
+    if (fetching || !me.code) return; fetching = true;
+    X.api({ a: "state", c: me.code, p: me.p, g: 0 }, true).then(function (r) { fetching = false; if (r.ok && r.groups) { state.groups = r.groups; render(); } else if (!r.ok) { err = "Code inconnu ou séance terminée."; me.code = null; save(); render(); } });
+  }
   function render() {
     if (!me.code) return screenCode();
     if (!me.g || !me.joined) return screenGroup();
@@ -109,6 +117,7 @@
       if (r.same) return;
       var changed = r.step !== state.step;
       state = r; if (changed) { err = ""; draft = {}; }
+      if (r.groups && me.g > r.groups) { me.g = 0; me.joined = false; save(); err = "Le nombre de groupes a changé : choisissez à nouveau votre groupe."; return render(); }
       var active = document.activeElement && /TEXTAREA|INPUT/.test(document.activeElement.tagName);
       if (changed || !active) render();
     });
@@ -124,21 +133,22 @@
     var b = document.querySelector('[data-act="send"]'); if (b) { b.disabled = true; b.textContent = "Envoi…"; }
     X.api({ a: "submit", c: me.code, p: me.p, g: me.g, act: step, mode: A.mode, val: val, name: step === "express" ? me.name : "" }).then(function (r) {
       if (!r.ok) { err = r.error || "L’envoi n’a pas abouti. Réessayez."; return render(); }
-      err = ""; sentFor[step] = true; if (A.mode === "append") { draft = { __step: step, col: draft.col, k: draft.k }; }
+      err = ""; sentFor[step] = true; draft.__dirty = false; if (A.mode === "append") { draft = { __step: step, col: draft.col, k: draft.k }; }
       if (navigator.vibrate) try { navigator.vibrate(30); } catch (e) { }
       state.v = 0; poll(true); render();
     });
   }
 
-  document.addEventListener("input", function (e) { var k = e.target.dataset && e.target.dataset.k; if (k) draft[k] = e.target.value; });
+  document.addEventListener("input", function (e) { var k = e.target.dataset && e.target.dataset.k; if (k) { draft[k] = e.target.value; draft.__dirty = true; } });
   document.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.g) { var nm = document.getElementById("name"); if (nm) me.name = nm.value; me.g = +b.dataset.g; save(); return render(); }
-    if (b.dataset.nc) { draft[b.dataset.nc] = "Non connu"; return render(); }
+    if (b.dataset.nc) { draft[b.dataset.nc] = "Non connu"; draft.__dirty = true; return render(); }
     if (b.dataset.set) {
       var k = b.dataset.set, v = b.dataset.val;
       if (k === "reps") { var l = (draft.reps || []).slice(), i = l.indexOf(v); draft.__read = v; if (i >= 0) l.splice(i, 1); else if (l.length < 3) l.push(v); else { err = "Trois repères au plus."; } draft.reps = l; }
       else draft[k] = v;
+      draft.__dirty = true;
       var y = scrollY; render(); scrollTo(0, y); err = ""; return;
     }
     if (b.dataset.act === "send") {

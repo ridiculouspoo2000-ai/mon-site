@@ -27,8 +27,21 @@ var FAX = (function () {
       return '<svg viewBox="-2 -2 ' + (n + 4) + " " + (n + 4) + '" shape-rendering="crispEdges" role="img" aria-label="QR code pour rejoindre la séance"><rect x="-2" y="-2" width="' + (n + 4) + '" height="' + (n + 4) + '" fill="' + (light || "#fff") + '"/><path d="' + d + '" fill="' + (dark || "#000") + '"/></svg>';
     } catch (e) { return ""; }
   }
-  var GROUPS = { 1: ["S01", "S05", "S09"], 2: ["S02", "S06", "S10"], 3: ["S03", "S07", "S11"], 4: ["S04", "S08", "S12"] };
-  var GCOL = { 1: "#054F85", 2: "#D35A0B", 3: "#2F7D5B", 4: "#7A4FA0" };
+  /* répartition des 12 situations du socle selon le nombre de groupes (2 à 6) :
+     chaque groupe garde des situations de natures différentes (sexisme ou discrimination, atteinte, consentement, autorité ou incertitude) */
+  var DIST = {
+    2: { 1: ["S01", "S05", "S09"], 2: ["S02", "S06", "S10"] },
+    3: { 1: ["S01", "S05", "S09"], 2: ["S02", "S06", "S10"], 3: ["S03", "S07", "S11"] },
+    4: { 1: ["S01", "S05", "S09"], 2: ["S02", "S06", "S10"], 3: ["S03", "S07", "S11"], 4: ["S04", "S08", "S12"] },
+    5: { 1: ["S01", "S05", "S09"], 2: ["S02", "S06", "S10"], 3: ["S03", "S07"], 4: ["S04", "S11"], 5: ["S08", "S12"] },
+    6: { 1: ["S01", "S05"], 2: ["S02", "S09"], 3: ["S03", "S06"], 4: ["S04", "S10"], 5: ["S07", "S11"], 6: ["S08", "S12"] },
+  };
+  var MING = 2, MAXG = 6;
+  var clampG = function (n) { n = parseInt(n, 10) || 4; return Math.max(MING, Math.min(MAXG, n)); };
+  var groupsFor = function (n) { return DIST[clampG(n)]; };
+  var GROUPS = DIST[4];
+  var GCOL = { 1: "#054F85", 2: "#D35A0B", 3: "#2F7D5B", 4: "#7A4FA0", 5: "#0E7C86", 6: "#9A6B12" };
+  var range = function (n) { var a = []; for (var i = 1; i <= clampG(n); i++) a.push(i); return a; };
   var DQ = [["D1", "Une plaisanterie devient acceptable dès que son auteur dit ne pas vouloir blesser."], ["D2", "Plusieurs personnes peuvent contribuer à un harcèlement même si chacune n’intervient qu’une fois."], ["D3", "Le silence suffit pour conclure qu’une personne accepte un geste sexuel."], ["D4", "On peut protéger et demander de l’aide sans savoir nommer exactement l’infraction."]];
   var DOPT = [["a", "D’accord"], ["d", "Pas d’accord"], ["n", "Je ne sais pas"]];
   var EXPECT = { A01: "e", A02: "e", A03: "e", A04: "e", A05: "x", A06: "x", A07: "x", A09: "x", A10: "x", A08: "d" };
@@ -39,5 +52,5 @@ var FAX = (function () {
   var TRANSM = [["date", "Date et contexte"], ["mots", "Mots de l’enfant"], ["obs", "Observations"], ["risque", "Risque immédiat"], ["mesures", "Mesures prises"], ["inter", "Interlocuteur contacté"]];
   var PREV = [["change", "Le changement"], ["resp", "Qui s’en charge"], ["moment", "À quel moment"], ["indic", "Ce que l’on observera"]];
   var TAPIS = [["faits", "Les faits connus"], ["manque", "Ce qui manque"], ["reperes", "Les repères utiles"], ["reponse", "La première réponse"]];
-  return { esc: esc, api: api, qr: qr, base: base, GROUPS: GROUPS, GCOL: GCOL, DQ: DQ, DOPT: DOPT, EXPECT: EXPECT, ZONES: ZONES, MUR: MUR, REGLE: REGLE, CONDUITE: CONDUITE, TRANSM: TRANSM, PREV: PREV, TAPIS: TAPIS };
+  return { esc: esc, api: api, qr: qr, base: base, GROUPS: GROUPS, groupsFor: groupsFor, range: range, clampG: clampG, MING: MING, MAXG: MAXG, GCOL: GCOL, DQ: DQ, DOPT: DOPT, EXPECT: EXPECT, ZONES: ZONES, MUR: MUR, REGLE: REGLE, CONDUITE: CONDUITE, TRANSM: TRANSM, PREV: PREV, TAPIS: TAPIS };
 })();

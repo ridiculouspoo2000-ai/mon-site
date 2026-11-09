@@ -49,10 +49,10 @@ if (form) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const text = message.value + '\n\n' + name.value;
-    const mailto = 'mailto:contact@fourmiaction.fr?subject=' + encodeURIComponent(subject.value) + '&body=' + encodeURIComponent(text);
+    const mailto = 'mailto:fourmi.action@gmail.com?subject=' + encodeURIComponent(subject.value) + '&body=' + encodeURIComponent(text);
     const copied = await copyMessage(text);
     status.textContent = copied
-      ? 'Message copié. Votre messagerie va s’ouvrir avec le message préparé. Si elle ne s’ouvre pas, collez le message dans un e-mail à contact@fourmiaction.fr. Aucun message n’a été envoyé par le site.'
+      ? 'Message copié. Votre messagerie va s’ouvrir avec le message préparé. Si elle ne s’ouvre pas, collez le message dans un e-mail à fourmi.action@gmail.com. Aucun message n’a été envoyé par le site.'
       : 'Votre navigateur a bloqué la copie automatique. Votre messagerie va s’ouvrir avec le message préparé. Si elle ne s’ouvre pas, sélectionnez et copiez votre texte manuellement. Aucun message n’a été envoyé par le site.';
     location.href = mailto;
   });

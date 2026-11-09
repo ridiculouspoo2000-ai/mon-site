@@ -1,0 +1,9 @@
+# Fourmi'Action · configuration Netlify
+# Le site est dans « public ». Le relais de l'atelier en direct est dans « netlify/functions ».
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+  command = ""
+
+[functions]
+  node_bundler = "esbuild"

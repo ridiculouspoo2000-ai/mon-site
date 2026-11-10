@@ -36,6 +36,8 @@
   /* ---------- écrans ---------- */
   function shell(inner, sendLabel, sendable) {
     var gtag = me.g ? '<span class="gtag" style="--gc:' + X.GCOL[me.g] + '">Groupe ' + me.g + "</span>" : "";
+    var lic = '<p class="muted" style="text-align:center;font-size:12px;margin-top:18px">Outil gratuit · © Fourmi’Action 2026</p>';
+    inner += lic;
     app.innerHTML = '<div class="top"><div class="lg" role="img" aria-label="Fourmi’Action"></div><div class="who"><b>Atelier VSS</b>' + (me.code ? "Séance " + me.code + " " : "") + gtag + "</div></div>"
       + '<main class="wrap">' + (err ? '<div class="err" role="alert">' + esc(err) + "</div>" : "") + inner + "</main>"
       + (sendLabel ? '<div class="send"><div class="in"><button class="btn' + (sendable === "ok" ? " ok" : "") + '" data-act="send"' + (sendable === false ? " disabled" : "") + ">" + sendLabel + "</button></div></div>" : "");

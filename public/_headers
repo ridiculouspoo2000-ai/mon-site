@@ -2,9 +2,9 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), clipboard-write=(self)
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'self' blob:; frame-src 'self' blob:; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
-  X-FourmiAction-Version: 20261001-mobile-4
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self "https://www.helloasso.com" "https://paymenthub.helloassopay.com"), clipboard-write=(self)
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'self' blob:; frame-src 'self' blob: https://www.helloasso.com https://*.helloasso.com https://paymenthub.helloassopay.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+  X-FourmiAction-Version: 20261111-epure
   Cache-Control: public, max-age=0, must-revalidate
 
 /formateurs
@@ -22,3 +22,9 @@
 /fourmiaction-vss/atelier/*
   X-Robots-Tag: noindex
   Cache-Control: no-store
+
+/assets/collectif/*
+  Cache-Control: public, max-age=2592000
+
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

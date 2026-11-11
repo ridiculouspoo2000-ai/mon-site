@@ -84,15 +84,3 @@ html.reduce-motion .reveal-pending{opacity:1;transform:none}
 
 /* Keep the contact phone readable on one line. */
 a[href^="tel:"] { white-space: nowrap; }
-
-/* Mobile: direct display, without scroll reveals or parallax. The media rule
-   also protects content during rotation and before JavaScript can react. */
-.motion-toggle[hidden]{display:none}
-@media(max-width:1150px),(pointer:coarse){
- html{scroll-behavior:auto!important}
- html *,html *::before,html *::after{animation:none!important;transition:none!important}
- html.motion-enabled .reveal-pending,.reveal-pending,
- .hero-line,.hero-copy .lead,.hero-copy .buttons,.hero-visual,.page-intro{opacity:1!important;transform:none!important}
- .hero-visual img{transform:none!important}
- .reading-progress,.motion-toggle{display:none!important}
-}

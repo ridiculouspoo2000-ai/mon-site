@@ -28,3 +28,13 @@
 
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
+
+/droit-image-signature*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+
+/droit-image-gestion*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer

@@ -1,8 +1,9 @@
 {
-  "name": "fourmiaction-atelier-vss",
+  "name": "fourmiaction-site",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@netlify/blobs": "^10.7.0"
+    "@netlify/blobs": "^10.7.0",
+    "pdf-lib": "^1.17.1"
   }
 }

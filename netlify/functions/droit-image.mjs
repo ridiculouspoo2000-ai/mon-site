@@ -106,7 +106,7 @@ async function start(req, ctx, b) {
   const s = store();
   if (clean(b.site)) return out({ ok: true }); // champ piège pour les robots
   if (!mailConfigured()) return fail("L’envoi des e-mails n’est pas encore configuré. Merci de contacter Fourmi’Action.", 503);
-  const ipH = sha("ip|" + ipOf(req, ctx)).slice(0, 24);
+  const ipH = sha(env("DI_SECRET") + "|ip|" + ipOf(req, ctx)).slice(0, 24);
   if (!(await count(s, `q/start/${ipH}`, 6, 3600e3)) || !(await count(s, `q/start-day`, 60, DAY))) return fail("Trop de demandes. Réessayez dans une heure.", 429);
   const autorite = ["deux", "seul", "tuteur"].includes(b.autorite) ? b.autorite : null;
   const j = b.jeune || {};
@@ -286,6 +286,18 @@ async function retrait(req, ctx, b) {
     await mail(s, { to: c.signer.email, subject: "Votre demande de retrait a bien été reçue · Fourmi’Action", ...layout({ title: "Demande de retrait reçue", lines: [`Bonjour ${c.signer.prenom},`, `Fourmi’Action a bien reçu votre demande de retrait concernant ${c.d.jeune.prenom} ${c.d.jeune.nom}. Elle cesse toute nouvelle diffusion dans les meilleurs délais, et au plus tard dans un délai d’un mois, et retire, floute ou recadre les contenus sur les supports qu’elle gère.`] }) });
   } catch { /* la demande reste enregistrée */ }
   return out({ ok: true });
+}
+
+// ---------- Purge quotidienne des dossiers non signés (appelée par droit-image-purge)
+export async function purgeExpired() {
+  const s = store(); const { blobs } = await s.list({ prefix: "d/" }); let n = 0;
+  for (const bl of blobs) {
+    const id = bl.key.slice(2);
+    if (await s.get(`f/${id}`)) continue;
+    const d = await getJ(s, bl.key).catch(() => null);
+    if (!d || Date.parse(d.createdAt) + EXPIRE_DAYS * DAY < Date.now()) { await wipe(s, id); n++; }
+  }
+  return n;
 }
 
 // ---------- Espace de gestion

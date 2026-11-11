@@ -112,11 +112,19 @@
   }
 
   /* ---------- échanges ---------- */
+  /* rythme adaptatif : 2,5 s juste après un changement, puis 5 s ; pas d'interrogation pendant la saisie ni écran éteint */
+  var idle = 0, timer = null, busy = false;
+  function next() { clearTimeout(timer); timer = setTimeout(function () { poll(); }, idle < 10 ? 2500 : 5000); }
   function poll(force) {
-    if (!me.code || !me.g || !me.joined) return;
+    if (!me.code || !me.g || !me.joined) return next();
+    var typing = document.activeElement && /TEXTAREA|INPUT/.test(document.activeElement.tagName);
+    if (!force && (document.hidden || typing || busy)) return next();
+    busy = true;
     X.api({ a: "state", c: me.code, p: me.p, g: me.g, v: force ? 0 : state.v }, true).then(function (r) {
-      if (!r.ok) { if (/introuvable/.test(r.error || "")) { err = "Cette séance est terminée ou le code est incorrect."; me.code = null; me.joined = false; save(); render(); } return; }
-      if (r.same) return;
+      busy = false;
+      if (!r.ok) { if (/introuvable/.test(r.error || "")) { err = "Cette séance est terminée ou le code est incorrect."; me.code = null; me.joined = false; save(); render(); return; } return next(); }
+      if (r.same) { idle++; return next(); }
+      idle = 0; next();
       var changed = r.step !== state.step;
       state = r; if (changed) { err = ""; draft = {}; }
       if (r.groups && me.g > r.groups) { me.g = 0; me.joined = false; save(); err = "Le nombre de groupes a changé : choisissez à nouveau votre groupe."; return render(); }
@@ -124,7 +132,9 @@
       if (changed || !active) render();
     });
   }
-  setInterval(poll, 2500);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { idle = 0; poll(true); } });
+  document.addEventListener("focusout", function () { setTimeout(function () { poll(); }, 300); });
+  next();
 
   function send() {
     var step = state.step, A = ACTS[step]; if (!A || A.none) return;

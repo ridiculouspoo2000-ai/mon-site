@@ -207,19 +207,23 @@
   function pushStep() { if (st.code && st.key) X.api({ a: "control", c: st.code, key: st.key, step: SLIDES[st.i].act || SLIDES[st.i].id }); }
   var DEPS = { rep: ["sit"], d1: ["d0"], accueil: [], cadre: [] };
   function needActs() { var s = SLIDES[st.i]; if (s.id === "fin") return ""; var a = ["join"]; if (s.act && s.act !== "join") a.push(s.act); (DEPS[s.act] || []).forEach(function (x) { a.push(x); }); return a.join(","); }
-  var polling = false;
+  /* rythme adaptatif : 1,5 s quand les réponses arrivent, jusqu'à 4 s quand tout est calme, pause si l'onglet est caché */
+  var polling = false, idle = 0, timer = null;
+  function next() { clearTimeout(timer); var d = idle < 4 ? 1500 : idle < 12 ? 2500 : 4000; timer = setTimeout(poll, d); }
   function poll() {
-    if (!st.code || polling) return; polling = true;
+    if (!st.code || document.hidden) return next();
+    if (polling) return; polling = true;
     X.api({ a: "state", c: st.code, key: st.key, v: live.v, acts: needActs() }, true).then(function (r) {
       polling = false;
-      if (!r.ok) { if (/introuvable/.test(r.error || "")) { st.code = st.key = null; save(); render(); } return; }
-      if (r.same) return;
-      live = r; refreshLive();
+      if (!r.ok) { if (/introuvable/.test(r.error || "")) { st.code = st.key = null; save(); render(); } return next(); }
+      if (r.same) { idle++; return next(); }
+      idle = 0; live = r; refreshLive(); next();
     });
   }
-  setInterval(poll, 2000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { idle = 0; poll(); } });
+  next();
 
-  function go(i) { i = Math.max(0, Math.min(SLIDES.length - 1, i)); if (i === st.i) return; st.i = i; st.ui.dist = st.ui.exp = st.ui.q = st.ui.corr = st.ui.resp = false; save(); pushStep(); live.v = 0; render(true); poll(); }
+  function go(i) { i = Math.max(0, Math.min(SLIDES.length - 1, i)); if (i === st.i) return; st.i = i; st.ui.dist = st.ui.exp = st.ui.q = st.ui.corr = st.ui.resp = false; save(); pushStep(); live.v = 0; idle = 0; render(true); poll(); }
 
   function summary() {
     var w = window.open("", "_blank"); if (!w) return;

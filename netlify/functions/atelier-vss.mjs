@@ -74,16 +74,23 @@ export default async (req) => {
   const m = await meta(s, code); if (!m) return fail("Séance introuvable ou terminée.", 404);
 
   if (a === "state") {
+    if (input.p) {
+      /* téléphone : il ne recharge que si l'étape, le nombre de groupes ou la fiche de son groupe ont changé */
+      const g0 = parseInt(input.g || "0", 10) || 0;
+      const [sv, gv] = await Promise.all([s.get(`${code}/_sv`), s.get(`${code}/_gv${g0}`)]);
+      const pv = `${sv || "0"}.${gv || "0"}`;
+      if (input.v && input.v === pv) return out({ ok: true, same: true, v: pv });
+      const step = (await s.get(`${code}/_step`)) || "accueil";
+      const groups = parseInt((await s.get(`${code}/_groups`)) || "4", 10) || 4;
+      const p = clean(input.p, /[^a-z0-9]/g, 24), g = parseInt(input.g || "0", 10);
+      const all = await entries(s, code, [clean(input.act || step, /[^a-z0-9_]/g, 30)]), mine = {};
+      Object.entries(all).forEach(([act, l]) => l.forEach((e) => { if (e.p === p || (e.by === "g" && e.g === g)) (mine[act] = mine[act] || []).push(e); }));
+      return out({ ok: true, v: pv, step, groups, mine });
+    }
     const v = (await s.get(`${code}/_v`)) || "0";
     if (input.v && input.v === v) return out({ ok: true, same: true, v });
     const step = (await s.get(`${code}/_step`)) || "accueil";
     const groups = parseInt((await s.get(`${code}/_groups`)) || "4", 10) || 4;
-    if (input.p) {
-      const p = clean(input.p, /[^a-z0-9]/g, 24), g = parseInt(input.g || "0", 10);
-      const all = await entries(s, code, [clean(input.act || step, /[^a-z0-9_]/g, 30)]), mine = {};
-      Object.entries(all).forEach(([act, l]) => l.forEach((e) => { if (e.p === p || (e.by === "g" && e.g === g)) (mine[act] = mine[act] || []).push(e); }));
-      return out({ ok: true, v, step, groups, mine });
-    }
     if (!same(m.key, input.key || "")) return out({ ok: true, exists: true });
     const acts = input.acts ? String(input.acts).split(",").map((x) => clean(x, /[^a-z0-9_]/g, 30)).filter(Boolean).slice(0, 20) : null;
     return out({ ok: true, v, code, step, groups, entries: await entries(s, code, acts) });
@@ -104,6 +111,7 @@ export default async (req) => {
     else k = `${code}/e/${act}/a-${id}`;
     e.k = k;
     await s.setJSON(k, e); await bump(s, code);
+    if (mode === "group") await s.set(`${code}/_gv${g}`, String(Date.now()));
     return out({ ok: true });
   }
 
@@ -111,6 +119,7 @@ export default async (req) => {
     if (!same(m.key, input.key || "")) return fail("Clé de formateur invalide.", 403);
     if (input.step != null) await s.set(`${code}/_step`, clean(input.step, /[^a-z0-9_]/g, 30));
     if (input.groups != null) await s.set(`${code}/_groups`, String(Math.max(2, Math.min(6, parseInt(input.groups, 10) || 4))));
+    if (input.step != null || input.groups != null) await s.set(`${code}/_sv`, String(Date.now()));
     if (input.hide && input.act) {
       const { blobs } = await s.list({ prefix: `${code}/e/${clean(input.act, /[^a-z0-9_]/g, 30)}/` });
       for (const b of blobs) { const e = await s.get(b.key, { type: "json" }); if (e && e.id === input.hide) await s.delete(b.key); }

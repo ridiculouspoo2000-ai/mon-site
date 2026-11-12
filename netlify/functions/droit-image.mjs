@@ -94,7 +94,7 @@ async function wipe(s, id) {
   if (d?.tokens) await Promise.all(d.tokens.map((h) => s.delete(`t/${h}`)));
   await Promise.all([s.delete(`d/${id}`), s.delete(`f/${id}`), s.delete(`p/${id}`), s.delete(`w/${id}`)]);
 }
-const base = (req) => (env("DI_BASE_URL") || env("URL") || new URL(req.url).origin).replace(/\/$/, "");
+const base = (req) => (env("DI_BASE_URL") || new URL(req.url).origin).replace(/\/$/, "");
 const link = (req, t) => `${base(req)}/droit-image-signature.html#${t}`;
 async function mail(s, msg) {
   if (!(await count(s, `q/mail/${now().slice(0, 10)}`, 450, DAY))) throw new Error("quota");

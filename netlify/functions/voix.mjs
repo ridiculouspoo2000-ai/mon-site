@@ -11,7 +11,7 @@
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
 import { LIGNES } from "../lib/voix-lignes.mjs";
-import { BALISES, BALISES_V } from "../lib/voix-balises.mjs";
+import { BALISES, BALISES_V, PRONV } from "../lib/voix-balises.mjs";
 
 export const config = { path: "/api/voix" };
 const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] ?? d);
@@ -30,6 +30,7 @@ const DEFAUT = {
   garnier: "h5FvD7dtq6DdnVBPv8Ii", // Max · Narration
   roussel: "OOiDJrD1goukqfTpiySr", // Greg · Authentic French Voice (parent)
   benali: "nVPCtAFzgyMX3FZKNzH0",  // Anna · Natural and Conversational (parent)
+  sacha: "mvhJVdVoTWVUtL4keT7W",   // même voix d'enfant que Malo (ils ne sont jamais dans la même scène)
   narr: "jUHQdLfy668sllNiNTSW",    // Clément · calme et neutre : récit, situations et retours du formateur
 };
 const REGLAGES = {
@@ -45,6 +46,7 @@ const REGLAGES = {
 function voix() { let o = {}; try { o = JSON.parse(env("ELEVENLABS_VOIX") || "{}"); } catch {} return { ...DEFAUT, ...o }; }
 const modele = () => env("ELEVENLABS_MODELE", "eleven_v4");
 const avecBalises = () => /eleven_v[34]/.test(modele());
+const ckey = (id, who) => `${id}-${sig(who)}` + (avecBalises() && PRONV && PRONV[id] ? "-" + PRONV[id] : "");
 const sig = (who) => crypto.createHash("sha1").update([voix()[who], modele(), JSON.stringify(REGLAGES[who] || REGLAGES.defaut), avecBalises() ? BALISES_V : ""].join("|")).digest("hex").slice(0, 10);
 const store = () => getStore({ name: "voix-jeu", consistency: "strong" });
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
@@ -135,7 +137,7 @@ export default async (req) => {
   const u = new URL(req.url);
   if (u.searchParams.get("a") === "etat") {
     const s = store(); const { blobs } = await s.list(); const have = new Set(blobs.map((b) => b.key));
-    const manquantes = Object.entries(LIGNES).filter(([id, l]) => !have.has(`${id}-${sig(l.who)}`));
+    const manquantes = Object.entries(LIGNES).filter(([id, l]) => !have.has(ckey(id, l.who)));
     const besoin = manquantes.reduce((n, [id, l]) => n + ((avecBalises() && BALISES[id]) || l.text).length, 0);
     return json({ ok: true, active: !!env("ELEVENLABS_API_KEY"), modele: modele(), lignes: Object.keys(LIGNES).length,
       generees: Object.keys(LIGNES).length - manquantes.length, besoin });
@@ -178,7 +180,7 @@ export default async (req) => {
   const id = String(u.searchParams.get("id") || "").replace(/[^a-f0-9]/g, "").slice(0, 12);
   const L = LIGNES[id];
   if (!L) return json({ ok: false, error: "Réplique inconnue." }, 404);
-  const key = `${id}-${sig(L.who)}`;
+  const key = ckey(id, L.who);
   const s = store();
   const have = await s.get(key);
   if (have) return audio(Buffer.from(have, "base64"));

@@ -224,7 +224,13 @@
   $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(); applySettings(); save(); });
   $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); } else Snd.stopAmb(); applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
-  $("#btn-carnet").addEventListener("click", openCarnet);
+  $("#btn-carnet").addEventListener("click", () => openCarnet());
+  $("#btn-phone").addEventListener("click", () => Phone.list());
+  $("#btn-level").addEventListener("click", () => {
+    st.level = ((st.level || 2) % 3) + 1; save(); Snd.click();
+    $("#btn-level .lbl").textContent = LV().name;
+    toastMsg(`Niveau ${LV().name} : ${["", "plus de temps et des indices.", "le rythme du terrain.", "tout est chronométré, peu d’indices."][st.level]} Il s’applique dès le prochain écran.`);
+  });
   $("#btn-home").addEventListener("click", () => { Snd.click(); home(); });
 
   function hud(show) {
@@ -238,6 +244,7 @@
     });
     $("#chaptitle").textContent = sc ? `Chapitre ${sc.ch} · ${CHAPTERS[sc.ch - 1].title}` : "";
     $("#carnetcount").textContent = st.carnet.length;
+    $("#btn-level .lbl").textContent = LV().name;
     $("#hudav").innerHTML = A.avatars[st.av];
     rings(false);
   }
@@ -276,19 +283,38 @@
   }
   const next = () => { Snd.click(); go(st.idx + 1, 1); };
 
+  // Niveau de difficulté : Découverte (1), Standard (2), Expert (3). Il se change à tout moment depuis la barre du haut.
+  const LEVELS = [null, { name: "Découverte", t: 1.6, hints: 4, pen: 0, speed: 1.5, crisis: 1.35, help: true },
+    { name: "Standard", t: 1, hints: 2, pen: 5, speed: 1, crisis: 1 }, { name: "Expert", t: .7, hints: 1, pen: 8, speed: .7, crisis: .8, timeAll: 25 }];
+  const LV = () => LEVELS[st.level || 2];
+  function tune(sc) {
+    const L = LV(), x = { ...sc };
+    if (sc.timer) x.timer = Math.max(8, Math.round(sc.timer * L.t));
+    else if (L.timeAll && sc.type === "choice" && !sc.later) x.timer = L.timeAll;
+    if (sc.type === "hotspots") x.hints = L.hints;
+    if (sc.speed || sc.type === "sort") x.speed = Math.max(4, Math.round((sc.speed || 9) * L.speed));
+    if (sc.crisis) x.crisis = { ...sc.crisis, secs: Math.round(sc.crisis.secs * L.crisis) };
+    return x;
+  }
+  function toastMsg(t) {
+    const g = el("div", { class: "gain msg", role: "status" }, `<span>${esc(t)}</span>`);
+    document.body.appendChild(g); setTimeout(() => g.classList.add("out"), 3200); setTimeout(() => g.remove(), 3900);
+  }
   function render(dir = 1) {
-    const sc = SCREENS[st.idx];
+    const sc = tune(SCREENS[st.idx]);
     Voice.stop();
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); Voice.prefetch(L); }
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
     camera(sc);
+    document.querySelectorAll(".cr-pop").forEach((x) => x.remove());
+    unlockDocs(sc); Phone.check(sc);
     hud(true);
     const old = stage.firstElementChild;
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
     { const VP = VOICE_TXT.parts(sc); if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(VP), 350); }
-    if (sc.press) { const host = node.querySelector(".panel, .solo, .page-note .pn-body, .bilan") || node; host.appendChild(pressBox(sc.press)); }
+    if (sc.fact) { const host = node.querySelector(".panel, .solo, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "fact" }, `<b>Inspiré de faits réels</b> ${esc(sc.fact)}`), host.firstChild); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
     stage.appendChild(node);
     requestAnimationFrame(() => node.classList.add("in"));
@@ -342,6 +368,11 @@
       let S = STAGE[sc.id];
       if (S === "keep" || (!S && ["explain", "multi"].includes(sc.type) && this.cur)) S = this.cur;
       if (!S) S = { at: LOC[sc.id] || "ensemble", cast: sc.npc ? [[sc.npc, "a", "talk"], ["you", "b"]] : [] };
+      this.show(S, sc);
+    },
+    show(S, sc) {
+      this.init(); if (!this.el) return;
+      this.el.classList.add("on"); document.body.classList.toggle("live", !calm());
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "");
@@ -465,7 +496,13 @@
       b.addEventListener("click", () => { st.nuitee = v; fmt.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
       fmt.appendChild(b);
     });
-    box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, btn("Commencer", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
+    const lvl = el("div", { class: "fmt lvl3", role: "radiogroup", "aria-label": "Niveau de difficulté" });
+    [[1, "Découverte", "Plus de temps, des indices, des situations plus lisibles."], [2, "Standard", "Le rythme du terrain."], [3, "Expert", "Chaque décision est chronométrée, peu d’indices."]].forEach(([v, t, d]) => {
+      const b = el("button", { class: "fmtb" + ((st.level || 2) === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String((st.level || 2) === v) }, `<b>${t}</b><small>${d}</small>`);
+      b.addEventListener("click", () => { st.level = v; lvl.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
+      lvl.appendChild(b);
+    });
+    box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau (modifiable à tout moment)"), lvl, btn("Commencer", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
   };
 
   R.chapter = (sc, n) => {
@@ -613,13 +650,12 @@
       if (s.real) found.add(i);
       else if (!seenDecoy.has(i)) {
         seenDecoy.add(i); decoys++;
-        if (!over && sc.timer) { left = Math.max(1, left - 5); const f = el("span", { class: "lx-pen", "aria-hidden": "true" }, "−5 s"); b.appendChild(f); setTimeout(() => f.remove(), 1200); }
+        if (!over && sc.timer && LV().pen) { left = Math.max(1, left - LV().pen); const f = el("span", { class: "lx-pen", "aria-hidden": "true" }, `−${LV().pen} s`); b.appendChild(f); setTimeout(() => f.remove(), 1200); }
       }
       $("#cnt", wrap).textContent = found.size;
       card.hidden = false;
       card.className = "spotcard " + (s.real ? "real" : "decoy");
       card.innerHTML = `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`;
-      if (s.press) card.appendChild(pressBox(s.press));
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
       card.appendChild(c); c.focus();
       if (s.real) { Snd.good(); burst(b, "good"); const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); } else Snd.mid();
@@ -650,11 +686,23 @@
     const opts = el("div", { class: "opts" });
     const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
     let done = false, tId = 0;
-    sc.opts.forEach((o, k) => {
-      const b = el("button", { class: "opt", type: "button", style: `--k:${k}` }, `<span class="ol">${String.fromCharCode(65 + k)}</span><span>${esc(o.t)}</span>`);
+    // ordre des réponses mélangé (toujours le même pour un écran donné) : la bonne n'est pas toujours au même endroit
+    const seed = [...sc.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
+    const ord = sc.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11));
+    ord.forEach((k, j) => {
+      const o = sc.opts[k];
+      const b = el("button", { class: "opt", type: "button", style: `--k:${j}`, "data-k": k }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(o.t)}</span>`);
       b.addEventListener("click", () => pick(o, b, k));
       opts.appendChild(b);
     });
+    if (LV().help && st.res[sc.id] == null && sc.opts.length > 2) {
+      const hb = btn("Indice : écarter une mauvaise réponse", () => {
+        const bad = [...opts.querySelectorAll(".opt:not(:disabled)")].filter((x) => sc.opts[+x.dataset.k].q === 0);
+        if (bad.length) { const x = bad[0]; x.disabled = true; x.classList.add("struck"); }
+        hb.remove(); Snd.click();
+      }, "ghost hint50");
+      setTimeout(() => panel.insertBefore(hb, fbz), 0);
+    }
     // Décision chronométrée : sur le terrain, l'hésitation a un coût.
     let bar = null;
     if (sc.timer && st.res[sc.id] == null && !calm()) {
@@ -1204,6 +1252,7 @@
       <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
     if (epiV.length) { n.dataset.novoice = "1"; setTimeout(() => Voice.seq([["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV)), 700); }
     const b = n.querySelector(".bilan");
+    if (typeof SOURCES !== "undefined" && SOURCES.length) n.querySelector(".bilan").appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
     const row = el("div", { class: "row" });
     row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
     b.appendChild(row);
@@ -1228,15 +1277,339 @@
   }
   function restart() { const keep = st.settings; st = fresh(); st.settings = keep; save(); Snd.click(); go(0); }
 
+  /* =============================================================================================
+     Nouvelles mécaniques : téléphone, planning, appel d'urgence, portail des familles,
+     recueil de la parole d'un témoin, souvenirs rejoués, documents du carnet.
+     (inséré dans engine.js à la construction)
+     ============================================================================================= */
+  Object.assign(NAMES, { sacha: "Sacha", rey: "M. Rey", karim: "Karim", petit: "Mme Petit", zoe: "Zoé", theo: "Théo", clara: "Clara", enzo: "Enzo", lena: "Léna", intervenant: "L’intervenant", parent: "Un parent", you: "Vous" });
+  const face = (w, m) => (w === "you" ? A.avatars[st.av] : (A.chars[w] || A.chars.parent)[m || "smile"]);
+  const pop = (cls, html) => { const p = el("div", { class: "cr-pop " + cls, role: "dialog", "aria-live": "assertive" }, html); document.body.appendChild(p); return p; };
+  const endRow = (host, label = "Continuer") => { const row = el("div", { class: "row" }); row.appendChild(btn(label, next)); host.appendChild(row); row.querySelector("button").focus({ preventScroll: true }); };
+  function result(host, q, text) {
+    const v = verdict(q); v.s();
+    host.innerHTML = `<div class="fb ${v.cls}"><p class="vt">${v.t}</p><p>${text}</p></div>`;
+    endRow(host);
+  }
+
+  /* ---------- documents du carnet ---------- */
+  function unlockDocs(sc) {
+    Object.entries(DOCS).forEach(([k, d]) => {
+      if (d.at !== sc.id || (st.docs || []).includes(k)) return;
+      st.docs = (st.docs || []).concat(k); save();
+      setTimeout(() => { toastMsg(`Nouveau document dans votre carnet : ${d.title}.`); const b = $("#btn-carnet"); b.classList.remove("ping"); void b.offsetWidth; b.classList.add("ping"); }, 1600);
+    });
+  }
+  function docHTML(k) {
+    const d = DOCS[k];
+    if (d.kind === "numeros") return `<div class="doc d-num"><h4>${d.title}</h4>${d.rows.map(([a, b]) => `<div class="dn"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join("")}</div>`;
+    if (d.kind === "panneau") return `<div class="doc d-cork"><h4>${d.title} <small>photo du panneau de la salle d’équipe</small></h4><div class="cork">${d.notes.map((t, i) => `<p class="pin" style="--r:${[-2.4, 1.8, -1.2, 2.6, -2, 1.2][i % 6]}deg;--c:${["#FFF4B8", "#FFFFFF", "#D9EEFB", "#FFE1CC", "#E4F5DC", "#FFFFFF"][i % 6]}">${esc(t)}</p>`).join("")}</div></div>`;
+    if (d.kind === "fiches") return `<div class="doc d-fiche"><h4>${d.title}</h4><div class="fiches">${d.kids.map(([n, age, ok, w]) => `<div class="fi"><div class="fi-ph">${face(w)}</div><div><b>${esc(n)}</b> <small>${esc(age)}</small><p class="fi-k">Adultes autorisés à le chercher</p><ul>${ok.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div></div>`).join("")}</div><p class="fi-note">${esc(d.note)}</p></div>`;
+    return "";
+  }
+
+  /* ---------- le téléphone ---------- */
+  const Phone = {
+    waiting: [],
+    check(sc) {
+      PHONE.filter((p) => p.at === sc.id && st.res["tel-" + p.id] == null && !this.waiting.includes(p)).forEach((p) => {
+        setTimeout(() => { if (SCREENS[st.idx].id !== p.at && !p.urgent) return; this.notify(p); }, p.urgent ? 6500 : 2800);
+      });
+    },
+    badge() { const c = $("#phonecount"); if (c) { c.textContent = this.waiting.length; $("#btn-phone").classList.toggle("has", this.waiting.length > 0); } },
+    notify(p) {
+      if (st.res["tel-" + p.id] != null) return;
+      if (!this.waiting.includes(p)) this.waiting.push(p);
+      this.badge(); Snd.notif ? Snd.notif() : Snd.click();
+      if (navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch (e) { }
+      const b = el("button", { class: "ph-ban" + (p.urgent ? " urgent" : ""), type: "button", "aria-label": `Notification ${p.app} de ${p.from} : ${p.t}. Ouvrir.` },
+        `<span class="ph-ic">${face(p.av)}</span><span class="ph-tx"><small>${esc(p.app)} · maintenant</small><b>${esc(p.from)}</b><span>${esc(p.t)}</span></span>`);
+      b.addEventListener("click", () => { b.remove(); this.show(p); });
+      document.body.appendChild(b);
+      setTimeout(() => b.classList.add("out"), 9000); setTimeout(() => b.remove(), 9600);
+    },
+    list() {
+      if (!this.waiting.length) { toastMsg("Aucun nouveau message."); return; }
+      this.show(this.waiting[0]);
+    },
+    show(p) {
+      document.querySelectorAll(".ph-modal").forEach((x) => x.remove());
+      const m = el("div", { class: "ph-modal", role: "dialog", "aria-modal": "true", "aria-label": "Téléphone" },
+        `<div class="ph"><div class="ph-top"><span class="ph-ic">${face(p.av)}</span><div><b>${esc(p.from)}</b><small>${esc(p.app)}</small></div><button type="button" class="ph-x" aria-label="Fermer le téléphone">✕</button></div>
+         <div class="ph-chat"><div class="ph-msg in">${esc(p.t)}</div></div><div class="ph-opts"></div></div>`);
+      const opts = m.querySelector(".ph-opts"), chat = m.querySelector(".ph-chat");
+      p.opts.forEach((o) => {
+        const b = el("button", { class: "ph-o", type: "button" }, esc(o.t));
+        b.addEventListener("click", () => {
+          opts.innerHTML = "";
+          chat.appendChild(el("div", { class: "ph-msg out" }, esc(o.t)));
+          record({ id: "tel-" + p.id, comp: p.comp }, o.q);
+          const v = verdict(o.q); v.s();
+          chat.appendChild(el("div", { class: "ph-fb " + v.cls }, `<b>${v.t}.</b> ${esc(o.fb)}`));
+          this.waiting = this.waiting.filter((x) => x !== p); this.badge(); save();
+          opts.appendChild(btn(this.waiting.length ? "Message suivant" : "Ranger le téléphone", () => { m.remove(); if (this.waiting.length) this.show(this.waiting[0]); }));
+          Voice.say("narr", o.fb);
+        });
+        opts.appendChild(b);
+      });
+      m.querySelector(".ph-x").addEventListener("click", () => m.remove());
+      document.body.appendChild(m);
+      m.querySelector(".ph-o").focus({ preventScroll: true });
+    },
+  };
+
+  /* ---------- planning (puzzle) ---------- */
+  R.planning = (sc, n) => {
+    const panel = el("div", { class: "panel plan" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p>`;
+    const asg = {}; sc.posts.forEach((p) => (asg[p.id] = []));
+    let sel = null, tries = 0;
+    const pool = el("div", { class: "pl-pool", role: "group", "aria-label": "Équipe" });
+    sc.staff.forEach(([w, nm, role]) => {
+      const b = el("button", { class: "pl-chip", type: "button", "data-w": w }, `<span class="pl-av">${face(w)}</span><span><b>${esc(nm)}</b><small>${esc(role)}</small></span>`);
+      b.addEventListener("click", () => { sel = sel === w ? null : w; Snd.click(); refresh(); });
+      pool.appendChild(b);
+    });
+    const grid = el("div", { class: "pl-grid" });
+    sc.posts.forEach((p) => {
+      const c = el("button", { class: "pl-post", type: "button", "data-p": p.id }, `<b>${esc(p.t)}</b><small>${esc(p.d)}</small><span class="pl-slots"></span>`);
+      c.addEventListener("click", () => { if (!sel) return; place(sel, p.id); });
+      grid.appendChild(c);
+    });
+    function place(w, pid) {
+      Object.values(asg).forEach((L) => { const i = L.indexOf(w); if (i >= 0) L.splice(i, 1); });
+      const p = sc.posts.find((x) => x.id === pid);
+      if (asg[pid].length >= p.n) asg[pid].shift();
+      asg[pid].push(w); sel = null; Snd.click(); refresh();
+    }
+    function refresh() {
+      pool.querySelectorAll(".pl-chip").forEach((b) => { const w = b.dataset.w; b.classList.toggle("sel", sel === w); b.classList.toggle("placed", Object.values(asg).some((L) => L.includes(w))); });
+      grid.classList.toggle("target", !!sel);
+      grid.querySelectorAll(".pl-post").forEach((c) => {
+        const p = sc.posts.find((x) => x.id === c.dataset.p);
+        c.querySelector(".pl-slots").innerHTML = (p.id === "atelier" ? `<span class="pl-slot fixed">L’intervenant</span>` : "")
+          + Array.from({ length: p.n }, (_, i) => { const w = asg[p.id][i]; return w ? `<span class="pl-slot full"><i>${face(w)}</i>${w === "you" ? "Vous" : NAMES[w]}</span>` : `<span class="pl-slot">À pourvoir</span>`; }).join("");
+      });
+    }
+    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    function violations() {
+      const v = [];
+      if (asg.calme[0] !== "jade") v.push(sc.rules[0].t);
+      if (asg.sanit.length < 2) v.push(sc.rules[1].t);
+      if (["atelier", "parc", "calme"].some((p) => asg[p].includes("bastien"))) v.push(sc.rules[2].t);
+      if (asg.atelier.length < 1) v.push(sc.rules[3].t);
+      if (asg.parc.length < 1) v.push("Le groupe du parc n’a pas d’animateur.");
+      return v;
+    }
+    const cb = btn("Vérifier le planning", () => {
+      tries++; const v = violations();
+      if (v.length) {
+        Snd.low(); grid.classList.remove("shake"); void grid.offsetWidth; grid.classList.add("shake");
+        fbz.innerHTML = `<div class="fb low"><p class="vt">Le planning ne tient pas</p><ul>${v.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>`;
+        return;
+      }
+      cb.disabled = true; fbz.innerHTML = `<div class="fb good"><p class="vt">Planning validé</p><p>Chaque groupe est encadré selon les règles de l’équipe.</p></div>`; Snd.good();
+      setTimeout(twist, 1400);
+    });
+    function twist() {
+      const T = sc.twist;
+      const p = pop("pl-twist", `<p class="kicker">Message de ${esc(NAMES[T.who])}</p><p class="cr-q">${esc(T.t)}</p>`);
+      const o = el("div", { class: "cr-opts" });
+      T.opts.forEach((x) => { const b = el("button", { class: "opt", type: "button" }, esc(x.t)); b.addEventListener("click", () => { p.remove(); end(x); }); o.appendChild(b); });
+      p.appendChild(o); Snd.click(); Voice.say("narr", T.t); o.querySelector(".opt").focus({ preventScroll: true });
+    }
+    function end(x) {
+      const base = tries === 1 ? 1 : tries === 2 ? 0.8 : 0.6, q = Math.round(base * (0.4 + 0.6 * x.q) * 100) / 100;
+      record(sc, q);
+      result(fbz, q, `${tries === 1 ? "Planning juste du premier coup." : `Planning juste après ${tries} essais.`} ${x.q >= 1 ? "Et vous avez refusé l’exception : la règle tient, même quand on vous la demande gentiment." : esc(x.fb)}`);
+    }
+    const tools = el("div", { class: "row" }); tools.append(btn("Voir les règles de l’équipe (carnet)", () => openCarnet("regles"), "ghost"), cb);
+    panel.append(el("p", { class: "flabel" }, "Touchez un membre de l’équipe, puis son poste"), pool, grid, tools, fbz);
+    refresh(); n.appendChild(panel);
+  };
+
+  /* ---------- appel d'urgence (clavier) ---------- */
+  R.dial = (sc, n) => {
+    const panel = el("div", { class: "panel dial" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p>`;
+    const ph = el("div", { class: "dphone" }, `<div class="dscr"><span class="dnum" aria-live="polite"></span><small class="dstate">Composez le numéro</small></div>
+      <div class="dkeys">${["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"].map((k) => `<button type="button" class="dk" data-k="${k}">${k}</button>`).join("")}</div>
+      <div class="drow"><button type="button" class="ddel" aria-label="Effacer">⌫</button><button type="button" class="dcall">Appeler</button></div>`);
+    let num = "", tries = 0, left = sc.timer || 30, over = false;
+    const show = () => (ph.querySelector(".dnum").textContent = num);
+    ph.querySelectorAll(".dk").forEach((b) => b.addEventListener("click", () => { if (over || num.length >= 6) return; num += b.dataset.k; show(); Snd.click(); }));
+    ph.querySelector(".ddel").addEventListener("click", () => { num = num.slice(0, -1); show(); });
+    ph.querySelector(".dcall").addEventListener("click", call);
+    const onKey = (e) => { if (!n.isConnected) return document.removeEventListener("keydown", onKey); if (/^[0-9]$/.test(e.key) && !over && num.length < 6) { num += e.key; show(); } else if (e.key === "Backspace") { num = num.slice(0, -1); show(); } else if (e.key === "Enter") call(); };
+    document.addEventListener("keydown", onKey);
+    const bar = el("div", { class: "qtimer", role: "timer" }, `<i style="animation-duration:${left}s"></i><span>${left} s</span>`);
+    const tId = setInterval(() => {
+      if (!n.isConnected) return clearInterval(tId);
+      left--; bar.querySelector("span").textContent = left > 0 ? `${left} s` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 8);
+      if (left <= 0) { clearInterval(tId); end(0, "Temps écoulé. Pendant que vous hésitiez, l’adulte désigné approchait du portail."); }
+    }, 1000);
+    if (sc.interrupt && !calm()) setTimeout(() => {
+      if (over || !n.isConnected) return;
+      const p = pop("dint", `<p class="kicker">Interruption</p><p class="cr-q">${esc(sc.interrupt.t)}</p>`);
+      const o = el("div", { class: "cr-opts" });
+      [["« Pas maintenant. Va voir Inès, elle va arbitrer. »", 1], ["Y aller deux minutes, puis revenir appeler.", 0]].forEach(([t, ok]) => {
+        const b = el("button", { class: "opt", type: "button" }, t);
+        b.addEventListener("click", () => { p.remove(); if (!ok) { left = Math.max(3, left - 12); toastMsg("Deux minutes perdues… et Lou est resté seul."); } else Snd.click(); });
+        o.appendChild(b);
+      });
+      p.appendChild(o);
+    }, 7000);
+    function call() {
+      if (over || !num) return; tries++;
+      if (sc.ok.includes(num)) {
+        over = true; clearInterval(tId); ph.classList.add("calling"); ph.querySelector(".dstate").textContent = "Appel en cours…"; Snd.click();
+        setTimeout(() => { over = false; end(tries === 1 ? 1 : tries === 2 ? 0.7 : 0.5, `${tries === 1 ? "Le bon numéro du premier coup." : "Le bon numéro, après une erreur."} « ${esc(sc.done)} »`); Voice.say("narr", sc.done); }, 1600);
+      } else {
+        ph.classList.remove("wrong"); void ph.offsetWidth; ph.classList.add("wrong"); Snd.low();
+        fbz.innerHTML = `<div class="fb mid"><p>${esc(sc.near[num] || "Ce numéro ne correspond à aucun service d’urgence. Les numéros utiles sont dans votre carnet.")}</p></div>`;
+        num = ""; show();
+      }
+    }
+    function end(q, txt) {
+      if (over) return; over = true; clearInterval(tId); document.querySelectorAll(".cr-pop.dint").forEach((x) => x.remove());
+      record(sc, q); result(fbz, q, txt);
+    }
+    const tools = el("div", { class: "row" }); tools.append(btn("Ouvrir les numéros utiles (carnet)", () => openCarnet("numeros"), "ghost"));
+    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    panel.append(bar, ph, tools, fbz); n.appendChild(panel);
+  };
+
+  /* ---------- portail des familles (vérifier les fiches) ---------- */
+  R.match = (sc, n) => {
+    const panel = el("div", { class: "panel match" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p>`;
+    const tools = el("div", { class: "row" }); tools.append(btn("Ouvrir les fiches d’inscription (carnet)", () => openCarnet("fiches"), "ghost"));
+    const box = el("div", { class: "mt-stage", "aria-live": "polite" });
+    const prog = el("div", { class: "mt-prog" }, sc.cards.map(() => "<i></i>").join(""));
+    let i = 0, score = 0;
+    const PART = { keep: { refuse: 0.5 }, id: { refuse: 0.4, give: 0.2 }, give: { id: 0.8 }, refuse: { keep: 0.5, id: 0.2 } };
+    function card() {
+      const c = sc.cards[i];
+      box.innerHTML = "";
+      const k = el("div", { class: "mt-card" }, `<div class="mt-who">${face(c.who)}</div><div><p class="mt-t">${esc(c.t)}</p><p class="mt-kid">Enfant demandé : <b>${esc(c.kid)}</b></p></div>`);
+      const acts = el("div", { class: "opts mt-acts" });
+      sc.actions.forEach(([a, t], j) => { const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(t)}</span>`); b.addEventListener("click", () => pick(c, a, acts, b)); acts.appendChild(b); });
+      box.append(k, acts); World.talk(c.who); setTimeout(() => World.talk(null), 2500);
+      Voice.say("narr", c.t);
+    }
+    function pick(c, a, acts, b) {
+      acts.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
+      const part = a === c.ok ? 1 : ((PART[c.ok] || {})[a] || 0); score += part;
+      b.classList.add("picked", part >= 1 ? "good" : part > 0 ? "mid" : "low");
+      prog.children[i].className = part >= 1 ? "ok" : part > 0 ? "mid" : "ko";
+      const v = verdict(part); v.s();
+      const f = el("div", { class: "fb " + v.cls }, `<p>${esc(c.fb[a])}</p>`);
+      box.appendChild(f);
+      f.appendChild(btn(i < sc.cards.length - 1 ? "Famille suivante" : "Terminer", () => { i++; if (i < sc.cards.length) card(); else end(); }));
+      Voice.say("narr", c.fb[a]);
+    }
+    function end() {
+      const q = Math.round((score / sc.cards.length) * 100) / 100; record(sc, q);
+      box.innerHTML = ""; result(box, q, `${Math.round(score * 10) / 10} départ${score > 1 ? "s" : ""} sur ${sc.cards.length} gérés avec justesse. Au portail, la fiche d’inscription fait la règle : ni la sympathie, ni l’urgence ne la remplacent.`);
+    }
+    panel.append(prog, tools, box); n.appendChild(panel); card();
+  };
+
+  /* ---------- recueillir la parole d'un témoin ---------- */
+  R.interview = (sc, n) => {
+    const wrap = el("div", { class: "duo dlg" });
+    const side = el("div", { class: "side" });
+    side.appendChild(portrait(sc.npc, "calm"));
+    let trust = 60, closed = false; const got = new Set(), errs = [];
+    const tg = el("div", { class: "trust", role: "meter", "aria-label": "Confiance de " + NAMES[sc.npc] }, `<span>Confiance de ${esc(NAMES[sc.npc])}</span><div class="tg"><i style="width:60%"></i></div><b class="td"></b>`);
+    side.appendChild(tg); wrap.appendChild(side);
+    const panel = el("div", { class: "panel iv" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p>`;
+    const log = el("div", { class: "dlog", role: "log" });
+    const notes = el("div", { class: "iv-notes" }, `<p class="kicker">Vos notes · ses mots exacts</p><ul></ul><div class="iv-facts">${sc.facts.map((f) => `<span data-f="${f}">${f}</span>`).join("")}</div>`);
+    const qbox = el("div", { class: "opts iv-qs" });
+    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    const setTrust = (d) => {
+      trust = Math.max(0, Math.min(100, trust + d));
+      tg.querySelector("i").style.width = trust + "%"; tg.classList.toggle("low", trust < 35); tg.classList.toggle("high", trust >= 75);
+      const t = tg.querySelector(".td"); t.textContent = d > 0 ? "+" : d < 0 ? "−" : ""; t.className = "td " + (d > 0 ? "up" : d < 0 ? "down" : ""); void t.offsetWidth; t.classList.add("pop");
+      setMood(wrap, sc.npc, trust < 35 ? "concern" : trust >= 70 ? "smile" : "calm");
+    };
+    function say(who, t, cls = "") { const b = el("div", { class: "say " + (who === "you" ? "me" : "npc") + cls }, `<b>${who === "you" ? "Vous" : NAMES[who]}</b><p>${words(t)}</p>`); log.appendChild(b); b.scrollIntoView({ block: "nearest", behavior: "smooth" }); return b; }
+    sc.qs.forEach((q, j) => {
+      const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span>${esc(q.t)}</span>`);
+      b.addEventListener("click", () => ask(q, b)); qbox.appendChild(b);
+    });
+    const cb = el("button", { class: "opt iv-close", type: "button" }, `<span>${esc(sc.close.t)}</span>`);
+    cb.addEventListener("click", () => finish(true)); qbox.appendChild(cb);
+    function ask(q, b) {
+      if (closed) return;
+      b.disabled = true; b.classList.add("asked");
+      say("you", q.t);
+      setTimeout(() => {
+        const a = say(sc.npc, q.a, q.taint ? " tainted" : "");
+        Voice.say(sc.npc, q.a, a.querySelector("p"));
+        setTrust(q.trust);
+        if (q.fact) q.fact.forEach((f) => { got.add(f); notes.querySelector(`[data-f="${f}"]`).classList.add("on"); });
+        if (q.fact || q.taint) notes.querySelector("ul").appendChild(el("li", { class: q.taint ? "tainted" : "" }, `« ${esc(q.a)} »${q.taint ? " <em>réponse influencée par la question</em>" : ""}`));
+        if (q.fb) { errs.push(q.kind); fbz.innerHTML = `<div class="fb mid"><p><b>Attention, question ${esc(q.kind)}.</b> ${esc(q.fb)}</p></div>`; Snd.low(); } else { fbz.innerHTML = ""; Snd.click(); }
+        if (trust < 25) { say(sc.npc, "Je veux plus en parler. Laisse tomber."); finish(false); }
+      }, 650);
+    }
+    function finish(ok) {
+      if (closed) return; closed = true;
+      qbox.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
+      if (ok) { say("you", sc.close.t); setTimeout(() => say(sc.npc, sc.close.a), 500); }
+      const pen = errs.length * 0.22 + (ok ? 0 : 0.3), q = Math.max(0, Math.min(1, Math.round((got.size / sc.facts.length - pen) * 100) / 100));
+      record(sc, q);
+      setTimeout(() => result(fbz, q, `Vous avez recueilli ${got.size} élément${got.size > 1 ? "s" : ""} sur ${sc.facts.length}, avec ses mots${errs.length ? `, mais ${errs.length > 1 ? `${errs.length} questions ont pu` : "une question a pu"} l’influencer ou le fermer` : ", sans l’influencer"}. ${ok ? "Vous l’avez remercié sans rien promettre : c’est maintenant à Nour et aux autorités de prendre le relais." : "Sacha s’est fermé : sa parole sera plus difficile à recueillir par les professionnels."} Pour un enfant témoin comme pour une victime : des questions ouvertes, peu nombreuses, ses mots notés tels quels, et on transmet.`), 900);
+    }
+    panel.append(log, el("p", { class: "flabel" }, "Que lui dites-vous ?"), qbox, notes, fbz);
+    wrap.appendChild(panel); n.appendChild(wrap);
+    setTimeout(() => say(sc.npc, "J’ai vu un truc à la régie… mais je sais pas si je dois le dire."), 600);
+  };
+
+  /* ---------- souvenirs : les conséquences rejouées ---------- */
+  R.replay = (sc, n) => {
+    const ids = Object.keys(REPLAY).filter((k) => st.res[k] != null);
+    const panel = el("div", { class: "panel replay" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">Pendant la semaine, certains choix ont été enregistrés sans verdict. Voici ce qu’ils ont produit.</p>`;
+    const body = el("div", { class: "rp-body", "aria-live": "polite" });
+    const row = el("div", { class: "row" });
+    n.dataset.novoice = "1";
+    if (!ids.length) { body.innerHTML = `<p>Aucun choix à retardement cette fois-ci.</p>`; endRow(row, "Voir le bilan"); panel.append(body, row); n.appendChild(panel); return; }
+    let i = 0;
+    const tierOf = (id) => (st.res[id] >= 0.95 ? "excellent" : st.res[id] >= 0.45 ? "moyen" : "catastrophe");
+    const LBL = { excellent: ["Ce que votre choix a permis", "good"], moyen: ["Ce que votre choix a laissé passer", "mid"], catastrophe: ["Ce que votre choix a provoqué", "low"] };
+    const nb = btn("Souvenir suivant", () => { i++; if (i < ids.length) play(); else next(); });
+    function play() {
+      const id = ids[i], R0 = REPLAY[id], t = tierOf(id), T = R0.tiers[t], S0 = SCREENS.find((s) => s.id === id), L = (st.later || {})[id];
+      World.show({ at: R0.at, room: R0.room, cast: T.cast }, { id: "souvenir-" + id, type: "story", ch: 6 });
+      body.innerHTML = `<p class="kicker">${i + 1} sur ${ids.length} · ${esc(R0.label)}</p>${L ? `<p class="rp-choice">Vous aviez répondu : « ${esc(S0.opts[L.k].t)} »</p>` : ""}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]}</p><div class="rp-lines"></div>`;
+      const box = body.querySelector(".rp-lines"), seq = [];
+      T.lines.forEach(([w, tx], j) => {
+        const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w]}</b><p>${words(tx)}</p>`);
+        box.appendChild(r); seq.push([w, tx, r.querySelector("p")]);
+      });
+      setTimeout(() => Voice.seq(seq), 1300);
+      nb.textContent = i < ids.length - 1 ? "Souvenir suivant" : "Voir le bilan";
+      Snd[t === "excellent" ? "good" : t === "moyen" ? "mid" : "low"]();
+    }
+    row.appendChild(nb); panel.append(body, row); n.appendChild(panel); play();
+  };
+
   /* ---------- carnet ---------- */
   const dlg = $("#carnet");
-  function openCarnet() {
-    Snd.page();
+  function openCarnet(focus) {
+    Snd.page(); $("#btn-carnet").classList.remove("ping");
     const pages = SCREENS.filter((s) => s.type === "explain" && st.carnet.includes(s.id));
     const body = $("#carnet-body");
     body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul>${s.page.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
-      + `<section class="cpage"><h3>Numéros utiles</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div></section>`;
+;
+    const docs = (st.docs || []).filter((k) => DOCS[k]);
+    if (docs.length) body.insertAdjacentHTML("afterbegin", `<section class="cdocs"><h3>Documents</h3>${docs.map((k) => `<div id="doc-${k}">${docHTML(k)}</div>`).join("")}</section>`);
     dlg.hidden = false; document.body.classList.add("modal");
+    if (typeof focus === "string") setTimeout(() => { const d = body.querySelector("#doc-" + focus); if (d) { d.scrollIntoView({ block: "start", behavior: "smooth" }); d.classList.add("flash"); } }, 120);
     lastFocus = document.activeElement;
     $("#carnet-close").focus();
   }
@@ -1251,6 +1624,7 @@
 
   /* ---------- accueil ---------- */
   function home() {
+    if (World.el) { World.el.classList.remove("on"); document.body.classList.remove("live"); World.cur = null; }
     hud(false);
     Snd.setMood("home");
     stage.innerHTML = "";

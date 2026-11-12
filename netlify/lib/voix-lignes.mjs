@@ -438,6 +438,12 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?"
  },
+ "cbe8fa9536c9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles."
+ },
  "1b77d962ceba": {
   "who": "narr",
   "mood": "",
@@ -462,11 +468,11 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "Dans la salle d’équipe. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes. Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles."
  },
- "c344cd5b3479": {
+ "323e0af7aeb4": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À l’espace soins. Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité. Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps."
+  "text": "À l’infirmerie. Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité. Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps."
  },
  "2003fa558890": {
   "who": "nour",
@@ -504,11 +510,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés. Rien à signaler : les tâches tournent sans distinction de sexe."
  },
- "1257332cabee": {
+ "686b4619065f": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Aux sanitaires des petits. Les toilettes des 6-8 ans sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un enfant seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
+  "text": "Aux sanitaires des petits. Les toilettes des 6-8 ans sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un enfant seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
  },
  "a5261af2175a": {
   "who": "nour",
@@ -581,6 +587,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle."
+ },
+ "f5172baf70b3": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
  "62ce693b69ca": {
   "who": "narr",
@@ -888,6 +900,12 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "L’adulte est prévenu… et Lou se trouve exposé à des pressions. Prévenir la personne mise en cause peut mettre l’enfant en danger et compromettre l’enquête. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
  },
+ "030b043aba16": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Lou est à côté de vous. L’adulte qu’il désigne arrive dans moins d’une heure. Composez le numéro à appeler : les numéros utiles sont dans votre carnet."
+ },
  "28a7a150d384": {
   "who": "narr",
   "mood": "",
@@ -917,6 +935,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Lou vous demande tout bas : Tu vas le dire à qui ?"
+ },
+ "d01844fd35aa": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Les gendarmes sont dans le bureau avec Nour et Lou. Au portail, les familles arrivent. Vérifiez chaque départ avec les fiches d’inscription de votre carnet."
  },
  "345da754562c": {
   "who": "narr",
@@ -959,6 +983,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Les jeunes signent. Les pratiques des adultes, elles, ne changent pas. Faire porter l’engagement aux jeunes déplace la responsabilité : c’est d’abord l’organisation des adultes qui doit changer. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+ },
+ "2e6f94c7ad06": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Ce message fait écho à l’actualité : en avril 2026, Paris a adopté un plan pour sécuriser le périscolaire, et en octobre, un rapport du Sénat a dénoncé l’omerta et demandé des contrôles d’honorabilité chaque année."
  },
  "097a36cebceb": {
   "who": "narr",
@@ -1049,6 +1079,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+ },
+ "429b7844d134": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sacha, 11 ans, vient vous voir : J’ai vu un truc à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
  "a84e2fa7d02c": {
   "who": "narr",
@@ -1151,5 +1187,371 @@ export const LIGNES = {
   "mood": "",
   "kind": "epilogue",
   "text": "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion."
+ },
+ "2b72e8002e8e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une règle dite simplement protège tout le monde, Enzo compris."
+ },
+ "ef80d908aaa5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Un lien privé avec un jeune ouvre la porte à des échanges hors de tout cadre, et vous expose aussi."
+ },
+ "4bed436645f2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Sans explication, Enzo peut le vivre comme un rejet : mieux vaut poser la règle de vive voix."
+ },
+ "0a191e7c126f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous gardez le cadre sans fermer la porte : si Léna veut confier quelque chose, elle sait où vous trouver."
+ },
+ "4e39c78c22c9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Un secret partagé en privé avec un jeune, c’est exactement le mécanisme qu’utilisent les agresseurs : jamais."
+ },
+ "00736d1724a9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Elle voulait peut-être confier quelque chose : sans réponse ni relais, sa parole se perd. Répondez sobrement et prévenez Nour."
+ },
+ "da87adba74ac": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Juste : une image intime d’une mineure ne se regarde pas, ne se garde pas, ne se transfère pas. Nour alerte la direction ; le 3018 aide à la faire retirer."
+ },
+ "20763d98061c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Bon réflexe de stopper, mais ne gérez pas seul : il faut alerter Nour et protéger Clara."
+ },
+ "a017e7ac1803": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Ouvrir, c’est déjà regarder une image intime d’une mineure sans son accord. Ne l’ouvrez pas : alertez."
+ },
+ "52fd1090b2d8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "En pleine crise, chaque minute compte pour Lou : les autres demandes attendent."
+ },
+ "b5135adb77bd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous perdez du temps, et vous inquiétez les familles sans pouvoir rien dire."
+ },
+ "504b2dd979b2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous alertez la référente tout de suite, sans détailler par écrit."
+ },
+ "0105a712be6a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Rassurer la référente alors qu’un enfant vient de se confier, c’est retarder l’alerte."
+ },
+ "7893d90e9a93": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "J’ai repensé à ce que tu m’as dit. Je me suis excusé auprès d’Inès, pour de vrai, devant Nour."
+ },
+ "a2cd9d807713": {
+  "who": "ines",
+  "mood": "",
+  "kind": "replique",
+  "text": "Et depuis, plus rien. Je me sens de nouveau à ma place dans l’équipe."
+ },
+ "a941ca8a8076": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Un recadrage clair, appuyé par la référente, a suffi à arrêter la répétition."
+ },
+ "26962dcf9b3c": {
+  "who": "ines",
+  "mood": "",
+  "kind": "replique",
+  "text": "Il s’est excusé, oui. Et deux jours après, ça a recommencé dans la conversation de l’équipe."
+ },
+ "79a5e8df7cbf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Sans cadre posé avec la référente, les excuses n’ont rien changé."
+ },
+ "7c7e1ce252d0": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Inès ? Elle a démissionné vendredi. Elle a dit qu’ici, personne ne réagissait."
+ },
+ "25c133ea070a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Laisser passer, c’est laisser la répétition s’installer. L’équipe perd une animatrice, et l’employeur a manqué à son obligation de protection."
+ },
+ "c8bcbe6c8035": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Grâce à tes notes, l’information préoccupante est partie le jour même. Les services ont rencontré la famille."
+ },
+ "2953179ddde0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Théo est aujourd’hui accompagné. Vos observations, recueillies sans questions orientées, ont pu servir."
+ },
+ "0d2bf840a6c2": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu as attendu la fin de la semaine… On a perdu cinq jours."
+ },
+ "d2a5f946c464": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "L’information est partie, mais tard. Pendant ce temps, Théo est resté seul avec ce qu’il vivait."
+ },
+ "978dd9d98894": {
+  "who": "jade",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ses parents sont venus, furieux. Depuis, Théo ne parle plus à personne."
+ },
+ "111627788f3d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Questionné, puis exposé à sa famille, Théo s’est fermé. Les professionnels auront bien plus de mal à l’aider."
+ },
+ "55db5b1ad87b": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Le binôme aux toilettes, on le vérifie chaque vendredi sur le tableau. Trois mois après, ça tient !"
+ },
+ "022c9aa9953b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Une mesure, une personne responsable, un indicateur : la règle est toujours appliquée."
+ },
+ "fd8454eddce4": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Les jeunes ont signé l’affiche. Mais dans l’organisation, rien n’a vraiment changé."
+ },
+ "fa0f0fe6bfc2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "S’engager sur le papier ne suffit pas : sans mesure vérifiable, les habitudes reviennent."
+ },
+ "a360b090d7b7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "L’affiche est restée au mur, jaunie. Un mois plus tard, un nouvel incident a eu lieu aux sanitaires, exactement comme avant."
+ },
+ "68e17cb5a6d1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Message de Kévin, depuis la régie : L’intervenant propose de garder Maëlys seule avec lui après l’atelier, pour finir son étagère. Je dis oui ?"
+ },
+ "3bc86b1672c1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Gendarmerie, j’écoute. Restez avec l’enfant, ne le laissez partir avec personne, une patrouille arrive."
+ },
+ "fe196574e8f7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Monsieur Roussel vient chercher Zoé, comme chaque soir."
+ },
+ "4a646924e2c5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Monsieur Roussel est sur la fiche de Zoé, et vous le connaissez : départ noté sur le registre."
+ },
+ "85b16499290b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous le connaissez et il est sur la fiche : vérifier son identité n’était pas utile, mais pas grave."
+ },
+ "b96ee96be9b0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Monsieur Roussel est le père de Zoé et figure sur la fiche : rien ne justifiait de refuser."
+ },
+ "bb9a9214b432": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Rien ne justifiait de garder Zoé."
+ },
+ "0cf6934b4803": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Un homme souriant : Je suis Karim, l’oncle de Théo. Sa mère m’a demandé de passer le prendre."
+ },
+ "3884c474b6f7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Karim n’est pas sur la fiche de Théo. Un enfant n’est remis qu’à un adulte autorisé par écrit, même s’il a l’air de connaître la famille."
+ },
+ "e39ad239f8f2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une pièce d’identité prouve qui il est, pas qu’il est autorisé : Karim n’est pas sur la fiche."
+ },
+ "6ec9d80157e4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Juste : Karim n’est pas sur la fiche. Vous appelez la mère de Théo, qui confirme et envoie une autorisation écrite."
+ },
+ "5745489d0373": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Théo n’est pas en danger : il suffit de refuser poliment et d’appeler sa mère."
+ },
+ "9f59a3fd9e7b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Une dame âgée que vous n’avez jamais vue : Je suis la grand-mère de Clara, Mme Petit."
+ },
+ "ff7e45551269": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Mme Petit est bien sur la fiche, mais vous ne la connaissez pas : il fallait d’abord vérifier son identité."
+ },
+ "88250725798f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Juste : elle est sur la fiche, et sa pièce d’identité le confirme. Départ noté."
+ },
+ "b0901c4b6962": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Elle figure sur la fiche : refuser sans vérifier n’était pas nécessaire. Une pièce d’identité suffisait."
+ },
+ "7f55878a1ebf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Rien ne justifiait de garder Clara : une vérification d’identité suffisait."
+ },
+ "efb251e90bb5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Monsieur Rey, le beau-père de Lou, arrive, pressé : Je viens chercher Lou. Il est où ?"
+ },
+ "97aaf4cf52d0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Monsieur Rey est sur la fiche, mais c’est l’adulte désigné par Lou : Lou ne lui est pas remis. Les gendarmes gèrent."
+ },
+ "0187d4e750ab": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vérifier son identité ne change rien : Lou ne doit pas lui être remis, les gendarmes sont là."
+ },
+ "09838e28e4e0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Refuser est juste, mais sans lui expliquer quoi que ce soit : c’est aux gendarmes, présents, de lui parler."
+ },
+ "5aedda62ba04": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Juste : vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
+ },
+ "83a19b97e08a": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "J’ai vu le monsieur de l’atelier bois fermer la porte de la régie. Maëlys était dedans."
+ },
+ "77ba03246df8": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "À la fin de l’atelier, quand on rangeait les outils."
+ },
+ "bc6ebd514b68": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Après, elle est sortie. Elle pleurait, et elle est partie aux toilettes."
+ },
+ "b0981ece06b5": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… oui… peut-être… je sais pas."
+ },
+ "53038bf5d996": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "…"
+ },
+ "e09c6672c653": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ben… je crois. Laisse tomber."
+ },
+ "4a65d0076d3d": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "D’accord…"
+ },
+ "e2b2f5389229": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "D’accord. Maëlys, elle va bien ?"
  }
 };

@@ -146,7 +146,9 @@ header nav>a[href="bafa.html"]:hover{background:#1a467c;color:#fff}
 .values{gap:10px}
 .values span{background:var(--card);border:0;box-shadow:0 1px 2px rgba(20,47,70,.06),0 4px 14px rgba(20,47,70,.05);font-weight:500;font-size:15px;color:var(--ink);transition:transform .4s var(--ease)}
 @media(hover:hover){html.ap-motion .values span:hover{transform:translateY(-3px)}}
-.gallery{gap:16px}
+.gallery{display:block!important;columns:3 280px;column-gap:16px}
+.gallery a{break-inside:avoid;margin:0 0 16px;cursor:zoom-in}
+.gallery img{height:auto!important;width:100%;aspect-ratio:auto!important;object-fit:contain!important;display:block}
 .gallery img{border-radius:var(--r-m);transition:transform .8s var(--ease),filter .3s}
 .gallery a{display:block;overflow:hidden;border-radius:var(--r-m)}
 @media(hover:hover){html.ap-motion .gallery a:hover img{transform:scale(1.04)}}
@@ -240,3 +242,18 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 }
 
 .brand img{mix-blend-mode:normal!important}
+
+/* Visionneuse de photos */
+.ap-lb{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(246,248,251,.72);-webkit-backdrop-filter:blur(28px) saturate(160%);backdrop-filter:blur(28px) saturate(160%);
+  opacity:0;transition:opacity .45s var(--ease)}
+.ap-lb.on{opacity:1}
+.ap-lb figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(92vw,1200px)}
+.ap-lb img{max-width:100%;max-height:78vh;border-radius:22px;box-shadow:0 40px 80px -30px rgba(19,40,59,.45);transform:scale(.94);transition:transform .6s var(--ease)}
+.ap-lb.on img{transform:none}
+.ap-lb figcaption{font-size:15px;font-weight:600;color:var(--navy)}
+.ap-lb button{position:absolute;border:0;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--navy);
+  background:rgba(255,255,255,.75);box-shadow:inset 0 1px 0 #fff,0 8px 20px -8px rgba(19,40,59,.35)}
+.ap-lb button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ap-lb .lb-x{top:20px;right:20px}.ap-lb .lb-p{left:20px;top:50%;margin-top:-24px}.ap-lb .lb-n{right:20px;top:50%;margin-top:-24px}
+.ap-lb .lb-c{font-size:13px;color:#6e7b88;font-weight:500}
+@media(max-width:600px){.ap-lb .lb-p,.ap-lb .lb-n{top:auto;bottom:24px;margin:0}.ap-lb img{max-height:70vh}}

@@ -91,13 +91,14 @@ html.ap-motion .cj-ring:not(.ap-in){transform:rotate(-25deg) scale(.9)}
 /* Participation */
 .cj-price{display:flex;justify-content:center;align-items:stretch;gap:18px;flex-wrap:wrap}
 .cj-price .cj-op{align-self:center;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--grad-soft);color:#fff;font-weight:700;font-size:22px;flex:none}
-.cj-amount{background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh);padding:34px 40px;text-align:center;min-width:240px}
-.cj-amount b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(56px,6vw,84px);line-height:1;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding-bottom:.06em}
+.cj-amount{background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh);padding:34px 30px;text-align:center;min-width:240px}
+@media(min-width:1101px){.cj-price{flex-wrap:nowrap}.cj-amount{flex:1 1 0;min-width:0}}
+.cj-amount b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(48px,5vw,76px);white-space:nowrap;line-height:1;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding-bottom:.06em}
 .cj-amount b small{font-size:.32em;letter-spacing:-.01em;margin-left:4px}
 .cj-amount>span{display:block;margin-top:10px;font-size:15px;color:var(--muted)}
-.cj-amount.total{background:#1b1b1e}
+.cj-amount.total{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 45%),var(--grad);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.55),0 24px 50px -20px rgba(101,82,211,.6)}
 .cj-amount.total b{background:none;-webkit-text-fill-color:#fff;color:#fff}
-.cj-amount.total>span{color:rgba(255,255,255,.65)}
+.cj-amount.total>span{color:#fff;font-size:17px;font-weight:600;opacity:.95}
 .cj-pill{display:flex;width:fit-content;align-items:center;gap:8px;margin:26px auto 0;background:var(--card);border-radius:999px;padding:9px 18px;font-size:14.5px;font-weight:500;box-shadow:var(--sh);color:var(--ink)}
 .cj-pill svg{width:17px;height:17px;color:#1f9d55;flex:none}
 .cj-funding{margin-top:80px;text-align:center}

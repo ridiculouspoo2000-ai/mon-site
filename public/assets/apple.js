@@ -394,10 +394,60 @@
     Lens.on('.ap-style', { bezel: 14, edge: 12, mag: .08 });
   };
 
+  /* ---------- Galerie : visionneuse ---------- */
+  const galLinks = [...document.querySelectorAll('.gallery a')];
+  if (galLinks.length) {
+    const ic = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+    let lb = null, idx = 0, opener = null;
+    const show = i => {
+      idx = (i + galLinks.length) % galLinks.length; const a = galLinks[idx], im = a.querySelector('img');
+      lb.querySelector('img').src = a.href; lb.querySelector('img').alt = im.alt;
+      lb.querySelector('.lb-t').textContent = im.alt; lb.querySelector('.lb-c').textContent = `${idx + 1} / ${galLinks.length}`;
+    };
+    const close = () => { if (!lb) return; const l = lb; lb = null; l.classList.remove('on'); setTimeout(() => l.remove(), 450); document.removeEventListener('keydown', key); opener?.focus(); };
+    const key = e => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight') show(idx + 1); else if (e.key === 'ArrowLeft') show(idx - 1); };
+    galLinks.forEach((a, i) => a.addEventListener('click', e => {
+      e.preventDefault(); opener = a;
+      lb = document.createElement('div'); lb.className = 'ap-lb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', 'Galerie photo');
+      lb.innerHTML = `<figure><img alt=""><figcaption><span class="lb-t"></span> <span class="lb-c"></span></figcaption></figure>` +
+        `<button type="button" class="lb-x" aria-label="Fermer">${ic('M6 6l12 12M18 6L6 18')}</button>` +
+        `<button type="button" class="lb-p" aria-label="Photo précédente">${ic('M15 5l-7 7 7 7')}</button>` +
+        `<button type="button" class="lb-n" aria-label="Photo suivante">${ic('M9 5l7 7-7 7')}</button>`;
+      document.body.appendChild(lb); show(i);
+      lb.addEventListener('click', ev => { if (ev.target === lb || ev.target.closest('.lb-x')) close(); else if (ev.target.closest('.lb-p')) show(idx - 1); else if (ev.target.closest('.lb-n')) show(idx + 1); });
+      let sx = 0; lb.addEventListener('touchstart', ev => { sx = ev.touches[0].clientX; }, { passive: true });
+      lb.addEventListener('touchend', ev => { const dx = ev.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1)); });
+      document.addEventListener('keydown', key);
+      requestAnimationFrame(() => lb.classList.add('on')); lb.querySelector('.lb-x').focus();
+    }));
+  }
+
+  /* ---------- Verre liquide : lumières de fond mobiles ---------- */
+  const orbs = document.createElement('div'); orbs.className = 'lg-orbs'; orbs.setAttribute('aria-hidden', 'true');
+  orbs.innerHTML = '<i></i>';
+  document.body.prepend(orbs);
+  // Les lumières dérivent lentement et suivent un peu la souris ; elles s'arrêtent pendant le défilement
+  // pour que celui-ci reste parfaitement fluide.
+  let px = 0, py = 0, tx = 0, ty = 0, drift = 0, lastScroll = 0, lastT = 0;
+  document.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; tx = (e.clientX / innerWidth - .5) * 50; ty = (e.clientY / innerHeight - .5) * 34; }, { passive: true });
+  addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
+  const vmax = () => Math.max(innerWidth, innerHeight) / 100;
+  const orbTick = now => {
+    requestAnimationFrame(orbTick);
+    if (!root.classList.contains('theme-verre') || root.classList.contains('ap-reduced') || document.hidden) return;
+    if (now - lastScroll < 260) { lastT = now; return; } // pas pendant le défilement
+    if (now - lastT < 33) return; // 30 images/s suffisent
+    drift += (now - lastT) / 1000; lastT = now;
+    px += (tx - px) * .08; py += (ty - py) * .08;
+    const v = vmax(), x = Math.sin(drift / 9) * 3.5 * v + Math.sin(drift / 4.3) * .8 * v + px, y = Math.cos(drift / 11) * 3 * v + Math.sin(drift / 6.1) * .8 * v + py;
+    orbs.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+  };
+  requestAnimationFrame(t => { lastT = t; orbTick(t); });
+
   /* ---------- Apparence : Épuré ou Verre liquide ---------- */
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
     '.download', '.price-accordion', '#faq details', '.ap-faq details', '.trainer-entry', '.contact-grid form', '.legal-notice', '.ap-join',
-    '.ct-tile', '.ct-form', '.nw-feature', '.nw-tile', '.cj-tile.light', '.cj-card', '.cj-rules article', '.cj-amount', '.bafa-resource-card',
+    '.ct-tile', '.ct-form', '.nw-feature', '.nw-tile', '.cj-tile.light', '.cj-card', '.cj-rules article', '.cj-amount:not(.total)', '.bafa-resource-card',
     '.dg-teaser-in', '.bafa-infographic', '.help'].join(',');
   const lgOn = () => document.querySelectorAll(LG).forEach((el, i) => { el.classList.add('lg'); if (i % 2) el.classList.add('lg-o'); });
   const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));

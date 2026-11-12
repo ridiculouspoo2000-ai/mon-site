@@ -1,10 +1,10 @@
 // Textes lus à voix haute dans « Les Hautes Herbes » (générés depuis le scénario).
 export const LIGNES = {
- "fd21c79c6f8b": {
+ "cbd33e614755": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Vingt-quatre jeunes arrivent demain. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles."
+  "text": "Bienvenue aux Hautes Herbes ! Pendant les vacances, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent chaque soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles."
  },
  "99811a9421b6": {
   "who": "nour",
@@ -72,6 +72,48 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Franchement, c’était pour rire. On ne voulait pas la blesser."
  },
+ "7ec27ab569c4": {
+  "who": "roussel",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Bonsoir. Hier soir, avec son tableau d’images, Zoé m’a fait comprendre qu’un animateur l’avait aidée à se changer après sa chute dans la boue. Elle avait l’air gênée. Comment ça se passe, ici, ces moments-là ?"
+ },
+ "29d683d547e9": {
+  "who": "roussel",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Diplômés, d’accord… Mais concrètement, qui était avec elle, et comment ?"
+ },
+ "ac60c8541f99": {
+  "who": "roussel",
+  "mood": "o",
+  "kind": "replique",
+  "text": "Je vous demande juste comment ça marche…"
+ },
+ "3b49bffb7b66": {
+  "who": "roussel",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "D’accord. Et si elle me redit qu’elle a été gênée ?"
+ },
+ "d045ad3a46e9": {
+  "who": "roussel",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Vous croyez ? Elle n’est pas du genre à inventer."
+ },
+ "06f4f562cd60": {
+  "who": "roussel",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Je ne veux pas la brusquer non plus…"
+ },
+ "c71cf3266c2e": {
+  "who": "roussel",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Merci. Ça me rassure de savoir comment vous vous organisez."
+ },
  "b54848fbba50": {
   "who": "jade",
   "mood": "big",
@@ -114,11 +156,65 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
  },
+ "f491780644aa": {
+  "who": "benali",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Je peux vous parler deux minutes ? Hier soir, Malo m’a dit qu’un grand lui avait montré des vidéos pas pour les enfants sur un téléphone, aux toilettes. Il m’a fait promettre de ne rien dire."
+ },
+ "81d1dc2670d3": {
+  "who": "benali",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Il a huit ans… Il était vraiment choqué, vous savez."
+ },
+ "15cc46613895": {
+  "who": "benali",
+  "mood": "o",
+  "kind": "replique",
+  "text": "Je ne sais pas qui c’est. Il ne veut pas me le dire."
+ },
+ "b6d5ab8d08a5": {
+  "who": "benali",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Et à Malo, qu’est-ce que je dis ? Il a peur qu’on sache que c’est lui qui a parlé."
+ },
+ "b1ac15a2a45c": {
+  "who": "benali",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Mais ce n’est pas à lui de faire attention, si ?"
+ },
+ "5d93ef3c1de2": {
+  "who": "benali",
+  "mood": "o",
+  "kind": "replique",
+  "text": "Tous les enfants ? Il va se sentir montré du doigt…"
+ },
+ "4ea6ce5bce72": {
+  "who": "benali",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "D’accord. Merci de m’avoir écoutée."
+ },
  "b21e595cfee9": {
   "who": "kevin",
   "mood": "smile",
   "kind": "replique",
   "text": "Clara a 17 ans, elle est d’accord. Notre relation est autorisée, non ?"
+ },
+ "df1fec311da0": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Les locaux de couchage ont été déclarés, le planning de la nuit est affiché. Reste le plus important : comment chacun d’entre nous s’organise, adulte par adulte."
+ },
+ "08ffeb15a178": {
+  "who": "bastien",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Je le prends dans mon lit cinq minutes, il va se calmer."
  },
  "51d0d5e1ecd0": {
   "who": "lou",
@@ -174,11 +270,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…D’accord."
  },
- "b0f1308c2c6b": {
+ "93eb05c58924": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "On ne repart pas comme on est venus. Reprends un des points repérés lundi pendant le tour du camp."
+  "text": "On ne repart pas comme on est venus. Reprends un des points repérés lundi pendant le tour de l’accueil."
  },
  "81ee9ffb405a": {
   "who": "nour",
@@ -191,6 +287,12 @@ export const LIGNES = {
   "mood": "smile",
   "kind": "replique",
   "text": "Et si on mettait juste une grande affiche Ici, on respecte tout le monde ? C’est réglé, non ?"
+ },
+ "b412bc29a454": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Qui encadre nos enfants, et comment savoir qu’ils sont en sécurité ?"
  },
  "412959d79a0c": {
   "who": "maelys",
@@ -246,11 +348,95 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je vais avoir des problèmes ?"
  },
+ "48a34342df10": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Choix enregistré. Vous découvrirez plus tard ce qu’il a produit."
+ },
+ "6c344dff8a32": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Et pourquoi ?"
+ },
+ "6489d1959fa6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Temps écoulé. Vous avez hésité trop longtemps : sur le terrain, l’hésitation laisse l’enfant seul face au danger."
+ },
+ "93c209a5361e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Œil de lynx ! Tous les points repérés, sans perdre de temps."
+ },
+ "125738c9369e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Le temps est écoulé. Regardez les points que vous avez manqués."
+ },
+ "9037178b6f8a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Tous les points sont repérés."
+ },
+ "983414062820": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Réflexes impeccables : tout juste, et sans hésiter."
+ },
+ "5ed02ed4087c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Tout juste. Relisez les explications."
+ },
+ "4ec9c9d9cfc9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Relisez les explications des cartes manquées."
+ },
+ "efda8ec3100a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Épilogue. Ce que votre semaine a changé."
+ },
+ "7a8873450707": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Crise maîtrisée : Lou est protégé, et vous êtes resté concentré."
+ },
+ "5e49dbb38485": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Lou est protégé. Relisez ce qui aurait pu être plus rapide ou plus sûr."
+ },
+ "227ed7f63aed": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "Relisez le déroulé : dans l’urgence, l’ordre des actions protège."
+ },
  "bc60457e4292": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
   "text": "Chapitre 1. Premier jour. Repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques."
+ },
+ "436f4b84cdd1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?"
  },
  "1b77d962ceba": {
   "who": "narr",
@@ -258,17 +444,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine."
  },
- "746eba7a6e37": {
+ "216350aa85a5": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous fait visiter le site. Quatre points méritent votre attention. Sélectionnez les lieux du plan pour les examiner."
+  "text": "Nour vous fait visiter l’accueil. Six points méritent votre attention, cachés parmi des lieux sans problème. Vous avez deux minutes et deux indices : ouvrez l’œil."
  },
- "ad8e7557348f": {
+ "59718481a1bf": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À l’atelier radio. Sur le planning de l’atelier : Garçons à la console, filles aux textes . Plusieurs filles ont demandé à apprendre le réglage des micros. La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger."
+  "text": "À la salle d’activités : l’atelier radio. Sur la porte de la salle, le planning de l’atelier : Garçons à la console, filles aux textes . Plusieurs filles ont demandé à apprendre le réglage des micros. La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger."
  },
  "1b00bfc930a4": {
   "who": "nour",
@@ -288,17 +474,53 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "Au panneau d’affichage. Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part. L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté."
  },
- "b8e9508b044e": {
+ "3b1ebfc8eefe": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Les tentes. Chaque tente a un adulte référent identifié, dont le prénom est écrit sur la porte. Rien d’inquiétant ici : c’est même une bonne pratique. Des adultes ressources identifiables, c’est une porte d’entrée pour parler."
+  "text": "L’aire de jeux. Deux animateurs se répartissent la surveillance : un près du toboggan, un près des balançoires. Les petits savent à qui s’adresser. Rien d’inquiétant : une surveillance répartie et des adultes repérables."
  },
  "06906a20ea1c": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
   "text": "Le potager. Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours. Rien à signaler : un accès libre aux rôles, c’est exactement ce qu’on cherche."
+ },
+ "7866930b3bb4": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-alerte",
+  "text": "À la régie, le local du matériel. La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée. Un lieu fermé et hors de vue, où un adulte se retrouve seul avec des mineurs, crée un risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où."
+ },
+ "a5c39450fdda": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Le parc, derrière le bâtiment. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte. Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage."
+ },
+ "53fb5f75fef1": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés. Rien à signaler : les tâches tournent sans distinction de sexe."
+ },
+ "1257332cabee": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-alerte",
+  "text": "Aux sanitaires des petits. Les toilettes des 6-8 ans sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un enfant seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
+ },
+ "a5261af2175a": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "L’accueil et le bureau de direction. Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé. Rien à signaler : les informations confidentielles sont protégées."
+ },
+ "c75013bab061": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité. Rien d’inquiétant : le départ des enfants est contrôlé."
  },
  "ac0e5cd41a17": {
   "who": "narr",
@@ -312,11 +534,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Que faites-vous ?"
  },
- "1735b231654b": {
+ "ca8d6423bfe7": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-faible",
-  "text": "Léna retourne à ses textes. À la fin de la semaine, aucune fille n’a touché la console. Le naturel cache une répartition selon le sexe qui ferme l’accès à un apprentissage. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
+  "kind": "retour-moyen",
+  "text": "Demain, quatre filles viennent à la séance. Aujourd’hui, Léna est restée aux textes. Vous ouvrez l’accès, mais un jour trop tard, et le raisonnement de Bastien n’est pas travaillé : la même règle se reproduira ailleurs. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
  },
  "fe84d0a6de95": {
   "who": "narr",
@@ -324,17 +546,17 @@ export const LIGNES = {
   "kind": "retour-bon",
   "text": "Léna règle son premier micro. Bastien accepte d’en reparler au débrief. Vous rouvrez l’accès sans humilier personne, et vous travaillez le raisonnement de l’adulte. C’est la réponse attendue."
  },
- "389d36994b5b": {
+ "1a0a17379906": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Les jeunes rient, Bastien se braque. La répartition, elle, ne change pas. Nommer le problème est juste, mais l’humiliation publique bloque le changement. L’essentiel : rouvrir les rôles. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
+  "text": "Léna apprend. Bastien, mis de côté devant les jeunes, s’agace et ne change rien à sa règle. Léna accède à l’apprentissage, mais la règle de l’atelier et la posture de Bastien restent intactes, et vous fragilisez un collègue devant le groupe. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
  },
- "e445481ca7a1": {
+ "dbfb61d48232": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-moyen",
-  "text": "Les garçons protestent… et la répartition reste fondée sur le sexe. Inverser la règle ne la supprime pas. L’enjeu, c’est que chacun puisse choisir et essayer. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
+  "kind": "retour-faible",
+  "text": "Léna retourne à ses textes. À la fin de la semaine, aucune fille n’a touché la console. Léna a pourtant demandé deux fois. Un choix orienté par une consigne de l’adulte n’est pas un choix libre. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
  },
  "493011b45f06": {
   "who": "nour",
@@ -372,23 +594,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Que lui répondez-vous ?"
  },
- "18285e263a66": {
+ "ea36b3e25147": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-faible",
-  "text": "Bastien repart soulagé. Demain, les remarques reprennent. L’intention affichée ne rend pas une plaisanterie acceptable (D1). Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
+  "kind": "retour-moyen",
+  "text": "Inès reçoit des excuses rapides. Le lendemain, une nouvelle blague circule. Des excuses ne suffisent pas : en refermant le sujet, vous laissez penser que l’intention efface l’effet. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
  },
- "6d4065c72f9b": {
+ "7c93e57e576c": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Bastien hésite : Vu comme ça… Il ne refera pas cette blague. Vous ramenez la discussion aux faits : répétition, refus exprimé, effet sur la personne."
+  "text": "Bastien se tait, puis admet qu’il n’avait pas vu les choses ainsi. Nour reprend le sujet en équipe. Vous nommez le cœur du problème, la demande d’arrêt ignorée, et vous impliquez la référente."
  },
- "7b9f4ba210de": {
+ "f4cebb786ffd": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Inès reste seule face à la situation. Promettre le silence à l’auteur des faits va à l’encontre de la protection. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
+  "text": "Les blagues continuent, plus discrètes. Inès évite désormais les pauses. Le problème n’est pas le public : c’est ce que subit Inès. Vous légitimez les propos. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
+ },
+ "f519b5c6e050": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Nour est informée deux jours plus tard. Entre-temps, Bastien pense que rien n’a été dit de grave. Informer la référente est utile, mais sans rien dire à Bastien, vous laissez la situation se prolonger. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
  },
  "d6447edb4168": {
   "who": "narr",
@@ -396,23 +624,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Chacun n’a écrit qu’un seul message. Peut-on parler de harcèlement sexuel ?"
  },
- "d202a4b8eef8": {
+ "89fce37ff7ca": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "La loi prévoit aussi le cas de plusieurs personnes qui savent que leurs propos s’ajoutent les uns aux autres. Pour faire mieux : Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition."
+  "text": "La loi prévoit justement le cas de plusieurs personnes : la répétition peut venir du groupe. Pour faire mieux : Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition."
  },
- "c542ab8427ab": {
+ "0090eb5af748": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Exactement. Tous ont lu les messages précédents, et la conversation continue malgré la demande d’Inès (Code pénal, art. 222-33)."
+  "text": "C’est le harcèlement de meute prévu par le Code pénal, sans qu’il y ait besoin de concertation entre les auteurs."
  },
- "af71435e4cbf": {
+ "3d91ec2031f3": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Une messagerie professionnelle ou privée ne rend pas ces faits acceptables. Pour faire mieux : Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition."
+  "text": "La qualification ne dépend pas d’une plainte. Et l’employeur doit faire cesser des agissements dont il a connaissance. Pour faire mieux : Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition."
+ },
+ "b12901661e8c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Une messagerie d’équipe n’efface pas le lien de travail, et les propos visent une collègue. Pour faire mieux : Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition."
  },
  "990cacd2e669": {
   "who": "narr",
@@ -444,29 +678,35 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Quelle est la réponse la plus juste ?"
  },
- "06dd951ce654": {
+ "0f96fcb2bc01": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "L’enquête appartient aux services compétents. Des questions insistantes peuvent orienter et fragiliser sa parole. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+  "text": "Théo se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter. Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
  },
- "f6f8fc193c75": {
+ "071226849047": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-faible",
-  "text": "Un signe n’est pas une preuve, mais attendre une certitude avant de demander de l’aide est aussi une erreur. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+  "kind": "retour-moyen",
+  "text": "Vous notez deux nouveaux signes jeudi. L’information part avec trois jours de retard. Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
  },
- "928130ebf896": {
+ "1cd960dc8864": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "C’est la réponse attendue : agir sur une inquiétude, sans la transformer en accusation."
+  "text": "Nour transmet une information préoccupante à la CRIP le jour même. Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue."
  },
- "0716f6abe92e": {
+ "165392a5e5ab": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Cela peut exposer l’enfant si un adulte du foyer est en cause. L’information des familles s’organise avec les autorités. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+  "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+ },
+ "2f9d999facf9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
  },
  "bce19bfbda14": {
   "who": "nour",
@@ -498,23 +738,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Est-ce un accord ?"
  },
- "d45b4a5df314": {
+ "eb1085128518": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Le consentement ne peut être déduit du seul silence ou de la seule absence de réaction. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
+  "text": "La relation antérieure ne vaut pas accord. Et l’absence de réaction n’est pas un oui. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
  },
- "7854ee3fece3": {
+ "50acf919feb5": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "C’est ce que dit l’article 222-22 du Code pénal. Un rire ou une attitude amicale ne le prouvent pas non plus."
+  "text": "Depuis la loi du 6 novembre 2025, le Code pénal le dit explicitement : le consentement ne peut être déduit du seul silence ou de la seule absence de réaction."
  },
- "a5241c06f01b": {
+ "0ff4a2bc50c9": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-faible",
-  "text": "Une relation antérieure, une amitié ou un flirt ne constituent pas une autorisation. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
+  "kind": "retour-moyen",
+  "text": "Les circonstances comptent pour apprécier le consentement, mais elles ne transforment jamais un silence en accord. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
+ },
+ "54c8757504e6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
  },
  "f5a87a4beeb4": {
   "who": "narr",
@@ -533,6 +779,60 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Quels arguments lui opposer ? Sélectionnez tous ceux qui sont justes."
+ },
+ "c86cf4975c0d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Mercredi, 20 h 30. Ce soir, douze enfants de 8 à 11 ans dorment à l’accueil : c’est la nuitée prévue dans le projet de la semaine."
+ },
+ "c5e04db191b8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle polyvalente est devenue un dortoir. Bastien a apporté sa guitare, Jade distribue les lampes de poche."
+ },
+ "3befb4c4975a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Dans l’organisation de la nuit, qu’est-ce qui protège, et qu’est-ce qui expose ?"
+ },
+ "a1fff73096f8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sacha, 8 ans, pleure : il a fait un cauchemar. Bastien vous chuchote"
+ },
+ "2bdd67e02d6c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Sacha se calme… et revient la nuit suivante. Un autre enfant demande la même chose. Même brièvement, le lit d’un adulte n’est pas un lieu pour un enfant : les limites doivent être claires pour tous. Pour faire mieux : Rassurer près du lit de l’enfant, à deux adultes, sans l’isoler. Les règles de la nuit se décident avant la nuitée, avec toute l’équipe."
+ },
+ "16601e9e60fa": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Sacha se rendort au bout d’un quart d’heure, sa lampe de poche à la main. On rassure l’enfant dans son espace à lui, à deux adultes. C’est la réponse attendue."
+ },
+ "f6a5afd1147d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Sacha se retrouve seul avec un adulte, dans une pièce fermée, en pleine nuit. Isoler un enfant avec un adulte, la nuit, dans une pièce fermée, c’est exactement le risque à éviter. Pour faire mieux : Rassurer près du lit de l’enfant, à deux adultes, sans l’isoler. Les règles de la nuit se décident avant la nuitée, avec toute l’équipe."
+ },
+ "ebe8b763da53": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les parents arrivent à 0 h 30. Sacha aurait pu être rassuré sur place. C’est possible si la détresse dure, mais on commence par rassurer l’enfant sur place, dans un cadre sûr. Pour faire mieux : Rassurer près du lit de l’enfant, à deux adultes, sans l’isoler. Les règles de la nuit se décident avant la nuitée, avec toute l’équipe."
+ },
+ "149607e064ef": {
+  "who": "nour",
+  "mood": "",
+  "kind": "carnet",
+  "text": "La nuitée En accueil de loisirs, une nuitée est une activité accessoire : d’une à quatre nuits, prévue dans le projet pédagogique, avec des locaux de couchage déclarés. La nuit, les risques changent : fatigue, peur, intimité, isolement. On les anticipe : espaces séparés, adultes identifiés, jamais seul dans un lit ou une pièce fermée avec un enfant. Aucune photo ni vidéo des enfants au coucher, en pyjama ou à la toilette."
  },
  "a669495c8d95": {
   "who": "nour",
@@ -564,29 +864,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Quel est votre premier appel ?"
  },
- "25607ac57a6a": {
+ "8741eca5c41c": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Les gendarmes prennent l’appel et organisent la prise en charge avant 16 h. L’exposition est imminente. Seules les forces de l’ordre et la justice peuvent organiser la protection de Lou avant le départ."
+  "text": "Une patrouille arrive avant 17 h. Lou n’est pas remis à cet adulte. Le danger est imminent : seules les forces de l’ordre peuvent empêcher la remise de l’enfant."
  },
- "d32419ba0c62": {
+ "d5f515d4eb14": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "L’écoutant vous oriente… et vous conseille d’appeler immédiatement le 17. Le 119 aide à s’orienter, mais ici l’exposition est imminente : le 17 d’abord. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
+  "text": "L’écoutant vous oriente vers le 17. Vous avez perdu de précieuses minutes. Le 119 est utile pour s’orienter, mais face à un danger imminent, c’est le 17 ou le 112. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
  },
- "1e3f3c5df8f8": {
+ "fb5813ed82ed": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Nour appelle le 17 aussitôt. Il est 16 h 15. Prévenir l’interne est nécessaire, mais l’urgence commande d’alerter directement les secours, ou en même temps. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
+ },
+ "2db06e5840bc": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "L’adulte est alerté avant toute protection. Lou est davantage exposé. Ne jamais appeler seul la personne mise en cause, ni lui demander de s’expliquer. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
- },
- "20503686563c": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-faible",
-  "text": "À 16 h, Lou serait déjà parti. Une information interne ne remplace pas les démarches externes, et l’urgence n’attend pas. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
+  "text": "L’adulte est prévenu… et Lou se trouve exposé à des pressions. Prévenir la personne mise en cause peut mettre l’enfant en danger et compromettre l’enquête. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
  },
  "28a7a150d384": {
   "who": "narr",
@@ -594,11 +894,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Triez les cartes Actions pour la situation de Lou."
  },
- "5b86d08069aa": {
+ "ad9b3c52ae4d": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Remettez ces actions dans un ordre pertinent à l’aide des flèches."
+  "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver."
+ },
+ "56bcdd6d86f9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Le téléphone de l’accueil sonne : une maman demande si sa fille peut partir plus tôt."
+ },
+ "e1587ad72f38": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Des enfants vous appellent : le ballon est coincé sur le toit du préau."
+ },
+ "087ae2d50c95": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Lou vous demande tout bas : Tu vas le dire à qui ?"
  },
  "345da754562c": {
   "who": "narr",
@@ -618,23 +936,71 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Chapitre 5. Ce qu’on change. Concevoir une prévention concrète et vérifiable."
  },
- "c9e05c1e49d7": {
+ "be20a8a13f22": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Une affiche seule peut être utile, mais ne démontre pas que les pratiques ont changé."
+  "text": "Bastien garde son affiche… et propose d’en mesurer l’effet avec un point d’équipe chaque semaine. Une prévention se vérifie : un changement concret, une personne responsable, un moment, un indicateur."
  },
- "98740f288606": {
+ "21654c2f3015": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Une bonne intention ne suffit pas : il faut un changement concret et vérifiable. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+  "text": "L’affiche est posée. Rien d’autre ne change dans l’organisation. Un engagement affiché sans changement concret ni vérification reste une intention. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
  },
- "055d87f347b2": {
+ "63baa3eb1b2a": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Certaines affiches sont même obligatoires, comme celle du 119. Elles complètent une mesure, sans la remplacer. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+  "text": "Bastien renonce, vexé. L’équipe ne construit rien ensemble. Les sanctions sont utiles mais tardives : la prévention agit avant. Et une affiche a sa place si elle s’accompagne d’actes. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+ },
+ "93c9b4ecf68c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les jeunes signent. Les pratiques des adultes, elles, ne changent pas. Faire porter l’engagement aux jeunes déplace la responsabilité : c’est d’abord l’organisation des adultes qui doit changer. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+ },
+ "097a36cebceb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Après les affaires du périscolaire parisien, plusieurs parents écrivent à l’accueil"
+ },
+ "70eeb223b35c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous demande ce que l’accueil doit répondre."
+ },
+ "2c388c9a93bb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Que proposez-vous ?"
+ },
+ "e73c419b0673": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Le livret part lundi. Deux parents proposent même de relire la version destinée aux enfants. La confiance se gagne par des règles concrètes, connues de tous et vérifiables."
+ },
+ "f2a481498f2a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Les parents ne sont pas rassurés. L’un d’eux demande ce qui serait fait si un incident survenait. L’absence d’incident connu ne protège personne : c’est souvent le silence qui l’explique. Les familles attendent des règles. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
+ },
+ "601965ea852a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une petite qui s’est fait mal attend seule qu’on trouve une solution . L’équipe est mal à l’aise. La règle se veut protectrice mais empêche des soins et un réconfort nécessaires. On encadre les gestes plutôt que de les interdire. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
+ },
+ "312a72ace2c0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants. La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
  },
  "b2fade9fef73": {
   "who": "nour",
@@ -660,29 +1026,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Votre toute première décision ?"
  },
- "24013669e214": {
+ "d49027c71d7d": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Maëlys souffle. Elle reste avec vous à la bibliothèque. Protéger d’abord : éviter toute nouvelle exposition."
+  "text": "Maëlys reste avec Inès, loin du local. Vous pouvez alerter. Protéger d’abord : éviter toute nouvelle exposition, puis alerter."
  },
- "52d90e943d45": {
+ "624f397c7610": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "L’intervenant est prévenu et peut faire pression. Pas d’enquête personnelle, pas de confrontation : cela appartient aux services compétents. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+  "text": "L’intervenant est prévenu. Il passe voir Maëlys pour s’expliquer . Confronter la personne mise en cause expose la victime et peut compromettre l’enquête. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "d52d7b77586b": {
+ "80ee6c73a368": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Maëlys se ferme. Ne jamais demander de démonstration des gestes, ni vérifier soi-même le récit. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+  "text": "Maëlys se fige et répète qu’elle ne veut plus en parler. On accueille la parole sans la provoquer : l’audition, ce sont les enquêteurs qui la mènent. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "ffaf2e1de82f": {
+ "3bdc6eb83019": {
   "who": "narr",
   "mood": "",
-  "kind": "retour-faible",
-  "text": "À 15 h, elle reverrait l’intervenant. La protection passe avant le programme. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+  "kind": "retour-moyen",
+  "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
  "a84e2fa7d02c": {
   "who": "narr",
@@ -701,5 +1067,89 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
+ },
+ "ee09ad6f73ae": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "La patrouille est arrivée avant 17 h : Lou n’a pas été remis à l’adulte qu’il désignait. Une enquête est ouverte, et Lou est accompagné par des professionnels."
+ },
+ "17f1e7aae4a9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "L’alerte est partie avec un quart d’heure de retard. Lou a été protégé de justesse : l’enquête suit son cours."
+ },
+ "d64cd6e1a962": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "L’alerte est partie trop tard : Lou est rentré avec l’adulte. Le signalement envoyé le soir a déclenché l’intervention des services le lendemain."
+ },
+ "04c2e7c288ea": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Maëlys n’a plus croisé l’intervenant. Les faits ont été signalés le jour même, et l’atelier bois est suspendu pendant l’enquête."
+ },
+ "2c70162cc765": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Maëlys a été tenue à l’écart, mais Monsieur Garnier a retardé l’alerte d’une journée. Les faits ont finalement été signalés."
+ },
+ "523e334e69f5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Maëlys a recroisé l’intervenant avant que l’alerte ne parte. Elle a été mise à l’abri le lendemain, et un signalement a été fait."
+ },
+ "3d28ad8526e3": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Inès est restée dans l’équipe. À la rentrée, c’est elle qui présente la règle du groupe de messagerie aux nouveaux animateurs."
+ },
+ "4bf8b2022ec6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Inès termine les vacances, mais ne s’est réinscrite que pour l’été."
+ },
+ "6e6125a5cf13": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Inès a quitté l’accueil à la fin des vacances, sans dire pourquoi."
+ },
+ "c1f84bfc558c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Monsieur Roussel et Mme Benali ont été écoutés et rappelés. Au portail, les familles savent désormais à qui parler, et elles le font."
+ },
+ "04ab68e0cbbd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Les parents ont eu une réponse, mais ont dû relancer. Une permanence au portail est prévue à la rentrée."
+ },
+ "80caa1d14438": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Mme Benali a écrit à la mairie : elle estime ne pas avoir été entendue. La direction la reçoit la semaine suivante."
+ },
+ "6718acb64c99": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Le livret des familles est distribué : règles de non-isolement, accompagnement aux toilettes, adulte référent. Deux parents ont rejoint le comité de suivi."
+ },
+ "155e06168e95": {
+  "who": "narr",
+  "mood": "",
+  "kind": "epilogue",
+  "text": "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion."
  }
 };

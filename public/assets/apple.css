@@ -238,3 +238,5 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
   .anchors{border-radius:22px}
   .commitments article,.pillars article,.steps article,.testimonials article,.prices article{padding:26px}
 }
+
+.brand img{mix-blend-mode:normal!important}

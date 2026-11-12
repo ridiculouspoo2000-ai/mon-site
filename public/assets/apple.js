@@ -331,6 +331,69 @@
     subj.addEventListener('change', sync); setTimeout(sync, 0);
   }
 
+  /* ---------- Verre liquide : réfraction et grossissement (lentille) ----------
+     Carte de déplacement calculée pour chaque surface : bord bombé (profil « squircle »),
+     léger grossissement au centre ; appliquée en backdrop-filter via un filtre SVG.
+     Navigateurs Chromium uniquement ; ailleurs, verre dépoli classique. */
+  const Lens = (() => {
+    const ua = navigator.userAgent;
+    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\./.test(ua) && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced');
+    if (!ok) return { on() {}, off() {} };
+    const NS = 'http://www.w3.org/2000/svg';
+    const defs = document.createElementNS(NS, 'svg');
+    defs.setAttribute('aria-hidden', 'true'); defs.setAttribute('width', '0'); defs.setAttribute('height', '0');
+    defs.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    document.body.appendChild(defs);
+    const items = new Map(); let uid = 0;
+    const squircle = t => Math.pow(1 - Math.pow(1 - t, 4), .25);
+    function build(el, o) {
+      const r = el.getBoundingClientRect(); const W = Math.max(2, Math.round(r.width)), H = Math.max(2, Math.round(r.height));
+      const it = items.get(el); if (it.w === W && it.h === H) return; it.w = W; it.h = H;
+      const rad = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, W / 2, H / 2);
+      const bez = Math.min(o.bezel, W / 2, H / 2), cx = W / 2, cy = H / 2;
+      const dx = new Float32Array(W * H), dy = new Float32Array(W * H); let max = 0.001;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const px = x + .5 - cx, py = y + .5 - cy;
+        const qx = Math.abs(px) - (cx - rad), qy = Math.abs(py) - (cy - rad);
+        const ox = Math.max(qx, 0), oy = Math.max(qy, 0), ol = Math.hypot(ox, oy);
+        const sd = ol + Math.min(Math.max(qx, qy), 0) - rad; // distance signée au bord (négative à l'intérieur)
+        let nx, ny; if (qx > 0 && qy > 0) { nx = ox / ol; ny = oy / ol; } else if (qx > qy) { nx = 1; ny = 0; } else { nx = 0; ny = 1; }
+        nx *= Math.sign(px) || 1; ny *= Math.sign(py) || 1;
+        const d = -sd; let m = 0;
+        if (d >= 0 && d < bez) m = 1 - squircle(Math.max(d / bez, .001));
+        const i = y * W + x;
+        dx[i] = -nx * m * o.edge - px * o.mag; dy[i] = -ny * m * o.edge - py * o.mag;
+        max = Math.max(max, Math.abs(dx[i]), Math.abs(dy[i]));
+      }
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const g = c.getContext('2d'); const img = g.createImageData(W, H);
+      for (let i = 0; i < W * H; i++) { img.data[i * 4] = 128 + dx[i] / max * 127; img.data[i * 4 + 1] = 128 + dy[i] / max * 127; img.data[i * 4 + 2] = 128; img.data[i * 4 + 3] = 255; }
+      g.putImageData(img, 0, 0);
+      it.f.innerHTML = `<feImage href="${c.toDataURL()}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" result="map"/>` +
+        `<feDisplacementMap in="SourceGraphic" in2="map" scale="${(max * 2).toFixed(1)}" xChannelSelector="R" yChannelSelector="G"/>`;
+      it.f.setAttribute('width', W); it.f.setAttribute('height', H);
+      el.style.setProperty('backdrop-filter', `url(#${it.id}) ${o.after}`);
+    }
+    const ro = new ResizeObserver(es => es.forEach(e => { const o = items.get(e.target); if (o) { clearTimeout(o.t); o.t = setTimeout(() => build(e.target, o.opt), 120); } }));
+    return {
+      on(sel, opt) {
+        document.querySelectorAll(sel).forEach(el => {
+          if (items.has(el)) return;
+          const id = 'lg-lens-' + (++uid), f = document.createElementNS(NS, 'filter');
+          f.setAttribute('id', id); f.setAttribute('x', '0'); f.setAttribute('y', '0'); f.setAttribute('filterUnits', 'userSpaceOnUse');
+          f.setAttribute('color-interpolation-filters', 'sRGB'); defs.appendChild(f);
+          const o = { bezel: 22, edge: 26, mag: .06, after: 'blur(2px) saturate(180%) brightness(1.06)', ...opt };
+          items.set(el, { id, f, w: 0, h: 0, opt: o }); el.classList.add('lg-lens'); build(el, o); ro.observe(el);
+        });
+      },
+      off() { items.forEach((o, el) => { ro.unobserve(el); o.f.remove(); el.style.removeProperty('backdrop-filter'); el.classList.remove('lg-lens'); }); items.clear(); }
+    };
+  })();
+  const lensOn = () => {
+    Lens.on('header', { bezel: 20, edge: 22, mag: .07 });
+    Lens.on('.ap-style', { bezel: 14, edge: 12, mag: .08 });
+  };
+
   /* ---------- Apparence : Épuré ou Verre liquide ---------- */
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
     '.download', '.price-accordion', '#faq details', '.ap-faq details', '.trainer-entry', '.contact-grid form', '.legal-notice', '.ap-join',
@@ -340,7 +403,7 @@
   const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));
   const applyStyle = v => {
     root.classList.toggle('theme-verre', v === 'verre');
-    v === 'verre' ? lgOn() : lgOff();
+    v === 'verre' ? (lgOn(), requestAnimationFrame(lensOn)) : (lgOff(), Lens.off());
     try { localStorage.setItem('fa-style', v); } catch (_) {}
     picker.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
   };

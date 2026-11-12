@@ -11,16 +11,16 @@ html.theme-verre{
   --lg-shadow:0 1px 2px rgba(var(--lg-navy),.06),0 22px 44px -22px rgba(var(--lg-navy),.35);
   --lg-spec:inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 -1px 1px rgba(var(--lg-navy),.08),inset 0 0 0 1px rgba(255,255,255,.35);
 }
-html.theme-verre body{
+html.theme-verre body{background:#eaf0f7}
+html.theme-verre body::before{content:"";position:fixed;inset:-20vmax;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(70vw 60vw at -10% -10%,rgba(var(--lg-blue),.26),transparent 62%),
-    radial-gradient(60vw 55vw at 110% 25%,rgba(var(--lg-orange),.20),transparent 60%),
-    radial-gradient(80vw 60vw at 20% 110%,rgba(var(--lg-navy),.18),transparent 62%),
-    radial-gradient(50vw 40vw at 90% 100%,rgba(var(--lg-orange),.14),transparent 60%),
-    #edf2f8;
-  background-attachment:fixed;
-}
-html.theme-verre .brand img{content:url(logo-verre.png);mix-blend-mode:normal}
+    radial-gradient(28vmax 28vmax at 18% 22%,rgba(var(--lg-blue),.55),transparent 70%),
+    radial-gradient(24vmax 24vmax at 82% 30%,rgba(var(--lg-orange),.45),transparent 70%),
+    radial-gradient(30vmax 30vmax at 40% 82%,rgba(var(--lg-navy),.40),transparent 70%),
+    radial-gradient(20vmax 20vmax at 88% 85%,rgba(var(--lg-orange),.38),transparent 70%),
+    radial-gradient(18vmax 18vmax at 60% 50%,rgba(138,79,208,.22),transparent 70%);
+  transform:translateZ(0)}
+html.theme-verre main,html.theme-verre footer{position:relative;z-index:0}
 html.theme-verre .tinted,html.theme-verre .tinted-section{background:transparent}
 html.theme-verre .ap-glow{opacity:.55}
 
@@ -28,14 +28,14 @@ html.theme-verre .ap-glow{opacity:.55}
 html.theme-verre .lg{
   position:relative;isolation:isolate;
   background:
-    radial-gradient(140% 90% at var(--mx,18%) var(--my,-10%),rgba(255,255,255,.85),rgba(255,255,255,0) 55%),
-    linear-gradient(160deg,rgba(255,255,255,.80),rgba(234,242,252,.72) 55%,rgba(var(--lg-blue),.10))!important;
+    radial-gradient(120% 80% at var(--mx,18%) var(--my,-10%),rgba(255,255,255,.55),rgba(255,255,255,0) 55%),
+    linear-gradient(160deg,rgba(255,255,255,.46),rgba(255,255,255,.20) 60%,rgba(var(--lg-blue),.10))!important;
   border:0!important;box-shadow:var(--lg-spec),var(--lg-shadow)!important;
 }
 html.theme-verre .lg.lg-o{
   background:
-    radial-gradient(140% 90% at var(--mx,18%) var(--my,-10%),rgba(255,255,255,.85),rgba(255,255,255,0) 55%),
-    linear-gradient(160deg,rgba(255,255,255,.82),rgba(255,243,232,.74) 55%,rgba(var(--lg-orange),.12))!important;
+    radial-gradient(120% 80% at var(--mx,18%) var(--my,-10%),rgba(255,255,255,.55),rgba(255,255,255,0) 55%),
+    linear-gradient(160deg,rgba(255,255,255,.46),rgba(255,247,240,.22) 60%,rgba(var(--lg-orange),.12))!important;
 }
 html.theme-verre .lg::after{
   content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;z-index:2;
@@ -47,19 +47,19 @@ html.theme-verre .lg:hover{box-shadow:var(--lg-spec),0 1px 2px rgba(var(--lg-nav
 /* ---------- Barre de navigation : une capsule de verre flottante ---------- */
 @media(min-width:1151px){
   html.theme-verre header{top:10px;margin:10px auto 0;width:min(1260px,calc(100% - 28px));border-radius:24px;border:0;
-    background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.40))!important;
-    -webkit-backdrop-filter:blur(26px) saturate(190%);backdrop-filter:blur(26px) saturate(190%);
+    background:linear-gradient(180deg,rgba(255,255,255,.56),rgba(255,255,255,.38))!important;
+    -webkit-backdrop-filter:blur(18px) saturate(190%);backdrop-filter:blur(18px) saturate(190%);
     box-shadow:var(--lg-spec),0 18px 40px -18px rgba(var(--lg-navy),.35)!important}
   html.theme-verre header::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;background:var(--lg-rim);
     -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
   html.theme-verre .header-inner{min-height:60px}
   html.theme-verre .nav-group.open .nav-fly{clip-path:inset(-60px -60px -80px -60px round 28px)}
   html.theme-verre .nav-fly{top:calc(100% + 10px);border-radius:28px;border:0;
-    background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(240,245,252,.74));box-shadow:var(--lg-spec),0 30px 60px -24px rgba(var(--lg-navy),.4)}
+    background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(240,245,252,.34));-webkit-backdrop-filter:blur(20px) saturate(190%);backdrop-filter:blur(20px) saturate(190%);box-shadow:var(--lg-spec),0 30px 60px -24px rgba(var(--lg-navy),.4)}
   html.theme-verre .nav-dim{background:rgba(var(--lg-navy),.06)}
 }
 @media(max-width:1150px){
-  html.theme-verre header{background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.5))!important;-webkit-backdrop-filter:blur(24px) saturate(190%);backdrop-filter:blur(24px) saturate(190%);box-shadow:inset 0 -1px 0 rgba(255,255,255,.7),0 10px 30px -18px rgba(var(--lg-navy),.35)!important}
+  html.theme-verre header{background:linear-gradient(180deg,rgba(255,255,255,.58),rgba(255,255,255,.40))!important;-webkit-backdrop-filter:blur(24px) saturate(190%);backdrop-filter:blur(24px) saturate(190%);box-shadow:inset 0 -1px 0 rgba(255,255,255,.7),0 10px 30px -18px rgba(var(--lg-navy),.35)!important}
 }
 html.theme-verre header nav a:hover{background:rgba(255,255,255,.6)}
 html.theme-verre header nav a[aria-current]:not(.nav-big){background:rgba(255,255,255,.75);box-shadow:inset 0 1px 0 #fff,0 2px 8px -2px rgba(var(--lg-navy),.2)}
@@ -91,7 +91,7 @@ html.theme-verre .dg-teaser-in{box-shadow:var(--lg-spec),var(--lg-shadow)}
 html.theme-verre footer{background:linear-gradient(160deg,#0d2a44,#08304f 55%,#3a2a3c)!important}
 
 /* ---------- Sélecteur d'apparence ---------- */
-.ap-style{position:fixed;left:16px;bottom:16px;z-index:60;display:flex;gap:2px;padding:4px;border-radius:999px;font:600 12.5px/1 var(--font);
+.ap-style{position:fixed;left:16px;bottom:16px;z-index:60;overflow:hidden;display:flex;gap:2px;padding:4px;border-radius:999px;font:600 12.5px/1 var(--font);
   background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
   box-shadow:inset 0 1px 0 #fff,0 10px 30px -10px rgba(19,40,59,.35),inset 0 0 0 1px rgba(20,47,70,.06)}
 .ap-style span{padding:8px 6px 8px 10px;color:#6e7b88}
@@ -99,3 +99,9 @@ html.theme-verre footer{background:linear-gradient(160deg,#0d2a44,#08304f 55%,#3
 .ap-style button[aria-pressed=true]{background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0) 50%),linear-gradient(180deg,#3d86e6,#0b4f8c);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
 @media(max-width:600px){.ap-style{left:10px;bottom:10px;font-size:11.5px}.ap-style span{display:none}}
 @media print{.ap-style{display:none}}
+
+/* Surfaces à lentille : un reflet spéculaire doux qui traverse le haut du verre */
+html.theme-verre .lg-lens{overflow:visible}
+html.theme-verre .ap-style{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.18));box-shadow:var(--lg-spec),0 12px 30px -12px rgba(var(--lg-navy),.45)}
+html.theme-verre .nav-fly{background-clip:padding-box}
+html.theme-verre header nav a,html.theme-verre .nav-big small{text-shadow:0 0 12px rgba(255,255,255,.9)}

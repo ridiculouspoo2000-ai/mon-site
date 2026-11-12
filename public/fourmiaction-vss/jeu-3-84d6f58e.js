@@ -170,23 +170,39 @@
       }).catch(() => { this.ready = false; applySettings(); });
     },
     url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
-    say(who, text) { this.seq([[who, text]]); },
+    say(who, text, target) { this.seq([[who, text, target instanceof Element ? target : null]]); },
     seq(list) {
       if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
-      const urls = list.map(([w, t]) => t && this.url(w, t)).filter(Boolean); if (!urls.length) return;
+      const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null })).filter((x) => x.u); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
-        this.el.addEventListener("ended", () => { const n = this._q && this._q.shift(); if (n) { this.el.src = n; const p = this.el.play(); if (p && p.catch) p.catch(() => Snd.duck(false)); } else Snd.duck(false); });
-        this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => Snd.duck(true));
+        this.el.addEventListener("ended", () => { this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); });
+        this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
       }
       try { this.el.pause(); } catch (e) { }
-      this._q = urls.slice(1);
-      this.el.src = urls[0];
-      const p = this.el.play(); if (p && p.catch) p.catch(() => Snd.duck(false));
+      this._done();
+      this._q = items.slice(1); this._play(items[0]);
     },
+    _play(it) {
+      this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
+      this.el.src = it.u; const p = this.el.play(); if (p && p.catch) p.catch(() => { Snd.duck(false); this._done(); });
+    },
+    _tick() {
+      cancelAnimationFrame(this._raf);
+      const f = () => {
+        const it = this._cur; if (!it || !it.e || !this.el || this.el.paused) return;
+        const d = this.el.duration; if (d && isFinite(d)) {
+          const ws = it.e.querySelectorAll(".wd"), k = Math.min(ws.length, Math.ceil((this.el.currentTime / d) * ws.length * 1.04));
+          for (let i = 0; i < k; i++) if (!ws[i].classList.contains("sp")) ws[i].classList.add("sp");
+        }
+        this._raf = requestAnimationFrame(f);
+      };
+      this._raf = requestAnimationFrame(f);
+    },
+    _done() { cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { this._q = []; if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
 
@@ -221,6 +237,31 @@
     $("#chaptitle").textContent = sc ? `Chapitre ${sc.ch} · ${CHAPTERS[sc.ch - 1].title}` : "";
     $("#carnetcount").textContent = st.carnet.length;
     $("#hudav").innerHTML = A.avatars[st.av];
+    rings(false);
+  }
+  const RING = { C1: "#2B6FD6", C2: "#8A4FD0", C3: "#E2702A", C4: "#1F9D63" };
+  function compProgress() {
+    const tot = {}, got = {};
+    SCREENS.forEach((s) => { if (!s.comp) return; tot[s.comp] = (tot[s.comp] || 0) + 1; const r = st.res[s.id]; if (r != null) got[s.comp] = (got[s.comp] || 0) + r; });
+    return Object.keys(RING).map((c) => [c, tot[c] ? (got[c] || 0) / tot[c] : 0]);
+  }
+  function rings(pulse) {
+    let b = $("#rings");
+    if (!b) {
+      b = el("div", { id: "rings", class: "rings", role: "img" });
+      b.innerHTML = `<svg viewBox="0 0 44 44" aria-hidden="true">${Object.keys(RING).map((c, i) => { const r = 19 - i * 4.6; return `<circle class="rt" cx="22" cy="22" r="${r}" stroke="${RING[c]}"/><circle class="rf" data-c="${c}" cx="22" cy="22" r="${r}" stroke="${RING[c]}" pathLength="100"/>`; }).join("")}</svg>`;
+      $(".chapbox").after(b);
+    }
+    const P = compProgress();
+    P.forEach(([c, p]) => { const f = b.querySelector(`.rf[data-c="${c}"]`); f.style.strokeDashoffset = (100 - Math.max(p * 100, p > 0 ? 3 : 0)).toFixed(1); });
+    b.setAttribute("aria-label", "Compétences : " + P.map(([c, p]) => `${c} ${Math.round(p * 100)} %`).join(", "));
+    b.title = P.map(([c, p]) => `${c} · ${COMPS[c]} : ${Math.round(p * 100)} %`).join("\n");
+    if (pulse) { b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); }
+  }
+  function toast(c, q) {
+    const t = el("div", { class: "gain", "aria-hidden": "true" }, `<i style="background:${RING[c]}"></i><span><b>${q >= 1 ? "Réflexe acquis" : "Compétence en progrès"}</b>${esc(COMPS[c])}</span>`);
+    document.body.appendChild(t); requestAnimationFrame(() => t.classList.add("on"));
+    setTimeout(() => { t.classList.remove("on"); setTimeout(() => t.remove(), 600); }, 2600);
   }
 
   /* ---------- navigation ---------- */
@@ -252,12 +293,28 @@
 
   /* ---------- éléments communs ---------- */
   const kicker = (t) => (t ? `<p class="kicker">${esc(t)}</p>` : "");
+  // Heure de la scène, lue dans l'indication de temps (« Lundi, 8 h 30 », « Jeudi soir »…).
+  function timeOf(sc) {
+    const k = String((sc && (sc.kicker || "")) || "").toLowerCase();
+    if (/nuit/.test(k)) return "night";
+    if (/soir/.test(k)) return "evening";
+    if (/matin/.test(k)) return "morning";
+    const h = k.match(/(\d{1,2})\s*h/); if (h) { const n = +h[1]; return n < 11 ? "morning" : n < 16 ? "day" : n < 19 ? "golden" : "evening"; }
+    return { 1: "morning", 2: "morning", 3: "day", 4: "golden", 5: "morning", 6: "evening" }[sc && sc.ch] || "day";
+  }
   function scenePanel(key, extra = "") {
     const svg = key === "welcome" ? A.welcome : (A.scenes[key] || A.chapters[key] || "");
-    return el("div", { class: "art" + extra }, `<div class="artin">${svg}</div>`);
+    const n = el("div", { class: "art amb-" + timeOf(SCREENS[st.idx]) + extra }, `<i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="artin">${svg}</div>`);
+    parallax(n); return n;
+  }
+  function parallax(n) {
+    if (matchMedia("(pointer:coarse)").matches) return;
+    n.addEventListener("pointermove", (e) => { const r = n.getBoundingClientRect(); n.style.setProperty("--px", ((e.clientX - r.left) / r.width - .5).toFixed(3)); n.style.setProperty("--py", ((e.clientY - r.top) / r.height - .5).toFixed(3)); });
+    n.addEventListener("pointerleave", () => { n.style.setProperty("--px", 0); n.style.setProperty("--py", 0); });
   }
   function portrait(who, mood) {
-    return el("div", { class: "portrait", "data-who": who }, `<div class="pchar">${A.chars[who][mood || "smile"]}</div><div class="pname">${NAMES[who]}</div>`);
+    const n = el("div", { class: "portrait amb-" + timeOf(SCREENS[st.idx]), "data-who": who }, `<i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="pchar">${A.chars[who][mood || "smile"]}</div><div class="pname">${NAMES[who]}</div>`);
+    parallax(n); return n;
   }
   function setMood(container, who, mood) {
     const pc = container.querySelector(`.portrait[data-who="${who}"] .pchar`);
@@ -267,7 +324,7 @@
   }
   function btn(label, onclick, cls = "cta") { return el("button", { class: cls, type: "button", onclick }, label); }
   function record(sc, q, extra) {
-    if (st.res[sc.id] == null) st.res[sc.id] = q;
+    if (st.res[sc.id] == null) { st.res[sc.id] = q; if (sc.comp && q > 0) { rings(true); toast(sc.comp, q); } }
     if (extra && extra.flag) st.flags[extra.flag] = true;
     save();
   }
@@ -334,7 +391,7 @@
   R.chapter = (sc, n) => {
     const c = CHAPTERS[sc.ch - 1];
     const stations = CHAPTERS.map((x) => `<li class="${x.n < c.n ? "done" : x.n === c.n ? "cur" : ""}"><span>${x.n}</span></li>`).join("");
-    n.innerHTML = `<div class="chap"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div><div class="chapart">${A.chapters[c.n]}</div><p class="chapnum">Chapitre ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.title)}</h2><p class="lead">${esc(c.goal)}</p></div>`;
+    n.innerHTML = `<div class="chap"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div><div class="chapart art amb-${timeOf(sc)}"><i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="artin">${A.chapters[c.n]}</div></div><p class="chapnum">Chapitre ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.title)}</h2><p class="lead">${esc(c.goal)}</p></div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Continuer", next));
     Snd.page();
   };
@@ -355,8 +412,8 @@
       else row.innerHTML = `<p>${words(L.t)}</p>`;
       lines.appendChild(row);
       say((nm ? nm + " : " : "") + L.t);
-      if (L.who && L.who !== "player") Voice.say(L.who, L.t, L.mood);
-      else if (!L.who) Voice.say("narr", L.t);
+      if (L.who && L.who !== "player") Voice.say(L.who, L.t, row);
+      else if (!L.who) Voice.say("narr", L.t, row);
     };
     function step() {
       Snd.click();
@@ -530,8 +587,8 @@
       if (nd.narr) log.appendChild(el("p", { class: "narr" }, words(nd.narr)));
       opts.innerHTML = "";
       const write = () => {
-        log.appendChild(el("div", { class: "say npc" }, `<b>${NAMES[sc.npc]}</b><p>${words(nd.t)}</p>`));
-        Voice.say(sc.npc, nd.t, nd.mood);
+        const bub = log.appendChild(el("div", { class: "say npc" }, `<b>${NAMES[sc.npc]}</b><p>${words(nd.t)}</p>`));
+        Voice.say(sc.npc, nd.t, bub);
         log.scrollTop = log.scrollHeight;
         if (nd.end) return finish(nd);
         drawOpts();

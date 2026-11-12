@@ -138,7 +138,7 @@ const SCREENS = [
       { t: "Il a été agressé par un membre de sa famille.", cat: "sup", why: "C’est la conclusion de Jade : aucun récit ni autre fait précis ne la fonde." },
       { t: "Théo est sûrement traumatisé.", cat: "sup", why: "Une interprétation, pas une observation." },
     ] },
-  { id: "theo2", ch: 2, type: "choice", comp: "C3", kicker: "Et maintenant ?",
+  { id: "theo2", ch: 2, type: "choice", npc: "jade", mood: "concern", comp: "C3", kicker: "Et maintenant ?",
     context: "Vous avez trié les faits. Jade attend votre réaction.",
     prompt: "Quelle est la réponse la plus juste ?",
     opts: [
@@ -191,7 +191,7 @@ const SCREENS = [
       { t: "On lui demande son accord après coup.", cat: "pre", why: "L’accord se donne avant l’acte." },
       { t: "Elle avait dit oui, puis demande d’arrêter.", cat: "rev", why: "On peut retirer son accord à tout moment : demander d’arrêter y met fin." },
     ] },
-  { id: "silence", ch: 3, type: "choice", comp: "C2", kicker: "Une question de Nour",
+  { id: "silence", ch: 3, type: "choice", npc: "nour", mood: "calm", comp: "C2", kicker: "Une question de Nour",
     context: "« Et s’il n’a rien dit, rien fait, il est resté sans réaction ? »",
     prompt: "Est-ce un accord ?",
     opts: [

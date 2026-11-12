@@ -108,6 +108,12 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…D’accord. On en reparle."
  },
+ "01116f3833b8": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
+ },
  "b21e595cfee9": {
   "who": "kevin",
   "mood": "smile",
@@ -485,12 +491,6 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Quelle caractéristique du consentement manque dans chaque situation ?"
- },
- "e9a92929b8c8": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
  },
  "a24db121e607": {
   "who": "narr",

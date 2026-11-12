@@ -1,0 +1,135 @@
+/* ---------- Schémas animés ----------
+   Même grammaire que l'anneau du Collectif : courbe --ease, 1,4 s, rotation douce + mise à l'échelle,
+   tracés qui se dessinent, un point qui orbite. */
+.dg{margin:0;position:relative}
+.dg-svg{display:block;width:100%;height:100%;overflow:visible}
+.dg-ring{position:relative;width:var(--W);aspect-ratio:1;margin:0 auto}
+.dg-track{fill:none;stroke:rgba(20,47,70,.12);stroke-width:1.5}
+.dg-glow{stroke-width:3;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}
+.dg-halo{fill:rgba(101,82,211,.05);stroke:rgba(101,82,211,.12);stroke-dasharray:3 7}
+.dg-sat{fill:#8a4fd0;filter:drop-shadow(0 0 8px rgba(138,79,208,.7))}
+.dg-sat2{fill:#e2702a;filter:drop-shadow(0 0 6px rgba(226,112,42,.7))}
+.dg-spin{transform-box:view-box;transform-origin:50% 50%;animation:dg-spin 22s linear infinite}
+.dg-spin-slow{animation-duration:9s}
+@keyframes dg-spin{to{transform:rotate(360deg)}}
+.dg-core{position:absolute;left:50%;top:50%;width:30%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:var(--grad);color:#fff;box-shadow:0 0 0 calc(var(--W)*.03) rgba(101,82,211,.08),0 20px 60px -10px rgba(101,82,211,.55)}
+.dg-core b{font-family:var(--display);font-weight:800;font-size:calc(var(--W)*.042);line-height:1.08;letter-spacing:-.02em}
+.dg-core-text{display:flex;flex-direction:column;justify-content:center;gap:2px}
+.dg-core-text span{font-size:calc(var(--W)*.026);opacity:.85;font-weight:600}
+
+/* Piliers en orbite */
+.dg-orbit{--W:min(600px,88vw)}
+.dg-node{position:absolute;left:50%;top:50%;display:flex;align-items:center;gap:8px;white-space:nowrap;text-decoration:none;
+  padding:9px 15px 9px 9px;border-radius:999px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 10px 30px -12px rgba(19,40,59,.3),inset 0 0 0 1px rgba(20,47,70,.06);color:var(--navy);
+  transform:translate(-50%,-50%) rotate(var(--a)) translate(calc(var(--W)*.383)) rotate(calc(-1*var(--a)));transition:box-shadow .4s var(--ease),background .4s}
+.dg-node:hover,.dg-node:focus-visible{background:#fff;box-shadow:0 14px 34px -10px rgba(101,82,211,.45),inset 0 0 0 1.5px rgba(101,82,211,.45)}
+.dg-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--grad)}
+.dg-l{font-weight:700;font-size:15px;letter-spacing:-.01em}
+.dg-compact{--W:min(440px,84vw)}
+.dg-compact .dg-node{padding:6px 12px 6px 6px}.dg-compact .dg-n{width:24px;height:24px;font-size:10.5px}.dg-compact .dg-l{font-size:13px}
+@media(max-width:560px){.dg-node{padding:5px 10px 5px 5px;gap:5px}.dg-n{width:22px;height:22px;font-size:10px}.dg-l{font-size:11.5px}}
+
+/* Cycle */
+.dg-cycle{--W:min(560px,88vw);margin:34px auto 40px}
+.dg-arc{fill:none;stroke:url(#dgc-g);stroke-width:4;stroke-linecap:round;stroke-dasharray:100;
+  stroke-dashoffset:calc(100 - 100 * clamp(0, var(--p,1) * 4 - var(--i), 1))}
+.dg-st{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;
+  padding:12px 18px;border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 12px 30px -14px rgba(19,40,59,.35),inset 0 0 0 1px rgba(20,47,70,.06);
+  min-width:150px;opacity:calc(.35 + .65 * clamp(0, var(--p,1) * 4 - var(--i) + .6, 1))}
+.dg-st b{font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--navy)}
+.dg-st small{font-size:12.5px;color:#5b6b7a}
+.dg-cycle .dg-core{width:34%}
+.dg-cycle .dg-spin{opacity:clamp(0, var(--p,1) * 5 - 4, 1)}
+@media(max-width:560px){.dg-st{min-width:0;padding:8px 10px;border-radius:14px}.dg-st b{font-size:14px}.dg-st small{display:none}}
+
+/* Cadre concentrique */
+.dg-frame{width:min(520px,86vw);aspect-ratio:1;margin:30px auto 40px}
+.dg-frame .f1{fill:#13283B}
+.dg-frame .f2{fill:#e9ecfb}
+.dg-frame text{font-family:var(--font);font-weight:700}
+.dg-frame .t1{fill:rgba(255,255,255,.85);font-size:17px;letter-spacing:.14em}
+.dg-frame .t2{fill:#4b3fa6;font-size:15px;letter-spacing:.14em}
+.dg-frame .t3{fill:#fff;font-family:var(--display);font-weight:800;font-size:32px;letter-spacing:-.02em}
+.dg-frame .t4{fill:rgba(255,255,255,.88);font-size:17px;font-weight:600}
+.dg-disc{transform-box:view-box;transform-origin:50% 50%}
+
+/* Hub des actions */
+.dg.dg-hub{margin:10px auto 30px}
+.dg-stage{position:relative;aspect-ratio:1000/460;max-width:1100px;margin:0 auto}
+.dg-wire{fill:none;stroke:rgba(101,82,211,.35);stroke-width:2;stroke-dasharray:100;vector-effect:non-scaling-stroke}
+.dg-pulse{fill:#8a4fd0;filter:drop-shadow(0 0 6px rgba(138,79,208,.8))}
+.dg-hub .dg-core{--W:min(1100px,92vw);width:19%;aspect-ratio:1;display:flex;flex-direction:column;justify-content:center;gap:0}
+.dg-hub .dg-core span{font-size:clamp(12px,1.4vw,16px);font-weight:600;opacity:.85}
+.dg-hub .dg-core b{font-size:clamp(17px,2.2vw,28px)}
+.dg-card{position:absolute;transform:translate(-50%,-50%);width:26%;padding:16px 20px;border-radius:22px;text-decoration:none;
+  background:#fff;box-shadow:0 18px 40px -18px rgba(19,40,59,.35),inset 0 0 0 1px rgba(20,47,70,.06);display:flex;flex-direction:column;gap:2px;
+  transition:box-shadow .45s var(--ease),transform .6s var(--ease)}
+.dg-card small{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dg-card b{font-family:var(--display);font-size:clamp(15px,1.7vw,21px);font-weight:800;letter-spacing:-.02em;color:var(--navy);line-height:1.15}
+.dg-card:hover,.dg-card:focus-visible{box-shadow:0 22px 50px -16px rgba(101,82,211,.45),inset 0 0 0 1.5px rgba(101,82,211,.4)}
+@media(max-width:760px){
+  .dg-stage{aspect-ratio:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:150px}
+  .dg-hub .dg-svg{display:none}
+  .dg-hub .dg-core{top:64px;width:128px;--W:300px}
+  .dg-card{position:static;transform:none;width:auto}
+}
+
+/* Diagramme de Venn */
+.dg-venn-head{text-align:center;max-width:760px;margin:0 auto 10px}
+.dg-venn{--p:1}
+.dg-vstage{position:relative;width:min(620px,90vw);aspect-ratio:1/.95;margin:0 auto}
+.dg-vc{position:absolute;width:56%;aspect-ratio:1;border-radius:50%;display:grid;padding:10%;mix-blend-mode:multiply;
+  --s:calc((1 - var(--p)) * 1);transition:none}
+.dg-vc>div{display:flex;flex-direction:column;gap:4px;max-width:70%}
+.dg-vc b{white-space:nowrap;font-family:var(--display);font-weight:800;font-size:clamp(16px,2.4vw,24px);letter-spacing:-.02em;color:var(--navy)}
+.dg-vc small{font-size:clamp(11.5px,1.4vw,14px);color:#3d4d5c;line-height:1.35}
+.dg-vc.v1{left:0;top:0;background:radial-gradient(circle at 35% 35%,rgba(43,91,215,.30),rgba(43,91,215,.16));align-items:start;justify-items:start;
+  transform:translate(calc(var(--s) * -22%),calc(var(--s) * -14%))}
+.dg-vc.v2{right:0;top:0;background:radial-gradient(circle at 65% 35%,rgba(138,79,208,.30),rgba(138,79,208,.16));align-items:start;justify-items:end;text-align:right;
+  transform:translate(calc(var(--s) * 22%),calc(var(--s) * -14%))}
+.dg-vc.v2>div{align-items:flex-end}
+.dg-vc.v3{left:22%;bottom:0;background:radial-gradient(circle at 50% 70%,rgba(226,112,42,.30),rgba(226,112,42,.15));align-items:end;justify-items:center;text-align:center;
+  transform:translate(0,calc(var(--s) * 24%))}
+.dg-vc.v3>div{align-items:center}
+.dg-vcore{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%) scale(calc(.6 + .4 * clamp(0, var(--p) * 4 - 3, 1)));opacity:clamp(0, var(--p) * 4 - 3, 1);
+  width:30%;aspect-ratio:1;border-radius:50%;background:var(--grad);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  box-shadow:0 0 0 10px rgba(255,255,255,.6),0 20px 50px -10px rgba(101,82,211,.6);padding:4%}
+.dg-vcore b{font-family:var(--display);font-weight:800;font-size:clamp(14px,2vw,22px);letter-spacing:-.02em}
+.dg-vcore small{font-size:clamp(10px,1.2vw,12.5px);opacity:.9;line-height:1.25}
+
+/* Fourmi'Action : le projet éducatif */
+.dg-teaser-in{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;background:#fff;border-radius:36px;padding:56px;box-shadow:var(--sh)}
+@media(max-width:900px){.dg-teaser-in{grid-template-columns:1fr;padding:34px 22px}}
+
+/* Fil d'Ariane */
+.crumb{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#6e7b88;margin:0 0 14px}
+.crumb a{color:#2b5bd7;text-decoration:none}.crumb a:hover{text-decoration:underline}
+.crumb svg{width:6px;height:10px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.cj-hero .crumb{justify-content:center}
+
+/* ---------- Apparition « anneau » ---------- */
+html.ap-motion .dg .dg-ring,html.ap-motion .dg-frame .dg-svg{transition:transform 1.4s var(--ease)}
+html.ap-motion .dg:not(.ap-in) .dg-ring{transform:rotate(-25deg) scale(.9)}
+html.ap-motion .dg .dg-glow{transition:stroke-dashoffset 1.8s var(--ease) .15s}
+html.ap-motion .dg:not(.ap-in) .dg-glow{stroke-dashoffset:100}
+html.ap-motion .dg .dg-core{transition:transform 1.2s var(--ease) .2s,opacity .8s var(--ease) .2s}
+html.ap-motion .dg:not(.ap-in) .dg-core{transform:translate(-50%,-50%) scale(.55);opacity:0}
+html.ap-motion .dg-orbit .dg-node{transition:opacity .9s var(--ease) calc(.35s + var(--i) * .08s),box-shadow .4s var(--ease),background .4s}
+html.ap-motion .dg-orbit:not(.ap-in) .dg-node{opacity:0}
+html.ap-motion .dg-orbit .dg-node>*{transition:transform 1.2s var(--ease) calc(.35s + var(--i) * .08s)}
+html.ap-motion .dg-orbit:not(.ap-in) .dg-node>*{transform:scale(.6)}
+html.ap-motion .dg-frame .dg-disc{transition:transform 1.4s var(--ease),opacity 1s var(--ease)}
+html.ap-motion .dg-frame:not(.ap-in) .dg-disc{transform:scale(.4) rotate(-20deg);opacity:0}
+.dg-frame .d1{transition-delay:.3s!important}.dg-frame .d2{transition-delay:.15s!important}
+html.ap-motion .dg-hub .dg-wire{transition:stroke-dashoffset 1.6s var(--ease) calc(.25s + var(--i) * .12s)}
+html.ap-motion .dg-hub:not(.ap-in) .dg-wire{stroke-dashoffset:100}
+html.ap-motion .dg-hub .dg-pulse{transition:opacity .6s 1.6s}
+html.ap-motion .dg-hub:not(.ap-in) .dg-pulse{opacity:0}
+html.ap-motion .dg-hub .dg-card{transition:opacity .9s var(--ease) calc(.5s + var(--i) * .1s),transform 1.2s var(--ease) calc(.5s + var(--i) * .1s),box-shadow .45s var(--ease)}
+html.ap-motion .dg-hub:not(.ap-in) .dg-card{opacity:0;transform:translate(-50%,-50%) scale(.85)}
+@media(max-width:760px){html.ap-motion .dg-hub:not(.ap-in) .dg-card{transform:scale(.9)}}
+html.ap-reduced .dg *{animation:none!important;transition:none!important}
+html.ap-reduced .dg{--p:1!important}
+html.ap-reduced .dg-pulse{display:none}

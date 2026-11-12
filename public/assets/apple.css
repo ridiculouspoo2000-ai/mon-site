@@ -57,10 +57,8 @@ header nav{gap:2px}
 header nav a{font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:-.005em;color:#2a3a48;padding:8px 12px;border-radius:999px;transition:background .25s var(--ease),color .25s var(--ease)}
 header nav a:hover{background:rgba(20,47,70,.06);color:var(--navy);transform:none!important}
 header nav a[aria-current]{background:rgba(20,47,70,.08);color:var(--navy)}
-header nav a[href="bafa.html"]{background:var(--fa-blue);color:#fff;padding-inline:16px}
-header nav a[href="bafa.html"]:hover{background:#1a467c;color:#fff}
-header nav a[href="collectif-jeunes.html"]{position:relative}
-header nav a[href="collectif-jeunes.html"]::after{content:"";position:absolute;top:7px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--grad)}
+header nav>a[href="bafa.html"]{background:var(--fa-blue);color:#fff;padding-inline:16px}
+header nav>a[href="bafa.html"]:hover{background:#1a467c;color:#fff}
 .menu-toggle{background:rgba(255,255,255,.7);border-color:rgba(20,47,70,.12);font-weight:500}
 @media(min-width:1151px) and (max-width:1300px){header nav a{padding-inline:9px;font-size:12.5px}.brand{width:165px}}
 .reading-progress{height:2px;background:var(--grad)}
@@ -220,7 +218,7 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 @media(max-width:860px){.ap-join{grid-template-columns:1fr;padding:32px 26px;gap:22px}.ap-widget{padding:6px;border-radius:var(--r-l)}}
 
 /* ---------- Mobile ---------- */
-@media(max-width:1150px){header nav{background:rgba(245,245,247,.97);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}header nav a[href="collectif-jeunes.html"]::after{display:none}}
+@media(max-width:1150px){header nav{background:rgba(245,245,247,.97);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}}
 @media(max-width:760px){
   body{font-size:16.5px}
   .wrap{width:calc(100% - 40px)}

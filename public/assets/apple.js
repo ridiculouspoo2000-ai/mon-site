@@ -56,7 +56,7 @@
     '.split > *', '.price-accordion', '.trainer-entry', '.download', '.bafa-banner', '.news-teaser',
     '.help > *', '.testimonials > article', '.gallery > a', '.blue-strip span',
     '.contact-info', '.contact-grid form', '.legal-notice', '.resources article', '#faq details',
-    '.bafa-infographic', '.ap-join', '.ap-widget', '.ap-widget-intro > *', '[data-ap]', '.ap-stagger > *'
+    '.bafa-infographic', '.ap-join', '.ap-widget', '.ap-widget-intro > *', '[data-ap]', '[data-dg]', '.dg-venn-head > *', '.dg-teaser-copy > *', '.ap-stagger > *'
   ].join(',');
   const els = [...document.querySelectorAll(groups)].filter(el => !el.closest('header, footer, .ap-no-reveal, [data-scene], [data-words], [data-steps]') && !el.matches('[data-words], .bafa-banner, .split > div:last-child'));
   const pending = new Set();
@@ -329,6 +329,74 @@
     const sync = () => seg_.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === subj.value)));
     seg_.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; subj.value = b.dataset.v; subj.dispatchEvent(new Event('change')); sync(); });
     subj.addEventListener('change', sync); setTimeout(sync, 0);
+  }
+
+  /* ---------- Apparence : Épuré ou Verre liquide ---------- */
+  const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
+    '.download', '.price-accordion', '#faq details', '.ap-faq details', '.trainer-entry', '.contact-grid form', '.legal-notice', '.ap-join',
+    '.ct-tile', '.ct-form', '.nw-feature', '.nw-tile', '.cj-tile.light', '.cj-card', '.cj-rules article', '.cj-amount', '.bafa-resource-card',
+    '.dg-teaser-in', '.bafa-infographic', '.help'].join(',');
+  const lgOn = () => document.querySelectorAll(LG).forEach((el, i) => { el.classList.add('lg'); if (i % 2) el.classList.add('lg-o'); });
+  const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));
+  const applyStyle = v => {
+    root.classList.toggle('theme-verre', v === 'verre');
+    v === 'verre' ? lgOn() : lgOff();
+    try { localStorage.setItem('fa-style', v); } catch (_) {}
+    picker.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  };
+  const picker = document.createElement('div');
+  picker.className = 'ap-style'; picker.setAttribute('role', 'group'); picker.setAttribute('aria-label', 'Apparence du site');
+  picker.innerHTML = '<span>Apparence</span><button type="button" data-v="epure">Épuré</button><button type="button" data-v="verre">Verre liquide</button>';
+  picker.addEventListener('click', e => { const b = e.target.closest('button'); if (b) applyStyle(b.dataset.v); });
+  document.body.appendChild(picker);
+  applyStyle(root.classList.contains('theme-verre') ? 'verre' : 'epure');
+  // Reflet qui suit le pointeur sur le verre.
+  let lgRaf = 0, lgEv = null;
+  document.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || !root.classList.contains('theme-verre')) return;
+    lgEv = e; if (lgRaf) return;
+    lgRaf = requestAnimationFrame(() => {
+      lgRaf = 0; const el = lgEv.target.closest && lgEv.target.closest('.lg'); if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((lgEv.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+      el.style.setProperty('--my', ((lgEv.clientY - r.top) / r.height * 100 - 30).toFixed(1) + '%');
+    });
+  }, { passive: true });
+
+  /* ---------- Schémas : avancement piloté par le défilement ---------- */
+  document.querySelectorAll('[data-dg-scrub]').forEach(el => scenes.push(() => {
+    const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
+    const p = clamp((innerHeight * .95 - r.top) / (innerHeight * .45 + r.height * .5));
+    el.style.setProperty('--p', p.toFixed(3));
+  }));
+
+  /* ---------- Menus déroulants (Fourmi’Action, Nos actions) ---------- */
+  const navGroups = [...document.querySelectorAll('.nav-group')];
+  if (navGroups.length) {
+    const desk = matchMedia('(min-width:1151px)');
+    const dim = document.createElement('div'); dim.className = 'nav-dim'; document.body.appendChild(dim);
+    let timer = 0, current = null;
+    const set = g => {
+      clearTimeout(timer);
+      navGroups.forEach(x => { const on = x === g; x.classList.toggle('open', on); x.querySelector('.nav-top').setAttribute('aria-expanded', String(on)); });
+      current = g; dim.classList.toggle('on', !!g && desk.matches);
+    };
+    const later = (g, ms) => { clearTimeout(timer); timer = setTimeout(() => set(g), ms); };
+    navGroups.forEach(g => {
+      const top = g.querySelector('.nav-top');
+      g.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && desk.matches) later(g, current ? 0 : 140); });
+      g.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && desk.matches) later(null, 260); });
+      g.addEventListener('focusin', () => { if (desk.matches) set(g); });
+      g.addEventListener('focusout', e => { if (desk.matches && !g.contains(e.relatedTarget)) later(null, 10); });
+      top.addEventListener('click', e => { // écran tactile large : le premier appui ouvre le menu
+        if (desk.matches && matchMedia('(hover:none)').matches && current !== g) { e.preventDefault(); set(g); }
+      });
+    });
+    dim.addEventListener('pointerenter', () => later(null, 120));
+    dim.addEventListener('click', () => set(null));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && current) { const t = current.querySelector('.nav-top'); set(null); t.focus(); } });
+    addEventListener('scroll', () => { if (current && !current.contains(document.activeElement)) set(null); }, { passive: true });
+    desk.addEventListener?.('change', () => set(null));
   }
 
   /* ---------- Contact : envoi direct du message (repli vers la messagerie si l’envoi est indisponible) ---------- */

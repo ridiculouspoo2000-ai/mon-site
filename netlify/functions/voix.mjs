@@ -17,11 +17,19 @@ const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] 
 
 // Voix par défaut (bibliothèque ElevenLabs), modifiables avec ELEVENLABS_VOIX.
 const DEFAUT = {
-  nour: "EXAVITQu4vr4xnSDxMaL", ines: "FGY2WhTYpPnrIDTdsKH5", jade: "Xb7hH8MSUJpSbSDYk0k2", maelys: "cgSgspJ2msm6clMCkdW9",
-  lou: "pFZP5JQG7iQjIQuC4Bku", malo: "bIHbv24MWmeRgasZH58o", bastien: "TX3LPaxmHKxFdv7VOQHJ", kevin: "bIHbv24MWmeRgasZH58o", garnier: "JBFqnCBsd6RMkjVDRZzb",
+  // Voix françaises natives (bibliothèque ElevenLabs), choisies selon le profil de chaque personnage.
+  nour: "O31r762Gb3WFygrEOGh0",    // Victoria · directrice adjointe, posée et chaleureuse
+  ines: "txtf1EDouKke753vN8SL",    // Jeanne · jeune animatrice, voix jeune parisienne
+  jade: "Crnn8UaAugljbB6XhAKo",    // Emi · animatrice dynamique et enthousiaste
+  maelys: "MmLmgmAm7pKFUJBu1Lov",  // Mélodie · adolescente, voix jeune et expressive
+  lou: "2oMnSKxLeHBxE0KdeHJD",     // Natasha Asher · voix douce et fragile
+  bastien: "Ayvd8fDj52DfUWXZeAFe", // Nathan Doré · jeune animateur, détendu
+  kevin: "Xgb3SR8idOHy8scGICeJ",   // Kevin · jeune homme, clair et sérieux
+  malo: "mvhJVdVoTWVUtL4keT7W",    // Simon · jeune et énergique
+  garnier: "fEtpdogpDkBrq53KdupV", // David · homme d’une cinquantaine d’années, grave et posé
 };
 const REGLAGES = {
-  defaut: { stability: 0.45, similarity_boost: 0.8, style: 0.25, use_speaker_boost: true },
+  defaut: { stability: 0.5, similarity_boost: 0.8, style: 0.2, use_speaker_boost: true },
   lou: { stability: 0.38, similarity_boost: 0.75, style: 0.45, use_speaker_boost: true },
   maelys: { stability: 0.4, similarity_boost: 0.75, style: 0.4, use_speaker_boost: true },
   garnier: { stability: 0.6, similarity_boost: 0.85, style: 0.15, use_speaker_boost: true },

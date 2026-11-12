@@ -30,6 +30,18 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Tu as vu ? Je me dis que c’est peut-être moi qui le prends mal."
  },
+ "71e2c3ae7ad4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Minimiser isole la personne. Ce qui se répète malgré un refus n’est plus de l’humour."
+ },
+ "b35ab9ae2165": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "La plainte est une possibilité, mais une adulte décide de ses démarches. On commence par écouter et informer."
+ },
  "e19cf9967b74": {
   "who": "ines",
   "mood": "concern",
@@ -47,6 +59,18 @@ export const LIGNES = {
   "mood": "calm",
   "kind": "replique",
   "text": "Merci. Mais je ne veux pas d’histoires avec l’équipe."
+ },
+ "2a0f4c6ef331": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Ton intention est de protéger, mais un règlement de comptes ne garantit ni l’arrêt des faits ni un suivi."
+ },
+ "48a8ba29fe2f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Garder le secret laisse la situation continuer. Une alerte interne déclenche l’obligation de l’employeur."
  },
  "d66daf5e7e93": {
   "who": "ines",
@@ -78,17 +102,29 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Bonsoir. Hier soir, avec son tableau d’images, Zoé m’a fait comprendre qu’un animateur l’avait aidée à se changer après sa chute dans la boue. Elle avait l’air gênée. Comment ça se passe, ici, ces moments-là ?"
  },
- "29d683d547e9": {
-  "who": "roussel",
-  "mood": "concern",
-  "kind": "replique",
-  "text": "Diplômés, d’accord… Mais concrètement, qui était avec elle, et comment ?"
+ "ec093d9c2cd7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le diplôme ne répond pas à la question. Le parent attend des règles concrètes, et sa remarque mérite d’être vérifiée."
  },
- "ac60c8541f99": {
+ "b60017f17252": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Orienter vers la direction est utile, mais une question simple sur l’organisation mérite une réponse claire."
+ },
+ "d347dbedca75": {
   "who": "roussel",
-  "mood": "o",
+  "mood": "angry",
   "kind": "replique",
-  "text": "Je vous demande juste comment ça marche…"
+  "text": "Diplômés ?! Ce n’est pas ma question ! Je vous demande qui était avec ma fille, et comment ça se passe !"
+ },
+ "3f8f80ed50e0": {
+  "who": "roussel",
+  "mood": "angry",
+  "kind": "replique",
+  "text": "Pardon ? Je vous pose une question simple, et vous me renvoyez ailleurs ?"
  },
  "3b49bffb7b66": {
   "who": "roussel",
@@ -96,11 +132,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "D’accord. Et si elle me redit qu’elle a été gênée ?"
  },
- "d045ad3a46e9": {
+ "c3fdec31e2d1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Mettre en doute la parole d’un enfant devant son parent ferme la porte aux prochaines confidences."
+ },
+ "510cf3d0ad74": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Des questions répétées ou orientées peuvent troubler l’enfant et fragiliser sa parole. On écoute, on note, on transmet."
+ },
+ "6a3bcdbb0fb4": {
   "who": "roussel",
-  "mood": "concern",
+  "mood": "angry",
   "kind": "replique",
-  "text": "Vous croyez ? Elle n’est pas du genre à inventer."
+  "text": "Exagérer ? Ma fille n’invente pas ce genre de choses ! Vous la connaissez à peine !"
  },
  "06f4f562cd60": {
   "who": "roussel",
@@ -114,11 +162,29 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Merci. Ça me rassure de savoir comment vous vous organisez."
  },
+ "636642c36a4d": {
+  "who": "garnier",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
+ },
  "b54848fbba50": {
   "who": "jade",
   "mood": "big",
   "kind": "replique",
   "text": "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !"
+ },
+ "229bb443c16a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Insister transforme une invitation en pression. Un refus doit pouvoir s’exprimer sans humiliation."
+ },
+ "888bbd9334f4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Se taire laisse un enfant seul face à la pression du groupe."
  },
  "e3102301a5ef": {
   "who": "jade",
@@ -137,6 +203,12 @@ export const LIGNES = {
   "mood": "smile",
   "kind": "replique",
   "text": "Ah… oui, bonne idée. Chacun choisit sa salutation !"
+ },
+ "087dd5b2a3f8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Corriger la consigne, oui ; mettre une collègue en difficulté devant les enfants, non."
  },
  "c3774c3e1524": {
   "who": "jade",
@@ -162,11 +234,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je peux vous parler deux minutes ? Hier soir, Malo m’a dit qu’un grand lui avait montré des vidéos pas pour les enfants sur un téléphone, aux toilettes. Il m’a fait promettre de ne rien dire."
  },
- "81d1dc2670d3": {
+ "bd00c98f3d0a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Montrer des images pornographiques à un enfant n’est jamais anodin, même entre enfants. L’équipe doit réagir."
+ },
+ "30bd77c7e85d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Agir seul et à chaud, sans la direction, peut exposer les enfants concernés. On transmet : la direction organise la réponse."
+ },
+ "3be72700d1ac": {
   "who": "benali",
-  "mood": "concern",
+  "mood": "angry",
   "kind": "replique",
-  "text": "Il a huit ans… Il était vraiment choqué, vous savez."
+  "text": "C’est l’âge ?! Il a huit ans, il était choqué ! Vous trouvez ça normal ?"
  },
  "15cc46613895": {
   "who": "benali",
@@ -180,11 +264,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Et à Malo, qu’est-ce que je dis ? Il a peur qu’on sache que c’est lui qui a parlé."
  },
- "b1ac15a2a45c": {
+ "c887fd6f70fe": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "La consigne fait porter la protection sur l’enfant. C’est à l’équipe d’organiser les lieux et la surveillance."
+ },
+ "acfbcc37ae7e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une prévention collective est utile, mais pas à chaud : Malo serait identifié. La direction décide de la réponse, en protégeant sa parole."
+ },
+ "6b4ed569c384": {
   "who": "benali",
-  "mood": "concern",
+  "mood": "angry",
   "kind": "replique",
-  "text": "Mais ce n’est pas à lui de faire attention, si ?"
+  "text": "Mais ce n’est pas à lui de faire attention ! C’est à vous de surveiller, non ?"
  },
  "5d93ef3c1de2": {
   "who": "benali",
@@ -228,6 +324,18 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Tu gardes le secret, hein ?"
  },
+ "ad7c99d625ca": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Tu promets ce que tu ne pourras pas tenir : pour protéger Lou, tu devras en parler."
+ },
+ "1ebb798c5840": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Demander une démonstration ou des détails n’est pas ton rôle : ça peut orienter et fragiliser sa parole."
+ },
  "d619ed1517d5": {
   "who": "lou",
   "mood": "smile",
@@ -245,6 +353,18 @@ export const LIGNES = {
   "mood": "calm",
   "kind": "replique",
   "text": "Tu vas le dire à qui ?"
+ },
+ "c63bdc02f78c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Rassurer par un secret, c’est bloquer la protection."
+ },
+ "04e09388fea1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "On ne garantit ni une peine, ni l’absence de conséquence familiale."
  },
  "869c6c2dfcb7": {
   "who": "lou",
@@ -312,6 +432,18 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Maëlys ? Elle a dû mal comprendre. Il travaille ici depuis dix ans. On verra demain avec l’organisateur, je ne veux pas de scandale."
  },
+ "92369ce5e93f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Attendre laisse l’intervenant au contact des jeunes. Rien ne justifie ce délai."
+ },
+ "458e64be1844": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une confrontation peut exposer Maëlys et compromettre l’enquête."
+ },
  "b5909a180b98": {
   "who": "garnier",
   "mood": "calm",
@@ -329,6 +461,12 @@ export const LIGNES = {
   "mood": "o",
   "kind": "replique",
   "text": "…Bon. Qui appelle qui ?"
+ },
+ "68303cf21c02": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Seules les personnes qui doivent agir reçoivent les informations nécessaires."
  },
  "a8cee89b4b80": {
   "who": "garnier",
@@ -731,6 +869,36 @@ export const LIGNES = {
   "mood": "",
   "kind": "chapitre",
   "text": "Chapitre 3. Les règles du jeu. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
+ },
+ "f3e1bc072749": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Monsieur Garnier vous prend à part"
+ },
+ "2dfc99e4c4bb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "L’organisateur envoie une animatrice remplaçante à 10 h. Jusque-là, deux groupes sont réunis dans la grande salle. La fatigue et le sous-effectif sont précisément les moments où les règles tiennent ou cèdent : on adapte l’organisation, pas la sécurité."
+ },
+ "a7f0e777b06f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "À 9 h 40, vous êtes seul aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
+ },
+ "342bbad24edd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le film calme la matinée, mais rien n’est prévu pour les sanitaires ni pour l’après-midi. Réduire l’activité peut aider, mais ne règle ni l’encadrement ni l’accompagnement : il faut un renfort."
+ },
+ "a0862c264630": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la."
  },
  "ea3e60130230": {
   "who": "narr",
@@ -1188,6 +1356,78 @@ export const LIGNES = {
   "kind": "epilogue",
   "text": "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion."
  },
+ "7950a144bc22": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous entrez dans la salle des petits, celle des 3 à 6 ans."
+ },
+ "a74f77962058": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes dans la salle des grands."
+ },
+ "19d0980fc229": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes à l’accueil, dans le bureau de la direction."
+ },
+ "29d35fbea540": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes dans la salle des animateurs."
+ },
+ "1c74596cca73": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous entrez dans la cuisine pédagogique."
+ },
+ "f563196f337c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes à la restauration scolaire."
+ },
+ "82f0670d8792": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes à l’infirmerie."
+ },
+ "09ef5f74b815": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes aux sanitaires."
+ },
+ "b55f5223dd0a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous entrez dans la régie, le local du matériel."
+ },
+ "67bed4c782e0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes à l’atelier radio."
+ },
+ "427fe31f4f19": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes dans la salle d’activités libre."
+ },
+ "b87542395fe4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "C’est la nuitée : la salle des petits est devenue un dortoir."
+ },
  "2b72e8002e8e": {
   "who": "narr",
   "mood": "",
@@ -1379,6 +1619,30 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Message de Kévin, depuis la régie : L’intervenant propose de garder Maëlys seule avec lui après l’atelier, pour finir son étagère. Je dis oui ?"
+ },
+ "61fd58a02d1d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Léna, à voix basse : Enzo a pris Clara en photo dans les vestiaires. Il dit qu’il va l’envoyer au groupe des grands."
+ },
+ "7097380438ae": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous accueillez sa parole, sans enquêter, et vous alertez immédiatement : la photo n’a peut-être pas encore circulé."
+ },
+ "b4af301a16d4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Demander à voir l’image, c’est risquer de la faire circuler davantage, et mettre en doute la parole de Léna."
+ },
+ "ca25549bc2d2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "L’intention est bonne, mais agir seul et à chaud peut aggraver la situation : on alerte d’abord la référente."
  },
  "3bc86b1672c1": {
   "who": "narr",

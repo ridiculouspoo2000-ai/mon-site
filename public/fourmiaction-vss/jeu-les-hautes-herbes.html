@@ -851,9 +851,9 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 @keyframes flick{from{transform:scaleY(.86) skewX(-3deg)}to{transform:scaleY(1.08) skewX(3deg)}}
 .dio-flag{transform-box:fill-box;transform-origin:0 50%;animation:flag 2.4s ease-in-out infinite}
 @keyframes flag{0%,100%{transform:skewY(0)}50%{transform:skewY(-7deg) scaleX(.94)}}
-.dio-walk{animation:diowalk 22s linear infinite}
+
 .dio-walk.w2{animation-duration:28s;animation-delay:-11s}
-@keyframes diowalk{0%{translate:0 0}25%{translate:60px 30px}50%{translate:20px 52px}75%{translate:-40px 22px}100%{translate:0 0}}
+
 .amb-evening .dio-win,.amb-night .dio-win{fill:#FFD27A;filter:drop-shadow(0 0 6px rgba(255,190,90,.8))}
 
 /* Monde : le diorama derrière la scène, caméra qui voyage d'un lieu à l'autre */
@@ -1198,6 +1198,22 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 .fi ul{margin:0;padding-left:16px;font-size:13.5px}
 .fi-note{margin:10px 0 0;font-size:13px;color:var(--blue);font-weight:600}
 @media (max-width:760px){.pl-grid{grid-template-columns:1fr}.dk{width:58px;height:58px}.ph-ban{top:70px}}
+.rgate{display:flex;flex-direction:column;align-items:center;gap:10px;margin:14px 0;padding:16px;border-radius:18px;background:rgba(11,79,132,.05);text-align:center}
+.rgate p{margin:0;font-size:14.5px;color:var(--muted)}
+.rgate .btn.ready{animation:readyp 1.4s ease-in-out infinite;box-shadow:0 0 0 0 rgba(43,111,214,.5)}
+@keyframes readyp{50%{box-shadow:0 0 0 10px rgba(43,111,214,0)}}
+.rx-stage .rgate{position:absolute;inset:0;z-index:5;justify-content:center;background:rgba(255,255,255,.92);border-radius:24px;margin:0}
+.rx-stage{position:relative}
+/* retrouver quelqu'un */
+.findg .map.dio{position:relative;overflow:hidden}
+.fperson{position:absolute;translate:-50% -94%;border:0;padding:0;background:none;cursor:pointer}
+.fperson svg{width:100%;display:block;overflow:visible}
+.fperson:hover svg{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 3px var(--blue2))}
+.fperson.nope svg{animation:rxshake .5s}
+.fperson.found svg{filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px var(--green));animation:foundp 1s var(--ease)}
+@keyframes foundp{30%{scale:1.5}100%{scale:1.15}}
+.fperson.hint svg{filter:drop-shadow(0 0 4px var(--orange))}
+@media (max-width:760px){.findg .mapbox{overflow-x:auto}.findg .map.dio{width:720px;max-width:none}}
 /* ==========================================================================
    Monde vivant : le plan derrière les questions, l'entrée dans les salles,
    les personnages en pâte à modeler qui jouent la scène
@@ -1327,6 +1343,44 @@ body.live{--rw:min(64vw,1080px)}
 /* bilan : plus large, compétences lisibles */
 body.live #stage .screen.t-bilan,body.live #stage .screen.t-replay{max-width:680px}
 body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
+/* acteurs dans les salles (dessinés au bon plan) */
+.ractor .rmove{animation:rwalk 1.3s cubic-bezier(.3,0,.25,1) both}
+@keyframes rwalk{from{transform:translate(0,40px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
+.ractor .rbody{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.8s ease-in-out infinite}
+.ractor .rbody.flip{animation-name:breathef}
+.rlab{font:600 5px/1 -apple-system,system-ui,sans-serif;fill:#fff;paint-order:stroke;stroke:#0B4F84;stroke-width:3px;stroke-linejoin:round}
+/* parler : la bouche bouge, le bras accompagne la parole (plus de bulle) */
+.actor .abub{display:none}
+.talking .mmouth{animation:mouth .22s ease-in-out infinite alternate}
+@keyframes mouth{from{transform:scaleY(.4)}to{transform:scaleY(2.1)}}
+.talking .marm{animation:gesture 1.1s ease-in-out infinite}
+@keyframes gesture{0%,100%{transform:rotate(0)}30%{transform:rotate(-38deg)}55%{transform:rotate(-14deg)}75%{transform:rotate(-30deg)}}
+.actor.talking svg,.actor.flip.talking svg{animation:none}
+.portrait.chip.talking .cmouth{transform-box:fill-box;transform-origin:50% 30%;animation:cmouth .2s ease-in-out infinite alternate}
+@keyframes cmouth{from{transform:scaleY(.75)}to{transform:scaleY(1.35)}}
+#world.busy-gate .dio-ov.dio-par,#world.busy-gate .dio-ov.dio-kid{display:none}
+/* réaction à une mauvaise réponse : la personne s'agite, la pastille tremble */
+.actor.upset svg,.ractor.upset .rbody{animation:upset .5s ease-in-out 4!important}
+@keyframes upset{0%,100%{translate:0 0;rotate:0deg}25%{translate:-3% 0;rotate:-4deg}75%{translate:3% 0;rotate:4deg}}
+.actor.upset:before{content:"!";position:absolute;left:50%;bottom:102%;translate:-50% 0;font:800 9px/1 -apple-system,system-ui,sans-serif;color:#fff;background:#C62828;border-radius:50%;width:1.6em;height:1.6em;display:grid;place-items:center;animation:pop .3s var(--ease)}
+.portrait.chip.upset{animation:rxshake .5s 2;box-shadow:0 0 0 2px #C62828,0 10px 26px -16px rgba(19,40,59,.5)}
+.note b{display:block}
+/* la semaine qui passe */
+#dayclock{position:fixed;left:max(16px,calc((100vw - 1180px) / 2));top:86px;z-index:40;width:178px;padding:12px 14px;border-radius:18px;
+  background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:var(--spec),0 14px 30px -18px rgba(19,40,59,.5);pointer-events:none}
+#dayclock .dc-top{display:flex;justify-content:space-between;align-items:baseline}
+#dayclock .dc-top b{font-size:16px}#dayclock .dc-top span{font-variant-numeric:tabular-nums;font-weight:600;color:var(--blue)}
+#dayclock .dc-week{display:flex;gap:5px;margin:8px 0}
+#dayclock .dc-week i{flex:1;height:20px;border-radius:6px;background:rgba(0,0,0,.06);font:600 10.5px/20px -apple-system,system-ui,sans-serif;font-style:normal;text-align:center;color:var(--muted)}
+#dayclock .dc-week i.past{background:rgba(11,79,132,.18);color:var(--blue)}
+#dayclock .dc-week i.now{background:var(--blue);color:#fff}
+#dayclock .dc-f small{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+#dayclock .dc-f span{display:block;height:6px;border-radius:6px;background:rgba(0,0,0,.07);overflow:hidden}
+#dayclock .dc-f i{display:block;height:100%;background:linear-gradient(90deg,#F4B63F,var(--orange));transition:width 1.2s var(--ease)}
+#dayclock.tired .dc-f i{background:linear-gradient(90deg,var(--orange),#C62828)}
+#dayclock.newday{animation:newday 1.4s var(--ease)}
+@keyframes newday{0%{transform:scale(.9);opacity:0}40%{transform:scale(1.06);opacity:1}100%{transform:none}}
+@media (max-width:860px){#dayclock{left:10px;top:64px;width:150px;padding:8px 10px;border-radius:14px}#dayclock .dc-f small{font-size:10px}#dayclock .dc-week i{height:16px;line-height:16px}}
 </style></head>
 <body>
 <div id="app"><div class="ambient" aria-hidden="true"><i style="left:0%;animation-delay:-0.0s;width:5px;height:5px;background:#F4B63F"></i><i style="left:37%;animation-delay:-1.4s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:74%;animation-delay:-2.8s;width:9px;height:9px;background:#F2C48A"></i><i style="left:11%;animation-delay:-4.2s;width:5px;height:5px;background:#F4B63F"></i><i style="left:48%;animation-delay:-5.6s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:85%;animation-delay:-7.0s;width:9px;height:9px;background:#F2C48A"></i><i style="left:22%;animation-delay:-8.4s;width:5px;height:5px;background:#F4B63F"></i><i style="left:59%;animation-delay:-9.8s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:96%;animation-delay:-11.2s;width:9px;height:9px;background:#F2C48A"></i><i style="left:33%;animation-delay:-12.6s;width:5px;height:5px;background:#F4B63F"></i><i style="left:70%;animation-delay:-14.0s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:7%;animation-delay:-15.4s;width:9px;height:9px;background:#F2C48A"></i><i style="left:44%;animation-delay:-16.8s;width:5px;height:5px;background:#F4B63F"></i><i style="left:81%;animation-delay:-18.2s;width:7px;height:7px;background:#9CC9EA"></i><div class="grassline"><svg viewBox="0 0 1600 70" preserveAspectRatio="none"><path d="M0,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M11,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M22,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M33,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M44,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M55,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M66,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M77,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M88,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M99,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M110,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M121,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M132,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M143,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M154,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M165,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M176,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M187,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M198,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M209,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M220,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M231,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M242,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M253,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M264,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M275,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M286,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M297,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M308,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M319,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M330,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M341,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M352,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M363,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M374,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M385,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M396,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M407,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M418,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M429,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M440,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M451,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M462,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M473,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M484,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M495,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M506,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M517,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M528,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M539,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M550,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M561,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M572,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M583,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M594,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M605,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M616,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M627,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M638,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M649,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M660,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M671,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M682,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M693,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M704,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M715,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M726,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M737,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M748,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M759,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M770,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M781,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M792,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M803,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M814,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M825,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M836,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M847,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M858,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M869,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M880,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M891,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M902,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M913,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M924,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M935,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M946,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M957,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M968,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M979,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M990,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1001,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1012,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1023,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1034,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1045,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1056,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1067,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1078,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1089,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1100,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1111,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1122,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1133,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1144,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1155,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1166,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1177,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1188,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1199,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1210,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1221,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1232,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1243,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1254,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1265,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M1276,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M1287,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M1298,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M1309,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M1320,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1331,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1342,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1353,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1364,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1375,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1386,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1397,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1408,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1419,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1430,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1441,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1452,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1463,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1474,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1485,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1496,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1507,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1518,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1529,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1540,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1551,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1562,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1573,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1584,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1595,70 q4,-33 9,0" fill="#A5D3B3"/></svg></div></div>
@@ -1348,7 +1402,7 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-9571984b.js"></script>
-<script src="jeu-2-6bd1baf9.js"></script>
-<script src="jeu-3-458a28d4.js"></script>
+<script src="jeu-1-ebb42313.js"></script>
+<script src="jeu-2-23a7a9aa.js"></script>
+<script src="jeu-3-073a25e1.js"></script>
 </body></html>

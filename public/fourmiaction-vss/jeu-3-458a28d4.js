@@ -335,6 +335,15 @@
     return { 1: "morning", 2: "morning", 3: "day", 4: "golden", 5: "morning", 6: "evening" }[sc && sc.ch] || "day";
   }
   // Le monde : le diorama de l'accueil, derrière les écrans. La caméra voyage vers le lieu de chaque scène.
+  // Le plan + ses calques animés (voiture, parents, balançoires, drapeau, promeneurs) posés au-dessus.
+  function dioHTML() {
+    if (!A.dio) return "";
+    if (A.dio.css && !document.getElementById("dio-css")) document.head.appendChild(el("style", { id: "dio-css" }, A.dio.css));
+    // le plan est affiché comme une image (rastérisée une fois par le navigateur) : bien plus léger qu'un SVG vivant
+    if (!dioHTML.url) { try { dioHTML.url = URL.createObjectURL(new Blob([A.dio.img || A.dio.svg], { type: "image/svg+xml" })); } catch (e) { dioHTML.url = ""; } }
+    const base = dioHTML.url ? `<img class="dio-img" src="${dioHTML.url}" alt="" draggable="false" decoding="async">` : A.dio.svg;
+    return base + `<div class="wanim">${(A.dio.anims || []).map((x) => `<div class="dio-ov ${x.cls}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r}">${x.svg}</div>`).join("")}</div>`;
+  }
   const LOC = { intro: "entree", radio: "radio", k1: "equipe", brief: "equipe", ines: "equipe", rire: "parc", parent1: "cour", parent2: "cour", chat: "equipe", chatact: "equipe", theo: "cour", theo2: "cour", k2: "equipe",
     ronde: "sanitaires", consent: "jeux", silence: "jeux", kevin: "equipe", nuit1: "refectoire", nuit2: "refectoire", nuit3: "refectoire", kn: "equipe", k3: "equipe",
     depart: "entree", lou: "cour", call: "direction", acts: "direction", ordre: "cour", transm: "direction", k4: "equipe",
@@ -348,16 +357,28 @@
     init() {
       if (this.el || !A.dio) return;
       this.el = el("div", { id: "world", "aria-hidden": "true" },
-        `<div class="wext"><div class="wcam">${A.dio.svg}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i>`);
+        `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i>`);
       document.body.insertBefore(this.el, document.body.firstChild);
       this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
     },
-    actor(who, pose, pct, size, flip) {
+    actor(who, pose, pct, size, flip, from) {
       const key = who === "you" ? "av" + st.av : who;
       const m = A.minis && A.minis[key]; if (!m) return null;
-      const a = el("div", { class: "actor" + (flip ? " flip" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%` },
+      const a = el("div", { class: "actor" + (flip ? " flip" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%;--br:${(Math.random() * 3).toFixed(2)}s` },
         `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64">${m[pose || "stand"] || m.stand}</svg>`);
+      // entrée : la personne arrive en marchant depuis la porte ou le bord de la scène, puis prend son attitude
+      if (from && !reduce()) {
+        a.style.setProperty("--fx", from[0] + "%"); a.style.setProperty("--fy", from[1] + "%");
+        a.classList.add("arriving"); a.querySelector("svg").innerHTML = m.walk;
+        a.addEventListener("animationend", (e) => { if (e.animationName !== "walkin") return; a.style.animation = "none"; a.classList.remove("arriving"); a.querySelector("svg").innerHTML = m[pose || "stand"] || m.stand; }, { once: false });
+      }
       return a;
+    },
+    // chacun se tourne vers le groupe (les gestes vont vers l'interlocuteur)
+    faceGroup(list) {
+      if (list.length < 2) return;
+      const cx = list.reduce((t, [, p]) => t + p[0], 0) / list.length;
+      list.forEach(([a, p]) => a.classList.toggle("flip", p[0] > cx + .5));
     },
     stage(sc) {
       this.init(); if (!this.el) return;
@@ -382,8 +403,16 @@
       this.cam.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
       // acteurs dehors
       const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
-      const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .78;
-      if (!S.room) (S.cast || []).forEach(([w, slot, pose], k) => { const a = this.actor(w, pose, stand[slot] || stand.a, sz, k % 2 === 1); if (a) { a.style.animationDelay = (0.25 + k * 0.12) + "s"; acts.appendChild(a); } });
+      const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .84;
+      if (!S.room) {
+        const L = [];
+        (S.cast || []).forEach(([w, slot, pose], k) => {
+          const p = stand[slot] || stand.a, from = [k % 2 ? 260 : -260, 110];
+          const a = this.actor(w, pose, p, sz, false, k < 3 ? from : null);
+          if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; acts.appendChild(a); L.push([a, p]); }
+        });
+        this.faceGroup(L);
+      }
       // intérieur
       const R = S.room && A.rooms[S.room];
       clearTimeout(this._t);
@@ -391,8 +420,15 @@
         const go = () => {
           const box = this.wint.querySelector(".wroom");
           box.style.aspectRatio = R.ratio; box.innerHTML = R.svg;
-          const isz = (44 / R.vbw) * 100 * 1.15;
-          (S.cast || []).forEach(([w, slot, pose], k) => { const a = this.actor(w, pose, R.slots[slot] || R.slots.a, isz, R.slots[slot] && R.slots[slot][0] > 60); if (a) { a.style.animationDelay = (0.35 + k * 0.12) + "s"; box.appendChild(a); } });
+          const isz = (44 / R.vbw) * 100 * R.ppl;
+          const L = [];
+          (S.cast || []).forEach(([w, slot, pose], k) => {
+            const p = R.slots[slot] || R.slots.a;
+            // on entre par l'avant de la salle (côté caméra), chacun depuis son côté
+            const a = this.actor(w, pose, p, isz, false, k < 4 ? [(p[0] < 50 ? -1 : 1) * 180, 260] : null);
+            if (a) { a.style.animationDelay = (0.3 + k * 0.22) + "s"; box.appendChild(a); L.push([a, p]); }
+          });
+          this.faceGroup(L);
           this.wint.querySelector(".wname").textContent = R.name;
           this.wint.classList.remove("in"); void this.wint.offsetWidth; this.wint.classList.add("in");
         };
@@ -591,7 +627,7 @@
     const wrap = el("div", { class: "mapwrap lynx" });
     wrap.innerHTML = `<div class="maphead"><div><p class="kicker">Œil de lynx</p><h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div>
       <div class="lx-hud"><div class="counter" aria-live="polite"><span id="cnt">0</span> / ${need} trouvés</div>${left ? `<div class="lx-clock" role="timer" aria-label="Temps restant"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b id="lx-t">${left}</b></div>` : ""}</div></div>`;
-    const map = el("div", { class: "map" + (dio ? " dio" : "") }, dio ? dio.svg : A.map);
+    const map = el("div", { class: "map" + (dio ? " dio" : "") }, dio ? dioHTML() : A.map);
     if (dio) map.style.aspectRatio = String(dio.ratio);
     const card = el("div", { class: "spotcard", hidden: true, role: "dialog", "aria-modal": "false", "aria-labelledby": "spot-t" });
     sc.spots.forEach((s, i) => {
@@ -1159,7 +1195,7 @@
     wrap.innerHTML = `<h2 id="h-${sc.id}" class="prompt">${esc(sc.title)}</h2><p class="lead">Étape 1 : choisissez le point repéré lundi que vous voulez améliorer.</p>`;
     const g = el("div", { class: "sits" });
     BUILD.sits.forEach((s) => {
-      const b = el("button", { class: "sit", type: "button" }, `<div class="sart">${A.scenes[s.scene]}</div><b>${esc(s.title)}</b>`);
+      const b = el("button", { class: "sit", type: "button" }, `<div class="sart">${(A.rooms[{ S01: "radio", S17: "equipe", S14: "soins", S15: "direction" }[s.scene]] || A.rooms.equipe).svg}</div><b>${esc(s.title)}</b>`);
       b.addEventListener("click", () => { Snd.click(); step2(s); });
       g.appendChild(b);
     });

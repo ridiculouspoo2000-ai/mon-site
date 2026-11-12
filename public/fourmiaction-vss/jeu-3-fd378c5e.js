@@ -158,53 +158,31 @@
   };
 
 
-  /* ---------- voix des personnages (synthèse vocale de l'appareil, désactivable) ---------- */
-  const CAST = {
-    nour: { g: "f", pitch: 1.04, rate: 1.03 }, bastien: { g: "m", pitch: 1.02, rate: 1.06 }, ines: { g: "f", pitch: 1.12, rate: 1.0 },
-    jade: { g: "f", pitch: 0.96, rate: 1.0 }, kevin: { g: "m", pitch: 1.1, rate: 1.05 }, garnier: { g: "m", pitch: 0.8, rate: 0.93 },
-    lou: { g: "f", pitch: 1.5, rate: 0.96 }, malo: { g: "m", pitch: 1.42, rate: 1.02 }, maelys: { g: "f", pitch: 1.36, rate: 1.0 },
-  };
-  const FEM = /am[ée]lie|audrey|aur[ée]lie|marie|denise|[ée]lo[iï]se|julie|hortense|virginie|c[ée]line|l[ée]a\b|chantal|sylvie|brigitte|vivienne|charline|coralie|jacqueline|yvette|jos[ée]phine|ariane|female|femme|flo\b|sandy|shelley|grandma|google fran/i;
-  const MASC = /thomas|daniel|henri|paul\b|nicolas|jacques|claude|r[ée]my|antoine|jean\b|louis|alain|maurice|guillaume|fabrice|g[ée]rard|yves|male|homme|eddy|reed|rocko|grandpa|mathieu|olivier/i;
+  /* ---------- voix des personnages : enregistrements naturels (ElevenLabs), désactivables ---------- */
+  const VOIX = window.VOIX || {};
   const Voice = {
-    ok: typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined",
-    list: [], pick: {},
-    load() {
-      if (!this.ok) return;
-      const all = speechSynthesis.getVoices().filter((v) => /^fr/i.test(v.lang));
-      const score = (v) => (/natural|neural|online|premium|enhanced|siri|am[ée]lie|thomas|denise|henri/i.test(v.name) ? 4 : 0) + (/google/i.test(v.name) ? 2 : 0)
-        + (/fr[-_]FR/i.test(v.lang) ? 2 : 0) - (/eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|jacques/i.test(v.name) ? 3 : 0);
-      this.list = all.sort((a, b) => score(b) - score(a));
-      this.pick = {};
+    ok: typeof Audio !== "undefined" && Object.keys(VOIX).length > 0, el: null, ready: null,
+    check() {
+      if (!this.ok || this.ready !== null) return;
+      this.ready = false;
+      fetch("/api/voix?a=etat", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
+        this.ready = !!(j && (j.active || j.generees > 0)); applySettings();
+      }).catch(() => { this.ready = false; applySettings(); });
     },
-    voiceFor(who) {
-      if (this.pick[who] !== undefined) return this.pick[who];
-      const c = CAST[who] || { g: "f" };
-      const want = this.list.filter((v) => (c.g === "f" ? FEM : MASC).test(v.name) && !(c.g === "f" ? MASC : FEM).test(v.name.replace(/google fran.*/i, "")));
-      const pool = want.length ? want : this.list;
-      // Des voix différentes pour des personnages du même genre, quand l'appareil en propose plusieurs.
-      const same = Object.keys(CAST).filter((k) => CAST[k].g === c.g);
-      const v = pool.length ? pool[Math.max(0, same.indexOf(who)) % Math.min(pool.length, 3)] : null;
-      return (this.pick[who] = v);
+    url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id : null; },
+    say(who, text) {
+      if (!this.ok || !this.ready || !st.settings.voice || !text) return;
+      const u = this.url(who, text); if (!u) return;
+      if (!this.el) { this.el = new Audio(); this.el.preload = "auto"; this.el.addEventListener("ended", () => Snd.duck(false)); this.el.addEventListener("pause", () => Snd.duck(false)); this.el.addEventListener("play", () => Snd.duck(true)); }
+      try { this.el.pause(); } catch (e) { }
+      this.el.src = u;
+      const p = this.el.play(); if (p && p.catch) p.catch(() => Snd.duck(false));
     },
-    clean: (t) => String(t).replace(/·[a-zà-ÿ]+/gi, "").replace(/\bM\.\s/g, "Monsieur ").replace(/[«»“”]/g, "").replace(/\s+/g, " ").trim(),
-    say(who, text, mood) {
-      if (!this.ok || !st.settings.voice || !text) return;
-      if (!this.list.length) this.load();
-      const c = CAST[who] || { pitch: 1, rate: 1 };
-      const u = new SpeechSynthesisUtterance(this.clean(text));
-      u.lang = "fr-FR"; const v = this.voiceFor(who); if (v) { u.voice = v; u.lang = v.lang; }
-      u.pitch = Math.min(2, c.pitch * (mood === "sad" || mood === "calm" ? 0.97 : mood === "big" ? 1.04 : 1));
-      u.rate = c.rate * (mood === "sad" || mood === "calm" ? 0.94 : 1);
-      u.volume = 1;
-      u.onstart = () => Snd.duck(true); u.onend = u.onerror = () => { if (!speechSynthesis.speaking) Snd.duck(false); };
-      if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(() => speechSynthesis.speak(u), 60); }
-      else speechSynthesis.speak(u);
-    },
+    prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { if (this.ok) { speechSynthesis.cancel(); Snd.duck(false); } },
+    stop() { if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
-  if (Voice.ok) { Voice.load(); speechSynthesis.addEventListener?.("voiceschanged", () => Voice.load()); }
+  Voice.check();
 
   /* ---------- structure ---------- */
   const app = $("#app"), stage = $("#stage"), live = $("#live");
@@ -217,9 +195,9 @@
     bm.setAttribute("aria-pressed", st.settings.calm ? "true" : "false");
     bm.querySelector(".lbl").textContent = st.settings.calm ? "Animations réduites" : "Animations";
     const bv = $("#btn-voice");
-    if (bv) { bv.hidden = !Voice.ok; bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
+    if (bv) { bv.hidden = !(Voice.ok && Voice.ready); bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
   }
-  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(); else Voice.say("nour", "Les voix sont activées."); applySettings(); save(); });
+  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(); applySettings(); save(); });
   $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); } else Snd.stopAmb(); applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
   $("#btn-carnet").addEventListener("click", openCarnet);
@@ -250,6 +228,8 @@
   function render(dir = 1) {
     const sc = SCREENS[st.idx];
     Voice.stop();
+    const nx = SCREENS[st.idx + 1];
+    if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); Voice.prefetch(L); }
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
     hud(true);
     const old = stage.firstElementChild;
@@ -874,7 +854,7 @@
       <div class="meta"><span>Environ 25 minutes</span><span>6 chapitres</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
-      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
+      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
       <div class="trailbox" aria-hidden="true"><div class="trail">${A.trail}</div></div>`;
     const hb = n.querySelector(".hbtns");
     if (canResume) {
@@ -885,7 +865,7 @@
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }
-  function begin() { if (Voice.ok && st.settings.voice) { try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } catch (e) { } } Snd.init(); try { if (Snd.ctx && Snd.ctx.state === "suspended") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
+  function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state === "suspended") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   applySettings();
   home();

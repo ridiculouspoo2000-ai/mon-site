@@ -54,11 +54,11 @@
     '.section-top', '.intro-grid > *', '.cards > article', '.spirit > div', '.spirit li',
     '.steps > article', '.bafa-resource-card', '.pillars > article', '.commitments > article',
     '.split > *', '.price-accordion', '.trainer-entry', '.download', '.bafa-banner', '.news-teaser',
-    '.help > *', '.values span', '.testimonials > article', '.gallery > a', '.blue-strip span',
+    '.help > *', '.testimonials > article', '.gallery > a', '.blue-strip span',
     '.contact-info', '.contact-grid form', '.legal-notice', '.resources article', '#faq details',
     '.bafa-infographic', '.ap-join', '.ap-widget', '.ap-widget-intro > *', '[data-ap]', '.ap-stagger > *'
   ].join(',');
-  const els = [...document.querySelectorAll(groups)].filter(el => !el.closest('header, footer, .ap-no-reveal, [data-scene], [data-words], [data-steps]') && !el.matches('[data-words], .bafa-banner'));
+  const els = [...document.querySelectorAll(groups)].filter(el => !el.closest('header, footer, .ap-no-reveal, [data-scene], [data-words], [data-steps]') && !el.matches('[data-words], .bafa-banner, .split > div:last-child'));
   const pending = new Set();
 
   if (!reduced && 'IntersectionObserver' in window) {
@@ -125,26 +125,22 @@
   const wide = () => innerWidth > 900;
   function sceneProgress(el) { const r = el.getBoundingClientRect(); const run = r.height - innerHeight; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
 
-  // Héros de l'accueil : le titre s'efface, la photo s'agrandit jusqu'au plein écran, le texte apparaît.
-  const hero = document.querySelector('[data-scene="hero"]');
+  // Héros de l'accueil : la photo se dévoile comme un rideau (sans zoom), le titre glisse plus lentement,
+  // le chemin des fourmis se trace au fil du défilement.
+  const hero = document.querySelector('[data-scene="hero2"]');
   if (hero) {
-    const title = hero.querySelector('.sc-hero-title'), frame = hero.querySelector('.sc-hero-frame'), img = hero.querySelector('.sc-hero-img');
-    const shade = hero.querySelector('.sc-hero-shade'), copy = hero.querySelector('.sc-hero-copy'), hint = hero.querySelector('.sc-hint');
+    const photo = hero.querySelector('.h2-photo'), copy = hero.querySelector('.h2-copy'), trail = hero.querySelector('.ant-trail>path');
+    let len = 0; if (trail) { try { len = trail.getTotalLength(); trail.style.strokeDasharray = `3 7`; } catch {} }
     scenes.push(() => {
-      const p = sceneProgress(hero), m = innerWidth < 760;
-      const t1 = ease(seg(p, .02, .34)), t2 = ease(seg(p, 0, .56)), t3 = ease(seg(p, .58, .82));
-      const s0 = m ? .7 : .46, y0 = innerHeight * (m ? .26 : .36);
-      title.style.opacity = (1 - t1).toFixed(3);
-      title.style.transform = `translate3d(0,${(-90 * t1).toFixed(1)}px,0) scale(${(1 - .08 * t1).toFixed(4)})`;
-      const sc = lerp(s0, 1, t2);
-      frame.style.transform = `translate3d(0,${lerp(y0, 0, t2).toFixed(1)}px,0) scale(${sc.toFixed(4)})`;
-      frame.style.borderRadius = `${(lerp(34, 0, t2) / sc).toFixed(1)}px`;
-      img.style.transform = `scale(${lerp(1.22, 1, t2).toFixed(4)})`;
-      shade.style.opacity = (seg(p, .45, .75)).toFixed(3);
-      copy.style.opacity = t3.toFixed(3);
-      copy.style.transform = `translate3d(0,${lerp(50, 0, t3).toFixed(1)}px,0)`;
-      copy.style.pointerEvents = t3 > .5 ? '' : 'none';
-      if (hint) hint.style.opacity = (1 - seg(p, 0, .07)).toFixed(3);
+      const p = sceneProgress(hero), w = wide();
+      const r = ease(seg(p, 0, .55));
+      const c = w ? lerp(42, 0, r) : 0;
+      photo.style.clipPath = `inset(${c.toFixed(2)}% 0 0 0 round 32px)`;
+      photo.style.transform = w ? `translate3d(0,${lerp(70, 0, r).toFixed(1)}px,0)` : '';
+      const out = ease(seg(p, .7, 1));
+      copy.style.transform = w ? `translate3d(0,${(-60 * out + 30 * (1 - r)).toFixed(1)}px,0)` : '';
+      copy.style.opacity = w ? (1 - out * .9).toFixed(3) : '';
+      if (trail && len) trail.style.strokeDashoffset = `${(len * (1 - seg(p, 0, .6))).toFixed(1)}`;
     });
   }
 
@@ -168,31 +164,91 @@
     });
   }
 
-  // Vitrine : trois récits et leurs écrans, enchaînés au défilement.
-  const showcase = document.querySelector('[data-scene="show"]');
-  if (showcase) {
-    const arts = [...showcase.querySelectorAll('.sc-steps article')], dots = [...showcase.querySelectorAll('.sc-dots i')];
-    const mac = showcase.querySelector('.dev-mac'), p1 = showcase.querySelector('.p1'), p2 = showcase.querySelector('.p2'), p3 = showcase.querySelector('.p3');
-    const put = (el, o, x, y, s, r = 0) => { el.style.opacity = o.toFixed(3); el.style.transform = `translate3d(${x.toFixed(1)}%,${y.toFixed(1)}%,0) scale(${s.toFixed(4)}) rotate(${r.toFixed(2)}deg)`; };
-    scenes.push(() => {
-      const p = sceneProgress(showcase), n = arts.length, f = p * n;
-      arts.forEach((a, i) => {
-        const d = f - i - .5; // 0 au centre de son étape
-        const o = clamp(1 - Math.max(0, Math.abs(d) - .22) * 3.2);
-        a.style.opacity = o.toFixed(3);
-        a.style.transform = `translate3d(0,${(-d * 46).toFixed(1)}px,0)`;
-        a.style.pointerEvents = o > .6 ? '' : 'none';
-        a.setAttribute('aria-hidden', o > .6 ? 'false' : 'true');
-      });
-      dots.forEach((d, i) => d.classList.toggle('on', Math.min(n - 1, Math.floor(f)) === i));
-      const a = ease(seg(p, .22, .42)), b = ease(seg(p, .56, .76));
-      // Étape 1 : le jeu sur téléphone ; étape 2 : l'atelier projeté et le téléphone d'un participant ; étape 3 : le Collectif jeunes.
-      put(p1, 1 - a, lerp(0, -40, a), lerp(0, 8, a), lerp(1.08, .85, a), lerp(-3, -10, a));
-      put(mac, a * (1 - b), lerp(30, 0, a) + lerp(0, -30, b), lerp(10, 0, a), lerp(.86, 1, a) * lerp(1, .9, b));
-      put(p2, a * (1 - b), lerp(-20, 0, a) + lerp(0, -40, b), lerp(20, 0, a) + lerp(0, 10, b), lerp(.9, 1, a), lerp(-8, -4, a));
-      put(p3, b, lerp(40, -60, b), lerp(10, 2, b), lerp(.9, 1.12, b), lerp(8, 3, b));
+  // Cartes qui s'empilent : chaque carte reste collée en haut, la précédente recule et s'assombrit.
+  const stack = [...document.querySelectorAll('.stack-card')];
+  if (stack.length) scenes.push(() => {
+    stack.forEach((card, i) => {
+      const next = stack[i + 1];
+      let t = 0;
+      if (next) { const top = parseFloat(getComputedStyle(next).top) || 0; const r = next.getBoundingClientRect(); t = clamp(1 - (r.top - top) / (innerHeight * .85)); }
+      card.style.transform = `scale(${(1 - .07 * ease(t)).toFixed(4)})`;
+      card.style.setProperty('--dim', (t * .55).toFixed(3));
     });
-  }
+  });
+
+  // Titres dont la partie colorée se remplit en avançant dans la page.
+  document.querySelectorAll('main h2 em, main .cj-quote em, main .cj-pq em').forEach(em => {
+    if (em.closest('[data-scene="hero2"], .page-intro, .nw-hero')) return;
+    em.classList.add('fx-fill');
+    scenes.push(() => {
+      const r = em.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
+      const t = clamp((innerHeight * .92 - r.top) / (innerHeight * .45));
+      em.style.setProperty('--f', `${(t * 100).toFixed(1)}%`);
+    });
+  });
+
+  // Rideau : les images se dévoilent de bas en haut en entrant dans l'écran (aucun agrandissement).
+  document.querySelectorAll('.split .photo, .gallery a, .bafa-infographic, .competences-image, .cj-player, .nw-media, .nw-art, .ap-widget').forEach(el => {
+    el.classList.add('fx-curtain');
+    scenes.push(() => {
+      const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+      const t = ease(clamp((innerHeight - r.top) / (Math.min(r.height, innerHeight) * .9)));
+      el.style.clipPath = t >= 1 ? '' : `inset(${((1 - t) * 100).toFixed(2)}% 0 0 0 round var(--fx-r, 24px))`;
+    });
+  });
+
+  // Parallaxe douce : le texte à côté d'une photo glisse un peu moins vite qu'elle.
+  document.querySelectorAll('.split > div:last-child').forEach(el => scenes.push(() => {
+    const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    const d = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
+    el.style.transform = `translate3d(0,${(d * 46).toFixed(1)}px,0)`;
+  }));
+
+  // Lignes de progression qui se tracent le long des étapes.
+  document.querySelectorAll('.process, .steps, .pillars, .commitments, .cj-steps, .di-steps, .testimonials').forEach(el => {
+    const rail = document.createElement('span'); rail.className = 'fx-rail'; rail.setAttribute('aria-hidden', 'true'); rail.innerHTML = '<i></i>';
+    el.classList.add('fx-rail-host'); el.prepend(rail);
+    const bar = rail.firstChild;
+    scenes.push(() => {
+      const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
+      const t = clamp((innerHeight * .8 - r.top) / (r.height + innerHeight * .2));
+      bar.style.transform = el.classList.contains('process') ? `scaleY(${t.toFixed(4)})` : `scaleX(${t.toFixed(4)})`;
+    });
+  });
+
+  // Numéros qui défilent jusqu'à leur valeur.
+  document.querySelectorAll('.number').forEach(n => {
+    const v = n.textContent.trim(); if (!/^\d{1,3}$/.test(v)) return;
+    const target = +v, pad = v.length; let shown = -1;
+    scenes.push(() => {
+      const r = n.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;
+      const t = ease(clamp((innerHeight * .95 - r.top) / (innerHeight * .35)));
+      const x = Math.round(target * t); if (x === shown) return; shown = x;
+      n.textContent = String(x).padStart(pad, '0');
+    });
+  });
+
+  // Valeurs : deux bandeaux qui coulissent en sens inverse au rythme du défilement.
+  document.querySelectorAll('.values').forEach(v => {
+    const chips = [...v.children]; if (chips.length < 6) return;
+    const half = Math.ceil(chips.length / 2);
+    const mk = (list) => { const row = document.createElement('div'); row.className = 'fx-row'; list.forEach(c => row.append(c)); const dup = row.cloneNode(true); dup.setAttribute('aria-hidden', 'true'); const track = document.createElement('div'); track.className = 'fx-track'; track.append(row, dup); return track; };
+    const t1 = mk(chips.slice(0, half)), t2 = mk(chips.slice(half));
+    v.classList.add('fx-marquee'); v.append(t1, t2);
+    scenes.push(() => {
+      const r = v.getBoundingClientRect(); if (r.bottom < -200 || r.top > innerHeight + 200) return;
+      const d = (innerHeight - r.top) * .35;
+      t1.style.transform = `translate3d(${(-d % (t1.scrollWidth / 2)).toFixed(1)}px,0,0)`;
+      t2.style.transform = `translate3d(${(-(t2.scrollWidth / 2) + (d % (t2.scrollWidth / 2))).toFixed(1)}px,0,0)`;
+    });
+  });
+
+  // Grandes phrases qui prennent toute leur place en arrivant au centre.
+  document.querySelectorAll('.help h2, .cj-quote, .cj-pq, .di-hero h1').forEach(el => scenes.push(() => {
+    const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
+    const t = ease(clamp((innerHeight - r.top) / (innerHeight * .6)));
+    el.style.transform = `scale(${lerp(.9, 1, t).toFixed(4)})`; el.style.opacity = lerp(.35, 1, t).toFixed(3);
+  }));
 
   // Mots ou éléments de liste qui s'allument au rythme du défilement.
   function splitWords(root) {
@@ -231,15 +287,7 @@
     });
   });
 
-  // Photos qui se resserrent doucement en entrant dans l'écran ; bannière qui grandit.
-  document.querySelectorAll('.split .photo, .cards:not(.sc-track) .photo').forEach(img => {
-    const box = img.parentElement; if (box) box.style.overflow = 'hidden';
-    scenes.push(() => {
-      const r = img.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-      const t = clamp((innerHeight - r.top) / (innerHeight + r.height));
-      img.style.transform = `scale(${lerp(1.14, 1, ease(t)).toFixed(4)})`;
-    });
-  });
+  // Bannière BAFA qui grandit en arrivant.
   document.querySelectorAll('.bafa-banner').forEach(b => scenes.push(() => {
     const r = b.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
     const t = ease(clamp((innerHeight - r.top) / (innerHeight * .7)));

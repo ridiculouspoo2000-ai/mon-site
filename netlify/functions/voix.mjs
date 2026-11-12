@@ -35,11 +35,36 @@ const audio = (buf) => new Response(buf, { headers: {
   "Content-Type": "audio/mpeg", "Cache-Control": "public, max-age=31536000, immutable",
   "Netlify-CDN-Cache-Control": "public, max-age=31536000, immutable, durable", "X-Robots-Tag": "noindex" } });
 
+// Message lisible à partir de la réponse d'erreur d'ElevenLabs (jamais la clé elle-même).
+function explique(status, raw) {
+  let m = ""; try { const j = JSON.parse(raw); m = j.detail?.message || j.detail?.status || (typeof j.detail === "string" ? j.detail : "") || j.message || ""; } catch { m = raw.slice(0, 160); }
+  const conseils = {
+    401: "clé refusée : vérifiez qu’elle est complète et qu’elle autorise la synthèse vocale (Text to Speech)",
+    402: "crédits ou offre insuffisants",
+    403: "accès refusé par ElevenLabs",
+    404: "voix introuvable sur ce compte",
+    429: "trop de demandes ou quota atteint",
+  };
+  return `ElevenLabs ${status}${conseils[status] ? " (" + conseils[status] + ")" : ""}${m ? " : " + String(m).slice(0, 220) : ""}`;
+}
+
 export default async (req) => {
   const u = new URL(req.url);
   if (u.searchParams.get("a") === "etat") {
     const s = store(); const { blobs } = await s.list();
     return json({ ok: true, active: !!env("ELEVENLABS_API_KEY"), lignes: Object.keys(LIGNES).length, generees: blobs.length });
+  }
+  if (u.searchParams.get("a") === "test") {
+    const k = env("ELEVENLABS_API_KEY");
+    if (!k) return json({ ok: false, detail: "La variable ELEVENLABS_API_KEY n’est pas visible par cette version du site." });
+    try {
+      const r = await fetch("https://api.elevenlabs.io/v1/user/subscription", { headers: { "xi-api-key": k.trim() } });
+      const raw = await r.text();
+      if (!r.ok && /missing_permissions/.test(raw)) return json({ ok: true, offre: "inconnue (la clé n’a pas le droit de lire le compte, sans importance)", caracteres: "non disponible", longueurCle: k.length });
+      if (!r.ok) return json({ ok: false, detail: explique(r.status, raw), longueurCle: k.length, espaces: k !== k.trim() });
+      const j = JSON.parse(raw);
+      return json({ ok: true, offre: j.tier, caracteres: `${j.character_count} / ${j.character_limit}`, longueurCle: k.length });
+    } catch (e) { return json({ ok: false, detail: "ElevenLabs injoignable : " + String(e.message || e).slice(0, 120) }); }
   }
   const id = String(u.searchParams.get("id") || "").replace(/[^a-f0-9]/g, "").slice(0, 12);
   const L = LIGNES[id];
@@ -53,10 +78,13 @@ export default async (req) => {
   try {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voix()[L.who] || DEFAUT.nour}?output_format=mp3_44100_96`, {
       method: "POST",
-      headers: { "xi-api-key": apiKey, "Content-Type": "application/json", Accept: "audio/mpeg" },
+      headers: { "xi-api-key": apiKey.trim(), "Content-Type": "application/json", Accept: "audio/mpeg" },
       body: JSON.stringify({ text: L.text, model_id: modele(), voice_settings: REGLAGES[L.who] || REGLAGES.defaut }),
     });
-    if (!r.ok) { console.error("voix", r.status, (await r.text()).slice(0, 300)); return json({ ok: false, error: "Génération impossible pour le moment." }, 502); }
+    if (!r.ok) {
+      const raw = (await r.text()).slice(0, 600); console.error("voix", r.status, raw);
+      return json({ ok: false, error: "Génération impossible pour le moment.", detail: explique(r.status, raw) }, 502);
+    }
     const buf = Buffer.from(await r.arrayBuffer());
     if (buf.length < 500) return json({ ok: false, error: "Réponse audio invalide." }, 502);
     await s.set(key, buf.toString("base64"));

@@ -28,6 +28,8 @@ const DEFAUT = {
   kevin: "jfEwztGDkpbpy89xeku6",   // Steve · Soft and Calm
   malo: "mvhJVdVoTWVUtL4keT7W",    // Simon (aucune réplique)
   garnier: "h5FvD7dtq6DdnVBPv8Ii", // Max · Narration
+  roussel: "OOiDJrD1goukqfTpiySr", // Greg · Authentic French Voice (parent)
+  benali: "nVPCtAFzgyMX3FZKNzH0",  // Anna · Natural and Conversational (parent)
   narr: "jUHQdLfy668sllNiNTSW",    // Clément · calme et neutre : récit, situations et retours du formateur
 };
 const REGLAGES = {
@@ -38,6 +40,7 @@ const REGLAGES = {
   ines: { stability: 0.45, similarity_boost: 0.8 },
   garnier: { stability: 0.6, similarity_boost: 0.85 },
   narr: { stability: 0.55, similarity_boost: 0.8 },
+  benali: { stability: 0.45, similarity_boost: 0.8 },
 };
 function voix() { let o = {}; try { o = JSON.parse(env("ELEVENLABS_VOIX") || "{}"); } catch {} return { ...DEFAUT, ...o }; }
 const modele = () => env("ELEVENLABS_MODELE", "eleven_v4");

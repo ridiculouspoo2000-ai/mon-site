@@ -145,6 +145,14 @@ export default async (req) => {
       return json({ ok: true, offre: j.tier, caracteres: `${j.character_count} / ${j.character_limit}`, restants: Math.max(0, j.character_limit - j.character_count), renouvellement: j.next_character_count_reset_unix || null, longueurCle: k.length });
     } catch (e) { return json({ ok: false, detail: "ElevenLabs injoignable : " + String(e.message || e).slice(0, 120) }); }
   }
+  if (u.searchParams.get("a") === "mesvoix") { // voix utilisables par le compte (par défaut + créées), sans crédit consommé
+    const key = env("ELEVENLABS_API_KEY").trim();
+    const r = await fetch("https://api.elevenlabs.io/v2/voices?page_size=100&include_total_count=true", { headers: { "xi-api-key": key } });
+    if (!r.ok) return json({ ok: false, detail: explique(r.status, (await r.text()).slice(0, 300)) }, 502);
+    const j = await r.json();
+    return json({ ok: true, voix: (j.voices || []).map((v) => ({ id: v.voice_id, nom: v.name, categorie: v.category, labels: v.labels || {},
+      verifiees: (v.verified_languages || []).map((l) => [l.language, l.accent, l.locale, l.model_id].join("/")), description: String(v.description || "").slice(0, 200), ecoute: v.preview_url })) });
+  }
   if (u.searchParams.get("a") === "bibli") { // inventaire détaillé (métadonnées publiques de la bibliothèque, aucun crédit consommé)
     const key = env("ELEVENLABS_API_KEY").trim();
     const q = new URLSearchParams({ page_size: "100", language: "fr", accent: "parisian" });

@@ -6,11 +6,12 @@
  * Variables d'environnement :
  *   ELEVENLABS_API_KEY  clé API ElevenLabs (obligatoire pour générer)
  *   ELEVENLABS_VOIX     facultatif, JSON {"nour":"<voice_id>", ...} pour choisir d'autres voix
- *   ELEVENLABS_MODELE   facultatif, modèle (par défaut eleven_multilingual_v2)
+ *   ELEVENLABS_MODELE   facultatif, modèle (par défaut eleven_v4, qui interprète les balises audio)
  */
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
 import { LIGNES } from "../lib/voix-lignes.mjs";
+import { BALISES, BALISES_V } from "../lib/voix-balises.mjs";
 
 export const config = { path: "/api/voix" };
 const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] ?? d);
@@ -29,15 +30,17 @@ const DEFAUT = {
   garnier: "h5FvD7dtq6DdnVBPv8Ii", // Max · Narration
 };
 const REGLAGES = {
-  // Stabilité plus haute et aucune exagération de style : la voix reste au plus près de l’enregistrement d’origine (accent compris).
-  defaut: { stability: 0.6, similarity_boost: 0.85, style: 0, use_speaker_boost: true },
-  lou: { stability: 0.52, similarity_boost: 0.85, style: 0.05, use_speaker_boost: true },
-  maelys: { stability: 0.5, similarity_boost: 0.85, style: 0.05, use_speaker_boost: true },
-  garnier: { stability: 0.68, similarity_boost: 0.88, style: 0, use_speaker_boost: true },
+  // Eleven v4 : stabilité et ressemblance seulement (pas de style). Plus de stabilité = voix plus proche de l’original.
+  defaut: { stability: 0.5, similarity_boost: 0.8 },
+  lou: { stability: 0.4, similarity_boost: 0.8 },
+  maelys: { stability: 0.4, similarity_boost: 0.8 },
+  ines: { stability: 0.45, similarity_boost: 0.8 },
+  garnier: { stability: 0.6, similarity_boost: 0.85 },
 };
 function voix() { let o = {}; try { o = JSON.parse(env("ELEVENLABS_VOIX") || "{}"); } catch {} return { ...DEFAUT, ...o }; }
-const modele = () => env("ELEVENLABS_MODELE", "eleven_multilingual_v2");
-const sig = (who) => crypto.createHash("sha1").update([voix()[who], modele(), JSON.stringify(REGLAGES[who] || REGLAGES.defaut)].join("|")).digest("hex").slice(0, 10);
+const modele = () => env("ELEVENLABS_MODELE", "eleven_v4");
+const avecBalises = () => /eleven_v[34]/.test(modele());
+const sig = (who) => crypto.createHash("sha1").update([voix()[who], modele(), JSON.stringify(REGLAGES[who] || REGLAGES.defaut), avecBalises() ? BALISES_V : ""].join("|")).digest("hex").slice(0, 10);
 const store = () => getStore({ name: "voix-jeu", consistency: "strong" });
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 const audio = (buf) => new Response(buf, { headers: {
@@ -124,8 +127,11 @@ async function apercu(url) {
 export default async (req) => {
   const u = new URL(req.url);
   if (u.searchParams.get("a") === "etat") {
-    const s = store(); const { blobs } = await s.list();
-    return json({ ok: true, active: !!env("ELEVENLABS_API_KEY"), lignes: Object.keys(LIGNES).length, generees: blobs.length });
+    const s = store(); const { blobs } = await s.list(); const have = new Set(blobs.map((b) => b.key));
+    const manquantes = Object.entries(LIGNES).filter(([id, l]) => !have.has(`${id}-${sig(l.who)}`));
+    const besoin = manquantes.reduce((n, [id, l]) => n + ((avecBalises() && BALISES[id]) || l.text).length, 0);
+    return json({ ok: true, active: !!env("ELEVENLABS_API_KEY"), modele: modele(), lignes: Object.keys(LIGNES).length,
+      generees: Object.keys(LIGNES).length - manquantes.length, besoin });
   }
   if (u.searchParams.get("a") === "test") {
     const k = env("ELEVENLABS_API_KEY");
@@ -175,7 +181,7 @@ export default async (req) => {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voix()[L.who] || DEFAUT.nour}?output_format=mp3_44100_96`, {
       method: "POST",
       headers: { "xi-api-key": apiKey.trim(), "Content-Type": "application/json", Accept: "audio/mpeg" },
-      body: JSON.stringify({ text: L.text, model_id: modele(), voice_settings: REGLAGES[L.who] || REGLAGES.defaut }),
+      body: JSON.stringify({ text: (avecBalises() && BALISES[id]) || L.text, model_id: modele(), language_code: "fr", voice_settings: REGLAGES[L.who] || REGLAGES.defaut }),
     });
     if (!r.ok) {
       const raw = (await r.text()).slice(0, 600); console.error("voix", r.status, raw);

@@ -856,7 +856,7 @@
       <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
-      <div class="trailbox" aria-hidden="true"><div class="trail">${A.trail}</div></div>`;
+      <div class="hcast" aria-hidden="true"><div class="hc-glass"></div>${["garnier", "nour", "bastien", "ines"].map((k, i) => `<div class="hc hc${i}">${A.chars[k][i === 1 ? "big" : "smile"]}</div>`).join("")}</div>`;
     const hb = n.querySelector(".hbtns");
     const opts = n.querySelectorAll(".hopt");
     const drawOpts = () => opts.forEach((b) => {

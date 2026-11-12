@@ -547,6 +547,41 @@ const EPILOGUE = {
   parents: { who: "Les parents", good: "M. Roussel et Mme Benali ont été écoutés et rappelés. Au portail, les familles savent désormais à qui parler, et elles le font.", mid: "Les parents ont eu une réponse, mais ont dû relancer. Une permanence au portail est prévue à la rentrée.", low: "Mme Benali a écrit à la mairie : elle estime ne pas avoir été entendue. La direction la reçoit la semaine suivante." },
   familles: { who: "Les familles", good: "Le livret des familles est distribué : règles de non-isolement, accompagnement aux toilettes, adulte référent. Deux parents ont rejoint le comité de suivi.", mid: "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion." },
 };
+// Mise en scène sur le plan vivant : où se passe chaque écran, et qui est là.
+// at = lieu du plan ; room = salle dans laquelle on entre (sinon on reste dehors) ; cast = [qui, place, attitude].
+// « you » = votre personnage. « keep » = on reste dans le décor de l'écran précédent.
+const STAGE = {
+  c1: { at: "ensemble" }, c2: { at: "ensemble" }, c3: { at: "ensemble" }, c4: { at: "ensemble" }, c5: { at: "ensemble" }, c6: { at: "ensemble" },
+  intro: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b"], ["parent", "d", "walk"], ["theo", "c"], ["sacha", "f", "wave"]] },
+  dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
+  radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["malo", "b", "point"], ["lena", "d"], ["clara", "e"]] },
+  brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "b"], ["ines", "e"], ["kevin", "d"], ["jade", "f"]] },
+  ines: { at: "equipe", room: "equipe", cast: [["ines", "b", "talk"], ["you", "a"]] },
+  rire: { at: "refectoire", room: "refectoire", cast: [["bastien", "a", "talk"], ["you", "b"], ["kevin", "c"], ["theo", "d"], ["enzo", "e"], ["clara", "f"]] },
+  chat: { at: "ensemble", cast: [] }, chatact: "keep",
+  theo: { at: "grands", room: "grands", cast: [["jade", "a", "talk"], ["you", "b"], ["theo", "c"], ["enzo", "d"]] }, theo2: "keep",
+  parent1: { at: "cour", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
+  ronde: { at: "sanitaires", cast: [["jade", "a", "talk"], ["you", "b"]] },
+  consent: { at: "petits", room: "petits", cast: [["nour", "c", "talk"], ["you", "a"], ["zoe", "b"], ["malo", "e"], ["sacha", "f"]] },
+  silence: { at: "petits", room: "petits", cast: [["nour", "a", "talk"], ["you", "b"]] },
+  parent2: { at: "cour", cast: [["benali", "a", "talk"], ["you", "b"], ["malo", "c"]] },
+  kevin: { at: "equipe", room: "equipe", cast: [["kevin", "a", "talk"], ["you", "b"]] },
+  nuit1: { at: "petits", room: "dortoir", night: true, cast: [["bastien", "a", "talk"], ["you", "c"], ["malo", "e"], ["sacha", "f"]] }, nuit2: "keep",
+  nuit3: { at: "petits", room: "dortoir", night: true, cast: [["bastien", "a", "talk"], ["you", "c"], ["sacha", "e"]] },
+  depart: { at: "cour", cast: [["nour", "a"], ["you", "b"], ["lou", "c"], ["parent", "f", "walk"], ["clara", "d"]] },
+  lou: { at: "libre", room: "libre", cast: [["lou", "a", "talk"], ["you", "b"]] },
+  call: { at: "direction", room: "direction", cast: [["you", "a", "talk"], ["lou", "e"], ["nour", "b"]] }, acts: "keep", ordre: "keep",
+  transm: { at: "direction", room: "direction", cast: [["you", "a"]] },
+  bilanequipe: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "b"], ["ines", "e"], ["kevin", "d"], ["jade", "f"]] },
+  build: { at: "equipe", room: "equipe", cast: [["nour", "a", "talk"], ["you", "b"]] },
+  affiche: { at: "panneau", cast: [["bastien", "a", "point"], ["you", "b"]] },
+  familles: { at: "direction", room: "direction", cast: [["nour", "a", "talk"], ["you", "b"]] },
+  maelys: { at: "local", cast: [["maelys", "a", "talk"], ["you", "b"]] }, f1: "keep",
+  garnier: { at: "direction", room: "direction", cast: [["garnier", "a", "talk"], ["you", "b"]] },
+  f3: { at: "soins", room: "soins", cast: [["maelys", "c"], ["nour", "a", "talk"], ["you", "b"]] },
+  dafter: { at: "equipe", room: "equipe", cast: [["you", "a"]] },
+  bilan: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b", "wave"], ["bastien", "c", "wave"], ["ines", "d"], ["kevin", "e"], ["jade", "f", "wave"]] },
+};
 const VOICE_TXT = {
   // Contexte d'une situation : récit par la narratrice ou le narrateur, citations par le personnage présent.
   parts(sc) {

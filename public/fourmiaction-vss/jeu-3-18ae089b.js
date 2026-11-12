@@ -2,6 +2,7 @@
 (function () {
   "use strict";
   const A = window.ASSETS;
+  if (A.claydefs) document.body.insertAdjacentHTML("afterbegin", A.claydefs);   // matières des personnages (une fois pour toute la page)
   const KEY = "fa-hautes-herbes-v1";
   const $ = (s, r = document) => r.querySelector(s);
   const el = (tag, attrs = {}, html) => {
@@ -173,7 +174,7 @@
     say(who, text, target) { this.seq([[who, text, target instanceof Element ? target : null]]); },
     seq(list) {
       if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
-      const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null })).filter((x) => x.u); if (!items.length) return;
+      const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null, w })).filter((x) => x.u); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
         this.el.addEventListener("ended", () => { this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); });
@@ -184,6 +185,7 @@
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
+      World.talk(it.w);
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play(); if (p && p.catch) p.catch(() => { Snd.duck(false); this._done(); });
     },
@@ -199,7 +201,7 @@
       };
       this._raf = requestAnimationFrame(f);
     },
-    _done() { cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; },
+    _done() { World.talk(null); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
     stop() { this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
@@ -311,30 +313,82 @@
     ronde: "sanitaires", consent: "jeux", silence: "jeux", kevin: "equipe", nuit1: "refectoire", nuit2: "refectoire", nuit3: "refectoire", kn: "equipe", k3: "equipe",
     depart: "entree", lou: "cour", call: "direction", acts: "direction", ordre: "cour", transm: "direction", k4: "equipe",
     bilanequipe: "equipe", build: "equipe", affiche: "panneau", familles: "entree", k5: "equipe", maelys: "local", f1: "local", garnier: "direction", f3: "direction" };
-  let world = null;
-  function camera(sc) {
-    if (!A.dio) return;
-    if (!world) { world = el("div", { id: "world", "aria-hidden": "true" }, `<div class="wcam">${A.dio.svg}</div>`); document.body.insertBefore(world, document.body.firstChild); }
-    const hide = !sc || sc.type === "hotspots" || calm();
-    world.className = hide ? "" : "on amb-" + timeOf(sc);
-    if (hide) return;
-    const key = LOC[sc.id] || (sc.type === "chapter" || sc.type === "bilan" || sc.type === "positions" ? "ensemble" : null);
-    const p = A.dio.lieux[key] || A.dio.lieux.ensemble, z = key && key !== "ensemble" ? 1.9 : 1.05;
-    world.firstElementChild.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
-  }
-  function scenePanel(key, extra = "") {
-    const svg = key === "welcome" ? A.welcome : (A.scenes[key] || A.chapters[key] || "");
-    const n = el("div", { class: "art amb-" + timeOf(SCREENS[st.idx]) + extra }, `<i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="artin">${svg}</div>`);
-    parallax(n); return n;
-  }
+  // ---------------------------------------------------------------------------------------------
+  // Le monde vivant : le plan de l'accueil derrière les questions. La caméra va vers le lieu de la
+  // scène ; si la scène se passe dans une salle, on y entre (décor intérieur), puis on en ressort.
+  // Les personnages présents sont posés sur place ; celui qui parle s'anime.
+  const World = {
+    el: null, ext: null, cam: null, wint: null, room: null, cur: null,
+    init() {
+      if (this.el || !A.dio) return;
+      this.el = el("div", { id: "world", "aria-hidden": "true" },
+        `<div class="wext"><div class="wcam">${A.dio.svg}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i>`);
+      document.body.insertBefore(this.el, document.body.firstChild);
+      this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
+    },
+    actor(who, pose, pct, size, flip) {
+      const key = who === "you" ? "av" + st.av : who;
+      const m = A.minis && A.minis[key]; if (!m) return null;
+      const a = el("div", { class: "actor" + (flip ? " flip" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%` },
+        `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64">${m[pose || "stand"] || m.stand}</svg>`);
+      return a;
+    },
+    stage(sc) {
+      this.init(); if (!this.el) return;
+      const hide = !sc || ["hotspots", "avatar", "home"].includes(sc.type);
+      document.body.classList.toggle("live", !hide && !calm());
+      this.el.classList.toggle("on", !hide);
+      if (hide) return;
+      let S = STAGE[sc.id];
+      if (S === "keep" || (!S && ["explain", "multi"].includes(sc.type) && this.cur)) S = this.cur;
+      if (!S) S = { at: LOC[sc.id] || "ensemble", cast: sc.npc ? [[sc.npc, "a", "talk"], ["you", "b"]] : [] };
+      const same = this.cur === S; this.cur = S;
+      const amb = S.night ? "night" : timeOf(sc);
+      this.el.className = "on amb-" + amb + (S.room ? " inside" : "");
+      if (same) return;
+      // caméra extérieure
+      const p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = S.at && S.at !== "ensemble" ? (S.room ? 3.2 : 2.1) : 1.08;
+      this.cam.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
+      // acteurs dehors
+      const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
+      const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .78;
+      if (!S.room) (S.cast || []).forEach(([w, slot, pose], k) => { const a = this.actor(w, pose, stand[slot] || stand.a, sz, k % 2 === 1); if (a) { a.style.animationDelay = (0.25 + k * 0.12) + "s"; acts.appendChild(a); } });
+      // intérieur
+      const R = S.room && A.rooms[S.room];
+      clearTimeout(this._t);
+      if (R) {
+        const go = () => {
+          const box = this.wint.querySelector(".wroom");
+          box.style.aspectRatio = R.ratio; box.innerHTML = R.svg;
+          const isz = (44 / R.vbw) * 100 * 1.15;
+          (S.cast || []).forEach(([w, slot, pose], k) => { const a = this.actor(w, pose, R.slots[slot] || R.slots.a, isz, R.slots[slot] && R.slots[slot][0] > 60); if (a) { a.style.animationDelay = (0.35 + k * 0.12) + "s"; box.appendChild(a); } });
+          this.wint.querySelector(".wname").textContent = R.name;
+          this.wint.classList.remove("in"); void this.wint.offsetWidth; this.wint.classList.add("in");
+        };
+        if (this.wint.classList.contains("in")) { this.wint.classList.remove("in"); this._t = setTimeout(go, reduce() ? 0 : 450); }
+        else this._t = setTimeout(go, reduce() ? 0 : 1100);   // le temps que la caméra s'approche du bâtiment
+      } else this.wint.classList.remove("in");
+    },
+    talk(who) {
+      if (!this.el) return;
+      this.el.querySelectorAll(".actor.talking").forEach((a) => a.classList.remove("talking"));
+      if (!who || who === "narr") return;
+      this.el.querySelectorAll(`.actor[data-who="${who}"]`).forEach((a) => a.classList.add("talking"));
+    },
+  };
+  function reduce() { return matchMedia("(prefers-reduced-motion: reduce)").matches || calm(); }
+  function camera(sc) { World.stage(sc); }
+
+  // Plus d'illustrations : la scène se joue en direct sur le plan, derrière la question.
+  function scenePanel() { return document.createComment("scène sur le plan"); }
   function parallax(n) {
     if (matchMedia("(pointer:coarse)").matches) return;
     n.addEventListener("pointermove", (e) => { const r = n.getBoundingClientRect(); n.style.setProperty("--px", ((e.clientX - r.left) / r.width - .5).toFixed(3)); n.style.setProperty("--py", ((e.clientY - r.top) / r.height - .5).toFixed(3)); });
     n.addEventListener("pointerleave", () => { n.style.setProperty("--px", 0); n.style.setProperty("--py", 0); });
   }
   function portrait(who, mood) {
-    const n = el("div", { class: "portrait amb-" + timeOf(SCREENS[st.idx]), "data-who": who }, `<i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="pchar">${A.chars[who][mood || "smile"]}</div><div class="pname">${NAMES[who]}</div>`);
-    parallax(n); return n;
+    // Pastille de la personne qui vous parle : buste en pâte à modeler, l'expression change selon vos réponses.
+    return el("div", { class: "portrait chip", "data-who": who }, `<div class="pchar">${A.chars[who][mood || "smile"]}</div><div class="pname">${NAMES[who]}</div>`);
   }
   function setMood(container, who, mood) {
     const pc = container.querySelector(`.portrait[data-who="${who}"] .pchar`);
@@ -417,7 +471,7 @@
   R.chapter = (sc, n) => {
     const c = CHAPTERS[sc.ch - 1];
     const stations = CHAPTERS.map((x) => `<li class="${x.n < c.n ? "done" : x.n === c.n ? "cur" : ""}"><span>${x.n}</span></li>`).join("");
-    n.innerHTML = `<div class="chap"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div><div class="chapart art amb-${timeOf(sc)}"><i class="sky" aria-hidden="true"></i><i class="glowl" aria-hidden="true"></i><i class="motes" aria-hidden="true"></i><div class="artin">${A.chapters[c.n]}</div></div><p class="chapnum">Chapitre ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.title)}</h2><p class="lead">${esc(c.goal)}</p></div>`;
+    n.innerHTML = `<div class="chap"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div><p class="chapnum">Chapitre ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.title)}</h2><p class="lead">${esc(c.goal)}</p></div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Continuer", next));
     Snd.page();
   };
@@ -583,9 +637,7 @@
     return h;
   }
   function sideArt(sc) {
-    if (sc.npc) return portrait(sc.npc, sc.mood);
-    if (sc.scene) return scenePanel(sc.scene);
-    return null;
+    return sc.npc ? portrait(sc.npc, sc.mood) : null;
   }
 
   R.choice = (sc, n) => {

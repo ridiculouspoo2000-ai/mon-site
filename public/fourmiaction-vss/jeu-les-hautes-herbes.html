@@ -1230,12 +1230,9 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 #world.amb-night .wcam>svg{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
 #world.amb-night .dio-win{fill:#FFD27A}
 /* intérieur */
-#world .wint{position:absolute;inset:0;opacity:0;transition:opacity .55s var(--ease)}
+#world .wint{display:none}
 #world .wint.in{opacity:1}
 /* pas de flou ni de cadre : on a levé le toit, on regarde dans le bâtiment, le plan reste là autour */
-#world.inside .wext{filter:saturate(.92) brightness(.97)}
-#world .wint::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 40% 46% at var(--fx,50%) var(--fy,52%),rgba(246,247,249,.82) 40%,rgba(246,247,249,.4) 70%,rgba(246,247,249,0) 100%)}
-#world.amb-night .wint::before{background:radial-gradient(ellipse 40% 46% at var(--fx,50%) var(--fy,52%),rgba(24,32,48,.75) 40%,rgba(24,32,48,.35) 70%,rgba(24,32,48,0) 100%)}
 #world .wroom{position:absolute;left:var(--fx,50%);top:var(--fy,52%);width:var(--rw,min(62vw,1000px));translate:-50% -50%;transform-origin:50% 50%}
 #world .wroom>svg{width:100%;height:100%;display:block;filter:drop-shadow(0 18px 22px rgba(19,40,59,.16))}
 #world.amb-night .wroom>svg{filter:brightness(.62) saturate(.8) drop-shadow(0 18px 22px rgba(0,0,0,.3))}
@@ -1245,16 +1242,21 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
   box-shadow:0 6px 20px -10px rgba(19,40,59,.4);opacity:0;transition:opacity .5s .5s}
 #world .wint.in .wname{opacity:1}
 #world .wname{display:none}
-/* toit qu'on lève */
+/* toit qu'on lève : le bâtiment s'ouvre en place (maison de poupée), la salle est dans le plan */
 .wlids{position:absolute;inset:0;pointer-events:none}
-.wlid{position:absolute}
-.wlid img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;user-select:none}
-.wlid.ready img{opacity:1}
-.wlid .dio-lid{transform-origin:20% 70%;transition:transform 1.15s cubic-bezier(.45,0,.2,1),opacity .55s .55s ease;will-change:transform,opacity}
-.wlid.open .dio-lid{transform:translate(3%,-26%) rotate(-5deg);opacity:0}
-#world.amb-evening .wlid img{filter:sepia(.18) saturate(1.1) brightness(.93)}
-#world.amb-night .wlid img{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
-@media (prefers-reduced-motion:reduce){.wlid .dio-lid{transition:opacity .3s}.wlid.open .dio-lid{transform:none}}
+.wlid{position:absolute;display:block;opacity:0;user-select:none;pointer-events:none}
+.wlid.ready{opacity:1}
+.wlid.hole{z-index:1;transition:opacity .6s ease .3s}
+.wlid.top{z-index:9000;transform-origin:50% 60%;opacity:1;transition:transform 1.1s cubic-bezier(.4,0,.2,1),opacity .35s ease}
+.wlid.top.open{transform:translate(0,-38%) scale(1.05);opacity:0;transition:transform 1.5s cubic-bezier(.35,.05,.2,1),opacity .7s .75s ease}
+.inroom-w{position:absolute;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.inroom-w.in{opacity:1}
+.inroom-w svg{width:100%;height:100%;display:block;overflow:visible}
+#world.amb-evening .wlid,#world.amb-evening .inroom-w{filter:sepia(.18) saturate(1.1) brightness(.93)}
+#world.amb-night .wlid{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}#world.amb-night .inroom-w{filter:brightness(.62) saturate(.8) hue-rotate(8deg)}
+#world.amb-night .int-win{fill:#22304D}
+#world .int-night{display:none}#world.amb-night .int-night{display:inline}
+@media (prefers-reduced-motion:reduce){.wlid.top{transition:opacity .3s}.wlid.top.open{transform:none}}
 #world .wvig{position:absolute;inset:0;background:linear-gradient(90deg,rgba(245,245,247,0) 52%,rgba(245,245,247,.55) 78%,rgba(245,245,247,.8))}
 #world.amb-night .wvig{background:linear-gradient(90deg,rgba(20,27,40,0) 52%,rgba(20,27,40,.5))}
 /* personnages */
@@ -1308,6 +1310,12 @@ body.live .side .trust{flex:1 1 220px;margin:0}
 /* calques animés du plan : déplacés par la carte graphique, le plan ne se redessine pas */
 .wanim{position:absolute;inset:0;pointer-events:none}
 .dio-ov{position:absolute;will-change:transform}
+.dio-occ{position:absolute;pointer-events:none}
+.dio-occ svg{width:100%;height:100%;display:block;overflow:visible}
+#world .wacts{z-index:auto}
+
+#world.amb-evening .dio-occ,#world.amb-evening .dio-ov{filter:sepia(.18) saturate(1.1) brightness(.93)}
+#world.amb-night .dio-occ,#world.amb-night .dio-ov{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
 .dio-ov svg{width:100%;height:100%;display:block;overflow:visible}
 .dio-ov.dio-car{animation:dio-car 26s ease-in-out infinite}
 .dio-ov.dio-par{animation:dio-par 26s linear infinite}
@@ -1364,10 +1372,29 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 .rlab{font:600 5px/1 -apple-system,system-ui,sans-serif;fill:#fff;paint-order:stroke;stroke:#0B4F84;stroke-width:3px;stroke-linejoin:round}
 /* parler : la bouche bouge, le bras accompagne la parole (plus de bulle) */
 .actor .abub{display:none}
-.talking .mmouth{animation:mouth .22s ease-in-out infinite alternate}
-@keyframes mouth{from{transform:scaleY(.4)}to{transform:scaleY(2.1)}}
-.talking .marm{animation:gesture 1.1s ease-in-out infinite}
-@keyframes gesture{0%,100%{transform:rotate(0)}30%{transform:rotate(-38deg)}55%{transform:rotate(-14deg)}75%{transform:rotate(-30deg)}}
+/* bouches : trois façons d'articuler (a, o, i, fermée…), irrégulières */
+.talking .mmouth{animation:mouth1 .9s linear infinite}
+.talking.m2 .mmouth{animation:mouth2 1.15s linear infinite}
+.talking.m3 .mmouth{animation:mouth3 .75s linear infinite}
+@keyframes mouth1{0%{transform:scale(1,.4)}12%{transform:scale(1.1,2.2)}24%{transform:scale(.75,1.4)}36%{transform:scale(1.35,.7)}50%{transform:scale(1,1.9)}62%{transform:scale(.7,.9)}76%{transform:scale(1.2,2)}88%{transform:scale(1,.5)}100%{transform:scale(1,.4)}}
+@keyframes mouth2{0%{transform:scale(1,.5)}10%{transform:scale(.7,1.6)}22%{transform:scale(.65,1.7)}34%{transform:scale(1.3,1)}46%{transform:scale(1,.4)}58%{transform:scale(1.15,2.3)}72%{transform:scale(1.4,.8)}86%{transform:scale(.8,1.5)}100%{transform:scale(1,.5)}}
+@keyframes mouth3{0%,100%{transform:scale(1,.6)}20%{transform:scale(1.2,1.8)}40%{transform:scale(.8,1.1)}60%{transform:scale(1.3,2.1)}80%{transform:scale(1,.45)}}
+/* gestes : six registres, tirés au hasard et renouvelés pendant la réplique */
+.talking .marm{animation:gA 1.1s ease-in-out infinite}
+.talking.g2 .marm{animation:gB 1.6s ease-in-out infinite}.talking.g2 .marml{animation:gBl 1.6s ease-in-out infinite}
+.talking.g3 .marm{animation:gC 2.2s ease-in-out infinite}
+.talking.g4 .marm{animation:gD 1.4s ease-in-out infinite}.talking.g4 .marml{animation:gDl 1.4s ease-in-out infinite}
+.talking.g5 .marm{animation:gE .7s ease-in-out infinite alternate}
+.talking.g6 .marml{animation:gFl 1.3s ease-in-out infinite}.talking.g6 .marm{animation:gF 2.6s ease-in-out infinite}
+@keyframes gA{0%,100%{transform:rotate(0)}30%{transform:rotate(-38deg)}55%{transform:rotate(-14deg)}75%{transform:rotate(-30deg)}}
+@keyframes gB{0%,100%{transform:rotate(-8deg)}40%{transform:rotate(-46deg)}70%{transform:rotate(-30deg)}}
+@keyframes gBl{0%,100%{transform:rotate(8deg)}40%{transform:rotate(44deg)}70%{transform:rotate(28deg)}}
+@keyframes gC{0%,100%{transform:rotate(-12deg)}25%,70%{transform:rotate(-78deg)}48%{transform:rotate(-70deg)}}
+@keyframes gD{0%,100%{transform:rotate(0)}35%,60%{transform:rotate(-58deg)}}
+@keyframes gDl{0%,100%{transform:rotate(0)}35%,60%{transform:rotate(56deg)}}
+@keyframes gE{from{transform:rotate(-48deg)}to{transform:rotate(-62deg)}}
+@keyframes gF{0%,100%{transform:rotate(0)}50%{transform:rotate(-20deg)}}
+@keyframes gFl{0%,100%{transform:rotate(0)}30%{transform:rotate(36deg)}60%{transform:rotate(18deg)}}
 .actor.talking svg,.actor.flip.talking svg{animation:none}
 .portrait.chip.talking .cmouth{transform-box:fill-box;transform-origin:50% 30%;animation:cmouth .2s ease-in-out infinite alternate}
 @keyframes cmouth{from{transform:scaleY(.75)}to{transform:scaleY(1.35)}}
@@ -1415,7 +1442,7 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-ad1b9b4b.js"></script>
+<script src="jeu-1-9d0b185d.js"></script>
 <script src="jeu-2-23a7a9aa.js"></script>
-<script src="jeu-3-592e2749.js"></script>
+<script src="jeu-3-84826f1c.js"></script>
 </body></html>

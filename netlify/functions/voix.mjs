@@ -77,6 +77,8 @@ export const PROFILS = {
   bastien: { nom: "Bastien", role: "Jeune animateur, détendu", gender: "male", ages: ["young"] },
   kevin: { nom: "Kévin", role: "Animateur de 24 ans", gender: "male", ages: ["young"] },
   garnier: { nom: "M. Garnier", role: "Directeur, la cinquantaine, grave et posé", gender: "male", ages: ["middle_aged", "old"] },
+  roussel: { nom: "M. Roussel", role: "Père de Zoé, la quarantaine, inquiet mais courtois", gender: "male", ages: ["middle_aged"] },
+  benali: { nom: "Mme Benali", role: "Mère de Malo, la trentaine, émue", gender: "female", ages: ["middle_aged", "young"] },
 };
 const PAS_PARIS = /qu[ée]b|canad|belg|suiss|swiss|afri|antill|marseill|sud|south|occitan|alsac|corse|nord|ch.ti/i;
 async function bibliotheque(gender, age, key) {

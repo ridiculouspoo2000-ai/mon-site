@@ -15,10 +15,10 @@
     return e;
   };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys" };
+  const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali" };
 
   /* ---------- état et sauvegarde ---------- */
-  const fresh = () => ({ v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
+  const fresh = () => ({ v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, later: {}, trust: {}, stars: {}, nuitee: false, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
   let st = null;
   st = fresh();
   st.settings = { sound: true, voice: true, calm: window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches };
@@ -266,11 +266,13 @@
 
   /* ---------- navigation ---------- */
   function go(i, dir = 1) {
-    st.idx = Math.max(0, Math.min(SCREENS.length - 1, i));
+    i = Math.max(0, Math.min(SCREENS.length - 1, i));
+    while (SCREENS[i] && SCREENS[i].nuitee && !st.nuitee && i > 0 && i < SCREENS.length - 1) i += dir < 0 ? -1 : 1;
+    st.idx = i;
     save();
     render(dir);
   }
-  const next = () => { Snd.click(); go(st.idx + 1); };
+  const next = () => { Snd.click(); go(st.idx + 1, 1); };
 
   function render(dir = 1) {
     const sc = SCREENS[st.idx];
@@ -278,11 +280,13 @@
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); Voice.prefetch(L); }
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
+    camera(sc);
     hud(true);
     const old = stage.firstElementChild;
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
-    (R[sc.type] || R.story)(sc, node);
-    { const VP = VOICE_TXT.parts(sc); if (VP.length) setTimeout(() => Voice.seq(VP), 350); }
+    (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
+    { const VP = VOICE_TXT.parts(sc); if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(VP), 350); }
+    if (sc.press) { const host = node.querySelector(".panel, .solo, .page-note .pn-body, .bilan") || node; host.appendChild(pressBox(sc.press)); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
     stage.appendChild(node);
     requestAnimationFrame(() => node.classList.add("in"));
@@ -301,6 +305,22 @@
     if (/matin/.test(k)) return "morning";
     const h = k.match(/(\d{1,2})\s*h/); if (h) { const n = +h[1]; return n < 11 ? "morning" : n < 16 ? "day" : n < 19 ? "golden" : "evening"; }
     return { 1: "morning", 2: "morning", 3: "day", 4: "golden", 5: "morning", 6: "evening" }[sc && sc.ch] || "day";
+  }
+  // Le monde : le diorama de l'accueil, derrière les écrans. La caméra voyage vers le lieu de chaque scène.
+  const LOC = { intro: "entree", radio: "radio", k1: "equipe", brief: "equipe", ines: "equipe", rire: "parc", parent1: "cour", parent2: "cour", chat: "equipe", chatact: "equipe", theo: "cour", theo2: "cour", k2: "equipe",
+    ronde: "sanitaires", consent: "jeux", silence: "jeux", kevin: "equipe", nuit1: "refectoire", nuit2: "refectoire", nuit3: "refectoire", kn: "equipe", k3: "equipe",
+    depart: "entree", lou: "cour", call: "direction", acts: "direction", ordre: "cour", transm: "direction", k4: "equipe",
+    bilanequipe: "equipe", build: "equipe", affiche: "panneau", familles: "entree", k5: "equipe", maelys: "local", f1: "local", garnier: "direction", f3: "direction" };
+  let world = null;
+  function camera(sc) {
+    if (!A.dio) return;
+    if (!world) { world = el("div", { id: "world", "aria-hidden": "true" }, `<div class="wcam">${A.dio.svg}</div>`); document.body.insertBefore(world, document.body.firstChild); }
+    const hide = !sc || sc.type === "hotspots" || calm();
+    world.className = hide ? "" : "on amb-" + timeOf(sc);
+    if (hide) return;
+    const key = LOC[sc.id] || (sc.type === "chapter" || sc.type === "bilan" || sc.type === "positions" ? "ensemble" : null);
+    const p = A.dio.lieux[key] || A.dio.lieux.ensemble, z = key && key !== "ensemble" ? 1.9 : 1.05;
+    world.firstElementChild.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
   }
   function scenePanel(key, extra = "") {
     const svg = key === "welcome" ? A.welcome : (A.scenes[key] || A.chapters[key] || "");
@@ -375,7 +395,7 @@
   const R = {};
 
   R.avatar = (sc, n) => {
-    n.innerHTML = `<div class="solo"><h2 id="h-${sc.id}">Votre rôle</h2><p class="lead">Vous êtes animateur ou animatrice et c’est votre premier jour au séjour des Hautes Herbes.</p></div>`;
+    n.innerHTML = `<div class="solo"><h2 id="h-${sc.id}">Votre rôle</h2><p class="lead">Vous êtes animateur ou animatrice et c’est votre premier jour à l’accueil de loisirs des Hautes Herbes.</p></div>`;
     const box = n.querySelector(".solo");
     const lab = el("label", { for: "pname", class: "flabel" }, "Votre prénom (facultatif)");
     const inp = el("input", { id: "pname", type: "text", maxlength: "20", autocomplete: "off", placeholder: "Sam", value: st.name || "" });
@@ -385,7 +405,13 @@
       b.addEventListener("click", () => { st.av = i; grid.querySelectorAll(".av").forEach((x, j) => { x.classList.toggle("sel", j === i); x.setAttribute("aria-checked", j === i); }); Snd.click(); });
       grid.appendChild(b);
     });
-    box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, btn("Commencer le séjour", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
+    const fmt = el("div", { class: "fmt", role: "radiogroup", "aria-label": "Format de l’accueil" });
+    [[false, "Accueil de loisirs", "Des journées d’accueil, sans hébergement."], [true, "Avec une nuitée", "Une nuit à l’accueil le mercredi : un parcours en plus sur les risques de la nuit."]].forEach(([v, t, d]) => {
+      const b = el("button", { class: "fmtb" + (!!st.nuitee === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(!!st.nuitee === v) }, `<b>${t}</b><small>${d}</small>`);
+      b.addEventListener("click", () => { st.nuitee = v; fmt.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
+      fmt.appendChild(b);
+    });
+    box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, btn("Commencer", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
   };
 
   R.chapter = (sc, n) => {
@@ -458,7 +484,7 @@
         const before = st.dB[d.id] || "—";
         const moved = before !== store[d.id];
         list.appendChild(el("div", { class: "cmp " + (right ? "good" : "mid") }, `<p class="q"><b>${d.id}.</b> ${esc(d.t)}</p>
-          <p class="chips"><span class="chip">Lundi : ${esc(before)}</span><span class="chip">Dimanche : ${esc(store[d.id])}</span><span class="chip strong">${d.truth}</span>${moved ? '<span class="chip new">Évolution</span>' : ""}</p><p>${esc(d.why)}</p>`));
+          <p class="chips"><span class="chip">Lundi : ${esc(before)}</span><span class="chip">Vendredi : ${esc(store[d.id])}</span><span class="chip strong">${d.truth}</span>${moved ? '<span class="chip new">Évolution</span>' : ""}</p><p>${esc(d.why)}</p>`));
       });
       ok.remove();
       box.appendChild(btn("Voir mon bilan", next));
@@ -466,46 +492,84 @@
   };
 
   R.hotspots = (sc, n) => {
-    const found = new Set((st.flags.mapfound || "").split(",").filter(Boolean));
-    let hints = 0;
-    const need = sc.spots.filter((s) => s.real).length;
-    const wrap = el("div", { class: "mapwrap" });
-    wrap.innerHTML = `<div class="maphead"><div><h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div><div class="counter" aria-live="polite"><span id="cnt">${found.size}</span> / ${need} points repérés</div></div>`;
-    const map = el("div", { class: "map" }, A.map);
+    // « Œil de lynx » : trouver les points à risque dans le diorama, avec un chrono et des indices limités.
+    const dio = A.dio && sc.spots.every((s) => s.key && A.dio.zones[s.key]) ? A.dio : null;
+    const found = new Set(), seenDecoy = new Set();
+    let hints = 0, left = sc.timer || 0, over = false, timerId = 0, decoys = 0;
+    const need = sc.spots.filter((s) => s.real).length, maxHints = sc.hints == null ? 99 : sc.hints;
+    const wrap = el("div", { class: "mapwrap lynx" });
+    wrap.innerHTML = `<div class="maphead"><div><p class="kicker">Œil de lynx</p><h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div>
+      <div class="lx-hud"><div class="counter" aria-live="polite"><span id="cnt">0</span> / ${need} trouvés</div>${left ? `<div class="lx-clock" role="timer" aria-label="Temps restant"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b id="lx-t">${left}</b></div>` : ""}</div></div>`;
+    const map = el("div", { class: "map" + (dio ? " dio" : "") }, dio ? dio.svg : A.map);
+    if (dio) map.style.aspectRatio = String(dio.ratio);
     const card = el("div", { class: "spotcard", hidden: true, role: "dialog", "aria-modal": "false", "aria-labelledby": "spot-t" });
     sc.spots.forEach((s, i) => {
-      const b = el("button", { class: "spot" + (found.has(String(i)) ? " seen" : ""), type: "button", style: `left:${s.x}%;top:${s.y}%;width:${s.w}%;height:${s.h}%`, "aria-label": "Examiner : " + s.label }, `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
+      const z = dio ? dio.zones[s.key] : s;
+      const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}` : "";
+      const b = el("button", { class: "spot" + (dio ? " hidden-spot" : ""), type: "button", style: `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%${shape}`, "aria-label": "Examiner : " + s.label },
+        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/></svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
       b.addEventListener("click", () => open(s, i, b));
       map.appendChild(b);
     });
     const mapbox = el("div", { class: "mapbox" });
     mapbox.append(map, card);
     const bar = el("div", { class: "row" });
-    const hb = btn("Un indice ?", () => {
-      hints++; Snd.click();
-      const idx = sc.spots.findIndex((s, i) => s.real && !found.has(String(i)));
+    const hb = btn(`Un indice (${maxHints})`, () => {
+      if (hints >= maxHints) return;
+      hints++; Snd.click(); hb.textContent = `Un indice (${maxHints - hints})`; if (hints >= maxHints) hb.disabled = true;
+      const idx = sc.spots.findIndex((s, i) => s.real && !found.has(i));
       if (idx >= 0) { const b = map.querySelectorAll(".spot")[idx]; b.classList.add("hinted"); b.focus(); say("Regardez du côté de : " + sc.spots[idx].label); }
     }, "ghost");
-    const nb = btn("Continuer", () => { record(sc, Math.max(0.5, 1 - 0.25 * hints)); next(); });
-    nb.disabled = found.size < need;
+    const nb = btn("Continuer", () => { stop(); next(); });
+    nb.disabled = true;
     bar.append(hb, nb);
-    wrap.append(mapbox, bar);
+    wrap.append(mapbox, el("p", { class: "lx-swipe", "aria-hidden": "true" }, "Faites glisser le plan pour voir tout l’accueil."), bar);
     n.appendChild(wrap);
-    coach("Sélectionnez un lieu du plan (ou Tab puis Entrée). Certains lieux ne posent aucun problème : c’est aussi une information.", wrap);
+    requestAnimationFrame(() => { if (mapbox.scrollWidth > mapbox.clientWidth) mapbox.scrollLeft = (mapbox.scrollWidth - mapbox.clientWidth) / 2; });
+    coach(dio ? "Les points à risque ne sont pas signalés : touchez les bâtiments et les lieux de l’accueil pour les examiner. Chaque lieu sans problème vous coûte 5 secondes." : "Sélectionnez un lieu du plan (ou Tab puis Entrée).", wrap);
+    const clock = wrap.querySelector(".lx-clock");
+    const tick = () => {
+      if (over) return; left = Math.max(0, left - 1);
+      const t = wrap.querySelector("#lx-t"); if (t) t.textContent = left;
+      if (clock) { clock.querySelector(".t1").style.strokeDashoffset = (100 - (left / sc.timer) * 100).toFixed(1); clock.classList.toggle("hurry", left <= 20); }
+      if (left <= 0) finish(true);
+    };
+    if (left) timerId = setInterval(tick, 1000);
+    function stop() { clearInterval(timerId); over = true; }
+    function finish(timeout) {
+      if (over && !timeout) return;
+      stop();
+      const nf = found.size;
+      const stars = nf < need ? (nf >= need - 1 ? 1 : 0) : (hints === 0 && decoys <= 2 && left >= 30 ? 3 : hints <= 1 && decoys <= 4 ? 2 : 1);
+      const q = Math.max(0, Math.min(1, nf / need - hints * 0.1 - Math.max(0, decoys - 3) * 0.05));
+      record(sc, Math.round(q * 100) / 100);
+      // révèle ce qui a été manqué
+      sc.spots.forEach((s, i) => { if (s.real && !found.has(i)) map.querySelectorAll(".spot")[i].classList.add("missed"); });
+      const res = el("div", { class: "lx-res", role: "status" }, `<div class="lx-stars" aria-label="${stars} étoile${stars > 1 ? "s" : ""} sur 3">${[1, 2, 3].map((k) => `<i class="${k <= stars ? "on" : ""}" style="--k:${k}"></i>`).join("")}</div>
+        <div><b>${timeout && nf < need ? "Temps écoulé" : stars === 3 ? "Œil de lynx !" : "Tous les points sont repérés"}</b><p>${nf} point${nf > 1 ? "s" : ""} sur ${need} · ${hints} indice${hints > 1 ? "s" : ""} · ${decoys} lieu${decoys > 1 ? "x" : ""} sans problème ouvert${decoys > 1 ? "s" : ""}${sc.timer ? ` · ${sc.timer - left} s` : ""}${nf < need ? ". Les points manqués sont entourés en orange : ouvrez-les avant de continuer." : ""}</p></div>`);
+      wrap.querySelector(".maphead").after(res);
+      if (stars === 3) burst(res, "good");
+      nb.disabled = false; hb.disabled = true;
+      Voice.say("narr", stars === 3 ? "Œil de lynx ! Tous les points repérés, sans perdre de temps." : nf < need ? "Le temps est écoulé. Regardez les points que vous avez manqués." : "Tous les points sont repérés.");
+      say(res.textContent);
+    }
     function open(s, i, b) {
       Snd.click(); Voice.say(...VOICE_TXT.spot(s));
-      b.classList.add("seen"); b.classList.remove("hinted");
-      if (s.real) found.add(String(i));
-      st.flags.mapfound = [...found].join(","); save();
-      $("#cnt", wrap).textContent = [...found].filter((k) => sc.spots[k].real).length;
+      b.classList.add("seen"); b.classList.remove("hinted", "missed");
+      if (s.real) found.add(i);
+      else if (!seenDecoy.has(i)) {
+        seenDecoy.add(i); decoys++;
+        if (!over && sc.timer) { left = Math.max(1, left - 5); const f = el("span", { class: "lx-pen", "aria-hidden": "true" }, "−5 s"); b.appendChild(f); setTimeout(() => f.remove(), 1200); }
+      }
+      $("#cnt", wrap).textContent = found.size;
       card.hidden = false;
       card.className = "spotcard " + (s.real ? "real" : "decoy");
       card.innerHTML = `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`;
+      if (s.press) card.appendChild(pressBox(s.press));
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
       card.appendChild(c); c.focus();
-      if (s.real) { Snd.good(); burst(b, "good"); const c = $(".counter", wrap); c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump"); } else Snd.mid();
-      nb.disabled = [...found].filter((k) => sc.spots[k].real).length < need;
-      if (!nb.disabled) say("Tous les points sont repérés. Vous pouvez continuer.");
+      if (s.real) { Snd.good(); burst(b, "good"); const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); } else Snd.mid();
+      if (found.size >= need && !over) finish(false);
     }
   };
 
@@ -525,6 +589,7 @@
   }
 
   R.choice = (sc, n) => {
+    st.later = st.later || {};
     const wrap = el("div", { class: "duo" });
     const side = sideArt(sc);
     if (side) wrap.appendChild(el("div", { class: "side" })).appendChild(side);
@@ -532,28 +597,77 @@
     panel.innerHTML = contextBlock(sc) + `<h2 id="h-${sc.id}" class="prompt">${esc(sc.prompt)}</h2>`;
     const opts = el("div", { class: "opts" });
     const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    let done = false, tId = 0;
     sc.opts.forEach((o, k) => {
       const b = el("button", { class: "opt", type: "button", style: `--k:${k}` }, `<span class="ol">${String.fromCharCode(65 + k)}</span><span>${esc(o.t)}</span>`);
-      b.addEventListener("click", () => pick(o, b));
+      b.addEventListener("click", () => pick(o, b, k));
       opts.appendChild(b);
     });
+    // Décision chronométrée : sur le terrain, l'hésitation a un coût.
+    let bar = null;
+    if (sc.timer && st.res[sc.id] == null && !calm()) {
+      bar = el("div", { class: "qtimer", role: "timer", "aria-label": `${sc.timer} secondes pour décider` }, `<i style="animation-duration:${sc.timer}s"></i><span>${sc.timer} s pour décider</span>`);
+      panel.appendChild(bar);
+      let left = sc.timer;
+      tId = setInterval(() => { left--; bar.querySelector("span").textContent = left > 0 ? `${left} s pour décider` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 5); if (left <= 0) { clearInterval(tId); timeout(); } }, 1000);
+    }
     panel.append(opts, fbz);
     wrap.appendChild(panel);
     if (!side) wrap.classList.add("one");
     n.appendChild(wrap);
-    function pick(o, b) {
-      record(sc, o.q, o);
+    function timeout() {
+      if (done) return; done = true;
       opts.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
+      record(sc, 0); Snd.low();
+      fbz.innerHTML = `<div class="fb low"><p class="vt">Temps écoulé</p><p>Vous avez hésité trop longtemps. Sur le terrain, l’hésitation laisse l’enfant seul face au danger.</p>${sc.better ? `<p class="better"><b>Ce qu’il fallait faire.</b> ${esc(sc.better)}</p>` : ""}</div>`;
+      const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); fbz.appendChild(row);
+      Voice.say("narr", "Temps écoulé. Vous avez hésité trop longtemps : sur le terrain, l’hésitation laisse l’enfant seul face au danger.");
+    }
+    function pick(o, b, k) {
+      if (done && !b) return;
+      clearInterval(tId); if (bar) bar.classList.add("stop");
+      opts.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
+      b.classList.add("chosen");
+      if (sc.why && !b.dataset.tried) return justify(o, b, k);
+      finish(o, b, k, null);
+    }
+    // Réponses nuancées : il faut aussi choisir la bonne justification.
+    function justify(o, b, k) {
+      fbz.innerHTML = "";
+      const box = el("div", { class: "why" }, `<p class="kicker">${esc(sc.why.q || "Et pourquoi ?")}</p>`);
+      const wo = el("div", { class: "opts why-opts" });
+      const order = sc.why.opts.map((w, i) => i).sort((x, y) => ((x * 7 + sc.id.length) % 3) - ((y * 7 + sc.id.length) % 3));
+      order.forEach((i, j) => { const w = sc.why.opts[i]; const wb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${j + 1}</span><span>${esc(w.t)}</span>`); wb.addEventListener("click", () => { wo.querySelectorAll(".opt").forEach((x) => (x.disabled = true)); wb.classList.add("chosen"); finish(o, b, k, w); }); wo.appendChild(wb); });
+      box.appendChild(wo); fbz.appendChild(box);
+      Voice.say("narr", sc.why.q || "Et pourquoi ?");
+      wo.querySelector(".opt").focus({ preventScroll: true });
+    }
+    function finish(o, b, k, w) {
+      done = true;
+      const q = Math.round(o.q * (w && !w.ok ? 0.6 : 1) * 100) / 100;
+      const first = st.res[sc.id] == null;
+      record(sc, q, o);
+      if (first) { st.later[sc.id] = { k, w: w ? sc.why.opts.indexOf(w) : -1 }; save(); }
+      // Conséquences cachées : le verdict n'apparaît qu'au débrief de fin de chapitre.
+      if (sc.later && first) {
+        b.classList.add("picked", "neutral");
+        fbz.innerHTML = `<div class="fb later"><p class="vt">Choix enregistré</p><p>Vous découvrirez plus tard, au débrief de Nour, ce que ce choix a produit.</p></div>`;
+        const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); fbz.appendChild(row);
+        Snd.click(); Voice.say("narr", "Choix enregistré. Vous découvrirez plus tard ce qu’il a produit.");
+        fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus({ preventScroll: false });
+        return;
+      }
       b.classList.add("picked", verdict(o.q).cls);
       if (o.mood && sc.npc) setMood(wrap, sc.npc, o.mood);
-      const v = verdict(o.q); v.s();
-      if (o.q >= 1) burst(b, "good");
-      if (sc.npc) cheer(wrap, sc.npc, o.q);
-      fbz.innerHTML = `<div class="fb ${v.cls}"><p class="vt">${v.t}</p>${o.cons ? `<p class="cons"><b>Conséquence.</b> ${esc(o.cons)}</p>` : ""}<p><b>Ce que ça révèle.</b> ${esc(o.fb)}</p>${o.q < 1 && sc.better ? `<p class="better"><b>Pour faire mieux.</b> ${esc(sc.better)}</p>` : ""}</div>`;
+      const v = verdict(q); v.s();
+      if (q >= 1) burst(b, "good");
+      if (sc.npc) cheer(wrap, sc.npc, q);
+      const wl = w ? `<p class="whyfb ${w.ok ? "ok" : "no"}"><b>${w.ok ? "Bonne justification." : "Justification fragile."}</b> ${esc(w.ok ? "Vous avez identifié la vraie raison." : w.no || "")}</p>` : "";
+      fbz.innerHTML = `<div class="fb ${v.cls}"><p class="vt">${v.t}</p>${o.cons ? `<p class="cons"><b>Conséquence.</b> ${esc(o.cons)}</p>` : ""}<p><b>Ce que ça révèle.</b> ${esc(o.fb)}</p>${wl}${o.q < 1 && sc.better ? `<p class="better"><b>Pour faire mieux.</b> ${esc(sc.better)}</p>` : ""}</div>`;
       const row = el("div", { class: "row" });
       if (o.q < 1) row.appendChild(btn("Essayer une autre approche", () => {
-        Snd.click(); fbz.innerHTML = ""; if (sc.npc) setMood(wrap, sc.npc, sc.mood || "smile");
-        opts.querySelectorAll(".opt").forEach((x) => { x.disabled = x.classList.contains("picked"); if (x.classList.contains("picked")) x.classList.add("tried"); x.classList.remove("picked"); });
+        Snd.click(); fbz.innerHTML = ""; done = false; if (sc.npc) setMood(wrap, sc.npc, sc.mood || "smile");
+        opts.querySelectorAll(".opt").forEach((x) => { x.disabled = x.classList.contains("picked"); if (x.classList.contains("picked")) { x.classList.add("tried"); x.dataset.tried = "1"; } x.classList.remove("picked", "chosen", "good", "mid", "low"); });
         opts.querySelector(".opt:not([disabled])").focus();
       }, "ghost"));
       row.appendChild(btn("Continuer", next));
@@ -564,11 +678,38 @@
     }
   };
 
+  // Débrief de fin de chapitre : les conséquences des choix « cachés » se révèlent.
+  function pressBox(list) {
+    return el("div", { class: "press" }, `<p class="press-k">Inspiré de faits réels</p>` + list.map((p) => `<a class="press-a" href="${esc(p.u)}" target="_blank" rel="noopener noreferrer"><span>${esc(p.t)}</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 4 12"/></svg></a>`).join(""));
+  }
+  function debrief(ch) {
+    const list = SCREENS.filter((x) => x.ch === ch && x.type === "choice" && x.later && st.later && st.later[x.id] != null);
+    if (!list.length) return null;
+    const box = el("section", { class: "debrief", "aria-label": "Ce que vos choix ont produit" }, `<p class="kicker">Le débrief de Nour</p><h3>Ce que vos choix ont produit</h3>`);
+    const V = [];
+    list.forEach((x) => {
+      const r = st.later[x.id], o = x.opts[r.k], w = r.w >= 0 ? x.why.opts[r.w] : null, v = verdict(o.q);
+      box.appendChild(el("div", { class: "db " + v.cls }, `<p class="db-k">${esc(x.kicker || "")}</p><p class="db-c">« ${esc(o.t)} »</p><p class="vt">${v.t}${w ? (w.ok ? " · bonne justification" : " · justification fragile") : ""}</p>${o.cons ? `<p><b>Ce qui s’est passé.</b> ${esc(o.cons)}</p>` : ""}<p>${esc(o.fb)}</p>${o.q < 1 && x.better ? `<p class="better"><b>Pour faire mieux.</b> ${esc(x.better)}</p>` : ""}`));
+      V.push(VOICE_TXT.fb(x, o));
+    });
+    return { box, V };
+  }
+
   R.dialogue = (sc, n) => {
     const wrap = el("div", { class: "duo dlg" });
     const side = el("div", { class: "side" });
     if (sc.scene) side.appendChild(scenePanel(sc.scene, " small"));
     side.appendChild(portrait(sc.npc, sc.nodes[sc.start].mood));
+    // Jauge de confiance : chaque réponse rapproche ou éloigne le personnage.
+    let trust = 55;
+    const tg = el("div", { class: "trust", role: "meter", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": "55", "aria-label": "Confiance de " + NAMES[sc.npc] }, `<span>Confiance de ${esc(NAMES[sc.npc])}</span><div class="tg"><i style="width:55%"></i></div><b class="td"></b>`);
+    side.appendChild(tg);
+    const setTrust = (d) => {
+      trust = Math.max(4, Math.min(100, trust + d));
+      tg.querySelector("i").style.width = trust + "%"; tg.setAttribute("aria-valuenow", String(Math.round(trust)));
+      tg.classList.toggle("low", trust < 35); tg.classList.toggle("high", trust >= 75);
+      const t = tg.querySelector(".td"); t.textContent = d > 0 ? "+" : d < 0 ? "−" : ""; t.className = "td " + (d > 0 ? "up" : d < 0 ? "down" : ""); void t.offsetWidth; t.classList.add("pop");
+    };
     wrap.appendChild(side);
     const panel = el("div", { class: "panel" });
     panel.innerHTML = `<h2 id="h-${sc.id}" class="dtitle">${esc(sc.title)}</h2>`;
@@ -579,6 +720,7 @@
     n.appendChild(wrap);
     const qs = []; let flags = {};
     let cur = sc.start;
+    if (sc.intro) { log.appendChild(el("p", { class: "narr" }, words(sc.intro))); n.dataset.novoice = "1"; }
     show(sc.start);
     function show(id) {
       cur = id;
@@ -588,7 +730,7 @@
       opts.innerHTML = "";
       const write = () => {
         const bub = log.appendChild(el("div", { class: "say npc" }, `<b>${NAMES[sc.npc]}</b><p>${words(nd.t)}</p>`));
-        Voice.say(sc.npc, nd.t, bub);
+        if (id === sc.start && sc.intro) Voice.seq([["narr", sc.intro, log.querySelector(".narr")], [sc.npc, nd.t, bub]]); else Voice.say(sc.npc, nd.t, bub);
         log.scrollTop = log.scrollHeight;
         if (nd.end) return finish(nd);
         drawOpts();
@@ -604,9 +746,9 @@
         const b = el("button", { class: "opt say-opt", type: "button", style: `--k:${k}` }, `<span>${esc(o.t)}</span>`);
         b.addEventListener("click", () => {
           opts.querySelectorAll("button").forEach((x) => (x.disabled = true));
-          Snd.click(); qs.push(o.q); if (o.flag) flags[o.flag] = true;
+          Snd.click(); qs.push(o.q); if (o.flag) flags[o.flag] = true; setTrust(Math.round((o.q - 0.5) * 44));
           log.appendChild(el("div", { class: "say me" }, `<b>${esc(st.name || "Vous")}</b><p>${esc(o.t)}</p>`));
-          if (o.note) { const v = verdict(o.q); log.appendChild(el("div", { class: "note " + v.cls }, `<b>Nour, à voix basse :</b> ${esc(o.note)}`)); v.s(); }
+          if (o.note) { const v = verdict(o.q); log.appendChild(el("div", { class: "note " + v.cls }, `<b>${sc.parent ? "Le conseil de Nour :" : "Nour, à voix basse :"}</b> ${esc(o.note)}`)); v.s(); }
           else if (o.q >= 1) burst(b, "good");
           cheer(wrap, sc.npc, o.q);
           opts.innerHTML = "";
@@ -621,6 +763,7 @@
       const firstTry = st.res[sc.id] == null;
       record(sc, Math.round(q * 100) / 100);
       if (firstTry) Object.keys(flags).forEach((k) => (st.flags[k] = true));
+      if (firstTry) { st.trust = st.trust || {}; st.trust[sc.npc] = Math.round(trust); }
       save();
       const v = verdict(q >= 0.9 ? 1 : q >= 0.5 ? 0.5 : 0); v.s();
       if (q >= 0.9) setTimeout(() => burst(log.lastElementChild, "good"), 100);
@@ -632,6 +775,79 @@
       box.setAttribute("tabindex", "-1"); box.focus();
       say("À retenir. " + nd.lesson);
     }
+  };
+
+  // « Réflexes » : tri rapide par glissement (2 ou 3 catégories), série et chrono par carte.
+  R.reflex = (sc, n) => {
+    const per = sc.speed || 9, items = sc.items.map((it, i) => ({ ...it, i })), res = [];
+    let k = 0, streak = 0, best = 0, tId = 0, t0 = 0, busy = false;
+    const dirs = sc.cats.length === 2 ? ["left", "right"] : ["left", "up", "right"];
+    const keys = sc.cats.length === 2 ? ["ArrowLeft", "ArrowRight"] : ["ArrowLeft", "ArrowUp", "ArrowRight"];
+    const wrap = el("div", { class: "solo wide reflex" });
+    wrap.innerHTML = contextBlock(sc) + `<div class="rx-head"><div><p class="kicker">Réflexes</p><h2 id="h-${sc.id}" class="prompt">${esc(sc.prompt)}</h2></div><div class="rx-stat"><span class="rx-prog">1 / ${items.length}</span><span class="rx-streak" aria-live="polite"></span></div></div>
+      <div class="rx-stage"><div class="rx-card" tabindex="-1"><div class="rx-time"><i></i></div><p class="rx-t"></p><p class="rx-why" hidden></p></div></div>
+      <div class="rx-cats">${sc.cats.map((c, j) => `<button type="button" class="rx-cat c${j}" data-j="${j}"><span class="rx-k">${["←", sc.cats.length === 2 ? "→" : "↑", "→"][j]}</span>${esc(c.label)}</button>`).join("")}</div>
+      <p class="small rx-help">Glissez la carte, touchez une catégorie ou utilisez les flèches du clavier.</p>`;
+    n.appendChild(wrap);
+    const card = wrap.querySelector(".rx-card"), tbar = wrap.querySelector(".rx-time i");
+    const show = () => {
+      const it = items[k]; busy = false;
+      card.className = "rx-card in"; card.style.transform = "";
+      card.querySelector(".rx-t").textContent = it.t; card.querySelector(".rx-why").hidden = true;
+      wrap.querySelector(".rx-prog").textContent = `${k + 1} / ${items.length}`;
+      tbar.style.animation = "none"; void tbar.offsetWidth; tbar.style.animation = `rxtime ${per}s linear forwards`;
+      t0 = performance.now(); clearTimeout(tId); tId = setTimeout(() => answer(-1), per * 1000);
+      say(it.t);
+    };
+    function answer(j) {
+      if (busy) return; busy = true; clearTimeout(tId);
+      const it = items[k], ok = j >= 0 && sc.cats[j].id === it.cat, ms = performance.now() - t0;
+      res.push({ it, j, ok, ms });
+      const right = sc.cats.findIndex((c) => c.id === it.cat);
+      if (ok) {
+        streak++; best = Math.max(best, streak); Snd.good();
+        card.className = "rx-card out-" + dirs[j];
+        const sk = wrap.querySelector(".rx-streak"); sk.textContent = streak >= 2 ? `Série ×${streak}` : ""; sk.classList.remove("pop"); void sk.offsetWidth; if (streak >= 2) sk.classList.add("pop");
+        setTimeout(nextCard, 420);
+      } else {
+        streak = 0; Snd.low(); wrap.querySelector(".rx-streak").textContent = "";
+        card.className = "rx-card shake";
+        const w = card.querySelector(".rx-why"); w.hidden = false;
+        w.innerHTML = `<b>${j < 0 ? "Trop tard" : "Non"} : ${esc(sc.cats[right].label)}.</b> ${esc(it.why)}`;
+        wrap.querySelectorAll(".rx-cat")[right].classList.add("hint");
+        setTimeout(() => { wrap.querySelectorAll(".rx-cat").forEach((x) => x.classList.remove("hint")); nextCard(); }, 2600);
+      }
+    }
+    function nextCard() { k++; if (k < items.length) show(); else end(); }
+    function end() {
+      clearTimeout(tId); document.removeEventListener("keydown", onKey);
+      const good = res.filter((r) => r.ok).length, q = good / items.length, avg = res.reduce((a, r) => a + r.ms, 0) / res.length / 1000;
+      const stars = q === 1 && avg < per * 0.5 ? 3 : q >= 0.85 ? 2 : q >= 0.6 ? 1 : 0;
+      record(sc, Math.round(q * 100) / 100); st.stars = st.stars || {}; st.stars[sc.id] = Math.max(st.stars[sc.id] || 0, stars); save();
+      wrap.querySelector(".rx-stage").remove(); wrap.querySelector(".rx-cats").remove(); wrap.querySelector(".rx-help").remove();
+      const sum = el("div", { class: "rx-end" }, `<div class="lx-res"><div class="lx-stars" aria-label="${stars} étoile${stars > 1 ? "s" : ""} sur 3">${[1, 2, 3].map((x) => `<i class="${x <= stars ? "on" : ""}" style="--k:${x}"></i>`).join("")}</div><div><b>${good} sur ${items.length}</b><p>Meilleure série : ${best} · temps moyen : ${avg.toFixed(1)} s par carte</p></div></div>
+        <ul class="rx-list">${res.map((r) => `<li class="${r.ok ? "ok" : "ko"}"><span>${esc(r.it.t)}</span><b>${esc(sc.cats.find((c) => c.id === r.it.cat).label)}</b><small>${esc(r.it.why)}</small></li>`).join("")}</ul>`);
+      wrap.appendChild(sum);
+      const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); wrap.appendChild(row);
+      if (stars === 3) burst(sum, "good");
+      Voice.say("narr", stars === 3 ? "Réflexes impeccables : tout juste, et sans hésiter." : good === items.length ? "Tout juste. Relisez les explications." : "Relisez les explications des cartes manquées.");
+      row.querySelector(".cta").focus({ preventScroll: true });
+    }
+    wrap.querySelectorAll(".rx-cat").forEach((b) => b.addEventListener("click", () => answer(+b.dataset.j)));
+    const onKey = (e) => { const j = keys.indexOf(e.key); if (j >= 0 && document.body.contains(wrap)) { e.preventDefault(); answer(j); } };
+    document.addEventListener("keydown", onKey);
+    // glisser la carte
+    let sx = 0, sy = 0, drag = false;
+    card.addEventListener("pointerdown", (e) => { if (busy) return; drag = true; sx = e.clientX; sy = e.clientY; card.setPointerCapture(e.pointerId); card.classList.add("drag"); });
+    card.addEventListener("pointermove", (e) => { if (!drag) return; const dx = e.clientX - sx, dy = e.clientY - sy; card.style.transform = `translate(${dx}px,${Math.min(0, dy)}px) rotate(${dx / 18}deg)`; });
+    card.addEventListener("pointerup", (e) => {
+      if (!drag) return; drag = false; card.classList.remove("drag");
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) > 90) answer(dx < 0 ? 0 : sc.cats.length - 1);
+      else if (sc.cats.length === 3 && dy < -90) answer(1);
+      else card.style.transform = "";
+    });
+    setTimeout(show, 900);
   };
 
   R.sort = (sc, n) => {
@@ -682,6 +898,65 @@
       say(`${good} réponses justes sur ${sc.items.length}.`);
       if (q === 1) { burst(fbz.querySelector(".fb"), "good"); vb.remove(); hb.remove(); row.appendChild(btn("Continuer", next)); row.querySelector(".cta").focus(); }
       else { vb.textContent = "Vérifier à nouveau"; const k = list.querySelector(".ko .segb"); if (k) k.focus(); }
+    }
+  };
+
+  // « Crise en temps réel » : agir dans le bon ordre pendant que d'autres demandes arrivent.
+  R.crisis = (sc, n) => {
+    const C = sc.crisis, done = [], evRes = {};
+    let left = C.secs, tId = 0, over = false, elapsed = 0, pending = null;
+    const wrap = el("div", { class: "solo wide crisis" });
+    wrap.innerHTML = `<div class="cr-head"><div><p class="kicker">Crise en temps réel · ${esc(sc.kicker || "")}</p><h2 id="h-${sc.id}" class="prompt">Protéger Lou, maintenant</h2><p class="lead">${esc(C.intro)}</p></div>
+      <div class="cr-clock" role="timer"><b class="cr-time">${C.start}</b><span class="cr-left">${left} s</span><div class="cr-bar"><i></i></div></div></div>
+      <div class="cr-grid"><div class="cr-acts" role="group" aria-label="Actions possibles"></div><ol class="cr-log" aria-label="Ce que vous avez fait"></ol></div><div class="cr-ev" aria-live="assertive"></div>`;
+    n.appendChild(wrap);
+    const acts = wrap.querySelector(".cr-acts"), log = wrap.querySelector(".cr-log"), evz = wrap.querySelector(".cr-ev");
+    const shuffled = [3, 1, 4, 0, 2].filter((i) => i < sc.items.length);
+    shuffled.forEach((i) => {
+      const it = sc.items[i];
+      const b = el("button", { class: "cr-act", type: "button" }, `<span>${esc(it.t)}</span>`);
+      b.addEventListener("click", () => { if (over || pending) return; b.disabled = true; b.classList.add("done"); done.push(i); Snd.click(); log.appendChild(el("li", {}, `<b>${clockAt(elapsed)}</b> ${esc(it.t)}`)); if (done.length === sc.items.length) finish(); });
+      acts.appendChild(b);
+    });
+    function clockAt(sec) { const [h, m] = C.start.replace(" h ", ":").split(":").map(Number); const t = h * 60 + m + Math.floor(sec / 6); return `${Math.floor(t / 60)} h ${String(t % 60).padStart(2, "0")}`; }
+    const tick = () => {
+      if (over) return;
+      if (!pending) { left--; elapsed++; }
+      wrap.querySelector(".cr-left").textContent = `${left} s`; wrap.querySelector(".cr-time").textContent = clockAt(elapsed);
+      wrap.querySelector(".cr-bar i").style.transform = `scaleX(${(left / C.secs).toFixed(3)})`;
+      wrap.querySelector(".cr-clock").classList.toggle("hurry", left <= 15);
+      const ev = C.events.find((e, j) => e.at === elapsed && evRes[j] == null && !pending);
+      if (ev) raise(ev, C.events.indexOf(ev));
+      if (left <= 0) finish();
+    };
+    function raise(ev, j) {
+      pending = j; Snd.mid(); Voice.say("narr", ev.t);
+      const card = el("div", { class: "cr-pop", role: "alertdialog", "aria-label": "Nouvelle demande" }, `<p class="kicker">Interruption</p><p class="cr-q">${esc(ev.t)}</p>`);
+      const row = el("div", { class: "cr-opts" });
+      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Bien vu : vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
+      card.appendChild(row); evz.appendChild(card); row.querySelector(".opt").focus({ preventScroll: true });
+    }
+    tId = setInterval(tick, 1000);
+    function finish() {
+      if (over) return; over = true; clearInterval(tId); evz.innerHTML = "";
+      // ordre : pénalité pour chaque action prioritaire faite après une action moins prioritaire
+      let inv = 0, pairs = 0;
+      for (let a = 0; a < done.length; a++) for (let b = a + 1; b < done.length; b++) { const ga = sc.items[done[a]].g, gb = sc.items[done[b]].g; if (ga !== gb) { pairs++; if (ga > gb) inv++; } }
+      const orderScore = (done.length / sc.items.length) * (pairs ? 1 - inv / pairs : 1);
+      const evOk = C.events.filter((e, j) => evRes[j] && evRes[j].ok).length, evScore = evOk / C.events.length;
+      const q = Math.round((orderScore * 0.65 + evScore * 0.35) * 100) / 100;
+      const stars = q >= 0.95 && left >= 20 ? 3 : q >= 0.8 ? 2 : q >= 0.5 ? 1 : 0;
+      record(sc, q); st.stars = st.stars || {}; st.stars[sc.id] = Math.max(st.stars[sc.id] || 0, stars); save();
+      acts.querySelectorAll("button").forEach((b) => (b.disabled = true));
+      const ideal = sc.items.map((it, i) => i).sort((a, b) => sc.items[a].g - sc.items[b].g);
+      const res = el("div", { class: "cr-end" }, `<div class="lx-res"><div class="lx-stars" aria-label="${stars} étoile${stars > 1 ? "s" : ""} sur 3">${[1, 2, 3].map((x) => `<i class="${x <= stars ? "on" : ""}" style="--k:${x}"></i>`).join("")}</div><div><b>${stars === 3 ? "Crise maîtrisée" : "Fin de la séquence"}</b><p>${done.length} action${done.length > 1 ? "s" : ""} sur ${sc.items.length} · ${evOk} interruption${evOk > 1 ? "s" : ""} bien gérée${evOk > 1 ? "s" : ""} sur ${C.events.length} · terminé à ${clockAt(elapsed)}</p></div></div>
+        <h3>L’ordre qui protège</h3><ol class="sol">${ideal.map((i) => `<li><b>${esc(sc.items[i].t)}</b> · ${esc(sc.items[i].why)}</li>`).join("")}</ol>
+        ${C.events.map((e, j) => { const r = evRes[j]; const good = e.opts.find((o) => o.ok); return `<p class="cr-sum ${r && r.ok ? "ok" : "ko"}"><b>${esc(e.t)}</b> ${r ? (r.ok ? "Bien géré." : esc(r.no || "")) : "Pas de réponse."} ${!r || !r.ok ? "La bonne réponse : " + esc(good.t) + "." : ""}</p>`; }).join("")}`);
+      wrap.appendChild(res);
+      const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); wrap.appendChild(row);
+      if (stars === 3) burst(res, "good");
+      Voice.say("narr", stars === 3 ? "Crise maîtrisée : Lou est protégé, et vous êtes resté concentré." : q >= 0.5 ? "Lou est protégé. Relisez ce qui aurait pu être plus rapide ou plus sûr." : "Relisez le déroulé : dans l’urgence, l’ordre des actions protège.");
+      row.querySelector(".cta").focus({ preventScroll: true });
     }
   };
 
@@ -836,8 +1111,27 @@
     hud(true);
     n.innerHTML = `<div class="page-note"><div class="pn-ant">${A.chars.nour.big}</div><div class="pn-body"><p class="kicker">${isNew ? "Nouvelle page dans votre carnet" : "Page du carnet"}</p><h2 id="h-${sc.id}">${esc(p.title)}</h2>${p.quote ? `<blockquote>${esc(p.quote)}</blockquote>` : ""}<ul>${p.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${p.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></div></div>`;
     n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Chapitre suivant" : "Continuer", next));
+    if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
   };
+
+  // Fins multiples : ce que la semaine a changé, selon les décisions et la confiance gagnée.
+  let epiV = [];
+  function epilogue() {
+    const r = (id) => st.res[id], T = st.trust || {}, E = [], X = EPILOGUE;
+    const pick = (k, lvl) => [lvl, X[k].who, X[k][lvl]];
+    const call = r("call"), f1 = r("f1"), g = r("garnier");
+    if (call != null) E.push(pick("lou", call >= 1 ? "good" : call >= 0.5 ? "mid" : "low"));
+    if (f1 != null) E.push(pick("maelys", f1 >= 1 && (g == null || g >= 0.75) ? "good" : f1 >= 1 ? "mid" : "low"));
+    if (T.ines != null) E.push(pick("ines", T.ines >= 70 ? "good" : T.ines >= 40 ? "mid" : "low"));
+    const tp = [T.roussel, T.benali].filter((x) => x != null), tpm = tp.length ? tp.reduce((a, b) => a + b, 0) / tp.length : null;
+    if (tpm != null) E.push(pick("parents", tpm >= 70 ? "good" : tpm >= 40 ? "mid" : "low"));
+    const pv = r("familles"), af = r("affiche");
+    if (pv != null || af != null) E.push(pick("familles", (pv || 0) >= 1 ? "good" : "mid"));
+    epiV = E.map(([, , t]) => ["narr", t]);
+    if (!E.length) return "";
+    return `<section class="epi" aria-label="Épilogue"><p class="kicker">Épilogue</p><h3>Ce que votre semaine a changé</h3><div class="epi-g">${E.map(([c, who, t]) => `<div class="epi-c ${c}"><b>${who}</b><p>${t}</p></div>`).join("")}</div></section>`;
+  }
 
   R.bilan = (sc, n) => {
     st.done = true; save();
@@ -849,13 +1143,14 @@
     const defi = rf.find((r) => r.id === "protect").ok && rf.find((r) => r.id === "alert").ok && !st.flags.secret;
     const name = st.name || "Vous";
     n.innerHTML = `<div class="bilan">
-      <div class="bhead"><div class="bav">${A.avatarsBig[st.av]}</div><div><p class="kicker">Fin du séjour</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
+      <div class="bhead"><div class="bav">${A.avatarsBig[st.av]}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
       <p class="lead">${defi ? "Défi relevé : vous avez protégé d’abord et alerté les bons relais, sans promettre le secret." : "Vous avez beaucoup avancé. Un ou deux réflexes de protection restent à consolider : rejouez les chapitres indiqués."}</p></div></div>
-      <h3>Vos compétences</h3><div class="comps">${Object.keys(COMPS).map((k) => { const v = avg(by[k]); const [c, t] = lvl(v); return `<div class="comp ${c}"><div class="ct"><b>${k}</b> ${esc(COMPS[k])}</div><div class="bar" aria-hidden="true"><span style="width:${v == null ? 0 : Math.round(v * 100)}%"></span></div><span class="lv">${t}</span></div>`; }).join("")}</div>
+      ${epilogue()}<h3>Vos compétences</h3><div class="comps">${Object.keys(COMPS).map((k) => { const v = avg(by[k]); const [c, t] = lvl(v); return `<div class="comp ${c}"><div class="ct"><b>${k}</b> ${esc(COMPS[k])}</div><div class="bar" aria-hidden="true"><span style="width:${v == null ? 0 : Math.round(v * 100)}%"></span></div><span class="lv">${t}</span></div>`; }).join("")}</div>
       <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer le chapitre ${r.ch}</button>`}</li>`).join("")}</ul>
       ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à ta direction lors de ton prochain accueil.</p></div>` : ""}
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
       <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
+    if (epiV.length) { n.dataset.novoice = "1"; setTimeout(() => Voice.seq([["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV)), 700); }
     const b = n.querySelector(".bilan");
     const row = el("div", { class: "row" });
     row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
@@ -914,7 +1209,7 @@
       <div class="hero"><div class="logo" role="img" aria-label="Fourmi’Action"></div>
       <p class="hk">Formation BAFA · BAFD · mise en situation</p>
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
-      <p class="tag">Sept jours dans un séjour de vacances, une suite de décisions professionnelles. Repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
+      <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles. Repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 25 minutes</span><span>6 chapitres</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
       <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>

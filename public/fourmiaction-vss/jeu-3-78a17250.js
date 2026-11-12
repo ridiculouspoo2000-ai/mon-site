@@ -170,17 +170,23 @@
       }).catch(() => { this.ready = false; applySettings(); });
     },
     url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
-    say(who, text) {
-      if (!this.ok || !this.ready || !st.settings.voice || !text) return;
-      const u = this.url(who, text); if (!u) return;
-      if (!this.el) { this.el = new Audio(); this.el.preload = "auto"; this.el.addEventListener("ended", () => Snd.duck(false)); this.el.addEventListener("pause", () => Snd.duck(false)); this.el.addEventListener("play", () => Snd.duck(true)); }
+    say(who, text) { this.seq([[who, text]]); },
+    seq(list) {
+      if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
+      const urls = list.map(([w, t]) => t && this.url(w, t)).filter(Boolean); if (!urls.length) return;
+      if (!this.el) {
+        this.el = new Audio(); this.el.preload = "auto";
+        this.el.addEventListener("ended", () => { const n = this._q && this._q.shift(); if (n) { this.el.src = n; const p = this.el.play(); if (p && p.catch) p.catch(() => Snd.duck(false)); } else Snd.duck(false); });
+        this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => Snd.duck(true));
+      }
       try { this.el.pause(); } catch (e) { }
-      this.el.src = u;
+      this._q = urls.slice(1);
+      this.el.src = urls[0];
       const p = this.el.play(); if (p && p.catch) p.catch(() => Snd.duck(false));
     },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { this._q = []; if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
 
@@ -235,6 +241,7 @@
     const old = stage.firstElementChild;
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
     (R[sc.type] || R.story)(sc, node);
+    { const VP = VOICE_TXT.parts(sc); if (VP.length) setTimeout(() => Voice.seq(VP), 350); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
     stage.appendChild(node);
     requestAnimationFrame(() => node.classList.add("in"));
@@ -349,6 +356,7 @@
       lines.appendChild(row);
       say((nm ? nm + " : " : "") + L.t);
       if (L.who && L.who !== "player") Voice.say(L.who, L.t, L.mood);
+      else if (!L.who) Voice.say("narr", L.t);
     };
     function step() {
       Snd.click();
@@ -428,7 +436,7 @@
     n.appendChild(wrap);
     coach("Sélectionnez un lieu du plan (ou Tab puis Entrée). Certains lieux ne posent aucun problème : c’est aussi une information.", wrap);
     function open(s, i, b) {
-      Snd.click();
+      Snd.click(); Voice.say(...VOICE_TXT.spot(s));
       b.classList.add("seen"); b.classList.remove("hinted");
       if (s.real) found.add(String(i));
       st.flags.mapfound = [...found].join(","); save();
@@ -476,7 +484,6 @@
     wrap.appendChild(panel);
     if (!side) wrap.classList.add("one");
     n.appendChild(wrap);
-    if (sc.npc) Voice.quotes(sc.npc, sc.context);
     function pick(o, b) {
       record(sc, o.q, o);
       opts.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
@@ -495,6 +502,7 @@
       row.appendChild(btn("Continuer", next));
       fbz.appendChild(row);
       say(v.t + ". " + (o.cons || "") + " " + o.fb);
+      Voice.say(...VOICE_TXT.fb(sc, o));
       fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus({ preventScroll: false });
     }
   };
@@ -712,7 +720,6 @@
     panel.append(opts, fbz, row);
     wrap.appendChild(panel);
     n.appendChild(wrap);
-    if (sc.npc) Voice.quotes(sc.npc, sc.context);
   };
 
   R.build = (sc, n) => {

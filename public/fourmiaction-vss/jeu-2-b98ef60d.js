@@ -460,3 +460,28 @@ const NUMBERS = [
   ["119", "Enfance en danger, 24 h/24"], ["3018", "Violences numériques faites aux mineurs"], ["3919", "Violences faites aux femmes"],
   ["116 006", "France Victimes, aide aux victimes"], ["3928", "Défenseur des droits, discriminations"],
 ];
+
+/* Textes lus à voix haute en plus des répliques (même logique pour le jeu et pour la génération des voix). */
+const VOICE_TXT = {
+  // Contexte d'une situation : récit par la narratrice ou le narrateur, citations par le personnage présent.
+  parts(sc) {
+    const P = [];
+    if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `Chapitre ${c.n}. ${c.title}. ${c.goal}`]); return P; }
+    if (sc.type === "explain" && sc.page) { P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
+    if (sc.intro) P.push(["narr", sc.intro]);
+    const t = sc.context;
+    if (t) {
+      const q = [...t.matchAll(/«\s*([^»]+?)\s*»/g)];
+      if (sc.npc && q.length) {
+        const a = t.slice(0, q[0].index).replace(/[\s:,]+$/, "").trim(), z = t.slice(q[q.length - 1].index + q[q.length - 1][0].length).replace(/^[\s.,]+/, "").trim();
+        if (a) P.push(["narr", a]);
+        P.push([sc.npc, q.map((m) => m[1]).join(" … ")]);
+        if (z) P.push(["narr", z]);
+      } else P.push(["narr", t]);
+    }
+    if (sc.prompt) P.push(["narr", sc.prompt]);
+    return P;
+  },
+  spot(s) { return ["nour", `${s.title}. ${s.t} ${s.lesson}`]; },
+  fb(sc, o) { return ["narr", [o.cons, o.fb, o.q < 1 && sc.better ? "Pour faire mieux : " + sc.better : ""].filter(Boolean).join(" ")]; },
+};

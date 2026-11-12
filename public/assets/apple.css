@@ -29,7 +29,7 @@ h1,h2,h3{font-family:var(--display);color:var(--navy);text-wrap:balance}
 h1{font-weight:800;letter-spacing:-.045em;line-height:1.04}
 h2{font-weight:800;letter-spacing:-.038em;line-height:1.08;font-size:clamp(32px,4.2vw,56px)}
 h3{font-weight:700;letter-spacing:-.025em;line-height:1.18}
-h1 em,h2 em,h3 em,.cj-pq em,.cj-quote em,.ap-grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-style:normal;padding-bottom:.06em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+h1 em,h2 em,h3 em,.cj-pq em,.cj-quote em,.ap-grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-style:normal;padding:0 .09em .06em;margin:0 -.09em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 a{color:var(--fa-blue)}a:hover{color:var(--fa-blue-hi)}
 ::selection{background:#d9e4ff;color:var(--navy)}
 .lead{font-size:clamp(19px,1.6vw,23px);line-height:1.5;color:var(--muted);letter-spacing:-.017em}

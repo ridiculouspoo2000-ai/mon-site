@@ -128,3 +128,19 @@ html:not(.ap-scenes) .fx-rail{display:none}
 .fx-marquee span{white-space:nowrap}
 header nav a.nav-join{color:#b8501a;box-shadow:inset 0 0 0 1px rgba(217,102,31,.45);margin-left:4px}
 header nav a.nav-join:hover{background:#d9661f;color:#fff;box-shadow:none}
+
+/* ---------- Signature « anneau » : les pictogrammes arrivent comme l’anneau du Collectif ----------
+   rotation douce, mise à l’échelle et halo qui s’ouvre puis s’éteint ; même courbe (--ease) et même durée (1,4 s). */
+html.ap-motion .ap-r :is(.cj-ico,.ct-ico,.cj-badge){transform:rotate(-35deg) scale(.55);opacity:0;transition:transform 1.4s var(--ease),opacity .9s var(--ease);transition-delay:calc(var(--ap-d,0s) + .18s)}
+html.ap-motion .ap-r.ap-in :is(.cj-ico,.ct-ico,.cj-badge){transform:none;opacity:1}
+html.ap-motion .ap-r.ap-in :is(.cj-ico,.ct-ico){animation:ap-halo 1.6s var(--ease) calc(var(--ap-d,0s) + .35s) 1 both}
+@keyframes ap-halo{0%{box-shadow:0 0 0 0 rgba(101,82,211,.38)}70%{box-shadow:0 0 0 14px rgba(101,82,211,0)}100%{box-shadow:0 0 0 0 rgba(101,82,211,0)}}
+html.ap-reduced :is(.cj-ico,.ct-ico,.cj-badge){transform:none!important;opacity:1!important;animation:none!important}
+
+/* Contact : adresse et téléphone côte à côte, champ piège invisible, état d’envoi */
+.ct-two{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+@media(max-width:700px){.ct-two{grid-template-columns:1fr;gap:0}}
+.ct-hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+#contact-status{margin:14px 0 0;font-weight:600;font-size:15px;min-height:1.4em}
+#contact-status[data-kind=ok]{color:#1d7a4f}#contact-status[data-kind=error]{color:#b4321f}
+.ct-form[aria-busy=true] button[type=submit]{opacity:.6}

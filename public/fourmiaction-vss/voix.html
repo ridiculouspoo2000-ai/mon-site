@@ -1,7 +1,15 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Voix du jeu · Fourmi’Action</title>
 <link rel="stylesheet" href="../assets/style.css"><link rel="stylesheet" href="../assets/modern.css"><link rel="stylesheet" href="../assets/apple.css"><link rel="stylesheet" href="../assets/droit-image/di.css">
-<style>#v-list{list-style:none;padding:0;display:grid;gap:10px}#v-list li{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:var(--sh);display:grid;grid-template-columns:auto 110px 1fr auto;gap:12px;align-items:center;font-size:15px}#v-list span{color:var(--muted)}</style>
+<style>#v-list{list-style:none;padding:0;display:grid;gap:10px}#v-list li{background:#fff;border-radius:16px;padding:14px 16px;box-shadow:var(--sh);display:grid;grid-template-columns:auto 110px 1fr auto;gap:12px;align-items:center;font-size:15px}#v-list span{color:var(--muted)}#c-grid{display:grid;gap:18px;margin:18px 0 40px}.c-perso{background:#fff;border-radius:22px;padding:18px 20px;box-shadow:var(--sh)}.c-perso h3{margin:0;font-size:22px}.c-perso>p{margin:2px 0 12px;color:var(--muted);font-size:14px}
+.c-voix{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}.c-v{border:1.5px solid var(--line,#dde3ea);border-radius:16px;padding:10px 12px;display:grid;gap:6px;font-size:14px;cursor:pointer}.c-v:has(input:checked){border-color:#2b5bd7;box-shadow:0 0 0 3px rgba(43,91,215,.15)}
+.c-v b{font-size:15px}.c-v small{color:var(--muted);line-height:1.35}.c-v .row{display:flex;gap:8px;align-items:center;justify-content:space-between}.c-v input{width:18px;height:18px}.c-actuelle{font-size:12px;font-weight:700;color:#1d7a4f}
+#c-out{width:100%;min-height:150px;font:13px/1.5 ui-monospace,monospace;border-radius:14px;padding:12px}</style>
 <script src="voix-lignes.js" defer></script><script src="voix.js" defer></script></head>
 <body><main class="wrap section" style="max-width:980px"><span class="eyebrow">Les Hautes Herbes</span><h1 style="font-size:48px">Voix des <em>personnages.</em></h1>
 <p class="lead">Écoutez chaque réplique. Le bouton génère toutes les voix une seule fois ; ensuite, elles sont gardées par le site.</p>
+<h2 style="font-size:32px;margin-top:40px">Distribution · <em>accent parisien.</em></h2>
+<p>Voici des voix françaises de la bibliothèque ElevenLabs étiquetées « accent parisien », adaptées au profil de chaque personnage. Les extraits d’écoute sont gratuits : ils ne consomment aucun crédit. Choisissez une voix par personnage, puis copiez votre distribution.</p>
+<p id="c-status" data-kind="info">Chargement des voix…</p><div id="c-grid"></div>
+<p><button class="button" id="c-copy" type="button">Copier ma distribution</button></p><textarea id="c-out" readonly hidden aria-label="Distribution choisie"></textarea>
+<h2 style="font-size:32px;margin-top:40px">Répliques <em>du jeu.</em></h2>
 <p id="v-status" data-kind="info"></p><p id="v-diag" data-kind="info">Vérification de la connexion à ElevenLabs…</p><p><button class="button" id="v-all" type="button">Générer et vérifier toutes les voix</button></p><ul id="v-list"></ul></main></body></html>

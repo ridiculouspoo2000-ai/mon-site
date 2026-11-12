@@ -331,6 +331,48 @@
     subj.addEventListener('change', sync); setTimeout(sync, 0);
   }
 
+  /* ---------- Contact : envoi direct du message (repli vers la messagerie si l’envoi est indisponible) ---------- */
+  const cform = document.getElementById('contact-form');
+  if (cform && document.getElementById('email')) {
+    const t0 = Date.now(), cstatus = document.getElementById('contact-status'), csend = cform.querySelector('button[type=submit]');
+    const val = id => (document.getElementById(id) || {}).value || '';
+    const repli = () => {
+      const body = val('message') + '\n\n' + val('name') + (val('phone') ? '\n' + val('phone') : '');
+      location.href = 'mailto:fourmi.action@gmail.com?subject=' + encodeURIComponent(val('subject')) + '&body=' + encodeURIComponent(body);
+    };
+    document.addEventListener('submit', async e => {
+      if (e.target !== cform) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (!cform.reportValidity()) return;
+      csend.disabled = true; cform.setAttribute('aria-busy', 'true');
+      cstatus.dataset.kind = 'info'; cstatus.textContent = 'Envoi en cours…';
+      try {
+        const r = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: val('name'), email: val('email'), phone: val('phone'), subject: val('subject'), message: val('message'), site: val('site'), t: Date.now() - t0 }) });
+        let j = {}; try { j = await r.json(); } catch (_) {}
+        if (r.ok && j.ok) {
+          cform.classList.add('ct-sent');
+          cstatus.dataset.kind = 'ok';
+          cstatus.textContent = 'Merci, votre message est bien parti. L’équipe vous répondra à ' + val('email') + '.';
+          ['message', 'phone'].forEach(id => { const f = document.getElementById(id); if (f) f.value = ''; });
+        } else if (j.repli) {
+          cstatus.dataset.kind = 'error';
+          cstatus.textContent = (j.error || 'L’envoi direct est indisponible.') + ' Votre messagerie va s’ouvrir avec le message préparé.';
+          setTimeout(repli, 900);
+        } else {
+          cstatus.dataset.kind = 'error';
+          cstatus.textContent = j.error || 'Le message n’a pas pu partir. Réessayez dans un instant.';
+          if (j.champ) document.getElementById(j.champ)?.focus();
+        }
+      } catch (_) {
+        cstatus.dataset.kind = 'error';
+        cstatus.textContent = 'Connexion impossible. Votre messagerie va s’ouvrir avec le message préparé.';
+        setTimeout(repli, 900);
+      }
+      csend.disabled = false; cform.removeAttribute('aria-busy');
+    }, true);
+  }
+
   /* ---------- Défilement : en-tête, halos, titre principal ---------- */
   const header = document.querySelector('header');
   const progress = document.createElement('div');

@@ -1,7 +1,7 @@
 /* Aperçu des voix du jeu : écouter chaque réplique et générer toutes les voix d'un coup. */
 (() => {
   const L = window.VOIX_LIGNES, list = document.getElementById('v-list'), st = document.getElementById('v-status'), diag = document.getElementById('v-diag');
-  fetch('/api/voix?a=test', { cache: 'no-store' }).then(r => r.json()).then(j => { diag.textContent = j.ok ? `Connexion à ElevenLabs réussie · offre ${j.offre} · caractères utilisés ${j.caracteres}.` : 'Diagnostic : ' + j.detail; diag.dataset.kind = j.ok ? 'ok' : 'error'; }).catch(() => { diag.textContent = 'Diagnostic indisponible.'; });
+  fetch('/api/voix?a=test', { cache: 'no-store' }).then(r => r.json()).then(j => { diag.textContent = j.ok ? `Connexion à ElevenLabs réussie · offre ${j.offre} · caractères utilisés ${j.caracteres}` + (j.restants != null ? ` · il reste ${j.restants} caractères (régénérer toutes les voix en demande environ 2 300)` : '') + (j.renouvellement ? ` · crédits renouvelés le ${new Date(j.renouvellement * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}` : '') + '.' : 'Diagnostic : ' + j.detail; diag.dataset.kind = j.ok ? 'ok' : 'error'; }).catch(() => { diag.textContent = 'Diagnostic indisponible.'; });
   const names = { nour: 'Nour', bastien: 'Bastien', ines: 'Inès', jade: 'Jade', kevin: 'Kévin', garnier: 'M. Garnier', lou: 'Lou', malo: 'Malo', maelys: 'Maëlys' };
   const audio = new Audio();
   L.forEach((l, i) => {
@@ -25,5 +25,45 @@
       st.textContent = `${ok} / ${L.length} répliques prêtes`;
     }
     e.target.disabled = false;
+  });
+
+  /* ---------- Distribution : choisir une voix parisienne par personnage ---------- */
+  const grid = document.getElementById('c-grid'), cst = document.getElementById('c-status'), out = document.getElementById('c-out');
+  const preview = new Audio(); let data = null;
+  fetch('/api/voix?a=casting').then(r => r.json()).then(j => {
+    data = j;
+    const P = j.personnages || {};
+    let n = 0;
+    Object.entries(P).forEach(([who, p]) => {
+      const box = document.createElement('section'); box.className = 'c-perso';
+      box.innerHTML = '<h3></h3><p></p><div class="c-voix"></div>';
+      box.querySelector('h3').textContent = p.nom; box.querySelector('p').textContent = p.role;
+      const wrap = box.querySelector('.c-voix');
+      if (!p.voix.length) wrap.textContent = 'Aucune voix trouvée pour ce profil.';
+      p.voix.forEach((v, k) => {
+        n++;
+        const lab = document.createElement('label'); lab.className = 'c-v';
+        lab.innerHTML = '<span class="row"><b></b><input type="radio"></span><small></small><span class="row"><button type="button" class="di-btn">Écouter</button><span class="c-actuelle"></span></span>';
+        lab.querySelector('b').textContent = v.nom;
+        lab.querySelector('small').textContent = [v.accent && (/paris/i.test(v.accent) ? 'accent parisien' : 'français standard'), ({ young: 'jeune', middle_aged: 'âge moyen', old: 'âgée' })[v.age], v.description].filter(Boolean).join(' · ');
+        const r = lab.querySelector('input'); r.name = 'c-' + who; r.value = v.id; r.dataset.nom = v.nom;
+        if (v.id === p.actuelle) { r.checked = true; lab.querySelector('.c-actuelle').textContent = 'voix actuelle'; }
+        lab.querySelector('button').addEventListener('click', e => { e.preventDefault(); preview.src = '/api/voix?a=apercu&u=' + encodeURIComponent(v.ecoute); preview.play().catch(() => {}); });
+        wrap.append(lab);
+      });
+      grid.append(box);
+    });
+    cst.textContent = n ? `${n} voix à l’accent parisien proposées. Les écoutes sont gratuites.` : 'Aucune voix trouvée.';
+    if (j.erreurs && j.erreurs.length) { cst.textContent += ' Détail : ' + j.erreurs[0]; cst.dataset.kind = 'error'; }
+  }).catch(() => { cst.textContent = 'Impossible de charger la bibliothèque de voix.'; cst.dataset.kind = 'error'; });
+  document.getElementById('c-copy').addEventListener('click', async () => {
+    if (!data) return;
+    const lines = Object.entries(data.personnages).map(([who, p]) => {
+      const r = document.querySelector(`input[name="c-${who}"]:checked`);
+      return `${p.nom} : ${r ? r.dataset.nom + ' (' + r.value + ')' : 'pas encore choisi'}`;
+    });
+    out.value = 'Distribution des voix · Les Hautes Herbes\n' + lines.join('\n');
+    out.hidden = false; out.select();
+    try { await navigator.clipboard.writeText(out.value); cst.textContent = 'Distribution copiée : collez-la dans la conversation avec Claude.'; cst.dataset.kind = 'ok'; } catch (_) { cst.textContent = 'Sélectionnez le texte ci-dessous et copiez-le.'; }
   });
 })();

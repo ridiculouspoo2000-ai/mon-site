@@ -17,17 +17,16 @@ const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] 
 
 // Voix par défaut (bibliothèque ElevenLabs), modifiables avec ELEVENLABS_VOIX.
 const DEFAUT = {
-  // Bibliothèque ElevenLabs, filtres : langue française, locale fr-FR, accent parisien,
-  // voix « professionnelles » uniquement (clonées sur de longs enregistrements d’une vraie voix : accent fidèle).
-  nour: "ICk609TItINMseDpChFt",    // Léa · calme et pédagogue (directrice adjointe, référente)
-  ines: "6FXyooAOTqUK8m2HWm32",    // Marine · jeune, naturelle (jeune animatrice)
-  jade: "nVPCtAFzgyMX3FZKNzH0",    // Anna · naturelle et assurée (animatrice catégorique)
-  maelys: "i6ke7jvmGEVUyV4zjSaT",  // Emilie · jeune, vive (adolescente)
-  lou: "zPy2sgLU4pZ7Xrjh87uz",     // Justine · douce et posée (enfant de 10 ans)
-  bastien: "1a3lMdKLUcfcMtvN772u", // Antoine · jeune, agréable (animateur détendu)
-  kevin: "Xgb3SR8idOHy8scGICeJ",   // Kevin · jeune, clair et sérieux (animateur de 24 ans)
-  malo: "mvhJVdVoTWVUtL4keT7W",    // Simon · jeune et énergique
-  garnier: "jUHQdLfy668sllNiNTSW", // Clément · calme et neutre (directeur, la cinquantaine)
+  // Distribution choisie à l’écoute par l’association (bibliothèque ElevenLabs : français, accent parisien).
+  nour: "ucMmKRQbfDEYyb2IIGax",    // Aurore
+  ines: "i6ke7jvmGEVUyV4zjSaT",    // Emilie · Pro
+  jade: "mNu8EQcIlFZdOJs7yfhe",    // Julia · Warm French Narrator
+  maelys: "zPy2sgLU4pZ7Xrjh87uz",  // Justine · Serene French Woman
+  lou: "txtf1EDouKke753vN8SL",     // Jeanne · Narrator
+  bastien: "1a3lMdKLUcfcMtvN772u", // Antoine · Audiobook Narrator
+  kevin: "jfEwztGDkpbpy89xeku6",   // Steve · Soft and Calm
+  malo: "mvhJVdVoTWVUtL4keT7W",    // Simon (aucune réplique)
+  garnier: "h5FvD7dtq6DdnVBPv8Ii", // Max · Narration
 };
 const REGLAGES = {
   // Stabilité plus haute et aucune exagération de style : la voix reste au plus près de l’enregistrement d’origine (accent compris).

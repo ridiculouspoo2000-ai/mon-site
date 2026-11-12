@@ -1,0 +1,155 @@
+/* Scènes pilotées par le défilement (accueil) et page Contact.
+   Sans JavaScript ou avec animations réduites, tout reste lisible en mise en page simple. */
+
+/* ---------- Héros de l'accueil ---------- */
+.sc-hero{position:relative}
+.sc-pin{position:relative}
+.sc-hero .sc-pin{padding:90px 0 40px;text-align:center}
+.sc-hero-title h1{font-size:clamp(46px,7.2vw,112px);letter-spacing:-.055em;line-height:.98;color:var(--navy);margin:0 auto 46px;max-width:12ch}
+.sc-hero-title h1 em{font-style:normal}
+.sc-hero-title .hero-line{display:inline;white-space:normal}
+.sc-hero-frame{position:relative;overflow:hidden;width:min(1120px,calc(100% - 40px));margin:0 auto;aspect-ratio:16/10;border-radius:32px;box-shadow:var(--sh-hi)}
+.sc-hero-img{width:100%;height:100%;object-fit:cover;display:block}
+.sc-hero-shade{display:none}
+.sc-hero-copy{max-width:640px;margin:40px auto 0;padding:0 20px}
+.sc-hero-copy .lead{color:var(--muted)}
+.sc-hero-copy .buttons{justify-content:center}
+.sc-hint{display:none}
+
+html.ap-scenes .sc-hero{height:290vh}
+html.ap-scenes .sc-hero .sc-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;padding:0;display:block}
+html.ap-scenes .sc-hero-title{position:absolute;left:0;right:0;top:11vh;z-index:3;will-change:transform,opacity}
+html.ap-scenes .sc-hero-title h1{margin:0 auto}
+html.ap-scenes .sc-hero-frame{position:absolute;inset:0;width:auto;margin:0;aspect-ratio:auto;border-radius:0;box-shadow:none;transform-origin:50% 50%;will-change:transform;z-index:1}
+html.ap-scenes .sc-hero-img{will-change:transform;transform-origin:50% 50%}
+html.ap-scenes .sc-hero-shade{display:block;position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(11,13,18,.15) 0%,rgba(11,13,18,.35) 45%,rgba(11,13,18,.82) 100%);opacity:0;pointer-events:none}
+html.ap-scenes .sc-hero-copy{position:absolute;left:0;right:0;bottom:9vh;z-index:4;margin:0 auto;opacity:0;will-change:transform,opacity}
+html.ap-scenes .sc-hero-copy .lead{color:rgba(255,255,255,.9);font-size:clamp(19px,1.7vw,24px)}
+html.ap-scenes .sc-hero-copy .button.secondary{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+html.ap-scenes .sc-hero-copy .button:not(.secondary){background:#fff;color:var(--navy)}
+html.ap-scenes .sc-hint{display:flex;flex-direction:column;align-items:center;gap:8px;position:absolute;left:0;right:0;bottom:4vh;z-index:3;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+html.ap-scenes .sc-hint i{width:22px;height:34px;border-radius:12px;border:1.5px solid currentColor;position:relative}
+html.ap-scenes .sc-hint i::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:sc-wheel 1.8s ease-in-out infinite}
+@keyframes sc-wheel{0%{opacity:0;transform:translateY(-3px)}40%{opacity:1}100%{opacity:0;transform:translateY(9px)}}
+
+/* ---------- Mots qui s'allument au fil du défilement ---------- */
+[data-words] .w{transition:opacity .35s linear,color .35s linear}
+html.ap-scenes [data-words] .w{opacity:.16}
+html.ap-scenes [data-words] .w.on{opacity:1}
+html.ap-scenes [data-words] p{color:var(--ink)}
+html.ap-scenes .sc-words p{font-family:var(--display);font-weight:700;font-size:clamp(24px,2.5vw,34px);line-height:1.28;letter-spacing:-.025em;color:var(--navy);margin-bottom:26px}
+html.ap-scenes .spirit li{transition:opacity .4s linear}
+html.ap-scenes [data-steps] > li:not(.on){opacity:.22}
+
+/* ---------- Défilement horizontal des actions ---------- */
+.sc-track .card-body{background:transparent}
+html.ap-scenes .sc-h .sc-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center}
+@media(min-width:901px){html.ap-scenes .sc-h .sc-pin>.wrap{padding-block:0}}
+html.ap-scenes .sc-track{display:flex;gap:24px;width:max-content;will-change:transform}
+html.ap-scenes .sc-track>article{width:min(400px,78vw);flex:none}
+html.ap-scenes .sc-track .photo{height:min(260px,30vh)}
+.sc-progress{display:none}
+html.ap-scenes .sc-progress{display:block;height:3px;border-radius:3px;background:var(--line);margin-top:30px;overflow:hidden;max-width:240px}
+html.ap-scenes .sc-progress i{display:block;height:100%;background:var(--grad);transform-origin:left;transform:scaleX(0)}
+
+/* ---------- Vitrine des outils (appareils) ---------- */
+.sc-show{position:relative;background:var(--dark);color:#fff;isolation:isolate;overflow:clip}
+.sc-show::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(40% 50% at 10% 10%,rgba(43,91,215,.45),transparent 70%),radial-gradient(40% 50% at 92% 90%,rgba(226,112,42,.36),transparent 70%)}
+.sc-show .sc-pin{padding:110px 0}
+.sc-show-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:center}
+.sc-show h2{color:#fff;font-size:clamp(34px,4.2vw,58px);margin-bottom:30px}
+.sc-show .eyebrow{color:#ffb27a}
+.sc-steps{display:grid;gap:22px}
+.sc-steps article{padding:24px 26px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.sc-steps h3{color:#fff;font-size:24px;margin:0 0 8px}
+.sc-steps p{color:rgba(255,255,255,.7);font-size:16px;margin:0 0 10px}
+.sc-steps .text-link{color:#9fbcff}
+.sc-steps .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#ffb27a;margin-bottom:8px}
+.sc-devices{position:relative;aspect-ratio:1/0.92;min-height:340px}
+.dev-mac{position:absolute;left:0;right:6%;top:6%;will-change:transform,opacity}
+.dev-mac .lid{background:#1d1d1f;border-radius:18px 18px 4px 4px;padding:2.2% 2.2% 3.2%;box-shadow:0 0 0 1.5px #3a3a3e,0 40px 80px rgba(0,0,0,.55)}
+.dev-mac .lid img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;border-radius:6px}
+.dev-mac .base{height:14px;margin:0 -7%;background:linear-gradient(#d9dbe0,#9a9ca3);border-radius:0 0 14px 14px;position:relative}
+.dev-mac .base::before{content:"";position:absolute;left:42%;right:42%;top:0;height:5px;background:#8a8c93;border-radius:0 0 6px 6px}
+.dev-phone{position:absolute;width:31%;aspect-ratio:9/19.5;background:#1d1d1f;border-radius:16%/7.4%;padding:3.2%;box-shadow:0 0 0 1.5px #3a3a3e,0 40px 70px rgba(0,0,0,.55);will-change:transform,opacity}
+.dev-phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:12%/5.6%}
+.dev-phone::before{content:"";position:absolute;left:50%;top:4.6%;width:30%;height:3.6%;margin-left:-15%;background:#000;border-radius:20px;z-index:2}
+.dev-phone.p1{left:34%;top:4%}
+.dev-phone.p2{left:2%;top:30%}
+.dev-phone.p3{right:4%;top:10%}
+html.ap-scenes .sc-show{height:340vh}
+html.ap-scenes .sc-show .sc-pin{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;padding:0;overflow:hidden}
+html.ap-scenes .sc-show-grid{width:min(1180px,calc(100% - 64px))}
+html.ap-scenes .sc-steps{position:relative;min-height:250px}
+html.ap-scenes .sc-steps article{position:absolute;inset:0 0 auto;opacity:0;will-change:transform,opacity}
+html.ap-scenes .sc-dots{display:flex;gap:8px;margin-top:22px}
+.sc-dots{display:none}
+.sc-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);transition:all .4s var(--ease)}
+.sc-dots i.on{width:26px;border-radius:5px;background:#fff}
+
+/* ---------- Bannière BAFA : zoom au défilement ---------- */
+html.ap-scenes .bafa-banner{will-change:transform}
+
+@media(max-width:900px){
+  .sc-show-grid{grid-template-columns:1fr;gap:30px}
+  html.ap-scenes .sc-show-grid{grid-template-rows:auto 1fr}
+  html.ap-scenes .sc-show .sc-pin{align-items:flex-start;padding-top:80px}
+  html.ap-scenes .sc-steps{min-height:200px}
+  .sc-devices{max-width:520px;width:100%;margin:0 auto;min-height:0}
+  html.ap-scenes .sc-devices{aspect-ratio:auto;height:calc(100svh - 470px);min-height:240px}
+  .sc-show h2{font-size:30px;margin-bottom:18px}
+  .sc-steps article{padding:18px}
+  .sc-steps h3{font-size:20px}.sc-steps p{font-size:14.5px}
+}
+@media(max-width:760px){
+  html.ap-scenes .sc-hero-title{top:13vh}
+  html.ap-scenes .sc-hero-copy{bottom:8vh}
+  html.ap-scenes .sc-hero{height:240vh}
+  html.ap-scenes .sc-show{height:300vh}
+  .sc-hero-frame{aspect-ratio:4/5;border-radius:24px}
+}
+
+/* ---------- Page Contact ---------- */
+.ct-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.ct-tile{position:relative;display:flex;flex-direction:column;background:var(--card);border-radius:var(--r-l);box-shadow:var(--sh);padding:28px 26px;color:inherit;text-decoration:none;transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
+a.ct-tile:hover{color:inherit}
+@media(hover:hover){html.ap-motion a.ct-tile:hover{transform:translateY(-6px);box-shadow:var(--sh-hi)}}
+.ct-ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--grad-soft);color:#fff;margin-bottom:18px}
+.ct-ico svg{width:22px;height:22px}
+.ct-tile h2,.ct-tile h3{font-size:21px;letter-spacing:-.02em;margin:0 0 8px}
+.ct-tile p{font-size:15.5px;margin:0 0 8px}
+.ct-tile p:last-child{margin-bottom:0}
+.ct-big{display:block;font-family:var(--display);font-weight:800;font-size:clamp(20px,2.2vw,28px);letter-spacing:-.02em;color:var(--fa-blue);margin:4px 0 6px;overflow-wrap:anywhere}
+.ct-form{background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh);padding:56px;display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:start}
+.ct-form h2{font-size:clamp(30px,3.4vw,44px);margin-bottom:14px}
+.ct-form .ct-intro p{font-size:16px}
+.ct-field{position:relative;margin:0 0 14px}
+.ct-field input,.ct-field textarea,.ct-field select{width:100%;border:0;border-radius:16px;background:var(--bg);padding:26px 18px 10px;font-size:17px;min-height:62px;line-height:1.45;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .25s,background .25s}
+.ct-field textarea{min-height:190px;resize:vertical}
+.ct-field input:focus,.ct-field textarea:focus,.ct-field select:focus{background:#fff;box-shadow:inset 0 0 0 1.5px var(--fa-blue-hi),0 0 0 4px rgba(43,91,215,.12)}
+.ct-field label{position:absolute;left:18px;top:19px;margin:0;font-size:17px;font-weight:500;color:var(--soft);pointer-events:none;transform-origin:left top;transition:transform .25s var(--ease),color .25s}
+.ct-field input:focus+label,.ct-field input:not(:placeholder-shown)+label,.ct-field textarea:focus+label,.ct-field textarea:not(:placeholder-shown)+label{transform:translateY(-11px) scale(.74);color:var(--fa-blue)}
+.ct-field input::placeholder,.ct-field textarea::placeholder{color:transparent}
+.ct-label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin:6px 0 10px}
+.ct-seg{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.ct-seg button{font:inherit;font-size:14.5px;font-weight:500;border:0;border-radius:999px;padding:10px 16px;background:var(--bg);color:var(--ink);cursor:pointer;transition:background .25s,color .25s,transform .3s var(--ease)}
+.ct-seg button:hover{background:#e8ebf0}
+.ct-seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.ct-sel-hidden{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none}
+.ct-form .small{font-size:13px;color:var(--soft)}
+.ct-form .button{margin-top:6px;min-height:54px;padding-inline:30px}
+#contact-status:empty{display:none}
+#contact-status{background:#e8f6ee;color:#14532d;border-radius:14px;padding:12px 16px;font-size:15px;margin-top:14px}
+@media(max-width:1000px){.ct-form{grid-template-columns:1fr;gap:26px;padding:34px}}
+@media(max-width:620px){.ct-tiles{grid-template-columns:1fr}.ct-form{padding:26px 20px;border-radius:var(--r-l)}}
+
+/* ---------- Animations réduites : mise en page simple ---------- */
+html.ap-reduced .sc-hero,html.ap-reduced .sc-show,html.ap-reduced .sc-h{height:auto!important}
+@media(max-width:900px){
+  html.ap-scenes .sc-h .sc-pin{position:static;height:auto;overflow:visible;display:block}
+  html.ap-scenes .sc-h .sc-pin>.wrap{padding-block:70px}
+  html.ap-scenes .sc-track{width:auto;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:4px 20px 18px;scroll-padding:0 20px}
+  html.ap-scenes .sc-track::-webkit-scrollbar{display:none}
+  html.ap-scenes .sc-track>article{width:82vw;scroll-snap-align:start}
+  html.ap-scenes .sc-progress{display:none}
+}

@@ -18,14 +18,15 @@
   const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys" };
 
   /* ---------- état et sauvegarde ---------- */
-  const fresh = () => ({ v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, done: false, settings: st ? st.settings : { sound: true, calm: false }, tut: {} });
+  const fresh = () => ({ v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
   let st = null;
   st = fresh();
-  st.settings = { sound: true, calm: window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches };
+  st.settings = { sound: true, voice: true, calm: window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches };
   function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { } }
   function load() { try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) return s; } catch (e) { } return null; }
   const saved = load();
   if (saved) st.settings = saved.settings || st.settings;
+  if (st.settings.voice === undefined) st.settings.voice = true;
 
   /* ---------- son : musique générative par chapitre + ambiances (désactivable) ---------- */
   const MOODS = {
@@ -41,6 +42,13 @@
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
   const Snd = {
     ctx: null, on: false, mood: "home", bar: 0, timer: null, nat: null, natKind: null,
+    duck(on) {
+      if (!this.ctx || !this.music) return;
+      const t = this.ctx.currentTime, g = this.music.gain, n = this.natBus.gain;
+      g.cancelScheduledValues(t); n.cancelScheduledValues(t);
+      if (on) { this._g = this._g ?? g.value; this._n = this._n ?? n.value; g.setTargetAtTime(Math.max(0.0001, (this._g || 0.01) * 0.3), t, 0.15); n.setTargetAtTime(Math.max(0.0001, (this._n || 0.01) * 0.3), t, 0.15); }
+      else if (this._g != null) { g.setTargetAtTime(this._g, t, 0.4); n.setTargetAtTime(this._n, t, 0.4); this._g = this._n = null; }
+    },
     init() {
       if (this.ctx) return;
       try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; return; }
@@ -149,6 +157,55 @@
     },
   };
 
+
+  /* ---------- voix des personnages (synthèse vocale de l'appareil, désactivable) ---------- */
+  const CAST = {
+    nour: { g: "f", pitch: 1.04, rate: 1.03 }, bastien: { g: "m", pitch: 1.02, rate: 1.06 }, ines: { g: "f", pitch: 1.12, rate: 1.0 },
+    jade: { g: "f", pitch: 0.96, rate: 1.0 }, kevin: { g: "m", pitch: 1.1, rate: 1.05 }, garnier: { g: "m", pitch: 0.8, rate: 0.93 },
+    lou: { g: "f", pitch: 1.5, rate: 0.96 }, malo: { g: "m", pitch: 1.42, rate: 1.02 }, maelys: { g: "f", pitch: 1.36, rate: 1.0 },
+  };
+  const FEM = /am[ée]lie|audrey|aur[ée]lie|marie|denise|[ée]lo[iï]se|julie|hortense|virginie|c[ée]line|l[ée]a\b|chantal|sylvie|brigitte|vivienne|charline|coralie|jacqueline|yvette|jos[ée]phine|ariane|female|femme|flo\b|sandy|shelley|grandma|google fran/i;
+  const MASC = /thomas|daniel|henri|paul\b|nicolas|jacques|claude|r[ée]my|antoine|jean\b|louis|alain|maurice|guillaume|fabrice|g[ée]rard|yves|male|homme|eddy|reed|rocko|grandpa|mathieu|olivier/i;
+  const Voice = {
+    ok: typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined",
+    list: [], pick: {},
+    load() {
+      if (!this.ok) return;
+      const all = speechSynthesis.getVoices().filter((v) => /^fr/i.test(v.lang));
+      const score = (v) => (/natural|neural|online|premium|enhanced|siri|am[ée]lie|thomas|denise|henri/i.test(v.name) ? 4 : 0) + (/google/i.test(v.name) ? 2 : 0)
+        + (/fr[-_]FR/i.test(v.lang) ? 2 : 0) - (/eddy|flo\b|grandma|grandpa|reed|rocko|sandy|shelley|jacques/i.test(v.name) ? 3 : 0);
+      this.list = all.sort((a, b) => score(b) - score(a));
+      this.pick = {};
+    },
+    voiceFor(who) {
+      if (this.pick[who] !== undefined) return this.pick[who];
+      const c = CAST[who] || { g: "f" };
+      const want = this.list.filter((v) => (c.g === "f" ? FEM : MASC).test(v.name) && !(c.g === "f" ? MASC : FEM).test(v.name.replace(/google fran.*/i, "")));
+      const pool = want.length ? want : this.list;
+      // Des voix différentes pour des personnages du même genre, quand l'appareil en propose plusieurs.
+      const same = Object.keys(CAST).filter((k) => CAST[k].g === c.g);
+      const v = pool.length ? pool[Math.max(0, same.indexOf(who)) % Math.min(pool.length, 3)] : null;
+      return (this.pick[who] = v);
+    },
+    clean: (t) => String(t).replace(/·[a-zà-ÿ]+/gi, "").replace(/\bM\.\s/g, "Monsieur ").replace(/[«»“”]/g, "").replace(/\s+/g, " ").trim(),
+    say(who, text, mood) {
+      if (!this.ok || !st.settings.voice || !text) return;
+      if (!this.list.length) this.load();
+      const c = CAST[who] || { pitch: 1, rate: 1 };
+      const u = new SpeechSynthesisUtterance(this.clean(text));
+      u.lang = "fr-FR"; const v = this.voiceFor(who); if (v) { u.voice = v; u.lang = v.lang; }
+      u.pitch = Math.min(2, c.pitch * (mood === "sad" || mood === "calm" ? 0.97 : mood === "big" ? 1.04 : 1));
+      u.rate = c.rate * (mood === "sad" || mood === "calm" ? 0.94 : 1);
+      u.volume = 1;
+      u.onstart = () => Snd.duck(true); u.onend = u.onerror = () => { if (!speechSynthesis.speaking) Snd.duck(false); };
+      if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(() => speechSynthesis.speak(u), 60); }
+      else speechSynthesis.speak(u);
+    },
+    quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
+    stop() { if (this.ok) { speechSynthesis.cancel(); Snd.duck(false); } },
+  };
+  if (Voice.ok) { Voice.load(); speechSynthesis.addEventListener?.("voiceschanged", () => Voice.load()); }
+
   /* ---------- structure ---------- */
   const app = $("#app"), stage = $("#stage"), live = $("#live");
   const say = (t) => { live.textContent = ""; setTimeout(() => (live.textContent = t), 30); };
@@ -159,7 +216,10 @@
     bs.querySelector(".lbl").textContent = st.settings.sound ? "Son activé" : "Son coupé";
     bm.setAttribute("aria-pressed", st.settings.calm ? "true" : "false");
     bm.querySelector(".lbl").textContent = st.settings.calm ? "Animations réduites" : "Animations";
+    const bv = $("#btn-voice");
+    if (bv) { bv.hidden = !Voice.ok; bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
   }
+  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(); else Voice.say("nour", "Les voix sont activées."); applySettings(); save(); });
   $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); } else Snd.stopAmb(); applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
   $("#btn-carnet").addEventListener("click", openCarnet);
@@ -189,6 +249,7 @@
 
   function render(dir = 1) {
     const sc = SCREENS[st.idx];
+    Voice.stop();
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
     hud(true);
     const old = stage.firstElementChild;
@@ -307,6 +368,7 @@
       else row.innerHTML = `<p>${words(L.t)}</p>`;
       lines.appendChild(row);
       say((nm ? nm + " : " : "") + L.t);
+      if (L.who && L.who !== "player") Voice.say(L.who, L.t, L.mood);
     };
     function step() {
       Snd.click();
@@ -434,6 +496,7 @@
     wrap.appendChild(panel);
     if (!side) wrap.classList.add("one");
     n.appendChild(wrap);
+    if (sc.npc) Voice.quotes(sc.npc, sc.context);
     function pick(o, b) {
       record(sc, o.q, o);
       opts.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
@@ -480,6 +543,7 @@
       opts.innerHTML = "";
       const write = () => {
         log.appendChild(el("div", { class: "say npc" }, `<b>${NAMES[sc.npc]}</b><p>${words(nd.t)}</p>`));
+        Voice.say(sc.npc, nd.t, nd.mood);
         log.scrollTop = log.scrollHeight;
         if (nd.end) return finish(nd);
         drawOpts();
@@ -668,6 +732,7 @@
     panel.append(opts, fbz, row);
     wrap.appendChild(panel);
     n.appendChild(wrap);
+    if (sc.npc) Voice.quotes(sc.npc, sc.context);
   };
 
   R.build = (sc, n) => {
@@ -820,7 +885,7 @@
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }
-  function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state === "suspended") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
+  function begin() { if (Voice.ok && st.settings.voice) { try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } catch (e) { } } Snd.init(); try { if (Snd.ctx && Snd.ctx.state === "suspended") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   applySettings();
   home();

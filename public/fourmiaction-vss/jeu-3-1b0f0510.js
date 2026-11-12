@@ -169,7 +169,7 @@
         this.ready = !!(j && (j.active || j.generees > 0)); applySettings(); if (this._onReady) this._onReady();
       }).catch(() => { this.ready = false; applySettings(); });
     },
-    url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id : null; },
+    url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
     say(who, text) {
       if (!this.ok || !this.ready || !st.settings.voice || !text) return;
       const u = this.url(who, text); if (!u) return;

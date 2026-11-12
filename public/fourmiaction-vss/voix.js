@@ -15,10 +15,16 @@
   fetch('/api/voix?a=etat', { cache: 'no-store' }).then(r => r.json()).then(j => { st.textContent = j.active ? `Voix activées · ${j.generees} réplique(s) déjà générée(s) sur ${j.lignes}.` : `Clé ElevenLabs absente : ajoutez ELEVENLABS_API_KEY dans Netlify. ${j.generees} réplique(s) déjà générée(s).`; }).catch(() => { st.textContent = 'Service des voix indisponible.'; });
   document.getElementById('v-all').addEventListener('click', async (e) => {
     e.target.disabled = true; let ok = 0, firstErr = '';
+    // Pas de génération partielle : sinon une partie des répliques changerait de voix et pas l’autre.
+    const need = L.reduce((n, l) => n + l.text.length, 0);
+    try { const t = await fetch('/api/voix?a=test', { cache: 'no-store' }).then(r => r.json());
+      if (t.ok && typeof t.restants === 'number' && t.restants < need) {
+        st.textContent = `Il reste ${t.restants} caractères ElevenLabs ; la nouvelle distribution en demande environ ${need}. Relancez après le renouvellement des crédits (ou avec une offre payante). En attendant, le jeu garde les voix actuelles.`;
+        e.target.disabled = false; return; } } catch (_) {}
     for (const l of L) {
       const s = l.el.querySelector('small'); s.textContent = '…';
       try {
-        const r = await fetch('/api/voix?id=' + l.id);
+        const r = await fetch('/api/voix?gen=1&id=' + l.id);
         if (r.ok) { s.textContent = '✓'; ok++; }
         else { let d = ''; try { const j = await r.json(); d = j.detail || j.error || ''; } catch {} s.textContent = 'échec'; s.title = d; if (d && !firstErr) { firstErr = d; diag.textContent = 'Cause : ' + d; } }
       } catch { s.textContent = 'échec'; }

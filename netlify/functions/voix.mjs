@@ -17,22 +17,24 @@ const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] 
 
 // Voix par défaut (bibliothèque ElevenLabs), modifiables avec ELEVENLABS_VOIX.
 const DEFAUT = {
-  // Voix françaises natives (bibliothèque ElevenLabs), choisies selon le profil de chaque personnage.
-  nour: "O31r762Gb3WFygrEOGh0",    // Victoria · directrice adjointe, posée et chaleureuse
-  ines: "txtf1EDouKke753vN8SL",    // Jeanne · jeune animatrice, voix jeune parisienne
-  jade: "Crnn8UaAugljbB6XhAKo",    // Emi · animatrice dynamique et enthousiaste
-  maelys: "MmLmgmAm7pKFUJBu1Lov",  // Mélodie · adolescente, voix jeune et expressive
-  lou: "2oMnSKxLeHBxE0KdeHJD",     // Natasha Asher · voix douce et fragile
-  bastien: "Ayvd8fDj52DfUWXZeAFe", // Nathan Doré · jeune animateur, détendu
-  kevin: "Xgb3SR8idOHy8scGICeJ",   // Kevin · jeune homme, clair et sérieux
+  // Bibliothèque ElevenLabs, filtres : langue française, locale fr-FR, accent parisien,
+  // voix « professionnelles » uniquement (clonées sur de longs enregistrements d’une vraie voix : accent fidèle).
+  nour: "ICk609TItINMseDpChFt",    // Léa · calme et pédagogue (directrice adjointe, référente)
+  ines: "6FXyooAOTqUK8m2HWm32",    // Marine · jeune, naturelle (jeune animatrice)
+  jade: "nVPCtAFzgyMX3FZKNzH0",    // Anna · naturelle et assurée (animatrice catégorique)
+  maelys: "i6ke7jvmGEVUyV4zjSaT",  // Emilie · jeune, vive (adolescente)
+  lou: "zPy2sgLU4pZ7Xrjh87uz",     // Justine · douce et posée (enfant de 10 ans)
+  bastien: "1a3lMdKLUcfcMtvN772u", // Antoine · jeune, agréable (animateur détendu)
+  kevin: "Xgb3SR8idOHy8scGICeJ",   // Kevin · jeune, clair et sérieux (animateur de 24 ans)
   malo: "mvhJVdVoTWVUtL4keT7W",    // Simon · jeune et énergique
-  garnier: "fEtpdogpDkBrq53KdupV", // David · homme d’une cinquantaine d’années, grave et posé
+  garnier: "jUHQdLfy668sllNiNTSW", // Clément · calme et neutre (directeur, la cinquantaine)
 };
 const REGLAGES = {
-  defaut: { stability: 0.5, similarity_boost: 0.8, style: 0.2, use_speaker_boost: true },
-  lou: { stability: 0.38, similarity_boost: 0.75, style: 0.45, use_speaker_boost: true },
-  maelys: { stability: 0.4, similarity_boost: 0.75, style: 0.4, use_speaker_boost: true },
-  garnier: { stability: 0.6, similarity_boost: 0.85, style: 0.15, use_speaker_boost: true },
+  // Stabilité plus haute et aucune exagération de style : la voix reste au plus près de l’enregistrement d’origine (accent compris).
+  defaut: { stability: 0.6, similarity_boost: 0.85, style: 0, use_speaker_boost: true },
+  lou: { stability: 0.52, similarity_boost: 0.85, style: 0.05, use_speaker_boost: true },
+  maelys: { stability: 0.5, similarity_boost: 0.85, style: 0.05, use_speaker_boost: true },
+  garnier: { stability: 0.68, similarity_boost: 0.88, style: 0, use_speaker_boost: true },
 };
 function voix() { let o = {}; try { o = JSON.parse(env("ELEVENLABS_VOIX") || "{}"); } catch {} return { ...DEFAUT, ...o }; }
 const modele = () => env("ELEVENLABS_MODELE", "eleven_multilingual_v2");
@@ -42,6 +44,10 @@ const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, header
 const audio = (buf) => new Response(buf, { headers: {
   "Content-Type": "audio/mpeg", "Cache-Control": "public, max-age=31536000, immutable",
   "Netlify-CDN-Cache-Control": "public, max-age=31536000, immutable, durable", "X-Robots-Tag": "noindex" } });
+
+// Ancienne voix servie en attendant : cache court, pour basculer dès que la nouvelle voix existe.
+const audioCourt = (buf) => new Response(buf, { headers: { "Content-Type": "audio/mpeg", "Cache-Control": "public, max-age=300",
+  "Netlify-CDN-Cache-Control": "public, max-age=300", "X-Robots-Tag": "noindex" } });
 
 // Message lisible à partir de la réponse d'erreur d'ElevenLabs (jamais la clé elle-même).
 function explique(status, raw) {
@@ -156,6 +162,14 @@ export default async (req) => {
   const s = store();
   const have = await s.get(key);
   if (have) return audio(Buffer.from(have, "base64"));
+  // Nouvelle distribution pas encore générée : les joueurs gardent l'ancienne voix de la réplique
+  // (aucun mélange ni crédit dépensé) ; seule la page des voix lance la génération (gen=1).
+  if (u.searchParams.get("gen") !== "1") {
+    try {
+      const { blobs } = await s.list({ prefix: `${id}-` });
+      if (blobs.length) { const old = await s.get(blobs[0].key); if (old) return audioCourt(Buffer.from(old, "base64")); }
+    } catch {}
+  }
   const apiKey = env("ELEVENLABS_API_KEY");
   if (!apiKey) return json({ ok: false, error: "Voix non configurées." }, 503);
   try {

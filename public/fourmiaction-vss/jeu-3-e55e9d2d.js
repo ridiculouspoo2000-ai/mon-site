@@ -166,7 +166,7 @@
       if (!this.ok || this.ready !== null) return;
       this.ready = false;
       fetch("/api/voix?a=etat", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
-        this.ready = !!(j && (j.active || j.generees > 0)); applySettings();
+        this.ready = !!(j && (j.active || j.generees > 0)); applySettings(); if (this._onReady) this._onReady();
       }).catch(() => { this.ready = false; applySettings(); });
     },
     url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id : null; },
@@ -853,10 +853,20 @@
       <p class="tag">Sept jours dans un séjour de vacances, une suite de décisions professionnelles. Repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 25 minutes</span><span>6 chapitres</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
+      <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
       <div class="trailbox" aria-hidden="true"><div class="trail">${A.trail}</div></div>`;
     const hb = n.querySelector(".hbtns");
+    const opts = n.querySelectorAll(".hopt");
+    const drawOpts = () => opts.forEach((b) => {
+      const k = b.dataset.k, on = !!st.settings[k];
+      if (k === "voice") b.hidden = !(Voice.ok && Voice.ready);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.textContent = k === "sound" ? (on ? "Musique et sons : activés" : "Musique et sons : coupés") : (on ? "Voix des personnages : activées" : "Voix des personnages : coupées");
+    });
+    opts.forEach((b) => b.addEventListener("click", () => { const k = b.dataset.k; st.settings[k] = !st.settings[k]; if (k === "voice" && !st.settings.voice) Voice.stop(); if (k === "sound") { Snd.init(); if (st.settings.sound) Snd.startAmb(); else Snd.stopAmb(); } save(); applySettings(); drawOpts(); }));
+    drawOpts(); Voice._onReady = drawOpts;
     if (canResume) {
       const sc = SCREENS[prev.idx];
       hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · chapitre ${sc.ch}`, () => { begin(); st = prev; st.settings = st.settings || { sound: true, calm: false }; applySettings(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));

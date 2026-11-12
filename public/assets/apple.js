@@ -125,22 +125,41 @@
   const wide = () => innerWidth > 900;
   function sceneProgress(el) { const r = el.getBoundingClientRect(); const run = r.height - innerHeight; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
 
-  // Héros de l'accueil : la photo se dévoile comme un rideau (sans zoom), le titre glisse plus lentement,
-  // le chemin des fourmis se trace au fil du défilement.
+  // Héros de l'accueil, en trois temps (grand écran) :
+  // 1. le titre, grand et centré, s'écrit (les mots colorés se remplissent) ;
+  // 2. il glisse à sa place pendant que la photo s'ouvre en cercle (sans aucun agrandissement de l'image) ;
+  // 3. le texte et les boutons arrivent, le chemin des fourmis se trace.
   const hero = document.querySelector('[data-scene="hero2"]');
   if (hero) {
-    const photo = hero.querySelector('.h2-photo'), copy = hero.querySelector('.h2-copy'), trail = hero.querySelector('.ant-trail>path');
-    let len = 0; if (trail) { try { len = trail.getTotalLength(); trail.style.strokeDasharray = `3 7`; } catch {} }
+    const h1 = hero.querySelector('h1'), photo = hero.querySelector('.h2-photo'), vis = hero.querySelector('.h2-visual');
+    const after = [...hero.querySelectorAll('.h2-copy .lead, .h2-copy .buttons')];
+    const ems = [...h1.querySelectorAll('em')], lines = [...h1.querySelectorAll('.hero-line')];
+    const trail = hero.querySelector('.ant-trail');
+    ems.forEach(e => e.classList.add('fx-fill'));
+    let geo = null;
+    const measure = () => {
+      h1.style.transform = ''; const hr = h1.getBoundingClientRect(), pin = hero.querySelector('.sc-pin').getBoundingClientRect();
+      const lw = Math.max(...lines.map(l => l.getBoundingClientRect().width), 10);
+      const r = { left: hr.left, top: hr.top, width: lw, height: hr.height };
+      const s0 = Math.min(1.32, (innerWidth * .82) / r.width);
+      geo = { s0, dx: (pin.left + pin.width / 2) - (r.left + r.width * s0 / 2), dy: (pin.top + pin.height * .46) - (r.top + r.height * s0 / 2) };
+    };
+    addEventListener('resize', () => { geo = null; });
     scenes.push(() => {
-      const p = sceneProgress(hero), w = wide();
-      const r = ease(seg(p, 0, .55));
-      const c = w ? lerp(42, 0, r) : 0;
-      photo.style.clipPath = `inset(${c.toFixed(2)}% 0 0 0 round 32px)`;
-      photo.style.transform = w ? `translate3d(0,${lerp(70, 0, r).toFixed(1)}px,0)` : '';
-      const out = ease(seg(p, .7, 1));
-      copy.style.transform = w ? `translate3d(0,${(-60 * out + 30 * (1 - r)).toFixed(1)}px,0)` : '';
-      copy.style.opacity = w ? (1 - out * .9).toFixed(3) : '';
-      if (trail && len) trail.style.strokeDashoffset = `${(len * (1 - seg(p, 0, .6))).toFixed(1)}`;
+      if (!wide()) { h1.style.transform = ''; photo.style.clipPath = ''; after.forEach(e => { e.style.opacity = ''; e.style.transform = ''; }); ems.forEach(e => e.style.setProperty('--f', '100%')); return; }
+      if (!geo) measure();
+      const p = sceneProgress(hero);
+      // 1. les lignes du titre s'affirment une à une, les mots colorés se remplissent
+      ems.forEach((e, i) => e.style.setProperty('--f', `${(seg(p, .01 + i * .07, .16 + i * .07) * 100).toFixed(1)}%`));
+      // 2. déplacement vers la colonne de gauche
+      const m = ease(seg(p, .22, .58));
+      h1.style.transform = `translate3d(${(geo.dx * (1 - m)).toFixed(1)}px,${(geo.dy * (1 - m)).toFixed(1)}px,0) scale(${lerp(geo.s0, 1, m).toFixed(4)})`;
+      const o = ease(seg(p, .3, .66));
+      photo.style.clipPath = `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 55%)`;
+      vis.style.transform = `translate3d(0,${lerp(90, 0, o).toFixed(1)}px,0)`;
+      // 3. texte et boutons
+      after.forEach((e, i) => { const t = ease(seg(p, .56 + i * .07, .74 + i * .07)); e.style.opacity = t.toFixed(3); e.style.transform = `translate3d(0,${lerp(36, 0, t).toFixed(1)}px,0)`; e.style.pointerEvents = t > .6 ? '' : 'none'; });
+      if (trail) { const t = ease(seg(p, .55, .85)); trail.style.opacity = t.toFixed(3); trail.style.transform = `translate3d(${lerp(-30, 0, t).toFixed(1)}px,${lerp(30, 0, t).toFixed(1)}px,0)`; }
     });
   }
 

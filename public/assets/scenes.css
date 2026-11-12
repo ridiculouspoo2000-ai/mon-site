@@ -80,9 +80,13 @@ html.ap-reduced .sc-hero2,html.ap-reduced .sc-h{height:auto!important}
 .h2-visual::before{content:"";position:absolute;inset:8% -6% -6% 10%;background:var(--grad-soft);filter:blur(70px);opacity:.3;border-radius:50%;z-index:-1}
 .h2-visual .ant-trail{position:absolute;width:116px;height:154px;left:-60px;bottom:-40px;z-index:2;overflow:visible;pointer-events:none}
 @media(min-width:901px){
-  html.ap-scenes .sc-hero2{height:190vh}
+  html.ap-scenes .sc-hero2{height:260vh}
   html.ap-scenes .sc-hero2 .sc-pin{position:sticky;top:68px;height:calc(100vh - 68px);padding:0}
-  html.ap-scenes .h2-copy{will-change:transform,opacity}
+  html.ap-scenes .sc-hero2 h1{transform-origin:0 0;will-change:transform}
+  html.ap-scenes .sc-hero2 .hero-line{display:inline-block}
+  html.ap-scenes .sc-hero2 .h2-photo{clip-path:circle(0% at 50% 55%)}
+  html.ap-scenes .sc-hero2 .h2-copy .lead,html.ap-scenes .sc-hero2 .h2-copy .buttons{opacity:0}
+  html.ap-scenes .h2-visual{will-change:transform}
 }
 @media(max-width:900px){.sc-hero2 .sc-pin{grid-template-columns:1fr;gap:36px;padding:40px 0 60px;width:calc(100% - 40px)}.sc-hero2 h1{font-size:clamp(44px,12vw,68px)}.h2-photo img{height:440px}.h2-visual .ant-trail{display:none}}
 

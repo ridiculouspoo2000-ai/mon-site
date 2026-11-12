@@ -1232,16 +1232,29 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 /* intérieur */
 #world .wint{position:absolute;inset:0;opacity:0;transition:opacity .55s var(--ease)}
 #world .wint.in{opacity:1}
-#world.inside .wext{filter:blur(8px) saturate(.85);opacity:.55}
-#world .wroom{position:absolute;left:var(--fx,50%);top:var(--fy,52%);width:var(--rw,min(62vw,1000px));translate:-50% -50%;transform:scale(.9);transition:transform 1s var(--ease)}
-#world .wint.in .wroom{transform:none}
-#world .wroom>svg{width:100%;height:100%;display:block;filter:drop-shadow(0 34px 44px rgba(19,40,59,.22))}
-#world.amb-night .wroom>svg{filter:brightness(.62) saturate(.8) drop-shadow(0 34px 44px rgba(0,0,0,.4))}
-#world.amb-evening .wroom>svg{filter:sepia(.15) brightness(.96) drop-shadow(0 34px 44px rgba(19,40,59,.22))}
+/* pas de flou ni de cadre : on a levé le toit, on regarde dans le bâtiment, le plan reste là autour */
+#world.inside .wext{filter:saturate(.92) brightness(.97)}
+#world .wint::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 40% 46% at var(--fx,50%) var(--fy,52%),rgba(246,247,249,.82) 40%,rgba(246,247,249,.4) 70%,rgba(246,247,249,0) 100%)}
+#world.amb-night .wint::before{background:radial-gradient(ellipse 40% 46% at var(--fx,50%) var(--fy,52%),rgba(24,32,48,.75) 40%,rgba(24,32,48,.35) 70%,rgba(24,32,48,0) 100%)}
+#world .wroom{position:absolute;left:var(--fx,50%);top:var(--fy,52%);width:var(--rw,min(62vw,1000px));translate:-50% -50%;transform-origin:50% 50%}
+#world .wroom>svg{width:100%;height:100%;display:block;filter:drop-shadow(0 18px 22px rgba(19,40,59,.16))}
+#world.amb-night .wroom>svg{filter:brightness(.62) saturate(.8) drop-shadow(0 18px 22px rgba(0,0,0,.3))}
+#world.amb-evening .wroom>svg{filter:sepia(.15) brightness(.96) drop-shadow(0 18px 22px rgba(19,40,59,.16))}
 #world .wname{position:absolute;left:var(--fx,50%);top:calc(var(--fy,52%) - var(--rw,min(62vw,1000px)) * .36);translate:-50% 0;margin:0;padding:7px 14px;border-radius:99px;
   font-size:13px;font-weight:600;letter-spacing:.01em;color:#1d1d1f;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   box-shadow:0 6px 20px -10px rgba(19,40,59,.4);opacity:0;transition:opacity .5s .5s}
 #world .wint.in .wname{opacity:1}
+#world .wname{display:none}
+/* toit qu'on lève */
+.wlids{position:absolute;inset:0;pointer-events:none}
+.wlid{position:absolute}
+.wlid img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;user-select:none}
+.wlid.ready img{opacity:1}
+.wlid .dio-lid{transform-origin:20% 70%;transition:transform 1.15s cubic-bezier(.45,0,.2,1),opacity .55s .55s ease;will-change:transform,opacity}
+.wlid.open .dio-lid{transform:translate(3%,-26%) rotate(-5deg);opacity:0}
+#world.amb-evening .wlid img{filter:sepia(.18) saturate(1.1) brightness(.93)}
+#world.amb-night .wlid img{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
+@media (prefers-reduced-motion:reduce){.wlid .dio-lid{transition:opacity .3s}.wlid.open .dio-lid{transform:none}}
 #world .wvig{position:absolute;inset:0;background:linear-gradient(90deg,rgba(245,245,247,0) 52%,rgba(245,245,247,.55) 78%,rgba(245,245,247,.8))}
 #world.amb-night .wvig{background:linear-gradient(90deg,rgba(20,27,40,0) 52%,rgba(20,27,40,.5))}
 /* personnages */
@@ -1402,7 +1415,7 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-ebb42313.js"></script>
+<script src="jeu-1-ad1b9b4b.js"></script>
 <script src="jeu-2-23a7a9aa.js"></script>
-<script src="jeu-3-073a25e1.js"></script>
+<script src="jeu-3-592e2749.js"></script>
 </body></html>

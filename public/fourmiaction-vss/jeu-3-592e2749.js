@@ -373,7 +373,7 @@
     // le plan est affiché comme une image (rastérisée une fois par le navigateur) : bien plus léger qu'un SVG vivant
     if (!dioHTML.url) { try { dioHTML.url = URL.createObjectURL(new Blob([A.dio.img || A.dio.svg], { type: "image/svg+xml" })); } catch (e) { dioHTML.url = ""; } }
     const base = dioHTML.url ? `<img class="dio-img" src="${dioHTML.url}" alt="" draggable="false" decoding="async">` : A.dio.svg;
-    return base + `<div class="wanim">${(A.dio.anims || []).map((x) => `<div class="dio-ov ${x.cls}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r}">${x.svg}</div>`).join("")}</div>`;
+    return base + `<div class="wlids"></div><div class="wanim">${(A.dio.anims || []).map((x) => `<div class="dio-ov ${x.cls}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r}">${x.svg}</div>`).join("")}</div>`;
   }
   const LOC = { intro: "entree", radio: "radio", k1: "equipe", brief: "equipe", ines: "equipe", rire: "parc", parent1: "cour", parent2: "cour", chat: "equipe", chatact: "equipe", theo: "cour", theo2: "cour", k2: "equipe",
     ronde: "sanitaires", consent: "jeux", silence: "jeux", kevin: "equipe", nuit1: "refectoire", nuit2: "refectoire", nuit3: "refectoire", kn: "equipe", k3: "equipe",
@@ -383,6 +383,21 @@
   // Le monde vivant : le plan de l'accueil derrière les questions. La caméra va vers le lieu de la
   // scène ; si la scène se passe dans une salle, on y entre (décor intérieur), puis on en ressort.
   // Les personnages présents sont posés sur place ; celui qui parle s'anime.
+  // Toits qu'on lève : une version du plan sans le toit du bâtiment (recadrée sur lui) se pose sur le
+  // plan, et le toit seul, par-dessus, s'envole. Rien d'autre n'apparaît : on regarde dans le bâtiment.
+  const Lids = {
+    url: {},
+    of(at) { const L = A.dio.lids || {}; for (const G in L) if (L[G].rooms.includes(at)) return G; return null; },
+    src(G, mode, hl) {
+      const k = G + "|" + mode + "|" + (hl || ""); if (this.url[k]) return this.url[k];
+      const L = A.dio.lids[G], all = [G, ...(L.also || [])], q = (a) => all.map((g) => `[${a}="${g}"]`).join(",");
+      const st = mode === "open" ? `${q("data-open")}{display:inline}${q("data-lid")},${q("data-shut")}{display:none}${hl ? `[data-hl="${hl}"]{display:inline}` : ""}`
+        : `*{visibility:hidden}${all.map((g) => `[data-lid="${g}"],[data-lid="${g}"] *`).join(",")}{visibility:visible}`;
+      const svg = (A.dio.img || A.dio.svg).replace(/viewBox="[^"]*"/, `viewBox="${L.vb}"`).replace("</style>", st + "</style>");
+      try { this.url[k] = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); } catch (e) { this.url[k] = ""; }
+      return this.url[k];
+    },
+  };
   const World = {
     el: null, ext: null, cam: null, wint: null, room: null, cur: null,
     init() {
@@ -430,7 +445,7 @@
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "");
       if (same) return;
       // caméra extérieure
-      const p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = S.at && S.at !== "ensemble" ? (S.room ? 3.2 : 2.1) : 1.08;
+      const p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = S.at && S.at !== "ensemble" ? (S.room ? 2.5 : 2.1) : 1.08;
       this.cam.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
       // acteurs dehors
       const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
@@ -448,10 +463,11 @@
       const R = S.room && A.rooms[S.room];
       if (S.room && S.room !== this.lastRoom && typeof ROOM_SAY !== "undefined") this.entered = S.room;
       this.lastRoom = S.room || null;
-      clearTimeout(this._t);
+      clearTimeout(this._t); clearTimeout(this._t2); const gen = this._gen = (this._gen || 0) + 1;
       if (R) {
         const go = () => {
           const box = this.wint.querySelector(".wroom");
+          if (box.getAnimations) box.getAnimations().forEach((a) => a.cancel());
           box.style.aspectRatio = R.ratio; box.innerHTML = R.svg;
           const isz = (44 / R.vbw) * 100 * R.ppl;
           const svg = box.querySelector("svg"), NS = "http://www.w3.org/2000/svg", L = [];
@@ -470,11 +486,63 @@
           // chacun se tourne vers le groupe
           if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p]) => g.querySelector(".rbody").classList.toggle("flip", p[0] > cx + 4)); }
           this.wint.querySelector(".wname").textContent = R.name;
-          this.wint.classList.remove("in"); void this.wint.offsetWidth; this.wint.classList.add("in");
+          this.wint.classList.add("in");
+          // la vue de près sort du bâtiment ouvert, là où il est sur le plan
+          const r0 = this.zoneRect(S.at), rb = box.getBoundingClientRect();
+          if (r0 && rb.width && !reduce() && box.animate) {
+            const sc0 = Math.max(.1, Math.min(.6, r0.w / rb.width));
+            this._anim = box.animate([{ transform: `translate(${r0.x - (rb.left + rb.width / 2)}px,${r0.y - (rb.top + rb.height / 2)}px) scale(${sc0})`, opacity: 0 },
+              { opacity: 1, offset: .35 }, { transform: "none", opacity: 1 }], { duration: 950, easing: "cubic-bezier(.2,.75,.2,1)", fill: "both" });
+          }
         };
-        if (this.wint.classList.contains("in")) { this.wint.classList.remove("in"); this._t = setTimeout(go, reduce() ? 0 : 450); }
-        else this._t = setTimeout(go, reduce() ? 0 : 1100);   // le temps que la caméra s'approche du bâtiment
-      } else this.wint.classList.remove("in");
+        const back = (then) => {   // la vue de près rentre dans le bâtiment
+          const box = this.wint.querySelector(".wroom"), r0 = this.zoneRect(this.roomAt || S.at), rb = box.getBoundingClientRect();
+          if (this._anim) { this._anim.cancel(); this._anim = null; }
+          if (r0 && rb.width && !reduce() && box.animate) {
+            const sc0 = Math.max(.1, Math.min(.6, r0.w / rb.width));
+            box.animate([{ transform: "none", opacity: 1 }, { transform: `translate(${r0.x - (rb.left + rb.width / 2)}px,${r0.y - (rb.top + rb.height / 2)}px) scale(${sc0})`, opacity: 0 }],
+              { duration: 420, easing: "cubic-bezier(.5,0,.75,.4)", fill: "both" }).onfinish = () => { this.wint.classList.remove("in"); then && then(); };
+          } else { this.wint.classList.remove("in"); then && then(); }
+        };
+        const wasIn = this.wint.classList.contains("in"), sameB = wasIn && Lids.of(this.roomAt) === Lids.of(S.at);
+        if (wasIn) back(() => {
+          if (gen !== this._gen) return;
+          this.roomAt = S.at;
+          if (sameB || reduce()) this.roof(S.at); else { this.roof(null); this._t2 = setTimeout(() => this.roof(S.at), 700); }
+          this._t = setTimeout(go, reduce() ? 0 : (sameB ? 450 : 1600));
+        });
+        else { this.roomAt = S.at; this._t2 = setTimeout(() => this.roof(S.at), reduce() ? 0 : 900); this._t = setTimeout(go, reduce() ? 0 : 1800); }   // la caméra s'approche, le toit se lève, on regarde dedans
+      } else if (this.wint.classList.contains("in")) { clearTimeout(this._t2); const box = this.wint.querySelector(".wroom"); this._anim && this._anim.cancel();
+        const r0 = this.zoneRect(this.roomAt), rb = box.getBoundingClientRect();
+        const fin = () => { if (gen !== this._gen && this.cur && this.cur.room) return; this.wint.classList.remove("in"); this.roof(null); };
+        if (r0 && rb.width && !reduce() && box.animate) box.animate([{ transform: "none", opacity: 1 }, { transform: `translate(${r0.x - (rb.left + rb.width / 2)}px,${r0.y - (rb.top + rb.height / 2)}px) scale(${Math.max(.1, Math.min(.6, r0.w / rb.width))})`, opacity: 0 }],
+          { duration: 420, easing: "cubic-bezier(.5,0,.75,.4)", fill: "both" }).onfinish = fin; else fin();
+      } else { clearTimeout(this._t2); this.roof(null); }
+    },
+    // ouvre le toit du bâtiment où se trouve « at » (et met la salle en valeur) ; at = null : on referme
+    roof(at) {
+      const G = at ? Lids.of(at) : null, host = this.cam.querySelector(".wlids"), cur = this.lid;
+      if (cur && cur.G === G) {   // même bâtiment, autre salle : on change juste la salle mise en valeur
+        if (cur.at !== at) { cur.at = at; const im = new Image(); im.className = "dio-hole"; im.src = Lids.src(G, "open", at);
+          (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { if (this.lid !== cur) return; const old = cur.w.querySelector(".dio-hole"); cur.w.insertBefore(im, old); old.remove(); }); }
+        return;
+      }
+      if (cur) { cur.w.classList.remove("open"); setTimeout(() => cur.w.remove(), reduce() ? 0 : 1100); this.lid = null; }
+      if (!G || !host) return;
+      const L = A.dio.lids[G];
+      const w = el("div", { class: "wlid", style: `left:${L.l}%;top:${L.t}%;width:${L.w}%;aspect-ratio:${L.r}` },
+        `<img class="dio-hole" alt="" src="${Lids.src(G, "open", at)}"><img class="dio-lid" alt="" src="${Lids.src(G, "lid")}">`);
+      host.appendChild(w); const me = this.lid = { G, at, w };
+      Promise.all([...w.querySelectorAll("img")].map((i) => (i.decode ? i.decode() : Promise.resolve()).catch(() => {}))).then(() => {
+        if (this.lid !== me) return;
+        w.classList.add("ready"); requestAnimationFrame(() => requestAnimationFrame(() => this.lid === me && w.classList.add("open")));
+      });
+    },
+    // rectangle à l'écran de la salle « at » sur le plan (pour faire sortir la vue de près du bâtiment ouvert)
+    zoneRect(at) {
+      const z = A.dio.zones[at], c = this.cam.getBoundingClientRect();
+      if (!z) return null;
+      return { x: c.left + (z.x + z.w / 2) / 100 * c.width, y: c.top + (z.y + z.h / 2) / 100 * c.height, w: z.w / 100 * c.width };
     },
     upset(who) {
       if (!this.el) return;

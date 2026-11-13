@@ -340,3 +340,21 @@ html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-r
   90%,100%{transform:translate3d(calc(var(--s3,0px) * -1),0,0)}
 }
 @keyframes fa-hs-bar{0%,10%{transform:scaleX(0)}90%,100%{transform:scaleX(1)}}
+
+/* pied de page : le bouton « Animations activées » était blanc sur fond clair */
+footer .motion-toggle{color:#4b5b6a!important}
+
+/* ---------- Écrans tactiles : aucun effet de « survol » qui déplace les éléments ----------
+   Sur iPhone, toucher une carte active son survol : en faisant défiler « Nos actions » le doigt sur les cartes,
+   elles montaient et descendaient sans arrêt (tremblement). Les survols ne bougent plus rien sur écran tactile. */
+@media (hover:none){
+  html .cards article:hover,html .cards article:hover .photo,html .cards article:hover .fx-par,
+  html .button:hover,html .button.secondary:hover,html .button:not(.secondary):hover,
+  html .nw-feature:hover,html .nw-feature:hover .nw-media img,html .nw-tile:hover,html .nw-tile:hover .nw-art>*,
+  html .bafa-resource-card:hover,html header nav a:hover,html header nav>a[href="bafa.html"]:hover,html header nav a.nav-join:hover,
+  html .bf-choice:hover,html .bf-choice.off:hover,html .bf-choice:hover .bf-go,
+  html .fo-chips li:hover,html .fo-promo:hover,html .fo-promo:hover .fo-promo-go,html .fo-tile:hover,
+  html .fa-card:hover,html .fa-chip:hover,html .fa-btn:hover,html .fa-launch:hover,html .fa-ask button:hover,html .fx-cloud-btn:hover{transform:none!important;translate:none!important;scale:none!important}
+  .cards article,.cards article .photo{transition-property:box-shadow,opacity!important}
+  .fx-par{transition:none!important}
+}

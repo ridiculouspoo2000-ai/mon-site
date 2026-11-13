@@ -62,7 +62,7 @@
       grain = Math.max(1.05, step * (W < 600 ? .5 : .62));
       ready = true;
     }
-    const progress = () => { const r = cv.getBoundingClientRect(), c = r.top + r.height / 2; return clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
+    const progress = () => { const r = cv.getBoundingClientRect(), c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
@@ -335,14 +335,11 @@
       svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
       svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#8a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>';
       const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height / 2, rad = C.width / 2;
-      const rows = [...new Set(cards.map(c => Math.round(c.getBoundingClientRect().top)))].sort((a, b) => a - b);
       cards.forEach((card, i) => {
-        const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, top = Math.round(R.top) === rows[0];
-        const sx = cx + (left ? -1 : 1) * rad * .72, sy = cy + rad * .7;   // départ : le bord du cercle
-        let d;
-        if (top) { const tx = R.left - S.left + R.width / 2, ty = R.top - S.top + 4; d = `M${sx},${sy} C${sx},${sy + 30} ${tx},${ty - 34} ${tx},${ty}`; }
-        else { const ex = left ? R.left - S.left + 3 : R.right - S.left - 3, ey = R.top - S.top + R.height / 2, mx = left ? 6 : S.width - 6;  // par l’extérieur, sans passer derrière les autres cartes
-          d = `M${sx},${sy} C${(sx + mx) / 2},${sy + 10} ${mx},${ey - 60} ${mx},${ey - 18} S${ex},${ey} ${ex},${ey}`; }
+        const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, up = R.top + R.height / 2 - S.top < cy;
+        const sx = cx + (left ? -1 : 1) * rad * .7, sy = cy + (up ? -1 : 1) * rad * .7;   // départ : le bord du cercle, en diagonale
+        const tx = R.left - S.left + R.width / 2, ty = up ? R.bottom - S.top - 4 : R.top - S.top + 4;
+        const d = `M${sx},${sy} C${sx},${(sy + ty) / 2} ${tx},${(sy + ty) / 2} ${tx},${ty}`;
         const path = document.createElementNS(NS, 'path'); path.setAttribute('d', d); path.setAttribute('class', 'fx-hub-wire'); svg.append(path);
         const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', '4.5'); dot.setAttribute('class', 'fx-hub-dot');
         const mo = document.createElementNS(NS, 'animateMotion'); mo.setAttribute('dur', (2.4 + i * .35).toFixed(2) + 's'); mo.setAttribute('repeatCount', 'indefinite'); mo.setAttribute('path', d); mo.setAttribute('begin', (i * .45).toFixed(2) + 's');
@@ -352,6 +349,28 @@
     draw(); let w0 = innerWidth; addEventListener('resize', () => { if (Math.abs(innerWidth - w0) > 30) { w0 = innerWidth; draw(); } });
     if (document.fonts) document.fonts.ready.then(draw);
   });
+
+
+  /* ---------------------------------------------------------------- 10. Ancres (#adherer…) : on arrive pile au bon endroit */
+  (() => {
+    let user = false, until = 0, target = null;
+    ['wheel', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, () => { user = true; }, { passive: true }));
+    const go = () => {
+      if (!target || user || performance.now() > until) return;
+      if (target.closest('.bf-branch:not(.on)')) return;
+      const y = target.getBoundingClientRect().top + scrollY - 84;
+      if (Math.abs(y - scrollY) > 4) scrollTo({ top: y, behavior: 'auto' });
+    };
+    const arm = () => {
+      const id = decodeURIComponent(location.hash.slice(1)); target = id ? document.getElementById(id) : null;
+      if (!target) return; user = false; until = performance.now() + 2600; go();
+    };
+    if ('ResizeObserver' in window) new ResizeObserver(() => requestAnimationFrame(go)).observe(document.body);
+    addEventListener('hashchange', () => setTimeout(arm, 30));
+    addEventListener('load', () => { if (location.hash) { arm(); setTimeout(go, 400); } });
+    document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[href*="#"]'); if (a && new URL(a.href, location.href).pathname === location.pathname) setTimeout(arm, 60); });
+    if (location.hash) arm();
+  })();
 
   /* ---------------------------------------------------------------- 6. Photos vivantes */
   if (!reduced) {

@@ -252,4 +252,21 @@ main,.sc-hero2,.page-intro{overflow-x:clip}
   .fx-hub-wire{opacity:.5}
 }
 /* adhésion HelloAsso : formulaire en entier sur téléphone */
-@media(max-width:760px){.ap-widget iframe{min-height:1150px}.ap-widget{padding:4px;overflow:visible}}
+@media(max-width:760px){.ap-widget iframe{min-height:0;height:900px}.ap-widget{padding:4px}}
+#adherer,#galerie,#temoignages,#projet,#piliers,#methodes,#histoire{scroll-margin-top:84px}
+
+/* ---------- Schéma « Nos actions » sur téléphone : Intervenir et Accompagner en haut, Éducation populaire au milieu ---------- */
+@media(max-width:760px){
+  .dg-hub .dg-stage{padding-top:0!important;grid-template-rows:auto auto auto;row-gap:0;column-gap:12px}
+  .dg-hub .dg-core{position:static!important;transform:none!important;left:auto!important;top:auto!important;grid-column:1/-1;grid-row:2;justify-self:center;width:136px!important;margin:46px 0}
+  .dg-hub .dg-card:nth-of-type(1){grid-row:1;grid-column:1}.dg-hub .dg-card:nth-of-type(2){grid-row:1;grid-column:2}
+  .dg-hub .dg-card:nth-of-type(3){grid-row:3;grid-column:1}.dg-hub .dg-card:nth-of-type(4){grid-row:3;grid-column:2}
+}
+/* ---------- Accueil, « Nos actions » sur téléphone : la carte entière (avec « Découvrir ») tient à l’écran ---------- */
+@media(max-width:900px){
+  html.ap-scenes [data-scene="hscroll"] .sc-pin{padding-top:64px}
+  html.ap-scenes .sc-track .photo{height:min(150px,18svh)!important}
+  html.ap-scenes .sc-track .card-body{padding:18px 20px 20px}
+  html.ap-scenes .sc-track .card-body p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
+  html.ap-scenes .sc-track .card-body h3{font-size:21px;margin:4px 0 8px}
+}

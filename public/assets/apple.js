@@ -627,8 +627,11 @@
       try { host = new URL(e.origin).hostname; } catch { return; }
       if (!/(^|\.)helloasso\.com$/.test(host)) return;
       let d = e.data; if (typeof d === 'string') { try { d = JSON.parse(d); } catch { d = null; } }
-      const h = Number(d && d.height);
-      if (h > 200) { haWidget.height = h + 'px'; haWidget.style.height = (h + 20) + 'px'; }
+      const h = Math.round(Number(d && d.height));
+      if (!(h > 300 && h < 6000)) return;
+      const cur = parseFloat(haWidget.style.height) || 0;
+      if (Math.abs(h - cur) < 12) return;               // évite l’aller-retour de hauteur (tremblement)
+      haWidget.style.height = h + 'px'; haWidget.height = String(h);
     });
   }
 })();

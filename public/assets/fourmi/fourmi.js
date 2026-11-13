@@ -115,6 +115,10 @@
     if (!hopT) { root.classList.add('fa-hop'); hopT = setTimeout(() => { root.classList.remove('fa-hop'); hopT = 0; }, 520); }
   }, { passive: true });
 
+  // Sur le formulaire d’adhésion HelloAsso, Mica s’efface pour ne rien cacher.
+  const ha = document.getElementById('haWidget');
+  if (ha && 'IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => root.classList.toggle('fa-quiet', e.isIntersecting && panel.hidden)), { rootMargin: '-10% 0px -10% 0px' }).observe(ha);
+
   /* ---------- Bulle d’accueil, selon la page ---------- */
   const TEASE = {
     index: 'Une question sur l’association ou le BAFA ? Je cherche la réponse dans nos documents.',

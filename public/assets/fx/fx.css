@@ -236,3 +236,20 @@ main,.sc-hero2,.page-intro{overflow-x:clip}
 .fx-hub-wire{fill:none;stroke:url(#fxh-g);stroke-width:2;opacity:.35;stroke-dasharray:4 6}
 .fx-hub-dot{fill:#8a4fd0;filter:drop-shadow(0 0 4px rgba(138,79,208,.7))}
 @media(max-width:760px){.dg-hub .dg-stage{position:relative}.dg-hub .dg-core,.dg-hub .dg-card{z-index:1}}
+
+/* ---------- Téléphone : en-tête stable au défilement (pas de flou recalculé à chaque image) ---------- */
+@media (hover:none),(max-width:900px){
+  header,header nav,.bf-seg-in{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  header{background:rgba(245,245,247,.97)!important;transform:translateZ(0);will-change:transform;backface-visibility:hidden}
+  header nav:not(.open){background:transparent!important}
+  .bf-seg-in{background:rgba(255,255,255,.97)}
+  .bf-seg{top:66px}
+}
+/* le cercle « Éducation populaire » émet : on comprend que tout part de lui */
+@media(max-width:760px){
+  .dg-hub .dg-core{box-shadow:0 0 0 0 rgba(138,79,208,.45);animation:fx-emit 2.4s ease-out infinite}
+  @keyframes fx-emit{0%{box-shadow:0 0 0 0 rgba(138,79,208,.45)}70%{box-shadow:0 0 0 18px rgba(138,79,208,0)}100%{box-shadow:0 0 0 0 rgba(138,79,208,0)}}
+  .fx-hub-wire{opacity:.5}
+}
+/* adhésion HelloAsso : formulaire en entier sur téléphone */
+@media(max-width:760px){.ap-widget iframe{min-height:1150px}.ap-widget{padding:4px;overflow:visible}}

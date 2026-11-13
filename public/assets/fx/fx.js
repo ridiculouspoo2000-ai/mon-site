@@ -32,7 +32,7 @@
   document.querySelectorAll('canvas.fx-swarm').forEach(cv => {
     const ctx = cv.getContext('2d');
     const word = cv.dataset.word || 'ensemble';
-    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null, fontPx = 0;
+    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null, fontPx = 0, grain = 1.6;
     function sample() {
       const r = cv.getBoundingClientRect(); W = r.width; H = r.height; if (!W || !H) return;
       dpr = Math.min(devicePixelRatio || 1, W < 600 ? 1.75 : 2);
@@ -49,19 +49,20 @@
       o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
       fontPx = size;
       const data = o.getImageData(0, 0, ow, oh).data, pts = [];
-      const step = Math.max(2, Math.round(size / 34));
+      const step = Math.max(W < 600 ? 1.6 : 2, Math.round(size / 46));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      const n = Math.min(pts.length, W < 600 ? 700 : 1500);
+      const n = Math.min(pts.length, W < 600 ? 1600 : 2600);
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
       P = pts.slice(0, n).map((t, i) => ({
         x: Math.random() * W, y: Math.random() * H, a: Math.random() * Math.PI * 2, v: .25 + Math.random() * .45,
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
-        c: gradAt((t[0] - minX) / (maxX - minX || 1))
+        c: gradAt((t[0] - minX) / (maxX - minX || 1)), ra: Math.random() * Math.PI
       }));
+      grain = Math.max(1.05, step * (W < 600 ? .5 : .62));
       ready = true;
     }
-    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .8 - r.top) / (innerHeight * .34)); };
+    const progress = () => { const r = cv.getBoundingClientRect(), c = r.top + r.height / 2; return clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
@@ -80,21 +81,21 @@
         q.ox *= .9; q.oy *= .9;
         const x = lerp(q.x, q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(q.y, q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
         const b = Math.min(BUCKETS - 1, Math.round(k * (BUCKETS - 1)));
-        const r = lerp(1.3, W < 600 ? 1.55 : 1.85, k), body = (1 - k) * 2.2, ca = Math.cos(q.a), sa = Math.sin(q.a);
+        // un grain de riz : orienté dans le sens de la marche, puis selon sa place dans le mot
+        const ang = k < .5 ? q.a : q.ra, len = lerp(1.9, grain * 1.25, k), wid = lerp(.95, grain * .55, k);
         const path = paths[b];
-        path.moveTo(x + r, y); path.arc(x, y, r, 0, 6.2832);
-        if (body > .2) { const bx = x - ca * body * 1.3, by = y - sa * body * 1.3; path.moveTo(bx + r * 1.15, by); path.arc(bx, by, r * 1.15, 0, 6.2832); }
+        path.moveTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); path.ellipse(x, y, len, wid, ang, 0, 6.2832);
         q.b = b; q.k = k;
       }
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
       for (let b = 0; b < BUCKETS; b++) {
         const k = b / (BUCKETS - 1);
-        ctx.globalAlpha = lerp(alphaFree, .95, k) * (1 - .75 * clamp((p - .8) / .2));
+        ctx.globalAlpha = lerp(alphaFree, 1, k);
         if (k < .5) { ctx.fillStyle = '#142f46'; ctx.fill(paths[b]); }
         else { const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); ctx.fillStyle = g; ctx.fill(paths[b]); }
       }
       // Une fois les fourmis rassemblées, le mot apparaît net (dégradé de la marque).
-      const crisp = clamp((p - .8) / .2);
+      const crisp = 0;
       if (crisp > 0) {
         ctx.globalAlpha = ease(crisp);
         ctx.font = `800 ${fontPx}px "FA Display", "FA Inter", -apple-system, sans-serif`;
@@ -227,8 +228,8 @@
     box.classList.add('fx-sphere'); box.setAttribute('role', 'list'); items.forEach(it => it.setAttribute('role', 'listitem'));
     const n = items.length, G = Math.PI * (3 - Math.sqrt(5));
     const pts = items.map((_, i) => { const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = G * i; return [Math.cos(th) * r, y, Math.sin(th) * r]; });
-    let ax = -.25, ay = 0, vx = 0, vy = reduced ? 0 : .03, drag = null, hover = false, R = 150, auto = !reduced;
-    const BASE = .0055;
+    let ax = -.25, ay = 0, vx = 0, vy = reduced ? 0 : -.03, drag = null, hover = false, R = 150, auto = !reduced;
+    const BASE = -.0055;
     const ctl = document.createElement('div'); ctl.className = 'fx-cloud-ctl';
     const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'fx-cloud-btn';
     const hint = document.createElement('span'); hint.className = 'fx-cloud-hint';
@@ -251,8 +252,10 @@
       });
     }
     function frame() {
-      if (!drag) { vx *= .95; vy += ((auto ? (hover ? .0015 : BASE) : 0) - vy) * .025; }
-      ax = clamp(ax + vx, -.9, .9); ay += vy; draw();
+      if (!drag) { vx *= .95; vy += ((auto ? (hover ? BASE * .3 : BASE) : 0) - vy) * .025; }
+      ax = clamp(ax + vx, -.9, .9); ay += vy;
+      const r = box.getBoundingClientRect(), sp = clamp((innerHeight - r.top) / (innerHeight + r.height));
+      const keep = ay; ay = keep - sp * Math.PI * 2; draw(); ay = keep;   // le défilement fait faire un tour complet, de droite à gauche
     }
     box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; ctl.classList.add('used'); });
     addEventListener('pointermove', e => { if (!drag) return; vy = (e.clientX - drag.x) * .0045; vx = -(e.clientY - drag.y) * .002; drag = { x: e.clientX, y: e.clientY }; }, { passive: true });
@@ -331,10 +334,15 @@
       const S = stage.getBoundingClientRect(), C = core.getBoundingClientRect();
       svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
       svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#8a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>';
-      const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height * .82;
+      const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height / 2, rad = C.width / 2;
+      const rows = [...new Set(cards.map(c => Math.round(c.getBoundingClientRect().top)))].sort((a, b) => a - b);
       cards.forEach((card, i) => {
-        const R = card.getBoundingClientRect(), tx = R.left - S.left + R.width / 2, ty = R.top - S.top + 6;
-        const d = `M${cx},${cy} C${cx},${(cy + ty) / 2} ${tx},${(cy + ty) / 2 - 10} ${tx},${ty}`;
+        const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, top = Math.round(R.top) === rows[0];
+        const sx = cx + (left ? -1 : 1) * rad * .72, sy = cy + rad * .7;   // départ : le bord du cercle
+        let d;
+        if (top) { const tx = R.left - S.left + R.width / 2, ty = R.top - S.top + 4; d = `M${sx},${sy} C${sx},${sy + 30} ${tx},${ty - 34} ${tx},${ty}`; }
+        else { const ex = left ? R.left - S.left + 3 : R.right - S.left - 3, ey = R.top - S.top + R.height / 2, mx = left ? 6 : S.width - 6;  // par l’extérieur, sans passer derrière les autres cartes
+          d = `M${sx},${sy} C${(sx + mx) / 2},${sy + 10} ${mx},${ey - 60} ${mx},${ey - 18} S${ex},${ey} ${ex},${ey}`; }
         const path = document.createElementNS(NS, 'path'); path.setAttribute('d', d); path.setAttribute('class', 'fx-hub-wire'); svg.append(path);
         const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', '4.5'); dot.setAttribute('class', 'fx-hub-dot');
         const mo = document.createElementNS(NS, 'animateMotion'); mo.setAttribute('dur', (2.4 + i * .35).toFixed(2) + 's'); mo.setAttribute('repeatCount', 'indefinite'); mo.setAttribute('path', d); mo.setAttribute('begin', (i * .45).toFixed(2) + 's');

@@ -164,7 +164,7 @@
         open2 = Math.max(open2, intro * .5, clamp((innerHeight - r.top) / (innerHeight * .55)));
         const o = ease(open2);
         if (o >= .999) hero.classList.add('h2-open');
-        photo.style.clipPath = o >= .999 ? '' : `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 45%)`;
+        photo.style.clipPath = o >= .999 ? 'none' : `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 45%)`; // « none » explicite : '' laissait revenir le cercle fermé du CSS
         vis.style.transform = o >= .999 ? '' : `translate3d(0,${lerp(48, 0, o).toFixed(1)}px,0)`;
         return;
       }
@@ -364,7 +364,7 @@
      Navigateurs Chromium uniquement ; ailleurs, verre dépoli classique. */
   const Lens = (() => {
     const ua = navigator.userAgent;
-    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\./.test(ua) && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced');
+    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\.|Mobile|Android/.test(ua) && !matchMedia('(hover: none)').matches && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced'); // effet de loupe : ordinateur seulement (trop lourd sur téléphone)
     if (!ok) return { on() {}, off() {} };
     const NS = 'http://www.w3.org/2000/svg';
     const defs = document.createElementNS(NS, 'svg');
@@ -626,8 +626,9 @@
       let host = '';
       try { host = new URL(e.origin).hostname; } catch { return; }
       if (!/(^|\.)helloasso\.com$/.test(host)) return;
-      const h = Number(e.data && e.data.height);
-      if (h > (parseFloat(haWidget.style.height) || 0)) { haWidget.height = h + 'px'; haWidget.style.height = h + 'px'; }
+      let d = e.data; if (typeof d === 'string') { try { d = JSON.parse(d); } catch { d = null; } }
+      const h = Number(d && d.height);
+      if (h > 200) { haWidget.height = h + 'px'; haWidget.style.height = (h + 20) + 'px'; }
     });
   }
 })();

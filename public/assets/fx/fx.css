@@ -301,3 +301,22 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 @media (hover:none),(max-width:900px){
   .fx-values.fx-sphere>span{box-shadow:inset 0 0 0 1px rgba(20,47,70,.07),0 2px 6px -2px rgba(20,47,70,.18);background:rgba(255,255,255,.94)}
 }
+
+/* ---------- Halos derrière les titres : deux lumières indépendantes qui parcourent l’espace (plus d’amplitude, plus vives) ---------- */
+.page-intro::before,.page-intro::after,.sc-hero2 .sc-pin::before,.sc-hero2 .sc-pin::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:min(620px,70vw);aspect-ratio:1.25/1;left:50%;top:48%;translate:-50% -50%;border-radius:50%;will-change:transform;rotate:none}
+.page-intro::before,.sc-hero2 .sc-pin::before{background:radial-gradient(closest-side,rgba(6,78,134,.36),rgba(6,78,134,.16) 55%,transparent 100%);
+  animation:fx-halo-a 2.6s ease-in-out infinite alternate}
+.page-intro::after,.sc-hero2 .sc-pin::after{background:radial-gradient(closest-side,rgba(211,91,11,.30),rgba(226,122,60,.14) 55%,transparent 100%);
+  animation:fx-halo-b 3.1s ease-in-out infinite alternate}
+.sc-hero2 .sc-pin::before{left:30%;top:46%;animation:fx-hero-in .9s ease-out both,fx-halo-a 2.6s ease-in-out infinite alternate}
+.sc-hero2 .sc-pin::after{left:62%;top:52%;animation:fx-hero-in .9s ease-out both,fx-halo-b 3.1s ease-in-out infinite alternate}
+@keyframes fx-halo-a{0%{transform:translate3d(-62%,-14%,0) scale(.9)}30%{transform:translate3d(-12%,18%,0) scale(1.15)}65%{transform:translate3d(38%,-20%,0) scale(1)}100%{transform:translate3d(58%,12%,0) scale(1.2)}}
+@keyframes fx-halo-b{0%{transform:translate3d(60%,16%,0) scale(1.15)}35%{transform:translate3d(14%,-22%,0) scale(.92)}70%{transform:translate3d(-34%,14%,0) scale(1.18)}100%{transform:translate3d(-60%,-10%,0) scale(1)}}
+@media(max-width:760px){
+  .page-intro::before,.page-intro::after,.sc-hero2 .sc-pin::before,.sc-hero2 .sc-pin::after{width:88vw;left:50%;translate:-50% -50%}
+  .sc-hero2 .sc-pin::before{top:30%}.sc-hero2 .sc-pin::after{top:42%}
+}
+@media (prefers-reduced-motion:reduce){.page-intro::before,.page-intro::after,.sc-hero2 .sc-pin::before,.sc-hero2 .sc-pin::after{animation:none}}
+html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-reduced .sc-hero2 .sc-pin::before,html.ap-reduced .sc-hero2 .sc-pin::after{animation:none}
+/* les halos peuvent sortir de la zone du titre (seul le bord de l’écran les coupe, via main) */
+.page-intro,.sc-hero2{overflow-x:visible}

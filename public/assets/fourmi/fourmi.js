@@ -107,8 +107,9 @@
   setInterval(() => { if (!document.hidden) wave(false); }, 38000);
   // Elle suit la page : petit saut quand on fait défiler, regard vers le haut ou le bas.
   let lastY = scrollY, hopT = 0, lookT = 0;
+  const touchOnly = matchMedia('(hover: none)').matches;   // sur écran tactile, pas de saut pendant le défilement (défilement plus fluide)
   addEventListener('scroll', () => {
-    if (reduced()) return;
+    if (reduced() || touchOnly) return;
     const dy = scrollY - lastY; lastY = scrollY;
     if (Math.abs(dy) < 2) return;
     root.style.setProperty('--fa-look', dy > 0 ? '1' : '-1');

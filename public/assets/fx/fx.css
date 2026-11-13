@@ -358,3 +358,9 @@ footer .motion-toggle{color:#4b5b6a!important}
   .cards article,.cards article .photo{transition-property:box-shadow,opacity!important}
   .fx-par{transition:none!important}
 }
+
+/* ---------- Éléments figés pendant le défilement : chacun sur sa propre couche graphique ----------
+   Safari (iPhone) ne les fait glisser parfaitement avec le doigt que s’ils ont leur couche ; sinon leur position
+   est recalculée en retard à chaque image et tout ce qui est figé tremble de haut en bas (ex. « Nos actions »). */
+html.ap-scenes [data-scene="hscroll"] .sc-pin,html.ap-scenes .sc-hero2 .sc-pin,html.ap-scenes .fx-dial-pin,.bf-seg{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidden;backface-visibility:hidden}

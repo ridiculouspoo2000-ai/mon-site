@@ -503,7 +503,8 @@
     const rot = Math.sin(drift / 3.7) * 9, sc = 1 + Math.sin(drift / 2.2) * .07;
     orbs.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(4)})`;
   };
-  requestAnimationFrame(t => { lastT = t; orbTick(t); });
+  // Nappe masquée (cas actuel) : la boucle ne tourne pas du tout, rien n’est recalculé à chaque image.
+  if (getComputedStyle(orbs).display !== 'none') requestAnimationFrame(t => { lastT = t; orbTick(t); });
 
   /* ---------- Apparence : Épuré ou Verre liquide ---------- */
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
@@ -615,12 +616,13 @@
   progress.setAttribute('aria-hidden', 'true');
   document.body.appendChild(progress);
   let ticking = false;
+  const touchOnly = matchMedia('(hover: none)').matches; // écran tactile : la lumière de fond reste fixe (aucun calcul pendant le défilement)
   function onScroll() {
     const y = scrollY;
     header?.classList.toggle('is-scrolled', y > 8);
     const range = root.scrollHeight - innerHeight;
     progress.style.transform = `scaleX(${range > 0 ? Math.min(1, y / range) : 0})`;
-    if (!reduced) {
+    if (!reduced && !touchOnly) {
       glow.style.transform = `translate3d(0,${(-y * 0.04).toFixed(1)}px,0)`;
     } else { glow.style.transform = ''; }
     ticking = false;

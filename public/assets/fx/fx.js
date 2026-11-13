@@ -10,7 +10,7 @@
   const easeOut = t => 1 - Math.pow(1 - t, 3);
   const lerp = (a, b, t) => a + (b - a) * t;
   const coarse = matchMedia('(hover: none)').matches;
-  const GRAD = [[43, 91, 215], [93, 83, 211], [155, 86, 166], [217, 102, 47]];
+  const GRAD = [[29, 91, 214], [59, 130, 246], [240, 138, 58], [211, 90, 11]];
   const gradAt = t => { t = clamp(t) * (GRAD.length - 1); const i = Math.min(GRAD.length - 2, Math.floor(t)), f = t - i; return GRAD[i].map((c, k) => Math.round(lerp(c, GRAD[i + 1][k], f))); };
 
   // Une seule boucle d’animation pour tous les effets visibles.
@@ -242,22 +242,30 @@
     paintBtn(); ctl.append(btn, hint); box.after(ctl);
     const size = () => { R = Math.min(box.clientWidth * .38, 190); box.style.height = (R * 2.35) + 'px'; };
     size(); addEventListener('resize', size);
+    // Rendu léger : seules transform et opacité changent (calculées sur la carte graphique) ; l’ordre d’empilement
+    // n’est modifié que lorsqu’il change vraiment, et la position de la page est gardée en mémoire (aucune relecture de mise en page).
+    const zs = items.map(() => -1), ops = items.map(() => '');
     function draw() {
       const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay);
-      items.forEach((it, i) => {
-        let [x, y, z] = pts[i];
-        let x1 = x * cy + z * sy, z1 = -x * sy + z * cy;           // rotation verticale
-        let y2 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;            // rotation horizontale
+      for (let i = 0; i < n; i++) {
+        const it = items[i], [x, y, z] = pts[i];
+        const x1 = x * cy + z * sy, z1 = -x * sy + z * cy;           // rotation verticale
+        const y2 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;            // rotation horizontale
         const s = .62 + (z2 + 1) * .3;
         it.style.transform = `translate3d(${(x1 * R).toFixed(1)}px,${(y2 * R * .82).toFixed(1)}px,0) translate(-50%,-50%) scale(${s.toFixed(3)})`;
-        it.style.opacity = (.32 + (z2 + 1) * .34).toFixed(3);
-        it.style.zIndex = Math.round((z2 + 1) * 50);
-      });
+        const o = (.32 + (z2 + 1) * .34).toFixed(2); if (o !== ops[i]) { ops[i] = o; it.style.opacity = o; }
+        const zi = Math.round((z2 + 1) * 7); if (zi !== zs[i]) { zs[i] = zi; it.style.zIndex = zi; }
+      }
     }
-    function frame() {
-      if (!drag) { vx *= .95; vy += ((auto ? (hover ? BASE * .3 : BASE) : 0) - vy) * .025; }
-      ax = clamp(ax + vx, -.9, .9); ay += vy;
-      const r = box.getBoundingClientRect(), sp = clamp((innerHeight - r.top) / (innerHeight + r.height));
+    let top0 = 0, h0 = 0;
+    const where = () => { const r = box.getBoundingClientRect(); top0 = r.top + scrollY; h0 = r.height; };
+    where(); addEventListener('resize', where); addEventListener('load', where); setTimeout(where, 1500);
+    let last = 0;
+    function frame(now) {
+      const k = last ? Math.min(3, (now - last) / 16.67) : 1; last = now;   // même vitesse quel que soit l’écran (60 ou 120 images/s)
+      if (!drag) { vx *= Math.pow(.95, k); vy += ((auto ? (hover ? BASE * .3 : BASE) : 0) - vy) * .025 * k; }
+      ax = clamp(ax + vx * k, -.9, .9); ay += vy * k;
+      const sp = clamp((innerHeight - (top0 - scrollY)) / (innerHeight + h0));
       const keep = ay; ay = keep - sp * Math.PI * 2; draw(); ay = keep;   // le défilement fait faire un tour complet, de droite à gauche
     }
     box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; ctl.classList.add('used'); });
@@ -336,7 +344,7 @@
       if (innerWidth > 760 || reduced) return;
       const S = stage.getBoundingClientRect(), C = core.getBoundingClientRect();
       svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
-      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#8a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>';
+      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d5bd6"/><stop offset=".55" stop-color="#3b82f6"/><stop offset="1" stop-color="#e2650f"/></linearGradient></defs>';
       const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height / 2, rad = C.width / 2;
       cards.forEach((card, i) => {
         const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, up = R.top + R.height / 2 - S.top < cy;

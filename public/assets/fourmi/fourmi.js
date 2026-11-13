@@ -19,32 +19,22 @@
   /* ---------- La mascotte (dessin original) ---------- */
   let gid = 0;
   function ant(size) {
-    // Tête ronde centrée exactement dans le cadre (50,50) ; seules les antennes en dépassent.
+    // Pictogramme : une fourmi stylisée vue de dessus, centrée dans son cadre, au dégradé de la marque.
     const id = 'fa-ant-' + (++gid);
     const w = document.createElement('span');
     w.className = 'fa-ant';
-    w.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-<defs>
-<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#7fa6ff"/><stop offset=".38" stop-color="#3d6ee6"/><stop offset=".78" stop-color="#2546a8"/><stop offset="1" stop-color="#1b2f6e"/></radialGradient>
-<radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#3a4f8f"/><stop offset=".55" stop-color="#16213f"/><stop offset="1" stop-color="#0a1022"/></radialGradient>
-<radialGradient id="${id}t" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffc08a"/><stop offset=".6" stop-color="#f07a32"/><stop offset="1" stop-color="#c4501b"/></radialGradient>
-<linearGradient id="${id}r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
-</defs>
-<g class="fa-face">
-<g class="fa-antl"><path d="M38 23.5C34 14 29 7.5 22 4" stroke="#1b2f6e" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="21" cy="3.6" r="5" fill="url(#${id}t)"/></g>
-<g class="fa-antr"><path d="M62 23.5C66 14 71 7.5 78 4" stroke="#1b2f6e" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="79" cy="3.6" r="5" fill="url(#${id}t)"/></g>
-<ellipse cx="50" cy="50" rx="33" ry="30.5" fill="url(#${id}h)"/>
-<ellipse cx="50" cy="50" rx="32.2" ry="29.7" fill="none" stroke="url(#${id}r)" stroke-width="1.6"/>
-<ellipse cx="38" cy="30.5" rx="11" ry="5.2" fill="#fff" opacity=".28" transform="rotate(-20 38 30.5)"/>
-<ellipse cx="29.5" cy="61" rx="5.6" ry="3.4" fill="#ff8f86" opacity=".55"/><ellipse cx="70.5" cy="61" rx="5.6" ry="3.4" fill="#ff8f86" opacity=".55"/>
-<g class="fa-eyes">
-<ellipse cx="38.5" cy="48" rx="10.2" ry="11.6" fill="#fff"/><ellipse cx="61.5" cy="48" rx="10.2" ry="11.6" fill="#fff"/>
-<g class="fa-pupils"><circle cx="39.5" cy="49.5" r="6.6" fill="url(#${id}i)"/><circle cx="62.5" cy="49.5" r="6.6" fill="url(#${id}i)"/>
-<circle cx="41.8" cy="46.6" r="2.4" fill="#fff"/><circle cx="64.8" cy="46.6" r="2.4" fill="#fff"/><circle cx="37.6" cy="52.4" r="1.1" fill="#fff" opacity=".8"/><circle cx="60.6" cy="52.4" r="1.1" fill="#fff" opacity=".8"/></g></g>
-<path class="fa-happy" d="M30 50q8.5-9 17 0M53 50q8.5-9 17 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none"/>
-<path class="fa-mouth" d="M45 63.5q5 4.6 10 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+    w.innerHTML = `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true" focusable="false">
+<defs><linearGradient id="${id}g" x1="10" y1="4" x2="38" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#6a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>
+<g class="fa-body" stroke="url(#${id}g)" fill="url(#${id}g)" stroke-linecap="round" stroke-linejoin="round">
+<g class="fa-ant-l" fill="none" stroke-width="1.9"><path d="M22.4 10.2 20.6 6.4 17.4 4.6"/></g>
+<g class="fa-ant-r" fill="none" stroke-width="1.9"><path d="M25.6 10.2 27.4 6.4 30.6 4.6"/></g>
+<g class="fa-legs-a" fill="none" stroke-width="1.9"><path d="M21.2 19.6 16.4 16.4 14.6 12.2"/><path d="M26.8 22.4 32.6 23 35.6 25.8"/><path d="M21.2 25.2 16.6 29.4 15.4 34.2"/></g>
+<g class="fa-legs-b" fill="none" stroke-width="1.9"><path d="M26.8 19.6 31.6 16.4 33.4 12.2"/><path d="M21.2 22.4 15.4 23 12.4 25.8"/><path d="M26.8 25.2 31.4 29.4 32.6 34.2"/></g>
+<circle cx="24" cy="12.6" r="3.7" stroke="none"/>
+<ellipse cx="24" cy="21.6" rx="2.9" ry="4.1" stroke="none"/>
+<ellipse cx="24" cy="33.4" rx="5.4" ry="7.6" stroke="none"/>
 </g>
-<g class="fa-loupe"><circle cx="82" cy="80" r="11" fill="#fff"/><circle cx="80.5" cy="78.5" r="5.2" fill="none" stroke="#2546a8" stroke-width="2.4"/><path d="M84.4 82.4l3.6 3.6" stroke="#2546a8" stroke-width="2.6" stroke-linecap="round"/></g>
+<ellipse class="fa-shine" cx="22.2" cy="30.6" rx="1.6" ry="3.4" fill="#fff" opacity=".35"/>
 </svg>`;
     return w;
   }
@@ -52,16 +42,16 @@
   /* ---------- Interface ---------- */
   const root = el('div', 'fa-fourmi'); root.setAttribute('data-state', 'idle');
   const launcher = el('button', 'fa-launch'); launcher.type = 'button';
-  launcher.setAttribute('aria-label', 'Poser une question à la fourmi'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
-  const big = ant(64); launcher.append(big);
+  launcher.setAttribute('aria-label', 'Ouvrir l’assistant de recherche'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
+  const big = ant(38); launcher.append(big);
   const dot = el('span', 'fa-dot'); dot.setAttribute('aria-hidden', 'true'); launcher.append(dot);
   const bubble = el('div', 'fa-bubble'); bubble.setAttribute('role', 'status');
   const bubbleTxt = el('span'); const bubbleX = el('button', 'fa-bubble-x', '×'); bubbleX.type = 'button'; bubbleX.setAttribute('aria-label', 'Fermer');
   bubble.append(bubbleTxt, bubbleX);
 
-  const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'La fourmi, assistant de recherche'); panel.hidden = true;
+  const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Assistant de recherche Fourmi’Action'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(40); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'La Fourmi'), el('small', '', 'Je cherche dans les pages et les documents du site'));
+  const headAnt = ant(26); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'Assistant Fourmi’Action'), el('small', '', 'Réponses tirées des pages et des documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';
@@ -90,20 +80,16 @@
     if (e.pointerType !== 'mouse' || reduced()) return; px = e.clientX; py = e.clientY;
     if (raf) return; raf = requestAnimationFrame(() => { raf = 0; look(px, py); });
   }, { passive: true });
-  // Au doigt : elle regarde l’endroit touché.
-  addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || reduced()) return; look(e.clientX, e.clientY); clearTimeout(look.t); look.t = setTimeout(() => ants().forEach(a => { const p = a.querySelector('.fa-pupils'); if (p) p.style.transform = ''; }), 1600); }, { passive: true });
+  // Le pictogramme s’oriente légèrement vers le pointeur (souris) ou l’endroit touché.
+  addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || reduced()) return; look(e.clientX, e.clientY); clearTimeout(look.t); look.t = setTimeout(() => ants().forEach(a => { const g = a.querySelector('svg'); if (g) g.style.transform = ''; }), 1600); }, { passive: true });
   function look(x, y) {
     ants().forEach(a => {
       const r = a.getBoundingClientRect(); if (!r.width) return;
-      const cx = r.left + r.width / 2, cy = r.top + r.height * .45;
-      const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
-      const p = a.querySelector('.fa-pupils'); if (p) p.style.transform = `translate(${(dx / d * 3.4 * k).toFixed(2)}px,${(dy / d * 3.6 * k).toFixed(2)}px)`;
+      const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+      const ang = Math.atan2(dx, -dy) * 180 / Math.PI, k = Math.min(1, Math.hypot(dx, dy) / 300);
+      const g = a.querySelector('svg'); if (g) g.style.transform = `rotate(${(Math.max(-14, Math.min(14, ang)) * k).toFixed(2)}deg)`;
     });
   }
-  // Clignements.
-  (function blink() {
-    setTimeout(() => { if (!reduced()) { root.classList.add('fa-blink'); setTimeout(() => root.classList.remove('fa-blink'), 160); } blink(); }, 2600 + Math.random() * 3800);
-  })();
   // Elle suit la page : petit saut quand on fait défiler, regard vers le haut ou le bas.
   let lastY = scrollY, hopT = 0, lookT = 0;
   addEventListener('scroll', () => {
@@ -117,10 +103,10 @@
 
   /* ---------- Bulle d’accueil, selon la page ---------- */
   const TEASE = {
-    index: 'Coucou ! Une question sur l’association ou le BAFA ? Je cherche pour vous.',
-    bafa: 'Dates, prix, paiement en plusieurs fois… demandez-moi !',
+    index: 'Une question sur l’association ou le BAFA ? Je cherche la réponse dans nos documents.',
+    bafa: 'Dates, tarifs, paiement en plusieurs fois : posez votre question.',
     'formation-bafa-orleans': 'Une question sur le BAFA à Orléans ? Je connais tous les documents.',
-    'collectif-jeunes': 'Tu as entre 14 et 17 ans ? Pose-moi tes questions sur le collectif !',
+    'collectif-jeunes': 'Une question sur le Collectif jeunes (14-17 ans) ? Je cherche pour vous.',
     contact: 'Je peux aussi transmettre votre message à l’équipe.',
     'projet-educatif': 'Je peux retrouver un passage du projet éducatif pour vous.'
   };
@@ -283,7 +269,7 @@
   };
   function greet() {
     const d = el('div');
-    d.append(el('p', '', 'Bonjour ! Je suis la fourmi de Fourmi’Action. Posez-moi une question : je cherche la réponse dans les pages et les documents du site, et je vous montre où c’est écrit.'));
+    d.append(el('p', '', 'Bonjour. Posez votre question : je cherche la réponse dans les pages et les documents de Fourmi’Action, et je vous indique où elle est écrite.'));
     d.append(chips(SUGG[page] || SUGG.index));
     say('fa-f', d);
   }
@@ -313,17 +299,17 @@
     const [db] = await Promise.all([load(), new Promise(r => setTimeout(r, wait))]);
     setState('idle');
     const n = norm(q), d = el('div');
-    if (!db) { d.append(el('p', '', 'Oups, je n’arrive pas à ouvrir mes documents pour le moment. Vous pouvez écrire à l’équipe :')); d.append(row([link('Écrire à l’équipe', '#ecrire', 1)])); return say('fa-f', d); }
+    if (!db) { d.append(el('p', '', 'Je n’arrive pas à ouvrir les documents pour le moment. Vous pouvez écrire à l’équipe :')); d.append(row([link('Écrire à l’équipe', '#ecrire', 1)])); return say('fa-f', d); }
     let soft = false;
     if (DANGER.test(n)) {
       if (ME.test(n) || !VSSQ.test(n)) { say('fa-f fa-safe', safety()); return; }
       soft = true;
     }
-    if (WHO.test(n)) { d.append(el('p', '', 'Je suis la petite fourmi du site ! Je ne suis pas une intelligence artificielle qui invente : je cherche dans les pages et les documents de Fourmi’Action et je vous montre ce qui y est écrit, avec le lien. Et si je ne trouve pas, je transmets votre question à l’équipe.')); return say('fa-f', d); }
+    if (WHO.test(n)) { d.append(el('p', '', 'Je suis l’assistant de recherche du site. Je n’invente rien : je cherche dans les pages et les documents de Fourmi’Action et je vous montre ce qui y est écrit, avec le lien. Si je ne trouve pas, je peux transmettre votre question à l’équipe.')); return say('fa-f', d); }
     const it = intentOf(q); lastIntent = it;
     const toks0 = toks(q);
-    if (!it && HELLO.test(n) && toks0.length <= 2) { if (!quiet) happy(); d.append(el('p', '', 'Bonjour ! Que puis-je chercher pour vous ?')); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
-    if (!it && THANKS.test(n) && toks0.length <= 3) { if (!quiet) happy(); d.append(el('p', '', 'Avec plaisir ! Je reste là, en bas à droite, si vous avez une autre question.')); return say('fa-f', d); }
+    if (!it && HELLO.test(n) && toks0.length <= 2) { if (!quiet) happy(); d.append(el('p', '', 'Bonjour. Que puis-je chercher pour vous ?')); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
+    if (!it && THANKS.test(n) && toks0.length <= 3) { if (!quiet) happy(); d.append(el('p', '', 'Avec plaisir. Je reste disponible en bas à droite pour toute autre question.')); return say('fa-f', d); }
     const found = search(q, it ? 2 : 3, it);
     if (it) {
       d.append(el('p', '', it.a));
@@ -392,7 +378,7 @@
       setState('idle');
       if (r && r.ok) {
         f.replaceWith(el('p', 'fa-k', 'Message envoyé ✓'));
-        const ok = el('div'); ok.append(el('p', '', 'C’est envoyé ! L’équipe vous répondra à ' + mail.value.trim() + '. Pensez à regarder vos courriers indésirables.'));
+        const ok = el('div'); ok.append(el('p', '', 'Message envoyé. L’équipe vous répondra à ' + mail.value.trim() + '. Pensez à regarder vos courriers indésirables.'));
         say('fa-f', ok); happy(); return;
       }
       go.disabled = false; go.textContent = 'Envoyer à l’équipe';

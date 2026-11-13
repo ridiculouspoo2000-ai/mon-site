@@ -70,11 +70,11 @@ html.theme-verre .button:not(.secondary),html.theme-verre header nav>a[href="baf
   background:rgba(19,40,59,.92)!important;color:#fff!important;border:0!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 22px -12px rgba(19,40,59,.7)!important;transition:background .35s var(--ease),transform .4s var(--ease),box-shadow .4s var(--ease)}
 html.theme-verre .button:not(.secondary):hover,html.theme-verre header nav>a[href="bafa.html"]:hover{background:#13283B!important;transform:translateY(-1px)}
-html.theme-verre .button.secondary,html.theme-verre .nav-join{
+html.theme-verre .button.secondary{
   background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.34))!important;color:var(--navy)!important;border:0!important;
   -webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 0 0 1px rgba(19,40,59,.10),0 8px 20px -14px rgba(19,40,59,.45)!important}
-html.theme-verre .button.secondary:hover,html.theme-verre .nav-join:hover{background:rgba(255,255,255,.85)!important;transform:translateY(-1px)}
+html.theme-verre .button.secondary:hover{background:rgba(255,255,255,.85)!important;transform:translateY(-1px)}
 html.theme-verre .ct-seg button[aria-pressed=true]{background:rgba(19,40,59,.92)!important;color:#fff!important}
 html.theme-verre .ap-style button[aria-pressed=true]{background:rgba(19,40,59,.92);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
 html.theme-verre .menu-toggle{background:linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.55));box-shadow:var(--lg-spec);border:0}
@@ -127,3 +127,7 @@ html.theme-verre .lg-lens{overflow:visible}
 html.theme-verre .ap-style{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.18));box-shadow:var(--lg-spec),0 12px 30px -12px rgba(var(--lg-navy),.45)}
 html.theme-verre .nav-fly{background-clip:padding-box}
 html.theme-verre header nav a,html.theme-verre .nav-big small{text-shadow:0 0 12px rgba(255,255,255,.9)}
+
+/* Adhérer : l’orange du logo (« ACTION ») */
+html.theme-verre header nav a.nav-join{background:#D35A0B!important;color:#fff!important;border:0!important;text-shadow:none!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px -10px rgba(211,90,11,.75)!important}
+html.theme-verre header nav a.nav-join:hover{background:#B84C08!important;transform:translateY(-1px)}

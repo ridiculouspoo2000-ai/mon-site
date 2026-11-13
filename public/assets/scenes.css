@@ -126,8 +126,8 @@ html:not(.ap-scenes) .fx-rail{display:none}
 .fx-track{display:flex;width:max-content;gap:10px;margin:0 0 10px;will-change:transform}
 .fx-row{display:flex;gap:10px}
 .fx-marquee span{white-space:nowrap}
-header nav a.nav-join{color:#b8501a;box-shadow:inset 0 0 0 1px rgba(217,102,31,.45);margin-left:4px}
-header nav a.nav-join:hover{background:#d9661f;color:#fff;box-shadow:none}
+header nav a.nav-join{color:#fff!important;background:#D35A0B!important;box-shadow:0 6px 16px -8px rgba(211,90,11,.7)!important;margin-left:4px;font-weight:600;text-shadow:none!important}
+header nav a.nav-join:hover{background:#B84C08!important;color:#fff!important;box-shadow:0 8px 20px -8px rgba(211,90,11,.8)!important;transform:translateY(-1px)}
 
 /* ---------- Signature « anneau » : les pictogrammes arrivent comme l’anneau du Collectif ----------
    rotation douce, mise à l’échelle et halo qui s’ouvre puis s’éteint ; même courbe (--ease) et même durée (1,4 s). */

@@ -6,18 +6,18 @@
 @font-face{font-family:"FA Display";src:url(fonts/InterDisplay-ExtraBold.woff) format("woff");font-weight:800 900;font-style:normal;font-display:swap}
 
 :root{
-  --fa-blue:#205391;--fa-blue-hi:#1d5bd6;--fa-violet:#3b82f6;--fa-rose:#f08a3a;--fa-orange:#e2650f;
+  --fa-blue:#064e86;--fa-blue-hi:#064e86;--fa-violet:#0b63a8;--fa-rose:#e2722a;--fa-orange:#d35b0b;
   --navy:#142f46;--ink:#1d2a36;--muted:#5b6876;--soft:#86919c;--line:#e3e7ec;
   --bg:#f5f5f7;--card:#fff;--dark:#0b0d12;--dark-2:#16181d;
-  --grad:linear-gradient(100deg,#1d5bd6 0%,#3b82f6 42%,#f08a3a 60%,#d35a0b 100%);
-  --grad-soft:linear-gradient(135deg,#1d5bd6 0%,#3b82f6 40%,#f08a3a 64%,#e2650f 100%);
+  --grad:linear-gradient(100deg,#064e86 0%,#0b63a8 42%,#e2722a 58%,#d35b0b 100%);
+  --grad-soft:linear-gradient(135deg,#064e86 0%,#0b63a8 42%,#e2722a 58%,#d35b0b 100%);
   --r-xl:32px;--r-l:26px;--r-m:18px;
   --sh:0 1px 2px rgba(20,47,70,.04),0 10px 30px rgba(20,47,70,.06);
   --sh-hi:0 2px 6px rgba(20,47,70,.05),0 24px 60px rgba(20,47,70,.12);
   --ease:cubic-bezier(.16,1,.3,1);
   --font:"FA Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   --display:"FA Display","FA Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  --orange:#e2650f;--blue:#205391;--pale:#eef3f9
+  --orange:#d35b0b;--blue:#064e86;--pale:#eef3f9
 }
 
 /* ---------- Base ---------- */
@@ -38,15 +38,15 @@ a{color:var(--fa-blue)}a:hover{color:var(--fa-blue-hi)}
 .wrap{width:min(1120px,calc(100% - 64px))}
 .section{padding-block:110px}
 
-.cj-dark em,.nw-hero em,.bafa-banner em,.ap-dark-tile em,footer em{background-image:linear-gradient(100deg,#7fb0ff 0%,#9cc4ff 40%,#ffb07a 62%,#ff8f45 100%)}
+.cj-dark em,.nw-hero em,.bafa-banner em,.ap-dark-tile em,footer em{background-image:linear-gradient(100deg,#6fa8dc 0%,#8bbbe6 42%,#f4a46c 58%,#ee8a45 100%)}
 .nb{white-space:nowrap}
 .button svg{width:18px;height:18px;flex:none}
 .button{white-space:nowrap}
 /* Halos fixes, comme dans la vidéo : bleu en haut à gauche, orange en bas à droite. */
 .ap-glow{position:fixed;inset:-10vh -10vw;z-index:-1;pointer-events:none;contain:strict;will-change:transform}
 .ap-glow::before,.ap-glow::after{content:"";position:absolute;border-radius:50%;filter:blur(10px)}
-.ap-glow::before{width:70vmax;height:70vmax;left:-22vmax;top:-26vmax;background:radial-gradient(closest-side,rgba(29,91,214,.20),rgba(29,91,214,.07) 55%,transparent)}
-.ap-glow::after{width:64vmax;height:64vmax;right:-24vmax;bottom:-26vmax;background:radial-gradient(closest-side,rgba(240,138,58,.18),rgba(240,138,58,.06) 55%,transparent)}
+.ap-glow::before{width:70vmax;height:70vmax;left:-22vmax;top:-26vmax;background:radial-gradient(closest-side,rgba(6,78,134,.20),rgba(6,78,134,.07) 55%,transparent)}
+.ap-glow::after{width:64vmax;height:64vmax;right:-24vmax;bottom:-26vmax;background:radial-gradient(closest-side,rgba(226,114,42,.18),rgba(226,114,42,.06) 55%,transparent)}
 
 /* ---------- En-tête ---------- */
 header{background:rgba(245,245,247,.72);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(20,47,70,.07);box-shadow:none!important}
@@ -124,7 +124,7 @@ header nav>a[href="bafa.html"]:hover{background:#1a467c;color:#fff}
 .spirit li{border-color:var(--line);padding:16px 0 16px 40px}
 .spirit li:before{content:"";width:18px;height:18px;border-radius:50%;background:var(--grad);top:22px;box-shadow:inset 0 0 0 5px rgba(255,255,255,.75)}
 .bafa-banner,.ap-dark-tile{background:var(--dark);border-radius:var(--r-xl);padding:64px;position:relative;overflow:hidden;isolation:isolate}
-.bafa-banner:before,.ap-dark-tile:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 90% at 0% 0%,rgba(29,91,214,.45),transparent 60%),radial-gradient(55% 90% at 100% 100%,rgba(226,101,15,.38),transparent 60%)}
+.bafa-banner:before,.ap-dark-tile:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 90% at 0% 0%,rgba(6,78,134,.45),transparent 60%),radial-gradient(55% 90% at 100% 100%,rgba(211,91,11,.38),transparent 60%)}
 .bafa-banner:after{display:none}
 .bafa-banner h2{color:#fff}.bafa-banner p{color:rgba(255,255,255,.72)}
 .bafa-banner .eyebrow{color:#ffb27a}
@@ -177,7 +177,7 @@ details{border-color:var(--line)}
 .contact-info{background:var(--card);border:0;border-radius:var(--r-xl);box-shadow:var(--sh)}
 .contact-grid form{background:var(--card);border:0;border-radius:var(--r-xl);box-shadow:var(--sh)}
 input,select,textarea{border:1px solid #d2d8df;border-radius:14px;background:#fbfbfd;transition:border-color .2s,box-shadow .2s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--fa-blue-hi);box-shadow:0 0 0 4px rgba(29,91,214,.15)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--fa-blue-hi);box-shadow:0 0 0 4px rgba(6,78,134,.15)}
 .legal-notice{background:var(--card);border-left:0;border-radius:var(--r-l);box-shadow:var(--sh)}
 .legal-notice strong{color:var(--navy)}
 .legal-facts dt{color:var(--fa-blue)}
@@ -187,7 +187,7 @@ hr{border-top-color:var(--line)}
 
 /* ---------- Pied de page ---------- */
 footer{background:var(--dark);color:rgba(255,255,255,.7);position:relative;overflow:hidden;isolation:isolate;padding-top:80px}
-footer:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(45% 70% at 0% 0%,rgba(29,91,214,.28),transparent 65%),radial-gradient(40% 70% at 100% 100%,rgba(226,101,15,.22),transparent 65%)}
+footer:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(45% 70% at 0% 0%,rgba(6,78,134,.28),transparent 65%),radial-gradient(40% 70% at 100% 100%,rgba(211,91,11,.22),transparent 65%)}
 footer p{color:rgba(255,255,255,.6)}
 footer a{color:rgba(255,255,255,.88);text-decoration:none}
 footer a:hover{color:#fff}
@@ -287,7 +287,7 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 .fo-n span{font-size:.42em;letter-spacing:-.01em;margin-left:5px}
 .fo-fig small{display:block;font-size:14.5px;line-height:1.45;color:var(--muted)}
 .fo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
-.fo-ico{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:var(--grad);color:#fff;box-shadow:0 12px 24px -12px rgba(59,130,246,.75)}
+.fo-ico{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:var(--grad);color:#fff;box-shadow:0 12px 24px -12px rgba(11,99,168,.75)}
 .fo-grid article:nth-child(3n+2) .fo-ico{background:var(--grad-soft)}
 .fo-ico .fo-ic{width:24px;height:24px}
 .fo-grid h3{font-size:21px;margin:18px 0 6px}
@@ -297,7 +297,7 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 .fo-promo{display:flex;align-items:center;gap:22px;width:min(1184px,calc(100% - 56px));margin:0 auto 26px;padding:18px 22px 18px 18px;border-radius:var(--r-xl);
   background:var(--card);box-shadow:var(--sh);color:var(--navy);text-decoration:none;transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
 .fo-promo:hover{transform:translateY(-3px);box-shadow:var(--sh-hi)}
-.fo-promo-d{display:flex;flex-direction:column;justify-content:center;flex:none;min-width:116px;padding:14px 18px;border-radius:22px;background:var(--grad);color:#fff;box-shadow:0 14px 30px -14px rgba(59,130,246,.7)}
+.fo-promo-d{display:flex;flex-direction:column;justify-content:center;flex:none;min-width:116px;padding:14px 18px;border-radius:22px;background:var(--grad);color:#fff;box-shadow:0 14px 30px -14px rgba(11,99,168,.7)}
 .fo-promo-d small{font-size:12px;font-weight:700;letter-spacing:.09em;opacity:.9}
 .fo-promo-d b{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.03em}
 .fo-promo-t{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -309,7 +309,7 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 .fo-promo:hover .fo-promo-go{transform:translateX(4px);background:var(--navy);color:#fff}
 /* menu BAFA : carte « prochaine session » */
 header nav .nav-fly a.nav-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:20px 22px!important;border-radius:24px!important;
-  background:var(--grad-soft);color:#fff;box-shadow:0 18px 40px -18px rgba(59,130,246,.75);text-shadow:none;transition:transform .5s var(--ease),filter .5s}
+  background:var(--grad-soft);color:#fff;box-shadow:0 18px 40px -18px rgba(11,99,168,.75);text-shadow:none;transition:transform .5s var(--ease),filter .5s}
 header nav .nav-fly a.nav-card:hover{background:var(--grad-soft);transform:translateY(-2px);filter:saturate(1.15) brightness(1.04)}
 .nav-card-d{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.92}
 .nav-card b{font-family:var(--display);font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1.2}

@@ -327,13 +327,100 @@
     benevol: ['Chaque coup de main compte : Fourmi’Action défend une vie associative participative, avec une vraie place pour chacun dans les décisions.', 'Écrire à l’équipe', '#ecrire']
   };
   VIEWS['education populaire'] = VIEWS.education; VIEWS.jeunes = VIEWS.jeune; VIEWS.ados = VIEWS.jeune; VIEWS.animateur = VIEWS.animation; VIEWS.colo = VIEWS.animation;
-  const SMALL = [
-    [/\b(ca va|comment vas tu|comment allez vous|tu vas bien|vous allez bien)\b/, 'Très bien, merci ! Et vous ? Je suis là pour vous aider à y voir clair sur le BAFA, l’association ou nos projets.'],
-    [/\b(blague|drole|rigole|humour)\b/, 'Une fourmi peut soulever bien plus que son propre poids. Une équipe d’animation soudée, elle, soulève des montagnes : c’est un peu notre devise.'],
-    [/\b(au revoir|bonne (journee|soiree)|a bientot|bye|salut a\b)/, 'Au revoir, et à bientôt ! Je reste ici, en bas à droite, si une question vous revient.'],
-    [/\b(tu es (nulle?|bete)|t es nulle?|inutile)\b/, 'Je fais de mon mieux avec ce qui est écrit dans nos documents ! Reformulez votre question, ou écrivez directement à l’équipe : elle vous répondra.'],
-    [/\b(bravo|genial|trop bien|merci beaucoup|tu es (top|geniale))\b/, 'Merci, ça me fait plaisir ! N’hésitez pas si vous avez une autre question.']
+  // ——— Petite conversation (mode local) : réponses simples, chaleureuses, hors documents ———
+  const pick = a => { if (a.length < 2) return a[0]; let x; do x = a[Math.floor(Math.random() * a.length)]; while (x === pick.last); return (pick.last = x); };
+  let awaitMood = false;
+  const GREET = /\b(bonjour|bonsoir|salut|coucou|hello|hi|hey|yo|wesh|slt|cc|bjr|kikou|hola)\b/;
+  const HOW = /\b(ca va|ca va bien|comment vas tu|comment tu vas|comment allez vous|comment vous allez|tu vas bien|vous allez bien|la forme|en forme|ca roule|bien ou quoi|tu vas comment|vous allez comment)\b/;
+  const AVIS = /\b(qu est ce que tu penses|que penses tu|tu en penses|t en penses|tu penses quoi|tu penses (de|du|des)|ton avis|ton opinion|votre avis|vous en pensez|vous pensez quoi|que pensez vous|tu aimes|t aimes|tu kiffes|tu adores|tu trouves (ca|cela))\b/;
+  const GOOD = /\b(je vais (tres )?bien|ca va (tres )?bien|bien merci|tres bien|super bien|ca roule|nickel|impec\w*|tranquille|pas mal|au top|la forme|en forme|ca va et (toi|vous))\b/;
+  const BAD = /\b(pas (tres |trop )?bien|bof|pas terrible|pas top|fatigue\w*|creve\w*|triste|stresse\w*|deprime\w*|je vais mal|ca va mal|ca va pas)\b/;
+  const VIEWKEYS = [
+    ['animation', /\b(animation|animer|anim|animateur|animatrice|animateurs|colo|colos|colonie|centre de loisirs|accueil collectif)\b/],
+    ['bafa', /\b(bafa|formation|formations|stage|stages)\b/],
+    ['education', /\b(education|educ pop|pedagogie|pedagogique)\b/],
+    ['jeune', /\b(jeune|jeunes|ado|ados|adolescents?|collectif|jeunesse)\b/],
+    ['cooperation', /\b(cooperation|entraide|equipe|solidarite|fourmis?|fourmiliere)\b/],
+    ['benevol', /\b(benevol\w*|association|asso|adherer|adhesion)\b/],
+    ['site', /\b(site|page|pages|design|couleurs?)\b/],
+    ['self', /\b(toi|mica)\b/]
   ];
+  const AVIS_INTRO = {
+    animation: ['L’animation ? Si je devais donner mon avis de petite fourmi : j’adore ! Faire grandir des enfants en jouant, en inventant, en vivant des aventures ensemble, je trouve ça précieux.', 'Franchement, c’est mon sujet préféré. Animer, c’est un mélange de créativité, d’écoute et d’énergie : un très beau rôle.'],
+    bafa: ['Le BAFA ? Je trouve que c’est une super aventure : on y apprend autant sur les enfants que sur soi-même.', 'Mon avis de fourmi : le BAFA, c’est un excellent premier pas pour qui aime transmettre et travailler en équipe.'],
+    education: ['L’éducation populaire, c’est un peu notre ADN, et j’avoue que ça me plaît beaucoup : apprendre ensemble, à tout âge, et en agissant.'],
+    jeune: ['Les jeunes ? Je les trouve formidables quand on leur fait confiance : ils ont plein d’idées !'],
+    cooperation: ['Forcément, je suis une fourmi : pour moi, rien ne vaut le travail d’équipe !'],
+    benevol: ['La vie associative, je trouve ça chaleureux : chacun apporte sa pierre (ou sa miette) à l’édifice.'],
+    site: ['Je trouve le site très chouette… mais je ne suis pas très objective : j’y habite !'],
+    self: ['Moi ? Je fais de mon mieux ! Je suis une petite assistante, mais toujours de bonne humeur.']
+  };
+  const CHAT = [
+    [/\b(quel age|ton age|tu as quel age|t as quel age)\b/, ['Je suis toute jeune : je suis née avec cette version du site ! Mais j’ai déjà lu tous nos documents.']],
+    [/\b(qui t a (cree|creee|fait|faite|programme|programmee|invente|inventee)|qui t a con\w+|ton createur)\b/, ['J’ai été créée pour Fourmi’Action, pour aider les visiteurs du site à trouver leurs réponses plus vite.']],
+    [/\b(es tu|t es|tu es) (une? )?(humaine?|vraie?|reelle?|une personne|quelqu un)\b/, ['__HUMAN__']],
+    [/\b(ou (habites|vis) tu|tu (habites|vis) ou|t habites ou|d ou viens tu|tu viens d ou)\b/, ['J’habite en bas à droite de votre écran : c’est petit, mais très bien situé !']],
+    [/\b(couleur preferee|ta couleur)\b/, ['L’orange, comme le « Action » de notre logo ! Et un peu de bleu marine pour faire sérieux.']],
+    [/\b(tu manges|ton plat|plat prefere|tu as faim|t as faim|j ai faim)\b/, ['Comme toutes les fourmis, j’ai un faible pour le sucre… Mais je me contente de dévorer des documents !']],
+    [/\b(tu aimes quoi|t aimes quoi|qu est ce que tu aimes|ce que tu aimes|ton truc prefere|tu preferes quoi|ta passion)\b/, ['Ce que je préfère ? Quand quelqu’un trouve enfin la réponse qu’il cherchait. Et les grands jeux en plein air, évidemment.']],
+    [/\b(tu dors|tu es fatiguee|t es fatiguee|tu te reposes|tu fais quoi|que fais tu|tu fais quoi de beau)\b/, ['Je ne dors jamais : je reste en bas à droite, prête à chercher pour vous, de jour comme de nuit.', 'Là ? Je relis nos documents en attendant vos questions !']],
+    [/\b(meteo|il fait beau|il pleut|le temps qu il fait|quel temps)\b/, ['Je ne vois pas la fenêtre d’ici, mais une chose est sûre : il fait toujours beau dans une bonne équipe d’animation !']],
+    [/\b(je m ennuie|j m ennuie|ennui|je m embete|on s ennuie)\b/, ['Un animateur dirait : « On invente un jeu ! » En attendant, je peux vous faire découvrir le BAFA ou le Collectif jeunes.']],
+    [/\b(blague|drole|rigole|humour|fais moi rire)\b/, ['Quel est le comble pour un animateur ? Perdre le fil… de son jeu de piste !', 'Une fourmi peut soulever bien plus que son propre poids. Une équipe d’animation soudée, elle, soulève des montagnes.', 'Que fait une fourmi en colo le soir ? Une veillée fourmidable, bien sûr !']],
+    [/\b(je t aime|tu es (mignonne|belle|jolie|trop chou|adorable)|t es (mignonne|belle|jolie|trop chou|adorable)|trop mignonne)\b/, ['Oh, merci ! Vous allez me faire rougir… déjà que je suis orange !']],
+    [/\b(bravo|genial|trop bien|merci beaucoup|tu es (top|geniale|forte|intelligente)|t es (top|geniale|forte|intelligente)|bien joue|excellent)\b/, ['Merci, ça me fait très plaisir ! N’hésitez pas si vous avez une autre question.']],
+    [/\b(tu es (nulle?|bete|idiote)|t es (nulle?|bete|idiote)|inutile|tu sers a rien|nulle)\b/, ['Je fais de mon mieux avec ce qui est écrit dans nos documents ! Reformulez votre question, ou écrivez directement à l’équipe : elle vous répondra.']],
+    [/\b(tu sers a quoi|que sais tu faire|tu sais faire quoi|tu peux faire quoi|que peux tu faire|aide moi|tu peux m aider|help)\b/, ['__CAN__']],
+    [/\b(test|tu marches|tu fonctionnes|tu es la|t es la|il y a quelqu un|y a quelqu un|allo)\b/, ['Oui, je suis bien là, je vous écoute !']],
+    [/\b(lol|mdr|ptdr|haha\w*|hihi\w*|xd)\b/, ['Ravie de vous faire sourire !']],
+    [/\b(au revoir|bonne (journee|soiree|nuit)|a bientot|a plus|a\+|bye|ciao|tchao|salut a toi)\b/, ['Au revoir, et à bientôt ! Je reste ici, en bas à droite, si une question vous revient.', 'Bonne journée ! Revenez quand vous voulez.']],
+    [/\b(merci|thanks|super|top|parfait|cool|d accord|dac|ok|okay|ca marche|oui|ouais|non|nan|ah|oh|bon)\b/, ['__ACK__']],
+    [/\b(quoi de neuf|du nouveau|les nouveautes|quoi de nouveau)\b/, ['__NEWS__']],
+    [/\b(et toi|et vous)\b/, ['Moi ? Toujours en forme, et prête à chercher pour vous !']]
+  ];
+  const FILLER = new Set('raconte racontes raconter dis dit dire donne donner encore autre une un moi petit petite et toi vous mica alors ben bah euh hum heu hm oui non ok okay dac nan ouais ah oh bon re cool genial super top parfait thanks beaucoup merci petite fourmi madame stp svp s il plait vraiment trop tres'.split(' '));
+  function chat(n, it) {
+    const parts = []; let link1 = null, chipsOn = false;
+    const g = GREET.test(n), h = HOW.test(n);
+    // Opinion : toujours une réponse « en personnage », sujet repéré dans la phrase.
+    if (AVIS.test(n) && !/\b(tu aimes quoi|t aimes quoi)\b/.test(n)) {
+      const k = (VIEWKEYS.find(([, rx]) => rx.test(n)) || [])[0];
+      if (g) parts.push('Bonjour !');
+      if (k && AVIS_INTRO[k]) {
+        parts.push(pick(AVIS_INTRO[k]));
+        if (VIEWS[k]) { parts.push('Et c’est aussi la conviction de l’association. ' + VIEWS[k][0]); link1 = [VIEWS[k][1], VIEWS[k][2]]; }
+      } else if (!k && n.replace(AVIS, ' ').trim().split(' ').filter(w => w && !STOP.has(w) && !FILLER.has(w)).length === 0) {
+        parts.push(pick(AVIS_INTRO.animation)); parts.push(VIEWS.animation[0]); link1 = [VIEWS.animation[1], VIEWS.animation[2]];
+      } else {
+        parts.push('Je n’ai pas d’avis très tranché là-dessus : je suis surtout incollable sur l’animation, le BAFA, la jeunesse et la vie de l’association. Posez-moi une question sur ces sujets, j’ai plein de choses à raconter !'); chipsOn = true;
+      }
+      return { parts, link1, chipsOn };
+    }
+    // Ce qui reste une fois les formules de politesse retirées : s’il n’y a plus rien, c’est de la conversation.
+    let rest = n.replace(GREET, ' ').replace(HOW, ' ').replace(GOOD, ' ').replace(BAD, ' ');
+    const hits = CHAT.filter(([rx]) => rx.test(n));
+    hits.forEach(([rx]) => { rest = rest.replace(new RegExp(rx.source, 'g'), ' '); });
+    const content = rest.trim().split(' ').filter(w => w && !STOP.has(w) && !FILLER.has(w));
+    const mood = GOOD.test(n) ? 'good' : BAD.test(n) && (awaitMood || /\b(je suis|je me sens|moi)\b/.test(n)) ? 'bad' : (awaitMood && !h && /\b(bien|super|top|ok|oui|cool|nickel)\b/.test(n)) ? 'good' : '';
+    if (content.length) { awaitMood = false; return g ? { greetOnly: true } : null; }
+    awaitMood = false;
+    if (g) parts.push(pick(h ? ['Bonjour !', 'Coucou !', 'Hello !'] : ['Bonjour ! Ravie de vous voir passer.', 'Coucou ! Bienvenue chez Fourmi’Action.', 'Hello ! Contente de vous voir.']));
+    if (mood === 'good') parts.push(pick(['Tant mieux, ça fait plaisir à entendre !', 'Super ! Une bonne humeur, ça se partage.']));
+    if (mood === 'bad' && /\b(fatigue\w*|creve\w*)\b/.test(n) && !/\b(triste|deprime\w*|mal)\b/.test(n)) parts.push('Oh, courage ! Une petite pause et un grand verre d’eau, ça aide souvent. Je reste là si vous avez besoin de moi.');
+    else if (mood === 'bad') parts.push('Oh, je suis désolée de l’entendre. Prenez soin de vous. Si quelque chose vous pèse vraiment, en parler à une personne de confiance aide beaucoup. Et je reste là si je peux vous être utile.');
+    if (h) { parts.push(pick(['Je vais très bien, merci de demander ! J’ai la pêche d’une fourmi un matin de colo.', 'Ça va super, merci ! Toujours en pleine forme pour chercher des réponses.', 'Très bien, merci ! Mes antennes frétillent.'])); parts.push('Et vous, comment allez-vous ?'); awaitMood = true; }
+    hits.forEach(([, rep]) => {
+      if (h && rep[0] === 'Moi ? Toujours en forme, et prête à chercher pour vous !') return;
+      if (rep[0] === '__ACK__') { if (!parts.length && !mood) parts.push(/\bmerci\b/.test(n) ? pick(['Avec plaisir ! Je reste disponible en bas à droite pour toute autre question.', 'De rien, c’est un plaisir !']) : pick(['Ça marche !', 'Très bien !', 'D’accord !']) + ' Je reste là si vous avez une question.'); return; }
+      if (rep[0] === '__HUMAN__') { parts.push(AI ? 'Non, je suis une intelligence artificielle. Pour parler à un humain, l’équipe vous répond volontiers par mail.' : 'Ni humaine ni intelligence artificielle : je suis un petit programme qui cherche dans les pages et documents du site. Pour parler à un humain, l’équipe vous répond volontiers par mail.'); link1 = ['Écrire à l’équipe', '#ecrire']; return; }
+      if (rep[0] === '__NEWS__') { parts.push('Du nouveau, oui ! Le Collectif jeunes des 14–17 ans vient d’être lancé à Saint-Jean-le-Blanc, et les dates prévues des sessions BAFA 2027 à Orléans sont en ligne.'); link1 = ['Voir les actualités', 'actualites.html']; return; }
+      if (rep[0] === '__CAN__') { parts.push('Je peux vous expliquer le BAFA, vous montrer les prochaines sessions et leurs tarifs, présenter l’association et le Collectif jeunes, ou transmettre un message à l’équipe. Essayez par exemple :'); chipsOn = true; return; }
+      parts.push(pick(rep));
+    });
+    if (!parts.length) return null;
+    if (g && !h && parts.length === 1) { parts.push('Que puis-je faire pour vous ?'); chipsOn = true; }
+    return { parts, link1, chipsOn };
+  }
   form.addEventListener('submit', e => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; ask(q); });
   function ask(q) {
     if (/^[ée]crire à l.?équipe$/i.test(q)) { say('fa-u', el('p', '', q)); return writeForm(); }
@@ -385,7 +472,6 @@
     }
     // Sans IA : un minimum de conversation.
     const CONFUS = /\b(je (ne )?comprends? (pas|rien)|pas compris|c est pas clair|pas clair|reformule\w*|explique\w* (mieux|autrement)|plus simplement|hein)\b/;
-    const AVIS = /\b(qu est ce que tu penses|que penses tu|tu en penses|ton avis|vous en pensez|tu aimes|tu trouves)\b/;
     if (CONFUS.test(n) && toks0.length <= 6) {
       if (prevIntent) {
         d.append(el('p', '', 'Pas de souci, je reformule plus simplement :'));
@@ -395,15 +481,15 @@
       } else d.append(el('p', '', 'Pas de souci ! Dites-moi simplement ce que vous cherchez, avec vos mots. Par exemple :'));
       d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d);
     }
-    if (AVIS.test(n) && !it) {
-      const topic = Object.keys(VIEWS).find(k => n.includes(' ' + k)) || 'animation';
-      d.append(el('p', '', 'Je suis une assistante : je n’ai pas d’avis personnel. Mais je peux vous dire comment Fourmi’Action voit les choses.'));
-      d.append(el('p', '', VIEWS[topic][0])); d.append(row([link(VIEWS[topic][1], VIEWS[topic][2], 1)]));
-      conv.push({ r: 'a', c: VIEWS[topic][0] }); return say('fa-f', d);
+    const ch = chat(n, it);
+    if (ch && ch.parts) {
+      if (!quiet) happy();
+      ch.parts.forEach(t => d.append(el('p', '', t)));
+      if (ch.link1) d.append(row([link(ch.link1[0], ch.link1[1], 1)]));
+      if (ch.chipsOn) d.append(chips(SUGG[page] || SUGG.index));
+      conv.push({ r: 'a', c: ch.parts.join(' ') }); return say('fa-f', d);
     }
-    for (const [rx, txt] of SMALL) if (rx.test(n) && toks0.length <= 6) { if (!quiet) happy(); d.append(el('p', '', txt)); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
-    if (!it && HELLO.test(n) && toks0.length <= 2) { if (!quiet) happy(); d.append(el('p', '', 'Bonjour. Que puis-je chercher pour vous ?')); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
-    if (!it && THANKS.test(n) && toks0.length <= 3) { if (!quiet) happy(); d.append(el('p', '', 'Avec plaisir. Je reste disponible en bas à droite pour toute autre question.')); return say('fa-f', d); }
+    if (ch && ch.greetOnly) d.append(el('p', '', 'Bonjour !'));
     const found = search(q, it ? 2 : 3, it);
     if (it) {
       d.append(el('p', '', it.a));
@@ -422,7 +508,7 @@
       d.append(list);
     }
     if (!it && !found.length) {
-      d.append(el('p', '', 'Je ne trouve pas ça dans nos documents. Pouvez-vous me le dire autrement ? Sinon, je transmets volontiers votre question à l’équipe.'));
+      d.append(el('p', '', toks0.length <= 3 ? pick(['Hmm, je ne suis pas sûre de bien vous suivre… mais je papote volontiers ! Je suis surtout incollable sur le BAFA, l’animation et l’association.', 'Je n’ai rien trouvé là-dessus, désolée ! Je suis plutôt calée sur le BAFA, l’animation et la vie de l’association.']) : 'Je ne trouve pas ça dans nos documents. Pouvez-vous me le dire autrement ? Sinon, je transmets volontiers votre question à l’équipe.'));
       d.append(row([link('Écrire à l’équipe', '#ecrire', 1)])); d.append(chips((SUGG[page] || SUGG.index).filter(x => !/^Écrire/.test(x))));
     } else {
       const more = el('p', 'fa-more'); more.append('Pas tout à fait la réponse ? '); more.append(link('Demander à l’équipe', '#ecrire')); d.append(more);

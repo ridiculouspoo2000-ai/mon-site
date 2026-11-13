@@ -10,7 +10,7 @@
   const easeOut = t => 1 - Math.pow(1 - t, 3);
   const lerp = (a, b, t) => a + (b - a) * t;
   const coarse = matchMedia('(hover: none)').matches;
-  const GRAD = [[30, 116, 232], [34, 181, 240], [139, 92, 246], [238, 77, 134], [242, 112, 30]];
+  const GRAD = [[43, 91, 215], [93, 83, 211], [155, 86, 166], [217, 102, 47]];
   const gradAt = t => { t = clamp(t) * (GRAD.length - 1); const i = Math.min(GRAD.length - 2, Math.floor(t)), f = t - i; return GRAD[i].map((c, k) => Math.round(lerp(c, GRAD[i + 1][k], f))); };
 
   // Une seule boucle d’animation pour tous les effets visibles.
@@ -336,7 +336,7 @@
       if (innerWidth > 760 || reduced) return;
       const S = stage.getBoundingClientRect(), C = core.getBoundingClientRect();
       svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
-      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e74e8"/><stop offset=".55" stop-color="#8b5cf6"/><stop offset="1" stop-color="#f2701e"/></linearGradient></defs>';
+      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#8a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>';
       const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height / 2, rad = C.width / 2;
       cards.forEach((card, i) => {
         const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, up = R.top + R.height / 2 - S.top < cy;

@@ -1,0 +1,112 @@
+// Texte de l’autorisation (généré, ne pas modifier à la main : voir texte.py)
+export const TEXTE = {
+ "ref": "FA-CJ-IMAGE-2026-11",
+ "titre": "Autorisation de droit à l’image et à la voix",
+ "sousTitre": "Collectif jeunes · 14 à 17 ans",
+ "asso": {
+  "nom": "Fourmi’Action",
+  "statut": "association régie par la loi du 1er juillet 1901",
+  "adresse": "43 rue Tino Rossi, 45400 Fleury-les-Aubrais",
+  "rna": "W452020426",
+  "email": "fourmi.action@gmail.com",
+  "tel": "02 59 50 89 89"
+ },
+ "intro": "Fourmi’Action, association régie par la loi du 1er juillet 1901 (RNA W452020426), dont le siège est situé 43 rue Tino Rossi, 45400 Fleury-les-Aubrais, photographie, filme et enregistre certaines de ses activités pour les faire connaître et en garder la mémoire. Ce document permet au jeune et à ses représentants légaux d’accepter ou de refuser ces utilisations, librement. Un refus n’a aucune conséquence sur la participation au collectif.",
+ "sections": [
+  {
+   "h": "1. Contenus concernés",
+   "p": [
+    "Fourmi’Action peut photographier et filmer le jeune et enregistrer sa voix lors des activités du Collectif jeunes et des autres activités de l’association auxquelles il participe : rencontres, réunions, formations, événements, actions d’autofinancement, projets collectifs, sorties et séjours.",
+    "Sont concernés : photographies individuelles et de groupe, portraits, interviews, témoignages audiovisuels, films et vidéos, captations d’événements, enregistrements sonores, productions pédagogiques et médiatiques réalisées avec les jeunes.",
+    "Fourmi’Action peut procéder aux adaptations techniques usuelles (montage, recadrage, sous-titrage, habillage graphique, changement de format, extraits), sans dénaturer les propos du jeune ni porter atteinte à sa dignité, à sa réputation ou à sa vie privée."
+   ]
+  },
+  {
+   "h": "2. Supports et diffusion",
+   "p": [
+    "Les contenus peuvent être utilisés pour présenter l’association, ses projets et ses actions éducatives, et pour en garder la mémoire, sur les supports suivants : site fourmiaction.fr ; comptes de Fourmi’Action sur les réseaux sociaux actuels et futurs et sur les plateformes de diffusion vidéo ; affiches, flyers et brochures ; publications et rapports d’activité ; présentations publiques et institutionnelles ; supports de formation ; communications aux partenaires et financeurs ; communiqués et dossiers de presse ; archives de l’association.",
+    "Un même contenu peut être utilisé sur plusieurs de ces supports, pour ces mêmes finalités, sans nouvel accord. Les contenus publiés sur Internet étant accessibles depuis le monde entier, l’autorisation vaut sans limite géographique pour ces supports.",
+    "L’autorisation est consentie à titre gratuit. Fourmi’Action ne vend pas les contenus et ne cède à aucun tiers le droit d’utiliser l’image ou la voix du jeune. Un partenaire, un financeur ou un média peut relayer une publication de Fourmi’Action ; toute autre utilisation par un tiers doit respecter les droits et autorisations applicables."
+   ]
+  },
+  {
+   "h": "3. Engagements de Fourmi’Action",
+   "p": [
+    "Fourmi’Action s’engage à ne publier aucun contenu portant atteinte à la dignité du jeune, le montrant dans une situation intime ou embarrassante, ou accompagné d’une légende ou d’un commentaire préjudiciable ; à ne publier aucune donnée sensible ni aucune information personnelle non nécessaire (adresse, établissement scolaire, coordonnées, localisation) ; à n’utiliser les contenus ni à des fins commerciales ou politiques, ni pour fabriquer des images ou des voix truquées."
+   ]
+  },
+  {
+   "h": "4. Prénom et nom",
+   "p": [
+    "La publication du prénom et du nom du jeune fait l’objet d’un choix distinct (choix B). Sans cet accord, les contenus sont publiés sans son nom. Le choix B peut être refusé même lorsque le choix A est accepté."
+   ]
+  },
+  {
+   "h": "5. Durées",
+   "p": [
+    "Captation : pendant la participation du jeune aux activités de Fourmi’Action, et au plus tard jusqu’à ses 18 ans.",
+    "Publication et réutilisation : pendant dix ans à compter de la date de la dernière signature requise. À l’issue de cette période, Fourmi’Action ne réalise plus de nouvelle diffusion ; les publications antérieures peuvent demeurer dans l’historique de ses supports et sont retirées sur simple demande.",
+    "Conservation des fichiers : les fichiers originaux sont conservés pendant la période de publication. Au-delà, Fourmi’Action peut garder une sélection limitée dans ses archives internes, à accès restreint et sans diffusion, pour la mémoire de ses actions ; ces archives sont supprimées sur simple demande.",
+    "Majorité : à ses 18 ans, le jeune exerce seul ses droits. Fourmi’Action l’en informe à l’adresse indiquée et lui permet de confirmer ou de retirer son accord. Sans retrait, l’autorisation continue de s’appliquer aux contenus réalisés pendant sa minorité jusqu’au terme de la période de dix ans. Toute nouvelle captation après ses 18 ans et toute nouvelle campagne le mettant personnellement en avant (affiche, portrait principal) nécessitent son accord personnel de majeur."
+   ]
+  },
+  {
+   "h": "6. Retrait de l’autorisation",
+   "p": [
+    "Le jeune et chaque représentant légal peuvent retirer leur accord à tout moment, sans motif, pour l’avenir, par e-mail à fourmi.action@gmail.com, par courrier au siège ou depuis le lien personnel reçu après une signature en ligne. Fourmi’Action en accuse réception et cesse toute nouvelle diffusion dans les meilleurs délais, et au plus tard dans un délai d’un mois.",
+    "Sur les supports qu’elle gère (site, comptes sur les réseaux sociaux, plateformes), Fourmi’Action retire les contenus concernés, floute ou recadre le jeune, ou retire son nom. Les documents imprimés déjà distribués et les copies réalisées par des tiers ne peuvent pas être récupérés : Fourmi’Action informe les destinataires qu’elle connaît et accompagne les démarches de retrait, sans pouvoir garantir la suppression de toutes les copies. Le retrait ne remet pas en cause les utilisations réalisées auparavant."
+   ]
+  },
+  {
+   "h": "7. Signataires",
+   "p": [
+    "L’accord personnel du jeune est indispensable : son refus est toujours respecté, même si ses représentants légaux acceptent.",
+    "Lorsque les deux parents exercent l’autorité parentale, chacun exprime ses choix et signe personnellement : la déclaration de l’un ne vaut pas accord de l’autre. Le parent qui exerce seul l’autorité parentale, ou le tuteur, le déclare sur l’honneur ; Fourmi’Action peut demander à consulter un justificatif, sans en conserver de copie.",
+    "L’autorisation ne produit effet qu’une fois toutes les signatures requises réunies. Pour chaque choix, la réponse la plus protectrice s’applique : un seul « Non » suffit. Signée, la présente autorisation prévaut sur toute réponse antérieure donnée sur un formulaire d’inscription."
+   ]
+  },
+  {
+   "h": "8. Signature",
+   "p": [
+    "Ce document peut être signé sur papier ou en ligne, avec la même portée. En ligne, chaque signataire accède au document par un lien personnel, confirme son adresse électronique par un code à usage unique, exprime ses choix puis signe. La date et l’heure de chaque étape, la référence du document et un journal de preuve sont conservés ; une empreinte numérique permet de détecter toute modification du PDF signé, transmis à chaque signataire."
+   ]
+  },
+  {
+   "h": "9. Données personnelles",
+   "p": [
+    "Responsable du traitement : Fourmi’Action (fourmi.action@gmail.com). Finalités : réaliser et diffuser les contenus décrits ci-dessus, gérer les autorisations et en conserver la preuve. Bases légales : le consentement pour l’image, la voix et le nom (article 6.1.a du RGPD) ; l’intérêt légitime de l’association pour la conservation de la preuve de l’accord (article 6.1.f).",
+    "Données traitées : identité et date de naissance du jeune ; identité, qualité et adresse électronique des signataires ; choix, signatures et, en ligne, journal technique (dates, heures, adresse IP, navigateur). Destinataires : les personnes habilitées de Fourmi’Action ; ses prestataires techniques d’hébergement et de messagerie, dont certains peuvent être établis hors de l’Union européenne, dans le cadre des garanties prévues par le RGPD ; le public pour les seuls contenus publiés.",
+    "Durées : l’autorisation et ses preuves sont conservées pendant la période de publication, puis cinq ans (article 2224 du Code civil), délai qui ne court pas pendant la minorité ; un dossier en ligne non signé est supprimé au bout de 30 jours. Droits : accès, rectification, effacement, limitation, opposition, portabilité et retrait du consentement, que le jeune peut exercer lui-même, à fourmi.action@gmail.com. Réclamation possible auprès de la CNIL (cnil.fr)."
+   ]
+  }
+ ],
+ "choix": [
+  {
+   "id": "A",
+   "titre": "Image et voix",
+   "texte": "J’autorise la captation et la diffusion de l’image et de la voix du jeune, dans les conditions ci-dessus."
+  },
+  {
+   "id": "B",
+   "titre": "Prénom et nom",
+   "texte": "J’autorise la publication du prénom et du nom du jeune avec ces contenus."
+  }
+ ],
+ "autorite": [
+  {
+   "id": "deux",
+   "texte": "Les deux parents exercent l’autorité parentale : chacun signe."
+  },
+  {
+   "id": "seul",
+   "texte": "Un seul parent exerce l’autorité parentale (décision de justice, décès ou autre cause) : il le déclare sur l’honneur."
+  },
+  {
+   "id": "tuteur",
+   "texte": "Un tuteur exerce l’autorité sur le jeune : il le déclare sur l’honneur."
+  }
+ ],
+ "attestation": "Je certifie l’exactitude des informations indiquées, avoir lu l’ensemble du document et exprimer librement mes choix.",
+ "attestationSeul": "Je déclare sur l’honneur exercer seul(e) l’autorité parentale sur le jeune, ou en être le tuteur.",
+ "empreinte": "eb74d9801ab051734f33f068105e0f76fad1340b622b009ab182934aaa1e0539"
+};

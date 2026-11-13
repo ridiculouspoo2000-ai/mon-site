@@ -1,4 +1,40 @@
+# Fourmi’Action · les moteurs de recherche et les assistants IA sont bienvenus sur les pages publiques.
+
 User-agent: *
 Allow: /
+Disallow: /formateurs
+Disallow: /formateurs.html
+Disallow: /assets/formateurs/
+Disallow: /fourmiaction-vss/atelier/
+Disallow: /fourmiaction-vss/voix
+
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: DuckDuckBot
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+User-agent: Meta-ExternalAgent
+User-agent: Amazonbot
+User-agent: YouBot
+User-agent: CCBot
+User-agent: Qwantbot
+Allow: /
+Disallow: /formateurs
+Disallow: /formateurs.html
+Disallow: /assets/formateurs/
+Disallow: /fourmiaction-vss/atelier/
+Disallow: /fourmiaction-vss/voix
 
 Sitemap: https://fourmiaction.fr/sitemap.xml

@@ -399,3 +399,11 @@ html.ap-reduced .fx-swarm-fly{display:none}
   html.theme-verre .button.secondary:not(.bafa-banner .button){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(255,255,255,.84))!important}
   html.theme-verre .ap-ribbon{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(255,255,255,.9)!important}
 }
+
+/* ---------- Petits téléphones (iPhone SE, petits Android) : rien ne dépasse de l’écran ---------- */
+@media(max-width:420px){
+  .ct-tiles,.trainer-entry{grid-template-columns:minmax(0,1fr)!important}
+  .ct-tile,.trainer-entry>*{min-width:0}
+  .ct-big{overflow-wrap:anywhere;font-size:clamp(15px,5vw,26px);letter-spacing:-.01em}
+  main h1,main h2,main h3,main .lead{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
+}

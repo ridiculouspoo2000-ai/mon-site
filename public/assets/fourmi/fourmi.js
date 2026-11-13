@@ -149,6 +149,12 @@
     setTimeout(hideTease, first ? 12000 : 9000);
   }
   const hideTease = () => root.classList.remove('fa-teasing');
+  // La bulle d’accueil s’efface dès qu’on fait défiler la page : elle ne cache jamais ce qu’on lit.
+  let teaseY = null;
+  addEventListener('scroll', () => {
+    if (!root.classList.contains('fa-teasing')) { teaseY = null; return; }
+    if (teaseY === null) teaseY = scrollY; else if (Math.abs(scrollY - teaseY) > 140) hideTease();
+  }, { passive: true });
   bubbleX.addEventListener('click', e => { e.stopPropagation(); hideTease(); });
   bubbleTxt.addEventListener('click', () => { hideTease(); open(); });
   setTimeout(tease, store.get('met') ? 3800 : 2200);

@@ -37,12 +37,13 @@ const SCREENS = [
   { id: "intro", ch: 1, type: "story", scene: "welcome", kicker: "Lundi, 8 h 30",
     lines: [
       { who: null, t: "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter." },
-      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Chaque matin, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles." },
+      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe, et la référente de l’équipe pour les violences sexistes et sexuelles." },
+      { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu es en renfort, et tu vas là où l’équipe a besoin de toi." },
       { who: null, t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
       { who: null, t: "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles." },
       { who: "nour", mood: "smile", t: "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre." },
       { who: "nour", mood: "calm", reveal: "clock", t: "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse." },
-      { who: "nour", mood: "smile", reveal: "phone", t: "Voici aussi le téléphone de l’accueil. Les jeunes et l’équipe t’y écrivent parfois, souvent au mauvais moment : à toi de juger ce qui peut attendre." },
+      { who: "nour", mood: "smile", reveal: "phone", t: "Et ton téléphone… Ton numéro personnel a circulé sur le groupe de l’équipe, et des jeunes l’ont récupéré. Ils vont t’écrire, souvent au mauvais moment. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer." },
       { who: "nour", mood: "calm", t: "À chaque étape, je te laisse une page de mon carnet. Tu pourras l’ouvrir à tout moment, en haut de l’écran." },
     ] },
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
@@ -54,12 +55,12 @@ const SCREENS = [
       { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "Salle d’équipe", real: true, title: "Dans la salle d’équipe", t: "Au tableau, la répartition annoncée par le directeur : « Conflits : les hommes. Consoler les enfants : les femmes. »", lesson: "Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles.", ref: "R01" },
       { x: 59, y: 36.8, w: 20, h: 32.5, key: "soins", label: "L’infirmerie", real: true, title: "À l’infirmerie", t: "Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité.", lesson: "Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps.", ref: "R10" },
       { x: 81.8, y: 43, w: 14.4, h: 33.4, key: "panneau", label: "Panneau d’affichage", real: true, title: "Au panneau d’affichage", t: "Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part.", lesson: "L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté.", ref: "R10" },
-            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "Deux animateurs se répartissent la surveillance : un près du toboggan, un près des balançoires. Les petits savent à qui s’adresser.", lesson: "Rien d’inquiétant : une surveillance répartie et des adultes repérables." },
+            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, proposent des façons d’utiliser l’espace, et restent repérables." },
       { x: 69.2, y: 75, w: 13.6, h: 14.3, key: "potager", label: "Le potager", real: false, title: "Le potager", t: "Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours.", lesson: "Rien à signaler : un accès libre aux rôles, c’est exactement ce qu’on cherche." },
       { x: 80, y: 18, w: 10, h: 18, key: "local", label: "La régie", real: true, title: "À la régie, le local du matériel", t: "La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée.", lesson: "Un lieu fermé et hors de vue, où un adulte se retrouve seul avec des mineurs, crée un risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où." },
-            { x: 40, y: 70, w: 10, h: 8, key: "parc", label: "Le parc", real: false, title: "Le parc, derrière le bâtiment", t: "Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte.", lesson: "Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage." },
+            { x: 40, y: 70, w: 10, h: 8, key: "parc", label: "Le parc", real: false, title: "Le parc, derrière le bâtiment", t: "Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte.", lesson: "Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage." },
       { x: 45, y: 20, w: 18, h: 18, key: "refectoire", label: "La salle de restauration", real: false, title: "La salle de restauration", t: "Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés.", lesson: "Rien à signaler : les tâches tournent sans distinction de sexe." },
-            { x: 35, y: 20, w: 10, h: 12, key: "sanitaires", label: "Les sanitaires", real: true, title: "Aux sanitaires des petits", t: "Les toilettes des 6-8 ans sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un enfant seul et ferme la porte du bloc « pour préserver l’intimité ».", lesson: "Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine." },
+            { x: 35, y: 20, w: 10, h: 12, key: "sanitaires", label: "Les sanitaires", real: true, title: "Aux sanitaires", t: "Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc « pour préserver l’intimité ».", lesson: "Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine." },
       { x: 50, y: 45, w: 16, h: 22, key: "direction", label: "L’accueil et le bureau", real: false, title: "L’accueil et le bureau de direction", t: "Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé.", lesson: "Rien à signaler : les informations confidentielles sont protégées." },
             { x: 52, y: 62, w: 10, h: 10, key: "cour", label: "Le portail des familles", real: false, title: "Le portail des familles", t: "Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité.", lesson: "Rien d’inquiétant : le départ des enfants est contrôlé." },
     ] },
@@ -191,7 +192,7 @@ const SCREENS = [
         opts: [{ t: "Vous avez raison. Écoutez-la simplement, notez ses mots, et revenez vers nous. Je transmets ce soir à Nour.", to: "end", q: 1 }] },
       end: { end: true, mood: "smile", t: "Merci. Ça me rassure de savoir comment vous vous organisez.",
         lesson: "Les parents sont des alliés de la prévention. On répond par des règles concrètes et vérifiables, on ne met jamais en doute la parole de l’enfant, et toute remarque inquiétante est transmise à la direction le jour même." } } },
-  { id: "chat", ch: 2, type: "choice", comp: "C2", kicker: "Mardi, 19 h · conversation de l’équipe",
+  { id: "chat", ch: 2, type: "choice", comp: "C2", kicker: "Mardi, 18 h · conversation de l’équipe",
     chat: [
       { who: "Yanis", t: "Inès en short aujourd’hui… on comprend le succès de l’atelier vélo." },
       { who: "Bastien", t: "Ha ha, elle devrait faire ça plus souvent." },
@@ -208,7 +209,7 @@ const SCREENS = [
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que des propos de plusieurs personnes qui s’additionnent font la répétition.", "ok": true}, {"t": "Parce qu’un seul message à connotation sexuelle suffit toujours à constituer un harcèlement.", "ok": false, "no": "Pas toujours : c’est la répétition, ici collective, qui caractérise le harcèlement."}, {"t": "Parce que tout ce qui se dit dans un groupe de travail engage la responsabilité de l’employeur.", "ok": false, "no": "C’est trop large : la qualification repose sur les propos et leur répétition, pas sur le canal."}]},
     better: "Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition." },
-  { id: "chatact", ch: 2, type: "multi", comp: "C3", kicker: "Toujours ce mardi soir",
+  { id: "chatact", ch: 2, type: "multi", comp: "C3", kicker: "Toujours mardi, 18 h",
     prompt: "Que faites-vous ? Sélectionnez toutes les actions utiles.",
     opts: [
       { t: "Je demande d’arrêter et j’écris à Inès pour la soutenir.", ok: true, why: "Faire cesser les propos et soutenir la personne : premiers gestes." },
@@ -266,7 +267,7 @@ const SCREENS = [
         lesson: "Quand un parent rapporte la parole de son enfant, on remercie, on ne minimise pas, on n’enquête pas soi-même et on transmet le jour même à la direction. Exposer un mineur à des images pornographiques est interdit (Code pénal, art. 227-24) : même entre enfants, l’équipe réagit et réorganise les lieux sensibles (toilettes, téléphones)." } } },
   { id: "ronde", ch: 3, type: "dialogue", comp: "C4", title: "La ronde de l’accueil", npc: "jade", scene: "S15", start: "n1",
     nodes: {
-      n1: { mood: "big", narr: "Samedi matin, accueil du nouveau groupe.", t: "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !",
+      n1: { mood: "big", t: "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !",
         opts: [
           { t: "Malo, tu choisis : un signe de la main, un check… ou juste « salut ».", to: "n2", q: 1 },
           { t: "Allez Malo, un petit câlin pour dire bonjour, c’est la tradition de la ronde.", to: "n1b", q: 0, note: "Insister transforme une invitation en pression. Un refus doit pouvoir s’exprimer sans humiliation." },
@@ -287,7 +288,7 @@ const SCREENS = [
         lesson: "Le fond était juste : respecter le refus et proposer une alternative. La forme compte aussi : une consigne se corrige entre adultes, à l’écart des enfants." } } },
   { id: "chercher", ch: 3, type: "find", comp: "C1", kicker: "Mercredi, 15 h · temps libre", title: "Léna vous cherche",
     intro: "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la.",
-    who: "lena", at: [16.6, 6.2], decoys: [["clara", 9.0, 25.0], ["enzo", 24.4, 21.0], ["sacha", 18.2, 24.6], ["zoe", 5.0, 10.2], ["theo", 12.2, 20.6]], timer: 60,
+    who: "lena", at: [16.6, 6.2], decoys: [["clara", 9.0, 25.0], ["enzo", 24.4, 21.0], ["sacha", 18.2, 24.6], ["zoe", 2.6, 21.2], ["theo", 12.2, 20.6]], timer: 60,
     found: "Léna, à voix basse : « Enzo a pris Clara en photo dans les vestiaires. Il dit qu’il va l’envoyer au groupe des grands. »",
     opts: [
       { t: "« Merci de me l’avoir dit, tu as bien fait. Je préviens Nour tout de suite, et on protège Clara. »", q: 1, fb: "Vous accueillez sa parole, sans enquêter, et vous alertez immédiatement : la photo n’a peut-être pas encore circulé." },
@@ -372,22 +373,26 @@ const SCREENS = [
         opts: [{ t: "Je ne sais pas ce qui va se passer. Mais je vais chercher de l’aide, et je reste avec toi.", to: "end", q: 0.5 }] },
       end: { end: true, mood: "calm", t: "…D’accord.",
         lesson: "Remercier, dire que l’enfant n’est pas responsable, ne jamais promettre le secret, expliquer simplement que certaines informations doivent être partagées pour le protéger. Ne pas demander de démonstration, ne pas faire répéter." } } },
-  { id: "call", ch: 4, type: "choice", comp: "C3", kicker: "16 h 05 · l’adulte désigné arrive à 17 h",
-    prompt: "Quel est votre premier appel ?",
-    opts: [
-      {t:  "Le 17 (ou le 112) : Lou peut lui être remis dans moins d’une heure.", q:  1, cons:  "Une patrouille arrive avant 17 h. Lou n’est pas remis à cet adulte.", fb:  "Le danger est imminent : seules les forces de l’ordre peuvent empêcher la remise de l’enfant."},
-      {t:  "Le 119, le numéro de l’enfance en danger, pour être conseillé sur la conduite à tenir.", q:  0.5, cons:  "L’écoutant vous oriente vers le 17. Vous avez perdu de précieuses minutes.", fb:  "Le 119 est utile pour s’orienter, mais face à un danger imminent, c’est le 17 ou le 112."},
-      {t:  "Nour, la référente, pour qu’elle décide de la suite et appelle elle-même les secours.", q:  0.5, cons:  "Nour appelle le 17 aussitôt. Il est 16 h 15.", fb:  "Prévenir l’interne est nécessaire, mais l’urgence commande d’alerter directement les secours, ou en même temps."},
-      {t:  "L’adulte désigné, pour le prévenir qu’un autre membre de la famille viendra chercher Lou.", q:  0, cons:  "L’adulte est prévenu… et Lou se trouve exposé à des pressions.", fb:  "Prévenir la personne mise en cause peut mettre l’enfant en danger et compromettre l’enquête."},
+  { id: "numero", ch: 4, type: "dial", comp: "C3", kicker: "Jeudi, 16 h 05", title: "Il faut appeler quelqu’un, maintenant", timer: 30,
+    intro: "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro.",
+    help: "Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112.",
+    caller: "Gendarmerie", convo: [
+      { t: "Gendarmerie nationale, je vous écoute.", opts: [
+        { t: "Je suis animateur à l’accueil de loisirs des Hautes Herbes. Un enfant de 10 ans vient de me révéler des violences sexuelles de la part de l’adulte qui doit venir le chercher à 17 h.", q: 1, fb: "Qui vous êtes, où vous êtes, ce qui se passe et l’urgence : l’essentiel en une phrase." },
+        { t: "Je crois qu’un père agresse son enfant, il faut venir l’arrêter.", q: 0.3, fb: "Vous rapportez une conclusion, pas ce que l’enfant a dit. Et l’enfant n’a pas désigné son père." },
+        { t: "Je voulais juste vous demander conseil, ce n’est peut-être rien.", q: 0, fb: "Minimiser retarde l’intervention : le danger est immédiat, dites-le." } ] },
+      { t: "Qu’est-ce que l’enfant vous a dit, exactement ?", opts: [
+        { t: "Ses mots : « Un adulte à la maison me touche, et il m’a dit de rien dire. » Je les ai notés, avec l’heure.", q: 1, fb: "Les mots exacts, sans les interpréter : c’est ce qui protège sa parole." },
+        { t: "Je lui ai posé des questions pour avoir des détails, et il a fini par dire oui.", q: 0, fb: "Des questions orientées fragilisent la parole de l’enfant. Ce n’est pas votre rôle." },
+        { t: "En gros, qu’on le touche. Je ne me souviens plus des mots.", q: 0.4, fb: "Notez les mots exacts dès que l’enfant parle : ils comptent pour la suite." } ] },
+      { t: "Où se trouve l’enfant en ce moment ?", opts: [
+        { t: "Avec moi et une collègue, au calme, à l’intérieur de l’accueil. Personne ne le remettra à cet adulte.", q: 1, fb: "L’enfant est protégé et accompagné : c’est la priorité." },
+        { t: "Il est retourné jouer avec les autres, dans la cour, près du portail.", q: 0, fb: "Près du portail, l’enfant reste exposé à l’adulte qui arrive." },
+        { t: "Je l’ai laissé seul dans le bureau pour pouvoir vous appeler.", q: 0.3, fb: "Un enfant qui vient de parler ne doit pas rester seul : demandez à une collègue de rester avec lui." } ] },
     ],
-    why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que le danger est imminent : Lou peut lui être remis dans l’heure.", "ok": true}, {"t": "Parce qu’il faut toujours appeler la police avant de prévenir sa hiérarchie, quoi qu’il arrive.", "ok": false, "no": "Ce n’est pas une règle générale : c’est l’imminence du danger qui commande l’appel immédiat."}, {"t": "Parce que le 119 ne répond qu’aux enfants et pas aux professionnels.", "ok": false, "no": "C’est faux : le 119 conseille aussi les professionnels. Mais il n’intervient pas dans l’heure."}]},
-    timer: 20,
-    better: "Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter." },
-  { id: "numero", ch: 4, type: "dial", comp: "C3", kicker: "16 h 06", title: "Appelez, maintenant", timer: 30,
-    intro: "Lou est à côté de vous. L’adulte qu’il désigne arrive dans moins d’une heure. Composez le numéro à appeler : les numéros utiles sont dans votre carnet.",
     ok: ["17", "112"], near: { "119": "Le 119 conseille et transmet, mais ne se déplace pas : le danger est immédiat, il faut le 17 ou le 112.", "15": "Le 15, c’est l’urgence médicale. Ici, il faut empêcher que Lou soit remis à cet adulte : 17 ou 112.", "114": "Le 114 est le numéro d’urgence par SMS, pour les personnes qui ne peuvent pas parler. Vous pouvez appeler : 17 ou 112.", "3018": "Le 3018 concerne le harcèlement en ligne. Ici, le danger est immédiat : 17 ou 112." },
     interrupt: { who: "clara", t: "Clara vous tire par la manche : « Tu viens arbitrer le match ? Ils trichent ! »" },
-    done: "Gendarmerie, j’écoute. Restez avec l’enfant, ne le laissez partir avec personne, une patrouille arrive." },
+    done: "Très bien. Une patrouille arrive. Restez avec l’enfant, ne le remettez à personne, ne prévenez pas cet adulte, et informez votre direction." },
   { id: "acts", ch: 4, type: "sort", comp: "C3", kicker: "Pendant que les gendarmes arrivent",
     prompt: "Triez les cartes Actions pour la situation de Lou.",
     hint: "Ce qui protège tout de suite s’engage maintenant. Ce qui expose Lou, retarde l’alerte ou élargit la diffusion s’écarte.",
@@ -600,7 +605,7 @@ const BUILD = {
 const REFLEXES = [
   { id: "protect", label: "Protéger d’abord : éviter toute nouvelle exposition", ch: 6, from: [["f1", 1]] },
   { id: "listen", label: "Écouter sans promettre le secret ni enquêter", ch: 4, from: [["lou", 0.8]] },
-  { id: "alert", label: "Alerter les autorités adaptées, même si la direction freine", ch: 4, from: [["call", 1], ["garnier", 0.75]] },
+  { id: "alert", label: "Alerter les autorités adaptées, même si la direction freine", ch: 4, from: [["numero", 1], ["garnier", 0.75]] },
   { id: "note", label: "Séparer faits observés, paroles rapportées et suppositions", ch: 2, from: [["theo", 0.8], ["transm", 0.8]] },
   { id: "prev", label: "Prévenir avec une mesure vérifiable", ch: 5, from: [["build", 0.75]] },
 ];
@@ -690,13 +695,37 @@ const ROOM_SAY = {
 // Les articles de presse : proposés à la fin du jeu, « pour aller plus loin ».
 const SOURCES = [{"t": "Franceinfo · Périscolaire à Paris : 132 animateurs suspendus depuis le début de l’année", "u": "https://www.franceinfo.fr/societe/education/violences-dans-le-periscolaire/periscolaire-a-paris-132-animateurs-suspendus-depuis-le-debut-de-l-annee-dont-52-pour-suspicions-de-violences-sexuelles-ou-sexistes_8052383.html"}, {"t": "Sud Radio · Paris : plus aucun animateur seul avec un enfant", "u": "https://www.sudradio.fr/societe/crise-du-periscolaire-a-paris-sous-pression-gregoire-lance-une-concertation-sur-les-rythmes-scolaires"}, {"t": "Préfecture des Côtes-d’Armor · Activité accessoire à un accueil sans hébergement", "u": "https://www.cotes-darmor.gouv.fr/contenu/telechargement/49258/345921/file/Activit%C3%A9%20accessoire%20%C3%A0%20un%20accueil%20sans%20h%C3%A9bergement.pdf"}, {"t": "Euronews · Paris adopte un plan pour sécuriser le périscolaire", "u": "https://fr.euronews.com/2026/04/14/paris-adopte-un-plan-pour-securiser-le-periscolaire-apres-les-scandales-des-violences-sexu"}, {"t": "Aleteia · Le rapport du Sénat sur les violences dans le périscolaire", "u": "https://fr.aleteia.org/2026/10/15/la-france-ne-protege-pas-ses-enfants-le-rapport-du-senat-sur-les-violences-dans-le-periscolaire/"}];
 
+// Transitions : une phrase qui dit où l'on est et ce qui vient de se passer, lue en premier.
+const BRIDGE = {
+  radio: "Lundi, 14 h. Après le repas, Nour t’envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans.",
+  brief: "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin.",
+  ines: "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et te fait signe.",
+  rire: "12 h 15, au réfectoire. Bastien s’assoit en face de toi. Il a vu Inès te parler ce matin, et il revient sur les remarques faites au briefing.",
+  planning: "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi.",
+  theo: "14 h, temps calme chez les 6-8 ans. Jade te montre un dessin de Théo, 8 ans, et te parle de lui.",
+  chat: "17 h 55. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
+  sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, M. Garnier, le directeur, réunit l’équipe : il manque quelqu’un aujourd’hui.",
+  ronde: "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin.",
+  consent: "Mercredi, 16 h. Après le temps libre, Nour te retrouve en salle des animateurs, son carnet à la main.",
+  temoin: "Pour comprendre ce qui s’est passé au local, tu retrouves Sacha, qui participait au rangement hier, dans la salle des grands.",
+  bilanequipe: "Vendredi, 8 h 30. Dernier briefing de la semaine : Nour veut que l’on tire les leçons de ce qui s’est passé.",
+  maelys: "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir te voir.",
+  garnier: "Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver M. Garnier dans son bureau.",
+};
+SCREENS.forEach((sc) => {
+  const b = BRIDGE[sc.id]; if (!b) return;
+  if (sc.type === "story") sc.lines.unshift({ who: null, t: b });
+  else if (sc.type === "dialogue") sc.intro = sc.intro ? b + " " + sc.intro : b;
+  else sc.bridge = b;
+});
+
 const STAGE = {
   c1: { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b"], ["nour", "d", "wave"], ["sacha", "c", "walk"]] },
   c2: { at: "entree", cast: [["parent", "a", "talk"], ["theo", "b"], ["nour", "d", "wave"], ["you", "e"], ["zoe", "c", "walk"]] },
   c3: { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "walk"], ["malo", "c"], ["ines", "d", "wave"], ["you", "e"], ["sacha", "f", "walk"]] },
   c4: { at: "entree", cast: [["parent", "a", "talk"], ["lou", "b"], ["kevin", "d", "wave"], ["you", "e"], ["enzo", "c", "walk"]] },
   c5: { at: "entree", cast: [["parent", "a", "walk"], ["clara", "b", "walk"], ["nour", "d", "wave"], ["you", "e"], ["theo", "c"]] },
-  intro: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b"], ["parent", "d", "walk"], ["theo", "c"], ["sacha", "f", "wave"]] },
+  intro: { at: "entree", cast: [["nour", "a", "wave"], ["you", "b"], ["parent", "d", "walk"], ["theo", "c"], ["sacha", "f", "wave"]] },
   dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
   radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["malo", "s1"], ["lena", "s2"], ["clara", "d"]] },
   brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["kevin", "d"], ["jade", "f"]] },
@@ -705,20 +734,20 @@ const STAGE = {
   rire: { at: "refectoire", room: "refectoire", cast: [["bastien", "a", "talk"], ["you", "b"], ["kevin", "c"], ["theo", "s1"], ["enzo", "s2"], ["clara", "s3"]] },
   chat: { at: "ensemble", cast: [] }, chatact: "keep",
   theo: { at: "grands", room: "grands", cast: [["jade", "a", "talk"], ["you", "b"], ["theo", "s1"], ["enzo", "s2"]] }, theo2: "keep",
-  parent1: { at: "cour", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
+  parent1: { at: "entree", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
   sousef: { at: "direction", room: "direction", cast: [["garnier", "s1", "talk"], ["you", "b"]] },
   chercher: { at: "ensemble", cast: [] },
-  ronde: { at: "sanitaires", cast: [["jade", "a", "talk"], ["you", "b"]] },
+  ronde: { at: "cour", cast: [["jade", "a", "talk"], ["you", "b"], ["malo", "c"], ["zoe", "d"], ["petit", "e"], ["theo", "f"]] },
   consent: { at: "petits", room: "petits", cast: [["nour", "c", "talk"], ["you", "a"], ["zoe", "s1"], ["malo", "s2"], ["sacha", "f"]] },
   silence: { at: "petits", room: "petits", cast: [["nour", "a", "talk"], ["you", "b"]] },
-  parent2: { at: "cour", cast: [["benali", "a", "talk"], ["you", "b"], ["malo", "c"]] },
+  parent2: { at: "entree", cast: [["benali", "a", "talk"], ["you", "b"], ["malo", "c"]] },
   kevin: { at: "equipe", room: "equipe", cast: [["kevin", "s1", "talk"], ["you", "b"]] },
   nuit1: { at: "petits", room: "dortoir", night: true, cast: [["bastien", "a", "talk"], ["you", "c"], ["malo", "e"], ["sacha", "f"]] }, nuit2: "keep",
   nuit3: { at: "petits", room: "dortoir", night: true, cast: [["bastien", "a", "talk"], ["you", "c"], ["sacha", "e"]] },
   depart: { at: "cour", cast: [["nour", "a"], ["you", "b"], ["lou", "c"], ["parent", "f", "walk"], ["clara", "d"]] },
   lou: { at: "libre", room: "libre", cast: [["lou", "a", "talk"], ["you", "b"]] },
-  call: { at: "direction", room: "direction", cast: [["you", "a", "talk"], ["lou", "e"], ["nour", "b"]] }, numero: "keep", acts: "keep", ordre: "keep",
-  portail: { at: "cour", cast: [["you", "a"], ["roussel", "c"], ["karim", "d"], ["petit", "f"], ["rey", "b", "talk"]] },
+  call_old: { at: "direction", room: "direction", cast: [["you", "a", "talk"], ["lou", "e"], ["nour", "b"]] }, numero: "keep", acts: "keep", ordre: "keep",
+  portail: { at: "entree", cast: [["you", "a"], ["roussel", "c"], ["karim", "d"], ["petit", "f"], ["rey", "b", "talk"]] },
   transm: { at: "direction", room: "direction", cast: [["you", "a"]] },
   bilanequipe: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["kevin", "d"], ["jade", "f"]] },
   build: { at: "equipe", room: "equipe", cast: [["nour", "a", "talk"], ["you", "b"]] },
@@ -739,6 +768,7 @@ const VOICE_TXT = {
     if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `${c.day}, jour ${c.n} sur ${CHAPTERS.length}. ${c.title}. ${c.goal}`]); return P; }
     if (sc.type === "explain" && sc.page) { P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
     if (sc.crisis) { P.push(["narr", sc.crisis.intro]); return P; }
+    if (sc.bridge) P.push(["narr", sc.bridge]);
     if (sc.fact) P.push(["narr", sc.fact]);
     if (sc.intro) P.push(["narr", sc.intro]);
     const t = sc.context;

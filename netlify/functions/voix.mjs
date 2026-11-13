@@ -31,6 +31,7 @@ const DEFAUT = {
   roussel: "OOiDJrD1goukqfTpiySr", // Greg · Authentic French Voice (parent)
   benali: "nVPCtAFzgyMX3FZKNzH0",  // Anna · Natural and Conversational (parent)
   sacha: "mvhJVdVoTWVUtL4keT7W",   // même voix d'enfant que Malo (ils ne sont jamais dans la même scène)
+  gendarme: "OOiDJrD1goukqfTpiySr", // Greg (au téléphone, la gendarmerie)
   narr: "jUHQdLfy668sllNiNTSW",    // Clément · calme et neutre : récit, situations et retours du formateur
 };
 const REGLAGES = {

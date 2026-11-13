@@ -88,6 +88,34 @@
     mid() { const r = this.root() + 24; this.tone(mtof(r), 0.2, "triangle", 0.03); setTimeout(() => this.tone(mtof(r + 5), 0.25, "triangle", 0.025), 110); },
     low() { const r = this.root() + 12; this.tone(mtof(r + 3), 0.25, "triangle", 0.03); setTimeout(() => this.tone(mtof(r), 0.3, "triangle", 0.028), 130); },
     page() { const r = this.root() + 24; [0, 4, 7, 12].forEach((k, i) => setTimeout(() => this.tone(mtof(r + k), 0.18, "sine", 0.022), i * 70)); },
+    // la nuit : grillons et chouette ; le matin : un coq, puis les oiseaux
+    night() {
+      if (!st.settings.sound || !this.ctx) return;
+      const c = this.ctx, t = c.currentTime;
+      for (let k = 0; k < 9; k++) for (let i = 0; i < 5; i++) this.voice(4200 + Math.random() * 300, t + k * 0.32 + i * 0.045, 0.03, { gain: 0.006, attack: 0.004, release: 0.02, cut: 9000, dest: this.sfx });
+      const hoot = (t0, f) => { const o = c.createOscillator(), g = c.createGain(), v = c.createOscillator(), vg = c.createGain();
+        o.type = "sine"; o.frequency.setValueAtTime(f, t0); o.frequency.linearRampToValueAtTime(f * .92, t0 + .5);
+        v.frequency.value = 6; vg.gain.value = 4; v.connect(vg).connect(o.frequency);
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.05, t0 + .06); g.gain.exponentialRampToValueAtTime(0.0001, t0 + .55);
+        o.connect(g).connect(this.sfx); o.start(t0); v.start(t0); o.stop(t0 + .6); v.stop(t0 + .6); };
+      hoot(t + .7, 390); hoot(t + 1.35, 370); hoot(t + 1.62, 370);
+    },
+    rooster() {
+      if (!st.settings.sound || !this.ctx) return;
+      const c = this.ctx, t = c.currentTime + .05;
+      const syl = [[.0, .13, 520, 640], [.17, .13, 640, 760], [.34, .2, 820, 940], [.58, .85, 980, 640]];
+      const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), out = c.createGain();
+      f1.type = "bandpass"; f1.frequency.value = 1300; f1.Q.value = 3; f2.type = "bandpass"; f2.frequency.value = 2600; f2.Q.value = 4;
+      out.gain.value = 0.9; f1.connect(out); f2.connect(out); out.connect(this.sfx); out.connect(this.verb);
+      syl.forEach(([d, dur, fa, fb]) => {
+        const o = c.createOscillator(), g = c.createGain(), v = c.createOscillator(), vg = c.createGain();
+        o.type = "sawtooth"; o.frequency.setValueAtTime(fa, t + d); o.frequency.linearRampToValueAtTime(fb * (dur > .5 ? 1.12 : 1), t + d + dur * .4); o.frequency.linearRampToValueAtTime(fb, t + d + dur);
+        v.frequency.value = 22; vg.gain.value = dur > .5 ? 18 : 6; v.connect(vg).connect(o.frequency);
+        g.gain.setValueAtTime(0.0001, t + d); g.gain.exponentialRampToValueAtTime(0.06, t + d + .03); g.gain.setValueAtTime(0.06, t + d + dur * .75); g.gain.exponentialRampToValueAtTime(0.0001, t + d + dur);
+        o.connect(g); g.connect(f1); g.connect(f2); o.start(t + d); v.start(t + d); o.stop(t + d + dur + .05); v.stop(t + d + dur + .05);
+      });
+      setTimeout(() => { const t2 = c.currentTime; for (let k = 0; k < 3; k++) { const f0 = 2400 + Math.random() * 1200; for (let i = 0; i < 3; i++) this.voice(f0 * (1 + i * .07), t2 + k * .5 + i * .1, .09, { gain: 0.008, attack: .01, release: .07, cut: 8000, dest: this.sfx }); } }, 1700);
+    },
     // ordonnanceur musical
     scheduleBar() {
       if (!this.on || !this.ctx) return;
@@ -308,6 +336,28 @@
     if (!st.settings.voice || calm()) glow(); else { document.addEventListener("voice-idle", glow, { once: true }); setTimeout(glow, 20000); }
     return g;
   }
+  function autoGate(host, start) {
+    const g = el("div", { class: "rgate auto" }, `<p>Écoutez la consigne : le chrono démarre juste après.</p>`);
+    host.appendChild(g);
+    let go = false; const fire = () => { if (go || !g.isConnected) return; go = true; g.querySelector("p").textContent = "C’est parti !"; setTimeout(() => g.remove(), 900); start(); };
+    if (!st.settings.voice || calm()) setTimeout(fire, 1800); else { document.addEventListener("voice-idle", fire, { once: true }); setTimeout(fire, 20000); }
+    return g;
+  }
+  // une carte qu'on peut faire glisser un peu (quand l'interface en cache un morceau)
+  function pannable(box, map) {
+    let x0 = 0, y0 = 0, dx = 0, dy = 0, sx = 0, sy = 0, drag = false, moved = false;
+    box.classList.add("pannable");
+    box.addEventListener("pointerdown", (e) => { if (e.button) return; drag = true; moved = false; x0 = e.clientX; y0 = e.clientY; sx = dx; sy = dy; });
+    addEventListener("pointermove", (e) => {
+      if (!drag) return; const mx = e.clientX - x0, my = e.clientY - y0;
+      if (!moved && Math.hypot(mx, my) < 7) return; moved = true; box.classList.add("dragging");
+      const W = box.clientWidth * .3, H = box.clientHeight * .3;
+      dx = Math.max(-W, Math.min(W, sx + mx)); dy = Math.max(-H, Math.min(H, sy + my));
+      map.style.transform = `translate(${dx}px,${dy}px)`;
+    });
+    addEventListener("pointerup", () => { drag = false; setTimeout(() => box.classList.remove("dragging"), 0); });
+    box.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  }
   function toastMsg(t) {
     const g = el("div", { class: "gain msg", role: "status" }, `<span>${esc(t)}</span>`);
     document.body.appendChild(g); setTimeout(() => g.classList.add("out"), 3200); setTimeout(() => g.remove(), 3900);
@@ -317,10 +367,11 @@
   const DC = { d: -1, t: "8 h 30", el: null };
   function dayclock(sc) {
     if (!DC.el) { DC.el = el("div", { id: "dayclock", "aria-live": "polite" }); document.body.appendChild(DC.el); }
-    const show = !["home", "avatar"].includes(sc.type) && !!(st.rev && st.rev.clock);
+    const show = !["home", "avatar", "find", "hotspots"].includes(sc.type) && !!(st.rev && st.rev.clock);
     DC.el.hidden = !show; if (!show) { DC.d = null; return; }
     let d = CHDAY[sc.ch] != null ? CHDAY[sc.ch] : 0;
-    const k = sc.kicker || "", m = k.match(/(lundi|mardi|mercredi|jeudi|vendredi)/i);
+    const lead = ((sc.intro || "").match(/^\s*(?:(?:lundi|mardi|mercredi|jeudi|vendredi)[^.]{0,4})?\d{1,2} ?h ?\d{0,2}/i) || [""])[0];
+    const k = (sc.kicker || "") + " " + lead + " " + (sc.bridge && /^\s*(lundi|mardi|mercredi|jeudi|vendredi|\d)/i.test(sc.bridge) ? sc.bridge.slice(0, 30) : ""), m = k.match(/(lundi|mardi|mercredi|jeudi|vendredi)/i);
     if (m) d = DAYS.findIndex((x) => x.toLowerCase() === m[1].toLowerCase());
     const h = k.match(/(\d{1,2}) ?h ?(\d{2})?/), t0 = DC.t;
     if (sc.type === "chapter") DC.t = "7 h 45";
@@ -328,7 +379,9 @@
     else if (d !== DC.d) DC.t = "8 h 30";
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
     const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
-    DC.el.innerHTML = `<div class="dc-top"><b>${DAYS[d]}</b><span>${DC.t}</span></div>
+    const tm = /(\d+) h (\d+)/.exec(DC.t) || [0, 8, 30], hh = +tm[1], mm = +tm[2];
+    DC.el.innerHTML = `<svg class="dc-face" viewBox="-20 -20 40 40" aria-hidden="true"><circle r="18.5" class="f"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-15.5" x2="0" y2="${i % 3 ? -13.8 : -12.6}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="2" x2="0" y2="-8.5" transform="rotate(${(hh % 12) * 30 + mm / 2})"/><line class="mh" x1="0" y1="2.5" x2="0" y2="-13" transform="rotate(${mm * 6})"/><circle r="1.3" class="c"/></svg>
+      <div class="dc-top"><b>${DAYS[d]}</b><span>${DC.t}</span></div>
       <div class="dc-week">${DAYS.map((x, i) => `<i class="${i < d ? "past" : i === d ? "now" : ""}" title="${x}">${x[0]}</i>`).join("")}</div>
       <div class="dc-f"><small>Fatigue de l’équipe</small><span><i style="width:${f}%"></i></span></div>`;
     DC.el.classList.toggle("tired", f >= 55);
@@ -337,7 +390,10 @@
     const a0 = toMin(t0), a1 = toMin(DC.t), sp = DC.el.querySelector(".dc-top span");
     if (sp && a0 != null && a1 != null && a1 > a0 && d === DCprev && !calm()) {
       const T0 = performance.now(), dur = Math.min(2200, 300 + (a1 - a0) * 6);
-      const tick = (now) => { const k2 = Math.min(1, (now - T0) / dur), m = Math.round(a0 + (a1 - a0) * k2); sp.textContent = `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`; if (k2 < 1 && sp.isConnected) requestAnimationFrame(tick); };
+      const H = DC.el.querySelector(".hh"), M = DC.el.querySelector(".mh");
+      const tick = (now) => { const k2 = Math.min(1, (now - T0) / dur), m = Math.round(a0 + (a1 - a0) * k2); sp.textContent = `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
+        if (H) H.setAttribute("transform", `rotate(${((m / 60) % 12) * 30})`); if (M) M.setAttribute("transform", `rotate(${(m % 60) * 6})`);
+        if (k2 < 1 && sp.isConnected) requestAnimationFrame(tick); };
       requestAnimationFrame(tick);
     }
     if (changed) { DC.el.classList.remove("newday"); void DC.el.offsetWidth; DC.el.classList.add("newday"); }
@@ -357,9 +413,11 @@
     hud(true);
     const old = stage.firstElementChild;
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
+    if (sc.bridge) node.dataset.bridge = "1";
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
     { const VP = VOICE_TXT.parts(sc); if (World.entered) { VP.unshift(["narr", ROOM_SAY[World.entered]]); World.entered = null; }
       if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(VP), 350); }
+    if (sc.bridge) { const host = node.querySelector(".panel, .solo, .maphead > div, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "bridge" }, words(sc.bridge)), host.firstChild); }
     if (sc.fact) { const host = node.querySelector(".panel, .solo, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "fact" }, `<b>Inspiré de faits réels</b> ${esc(sc.fact)}`), host.firstChild); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
     stage.appendChild(node);
@@ -391,7 +449,7 @@
     // matières du plan (pour les calques en SVG vivant), une seule fois dans la page
     const defs = A.dio.defs && !document.getElementById("dio-defs") ? `<svg id="dio-defs" width="0" height="0" style="position:absolute" aria-hidden="true">${A.dio.defs}</svg>` : "";
     // ce qui est devant (préau, portail, clôture, lampadaires…) est recopié au-dessus, rangé par profondeur avec les personnages
-    const occ = (A.dio.occ || []).map((x) => `<div class="dio-occ" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r};z-index:${x.z}">${x.svg}</div>`).join("");
+    const occ = (A.dio.occ || []).map((x) => `<div class="dio-occ ${x.c || ""}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r};z-index:${x.z}">${x.svg}</div>`).join("");
     return base + defs + `<div class="wlids"></div><div class="wanim">${(A.dio.anims || []).map((x) => `<div class="dio-ov ${x.cls}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r};z-index:${x.z || 1}">${x.svg}</div>`).join("")}${occ}</div>`;
   }
   const LOC = { intro: "entree", radio: "radio", k1: "equipe", brief: "equipe", ines: "equipe", rire: "parc", parent1: "cour", parent2: "cour", chat: "equipe", chatact: "equipe", theo: "cour", theo2: "cour", k2: "equipe",
@@ -486,7 +544,8 @@
       this.el.classList.add("on"); document.body.classList.toggle("live", !calm());
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
-      this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "");
+      const gateOpen = sc && (sc.type === "chapter" || ["intro", "parent1", "parent2", "portail"].includes(sc.id));
+      this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "");
       if (same) return;
       // caméra extérieure
       let p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = S.at && S.at !== "ensemble" ? 2.1 : 1.08;
@@ -709,7 +768,7 @@
       const L = SCREENS.filter((x) => x.ch === prev.n && x.comp && st.res[x.id] != null);
       const ok = L.filter((x) => st.res[x.id] >= 1).length, mid = L.length - ok;
       const titres = L.slice(0, 4).map((x) => `<li class="${st.res[x.id] >= 1 ? "good" : "mid"}">${esc((x.kicker || x.title || "").replace(/^[^,·]*, ?/, ""))}</li>`).join("");
-      hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${ok} situation${ok > 1 ? "s" : ""} bien gérée${ok > 1 ? "s" : ""}${mid ? `, ${mid} à reprendre` : ""}.` : "Une première journée pour prendre ses repères."}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
+      hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${ok} situation${ok > 1 ? "s" : ""} bien gérée${ok > 1 ? "s" : ""}${mid ? `, ${mid} à reprendre` : ""}.` : (prev.n === 1 ? "Une première journée pour prendre ses repères." : "Aucune situation évaluée hier.")}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
     }
     const plan = (c.plan || []).filter((p) => st.nuitee || !/nuitée/i.test(p[1])).map((p) => `<li><b>${p[0]}</b><span>${esc(p[1])}</span></li>`).join("");
     n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div>
@@ -717,14 +776,15 @@
       ${hier}<div class="dayplan"><p class="kicker">Aujourd’hui</p><ul>${plan}</ul></div><p class="lead"><b>Objectif du jour.</b> ${esc(c.goal)}</p></div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Commencer la journée", next));
     Snd.page();
+    if (prev && !calm()) { n.dataset.novoice = "1"; setTimeout(() => { if (n.isConnected) Voice.seq(VOICE_TXT.parts(sc)); }, 4200); }
     // la nuit tombe sur la veille, puis le jour se lève
     if (prev && !calm() && !n.dataset.nf) {
       n.dataset.nf = "1";
       const nf = el("div", { class: "nightfall", "aria-hidden": "true" }, `<div class="nf-moon"></div><p>La nuit tombe sur les Hautes Herbes…</p>`);
       document.body.appendChild(nf);
-      requestAnimationFrame(() => nf.classList.add("in"));
-      setTimeout(() => { nf.querySelector("p").textContent = `${c.day}, 7 h 45. Le jour se lève.`; nf.classList.add("dawn"); }, 1700);
-      setTimeout(() => { nf.classList.remove("in"); setTimeout(() => nf.remove(), 900); }, 3000);
+      requestAnimationFrame(() => nf.classList.add("in")); Snd.night();
+      setTimeout(() => { nf.querySelector("p").textContent = `${c.day}, 7 h 45. Le jour se lève.`; nf.classList.add("dawn"); Snd.rooster(); }, 2300);
+      setTimeout(() => { nf.classList.remove("in"); setTimeout(() => nf.remove(), 900); }, 4000);
     }
   };
 
@@ -820,6 +880,7 @@
     });
     const mapbox = el("div", { class: "mapbox" });
     mapbox.append(map, card);
+    pannable(mapbox, map);
     const bar = el("div", { class: "row" });
     const hb = btn(`Un indice (${maxHints})`, () => {
       if (hints >= maxHints) return;
@@ -1095,7 +1156,7 @@
       box.appendChild(row);
       opts.appendChild(box);
       box.setAttribute("tabindex", "-1"); box.focus();
-      say("À retenir. " + nd.lesson);
+      say("À retenir. " + nd.lesson); Voice.say("narr", "À retenir. " + nd.lesson, box.querySelector("p:nth-child(2)"));
     }
   };
 
@@ -1442,7 +1503,7 @@
   function epilogue() {
     const r = (id) => st.res[id], T = st.trust || {}, E = [], X = EPILOGUE;
     const pick = (k, lvl) => [lvl, X[k].who, X[k][lvl]];
-    const call = r("call"), f1 = r("f1"), g = r("garnier");
+    const call = r("numero"), f1 = r("f1"), g = r("garnier");
     if (call != null) E.push(pick("lou", call >= 1 ? "good" : call >= 0.5 ? "mid" : "low"));
     if (f1 != null) E.push(pick("maelys", f1 >= 1 && (g == null || g >= 0.75) ? "good" : f1 >= 1 ? "mid" : "low"));
     if (T.ines != null) E.push(pick("ines", T.ines >= 70 ? "good" : T.ines >= 40 ? "mid" : "low"));
@@ -1629,7 +1690,7 @@
       tries++; const v = violations();
       if (v.length) {
         Snd.low(); grid.classList.remove("shake"); void grid.offsetWidth; grid.classList.add("shake");
-        fbz.innerHTML = `<div class="fb low"><p class="vt">Le planning ne tient pas</p><ul>${v.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>`;
+        fbz.innerHTML = `<div class="fb low"><p class="vt">Le planning ne tient pas</p><ul>${v.map((t) => `<li>${esc(t)}</li>`).join("")}</ul><p class="small"><b>Pour corriger :</b> touchez le prénom de la personne mal placée, puis le poste où elle doit aller. Elle quitte automatiquement son ancien poste.</p></div>`;
         return;
       }
       cb.disabled = true; fbz.innerHTML = `<div class="fb good"><p class="vt">Planning validé</p><p>Chaque groupe est encadré selon les règles de l’équipe.</p></div>`; Snd.good();
@@ -1652,57 +1713,104 @@
     refresh(); n.appendChild(panel);
   };
 
-  /* ---------- appel d'urgence (clavier) ---------- */
+  /* ---------- appel d'urgence : un vrai téléphone, puis la conversation ---------- */
   R.dial = (sc, n) => {
     const panel = el("div", { class: "panel dial" });
     panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p>`;
-    const ph = el("div", { class: "dphone" }, `<div class="dscr"><span class="dnum" aria-live="polite"></span><small class="dstate">Composez le numéro</small></div>
-      <div class="dkeys">${["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"].map((k) => `<button type="button" class="dk" data-k="${k}">${k}</button>`).join("")}</div>
-      <div class="drow"><button type="button" class="ddel" aria-label="Effacer">⌫</button><button type="button" class="dcall">Appeler</button></div>`);
-    let num = "", tries = 0, left = sc.timer || 30, over = false;
-    const show = () => (ph.querySelector(".dnum").textContent = num);
-    ph.querySelectorAll(".dk").forEach((b) => b.addEventListener("click", () => { if (over || num.length >= 6) return; num += b.dataset.k; show(); Snd.click(); }));
-    ph.querySelector(".ddel").addEventListener("click", () => { num = num.slice(0, -1); show(); });
-    ph.querySelector(".dcall").addEventListener("click", call);
-    const onKey = (e) => { if (!n.isConnected) return document.removeEventListener("keydown", onKey); if (/^[0-9]$/.test(e.key) && !over && num.length < 6) { num += e.key; show(); } else if (e.key === "Backspace") { num = num.slice(0, -1); show(); } else if (e.key === "Enter") call(); };
+    const L = { 2: "ABC", 3: "DEF", 4: "GHI", 5: "JKL", 6: "MNO", 7: "PQRS", 8: "TUV", 9: "WXYZ", 0: "+" };
+    const hm = ((sc.kicker || "").match(/(\d{1,2}) ?h ?(\d{2})/) || [0, 16, "05"]);
+    const ph = el("div", { class: "iphone" }, `<div class="ip-bar"><b>${hm[1]}:${hm[2]}</b><span class="ip-ic"><i></i><i></i><i></i><i></i></span></div>
+      <div class="ip-dial"><div class="ip-num" aria-live="polite"></div><div class="ip-sub">&nbsp;</div>
+      <div class="ip-keys">${["1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "0", "#"].map((k) => `<button type="button" class="ip-k" data-k="${k}"><b>${k}</b><small>${L[k] || "&nbsp;"}</small></button>`).join("")}</div>
+      <div class="ip-row"><span></span><button type="button" class="ip-call" aria-label="Appeler"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" fill="#fff"/></svg></button><button type="button" class="ip-del" aria-label="Effacer" hidden>⌫</button></div></div>
+      <div class="ip-incall" hidden><p class="ip-who">${esc(sc.caller || "Appel")}</p><p class="ip-t">appel…</p>
+      <div class="ip-tools">${["silence", "clavier", "haut-parleur", "ajouter", "FaceTime", "contacts"].map((t) => `<span><i></i>${t}</span>`).join("")}</div><button type="button" class="ip-end" aria-label="Raccrocher" disabled></button></div>`);
+    let num = "", tries = 0, left = sc.timer || 30, over = false, started = false, tId = 0;
+    const numEl = ph.querySelector(".ip-num"), del = ph.querySelector(".ip-del");
+    const show = () => { numEl.textContent = num; del.hidden = !num; ph.querySelector(".ip-sub").innerHTML = num === "17" ? "Police secours" : num === "112" ? "Urgences" : "&nbsp;"; };
+    const press = (k) => { if (over || !started || num.length >= 6) return; num += k; show(); Snd.click(); };
+    ph.querySelectorAll(".ip-k").forEach((b) => b.addEventListener("click", () => press(b.dataset.k)));
+    del.addEventListener("click", () => { num = num.slice(0, -1); show(); });
+    ph.querySelector(".ip-call").addEventListener("click", call);
+    const onKey = (e) => { if (!n.isConnected) return document.removeEventListener("keydown", onKey); if (/^[0-9]$/.test(e.key)) press(e.key); else if (e.key === "Backspace") { num = num.slice(0, -1); show(); } else if (e.key === "Enter") call(); };
     document.addEventListener("keydown", onKey);
-    const bar = el("div", { class: "qtimer", role: "timer" }, `<i style="animation-duration:${left}s"></i><span>${left} s</span>`);
-    let tId = 0; const startDial = () => (tId = setInterval(() => {
-      if (!n.isConnected) return clearInterval(tId);
-      left--; bar.querySelector("span").textContent = left > 0 ? `${left} s` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 8);
-      if (left <= 0) { clearInterval(tId); end(0, "Temps écoulé. Pendant que vous hésitiez, l’adulte désigné approchait du portail."); }
-    }, 1000));
-    setTimeout(() => readyGate(panel, startDial, "Prendre le téléphone"), 0);
-    if (sc.interrupt && !calm()) document.addEventListener("click", function arm(e) {
-      if (!e.target.closest || !e.target.closest(".rgate button")) return; document.removeEventListener("click", arm, true);
-      setTimeout(() => { if (over || !n.isConnected) return;
-      const p = pop("dint", `<p class="kicker">Interruption</p><p class="cr-q">${esc(sc.interrupt.t)}</p>`);
-      const o = el("div", { class: "cr-opts" });
-      [["« Pas maintenant. Va voir Inès, elle va arbitrer. »", 1], ["Y aller deux minutes, puis revenir appeler.", 0]].forEach(([t, ok]) => {
-        const b = el("button", { class: "opt", type: "button" }, t);
-        b.addEventListener("click", () => { p.remove(); if (!ok) { left = Math.max(3, left - 12); toastMsg("Deux minutes perdues… et Lou est resté seul."); } else Snd.click(); });
-        o.appendChild(b);
-      });
-      p.appendChild(o);
+    const bar = el("div", { class: "qtimer", role: "timer" }, `<i style="animation-duration:${left}s;animation-play-state:paused"></i><span>${left} s</span>`);
+    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    const start = () => {
+      started = true; bar.querySelector("i").style.animationPlayState = "running";
+      tId = setInterval(() => {
+        if (!n.isConnected) return clearInterval(tId);
+        left--; bar.querySelector("span").textContent = left > 0 ? `${left} s` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 8);
+        if (left <= 0) { clearInterval(tId); finish(0, "Temps écoulé. Pendant que vous hésitiez, l’adulte désigné approchait du portail."); }
+      }, 1000);
+      if (sc.interrupt && !calm()) setTimeout(() => {
+        if (over || !n.isConnected) return;
+        const p = pop("dint", `<p class="kicker">Interruption</p><p class="cr-q">${esc(sc.interrupt.t)}</p>`);
+        const o = el("div", { class: "cr-opts" });
+        [["« Pas maintenant. Va voir Inès, elle va arbitrer. »", 1], ["Y aller deux minutes, puis revenir appeler.", 0]].forEach(([t, ok]) => {
+          const b = el("button", { class: "opt", type: "button" }, t);
+          b.addEventListener("click", () => { p.remove(); if (!ok) { left = Math.max(3, left - 12); toastMsg("Deux minutes perdues… et Lou est resté seul."); } else Snd.click(); });
+          o.appendChild(b);
+        });
+        p.appendChild(o);
       }, 7000);
-    }, true);
+    };
+    setTimeout(() => autoGate(panel, start), 0);
     function call() {
-      if (over || !num) return; tries++;
+      if (over || !num || !started) return; tries++;
       if (sc.ok.includes(num)) {
-        over = true; clearInterval(tId); ph.classList.add("calling"); ph.querySelector(".dstate").textContent = "Appel en cours…"; Snd.click();
-        setTimeout(() => { over = false; end(tries === 1 ? 1 : tries === 2 ? 0.7 : 0.5, `${tries === 1 ? "Le bon numéro du premier coup." : "Le bon numéro, après une erreur."} « ${esc(sc.done)} »`); Voice.say("narr", sc.done); }, 1600);
+        over = true; clearInterval(tId); bar.remove(); fbz.innerHTML = ""; Snd.click(); document.querySelectorAll(".cr-pop.dint").forEach((x) => x.remove());
+        ph.querySelector(".ip-dial").hidden = true; const ic = ph.querySelector(".ip-incall"); ic.hidden = false;
+        ic.querySelector(".ip-who").textContent = (sc.caller || "Appel") + " · " + num;
+        setTimeout(() => talk(0), 1500);
       } else {
         ph.classList.remove("wrong"); void ph.offsetWidth; ph.classList.add("wrong"); Snd.low();
-        fbz.innerHTML = `<div class="fb mid"><p>${esc(sc.near[num] || "Ce numéro ne correspond à aucun service d’urgence. Les numéros utiles sont dans votre carnet.")}</p></div>`;
+        const t = (sc.near[num] || "Ce numéro ne correspond à aucun service d’urgence.") + (tries >= 2 && sc.help ? " " + sc.help : "");
+        fbz.innerHTML = `<div class="fb mid"><p>${esc(t)}</p></div>`; Voice.say("narr", t, fbz.querySelector("p"));
         num = ""; show();
       }
     }
-    function end(q, txt) {
-      if (over) return; over = true; clearInterval(tId); document.querySelectorAll(".cr-pop.dint").forEach((x) => x.remove());
+    // la conversation avec les gendarmes
+    const dq = tries === 0 ? 1 : 0, qs = [], log = el("div", { class: "ip-log" });
+    let t0 = 0, clk = 0;
+    function talk(i) {
+      const ic = ph.querySelector(".ip-incall");
+      if (!t0) { t0 = Date.now(); clk = setInterval(() => { if (!n.isConnected) return clearInterval(clk); const s2 = Math.floor((Date.now() - t0) / 1000); ic.querySelector(".ip-t").textContent = `${String(Math.floor(s2 / 60)).padStart(2, "0")}:${String(s2 % 60).padStart(2, "0")}`; }, 500); }
+      if (!log.isConnected) panel.insertBefore(log, fbz);
+      const C = (sc.convo || [])[i];
+      if (!C) return end();
+      const row = el("div", { class: "say npc" }, `<b>${esc(sc.caller || "Gendarmerie")}</b><p>${words(C.t)}</p>`); log.appendChild(row);
+      Voice.say("gendarme", C.t, row.querySelector("p"));
+      const o = el("div", { class: "opts" });
+      C.opts.forEach((x, j) => {
+        const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
+        b.addEventListener("click", () => {
+          o.remove(); qs.push(x.q); Snd[x.q >= 1 ? "good" : "low"]();
+          log.appendChild(el("div", { class: "say me" }, `<b>${esc(st.name || "Vous")}</b><p>${esc(x.t)}</p>`));
+          const f = el("p", { class: "ip-fb " + (x.q >= 1 ? "good" : x.q >= .4 ? "mid" : "low") }, esc(x.fb)); log.appendChild(f);
+          Voice.say("narr", x.fb, f);
+          setTimeout(() => talk(i + 1), 900);
+        });
+        o.appendChild(b);
+      });
+      log.appendChild(o);
+      setTimeout(() => o.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150);
+    }
+    function end() {
+      const row = el("div", { class: "say npc" }, `<b>${esc(sc.caller || "Gendarmerie")}</b><p>${words(sc.done)}</p>`); log.appendChild(row);
+      Voice.say("gendarme", sc.done, row.querySelector("p"));
+      clearInterval(clk); const e = ph.querySelector(".ip-end"); e.disabled = false; e.classList.add("ready");
+      const hb = btn("Raccrocher", () => e.click()); hb.classList.add("hangup"); log.appendChild(hb); setTimeout(() => hb.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
+      e.addEventListener("click", () => { e.disabled = true; ph.classList.add("ended"); hb.remove();
+        const cq = qs.length ? qs.reduce((a, b) => a + b, 0) / qs.length : 1, dq2 = tries === 1 ? 1 : tries === 2 ? 0.7 : 0.5;
+        finish(Math.round((0.4 * dq2 + 0.6 * cq) * 100) / 100, `${tries === 1 ? "Le bon numéro du premier coup." : "Le bon numéro, après une erreur."} ${cq >= 0.9 ? "Et un appel clair : qui vous êtes, ce que l’enfant a dit, où il se trouve." : "Relisez ce qui rend un appel d’urgence utile : qui, quoi, où, et les mots exacts de l’enfant."}`);
+      }, { once: true });
+    }
+    function finish(q, txt) {
+      if (fbz.dataset.done) return; fbz.dataset.done = "1"; over = true; clearInterval(tId); document.querySelectorAll(".cr-pop.dint").forEach((x) => x.remove());
       record(sc, q); result(fbz, q, txt);
     }
     const tools = el("div", { class: "row" }); tools.append(btn("Ouvrir les numéros utiles (carnet)", () => openCarnet("numeros"), "ghost"));
-    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
     panel.append(bar, ph, tools, fbz); n.appendChild(panel);
   };
 
@@ -1838,7 +1946,7 @@
     const size = (44 / A.dio.vbw) * 100 * .84;
     people.forEach(([w, x, y, ok]) => {
       const p = isoPct(x, y);
-      const b = el("button", { class: "fperson", type: "button", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%;z-index:${Math.round(p[1] * 10)}`, "aria-label": ok ? "Une jeune fille près du parc" : "Un enfant" },
+      const b = el("button", { class: "fperson", type: "button", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%;z-index:${Math.round((x + y) * 10) + 10}`, "aria-label": ok ? "Une jeune fille près du parc" : "Un enfant" },
         `<svg viewBox="-22 -60 44 64">${A.minis[w][ok ? "stand" : (["walk", "wave", "talk"][Math.floor(Math.random() * 3)])]}</svg>`);
       b.addEventListener("click", () => {
         if (done || !tId) return;
@@ -1870,7 +1978,8 @@
       setTimeout(() => fbz.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
     }
     wrap.append(box, fbz); n.appendChild(wrap);
-    readyGate(wrap.querySelector(".maphead"), () => { tId = setInterval(tick, 1000); }, "Partir à sa recherche");
+    autoGate(wrap.querySelector(".maphead"), () => { tId = setInterval(tick, 1000); });
+    pannable(box, map);
     requestAnimationFrame(() => { if (box.scrollWidth > box.clientWidth) box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; });
   };
 

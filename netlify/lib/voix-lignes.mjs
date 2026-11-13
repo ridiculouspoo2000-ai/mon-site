@@ -1,10 +1,16 @@
 // Textes lus à voix haute dans « Les Hautes Herbes » (générés depuis le scénario).
 export const LIGNES = {
- "48a3061a1596": {
+ "20c879fbfeb6": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Chaque matin, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles."
+  "text": "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe, et la référente de l’équipe pour les violences sexistes et sexuelles."
+ },
+ "22964a10f939": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu es en renfort, et tu vas là où l’équipe a besoin de toi."
  },
  "99811a9421b6": {
   "who": "nour",
@@ -18,11 +24,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse."
  },
- "59ca1c664050": {
+ "6488739bb795": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Voici aussi le téléphone de l’accueil. Les jeunes et l’équipe t’y écrivent parfois, souvent au mauvais moment : à toi de juger ce qui peut attendre."
+  "text": "Et ton téléphone… Ton numéro personnel a circulé sur le groupe de l’équipe, et des jeunes l’ont récupéré. Ils vont t’écrire, souvent au mauvais moment. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer."
  },
  "e40c1efcfc26": {
   "who": "nour",
@@ -636,11 +642,11 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "Au panneau d’affichage. Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part. L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté."
  },
- "3b1ebfc8eefe": {
+ "1348589bb70c": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "L’aire de jeux. Deux animateurs se répartissent la surveillance : un près du toboggan, un près des balançoires. Les petits savent à qui s’adresser. Rien d’inquiétant : une surveillance répartie et des adultes repérables."
+  "text": "L’aire de jeux. Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble. Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, proposent des façons d’utiliser l’espace, et restent repérables."
  },
  "06906a20ea1c": {
   "who": "nour",
@@ -654,11 +660,11 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "À la régie, le local du matériel. La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée. Un lieu fermé et hors de vue, où un adulte se retrouve seul avec des mineurs, crée un risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où."
  },
- "a5c39450fdda": {
+ "d50a7f33ec78": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le parc, derrière le bâtiment. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte. Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage."
+  "text": "Le parc, derrière le bâtiment. Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte. Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage."
  },
  "53fb5f75fef1": {
   "who": "nour",
@@ -666,11 +672,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés. Rien à signaler : les tâches tournent sans distinction de sexe."
  },
- "686b4619065f": {
+ "2f3198cb0621": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Aux sanitaires des petits. Les toilettes des 6-8 ans sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un enfant seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
+  "text": "Aux sanitaires. Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
  },
  "a5261af2175a": {
   "who": "nour",
@@ -683,6 +689,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "visite-calme",
   "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité. Rien d’inquiétant : le départ des enfants est contrôlé."
+ },
+ "5e7a6b8eb7c6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Lundi, 14 h. Après le repas, Nour t’envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
  },
  "ac0e5cd41a17": {
   "who": "narr",
@@ -732,6 +744,12 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mardi, jour 2 sur 5. Les mots qui blessent. Distinguer ce qui est observé, rapporté ou supposé, et nommer le sexisme et le harcèlement."
  },
+ "e6f0bf512462": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin."
+ },
  "887f70cccccd": {
   "who": "narr",
   "mood": "",
@@ -743,6 +761,18 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle."
+ },
+ "a3b136fc67cd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et te fait signe."
+ },
+ "b326bf944668": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "12 h 15, au réfectoire. Bastien s’assoit en face de toi. Il a vu Inès te parler ce matin, et il revient sur les remarques faites au briefing."
  },
  "62ce693b69ca": {
   "who": "narr",
@@ -780,11 +810,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Nour est informée deux jours plus tard. Entre-temps, Bastien pense que rien n’a été dit de grave. Informer la référente est utile, mais sans rien dire à Bastien, vous laissez la situation se prolonger. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
  },
+ "e61fa1823e87": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi."
+ },
  "f5172baf70b3": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
+ },
+ "e8a25ba8ffa4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "14 h, temps calme chez les 6-8 ans. Jade te montre un dessin de Théo, 8 ans, et te parle de lui."
  },
  "7ac353ef9e53": {
   "who": "narr",
@@ -840,6 +882,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
  },
+ "90b030a62eb5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "17 h 55. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi."
+ },
  "d6447edb4168": {
   "who": "narr",
   "mood": "",
@@ -888,6 +936,12 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mercredi, jour 3 sur 5. La grosse journée. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
  },
+ "c4b633f9f078": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Monsieur Garnier, le directeur, réunit l’équipe : il manque quelqu’un aujourd’hui."
+ },
  "f3e1bc072749": {
   "who": "narr",
   "mood": "",
@@ -918,11 +972,23 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
  },
+ "e5861619be70": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin."
+ },
  "a0862c264630": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la."
+ },
+ "cbaf66e50c7d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 16 h. Après le temps libre, Nour te retrouve en salle des animateurs, son carnet à la main."
  },
  "ea3e60130230": {
   "who": "narr",
@@ -1056,41 +1122,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La personne que Lou désigne doit venir le chercher dans une heure."
  },
- "1e08b6c64dc7": {
+ "0eb446a99338": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Quel est votre premier appel ?"
- },
- "8741eca5c41c": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-bon",
-  "text": "Une patrouille arrive avant 17 h. Lou n’est pas remis à cet adulte. Le danger est imminent : seules les forces de l’ordre peuvent empêcher la remise de l’enfant."
- },
- "d5f515d4eb14": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "L’écoutant vous oriente vers le 17. Vous avez perdu de précieuses minutes. Le 119 est utile pour s’orienter, mais face à un danger imminent, c’est le 17 ou le 112. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
- },
- "fb5813ed82ed": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "Nour appelle le 17 aussitôt. Il est 16 h 15. Prévenir l’interne est nécessaire, mais l’urgence commande d’alerter directement les secours, ou en même temps. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
- },
- "2db06e5840bc": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-faible",
-  "text": "L’adulte est prévenu… et Lou se trouve exposé à des pressions. Prévenir la personne mise en cause peut mettre l’enfant en danger et compromettre l’enquête. Pour faire mieux : Danger imminent : 17 ou 112. Puis la direction et l’organisateur. Le 119 peut aider à s’orienter."
- },
- "030b043aba16": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Lou est à côté de vous. L’adulte qu’il désigne arrive dans moins d’une heure. Composez le numéro à appeler : les numéros utiles sont dans votre carnet."
+  "text": "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro."
  },
  "28a7a150d384": {
   "who": "narr",
@@ -1145,6 +1181,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "chapitre",
   "text": "Vendredi, jour 5 sur 5. Ce qu’on change. Concevoir une prévention concrète, puis tout mobiliser quand la direction freine."
+ },
+ "69df29617091": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, 8 h 30. Dernier briefing de la semaine : Nour veut que l’on tire les leçons de ce qui s’est passé."
  },
  "be20a8a13f22": {
   "who": "narr",
@@ -1218,6 +1260,12 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants. La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
  },
+ "4ffee5acb03a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir te voir."
+ },
  "f845a209bc08": {
   "who": "narr",
   "mood": "",
@@ -1254,11 +1302,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
+ "19aa40064fef": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Pour comprendre ce qui s’est passé au local, tu retrouves Sacha, qui participait au rangement hier, dans la salle des grands."
+ },
  "429b7844d134": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Sacha, 11 ans, vient vous voir : J’ai vu un truc à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+ },
+ "d7a44f2ef002": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver Monsieur Garnier dans son bureau."
  },
  "a84e2fa7d02c": {
   "who": "narr",
@@ -1626,11 +1686,41 @@ export const LIGNES = {
   "kind": "recit",
   "text": "L’affiche est restée au mur, jaunie. Un mois plus tard, un nouvel incident a eu lieu aux sanitaires, exactement comme avant."
  },
+ "9c31ecbfe544": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Le harcèlement sexuel peut reposer sur des propos sexistes répétés, sans aucune proposition sexuelle. Écouter sans minimiser, soutenir, alerter un responsable : l’employeur doit faire cesser les faits (Code du travail, L1153-5)."
+ },
  "68e17cb5a6d1": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Message de Kévin, depuis la régie : L’intervenant propose de garder Maëlys seule avec lui après l’atelier, pour finir son étagère. Je dis oui ?"
+ },
+ "e4963fee711b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Les parents sont des alliés de la prévention. On répond par des règles concrètes et vérifiables, on ne met jamais en doute la parole de l’enfant, et toute remarque inquiétante est transmise à la direction le jour même."
+ },
+ "b31598fdda9c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Quand un parent rapporte la parole de son enfant, on remercie, on ne minimise pas, on n’enquête pas soi-même et on transmet le jour même à la direction. Exposer un mineur à des images pornographiques est interdit (Code pénal, art. 227-24) : même entre enfants, l’équipe réagit et réorganise les lieux sensibles (toilettes, téléphones)."
+ },
+ "86dbc7600713": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Le refus d’un contact se respecte. Une alternative sans contact enlève la pression, et corriger la consigne collective prévient la prochaine fois."
+ },
+ "27732c2b6d3e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Le fond était juste : respecter le refus et proposer une alternative. La forme compte aussi : une consigne se corrige entre adultes, à l’écart des enfants."
  },
  "61fd58a02d1d": {
   "who": "narr",
@@ -1656,11 +1746,155 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "L’intention est bonne, mais agir seul et à chaud peut aggraver la situation : on alerte d’abord la référente."
  },
- "3bc86b1672c1": {
+ "4979daa58bd6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Remercier, dire que l’enfant n’est pas responsable, ne jamais promettre le secret, expliquer simplement que certaines informations doivent être partagées pour le protéger. Ne pas demander de démonstration, ne pas faire répéter."
+ },
+ "dabe9db93338": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Gendarmerie, j’écoute. Restez avec l’enfant, ne le laissez partir avec personne, une patrouille arrive."
+  "text": "Très bien. Une patrouille arrive. Restez avec l’enfant, ne le remettez à personne, ne prévenez pas cet adulte, et informez votre direction."
+ },
+ "c49755a43d08": {
+  "who": "gendarme",
+  "mood": "",
+  "kind": "replique",
+  "text": "Gendarmerie nationale, je vous écoute."
+ },
+ "4501fe6b7788": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Qui vous êtes, où vous êtes, ce qui se passe et l’urgence : l’essentiel en une phrase."
+ },
+ "150f5990ba29": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous rapportez une conclusion, pas ce que l’enfant a dit. Et l’enfant n’a pas désigné son père."
+ },
+ "fc47c934f1f4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Minimiser retarde l’intervention : le danger est immédiat, dites-le."
+ },
+ "91a0d8bc2767": {
+  "who": "gendarme",
+  "mood": "",
+  "kind": "replique",
+  "text": "Qu’est-ce que l’enfant vous a dit, exactement ?"
+ },
+ "5fb2998d977a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les mots exacts, sans les interpréter : c’est ce qui protège sa parole."
+ },
+ "298308b27c0b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Des questions orientées fragilisent la parole de l’enfant. Ce n’est pas votre rôle."
+ },
+ "d1b49ce385af": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Notez les mots exacts dès que l’enfant parle : ils comptent pour la suite."
+ },
+ "8c1826061485": {
+  "who": "gendarme",
+  "mood": "",
+  "kind": "replique",
+  "text": "Où se trouve l’enfant en ce moment ?"
+ },
+ "d50ca780bb82": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "L’enfant est protégé et accompagné : c’est la priorité."
+ },
+ "6819fbba077c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Près du portail, l’enfant reste exposé à l’adulte qui arrive."
+ },
+ "b72b6e451d6d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Un enfant qui vient de parler ne doit pas rester seul : demandez à une collègue de rester avec lui."
+ },
+ "6e8bfa808a32": {
+  "who": "gendarme",
+  "mood": "",
+  "kind": "replique",
+  "text": "Très bien. Une patrouille arrive. Restez avec l’enfant, ne le remettez à personne, ne prévenez pas cet adulte, et informez votre direction."
+ },
+ "51a9854b6644": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 15, c’est l’urgence médicale. Ici, il faut empêcher que Lou soit remis à cet adulte : 17 ou 112."
+ },
+ "4d60d26e4643": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 15, c’est l’urgence médicale. Ici, il faut empêcher que Lou soit remis à cet adulte : 17 ou 112. Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112."
+ },
+ "04aba609a80b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 114 est le numéro d’urgence par SMS, pour les personnes qui ne peuvent pas parler. Vous pouvez appeler : 17 ou 112."
+ },
+ "0fbc257455e7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 114 est le numéro d’urgence par SMS, pour les personnes qui ne peuvent pas parler. Vous pouvez appeler : 17 ou 112. Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112."
+ },
+ "bfe642abe1f4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 119 conseille et transmet, mais ne se déplace pas : le danger est immédiat, il faut le 17 ou le 112."
+ },
+ "620e1e6c8596": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 119 conseille et transmet, mais ne se déplace pas : le danger est immédiat, il faut le 17 ou le 112. Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112."
+ },
+ "4c54fd379c06": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 3018 concerne le harcèlement en ligne. Ici, le danger est immédiat : 17 ou 112."
+ },
+ "6069245a0f8b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 3018 concerne le harcèlement en ligne. Ici, le danger est immédiat : 17 ou 112. Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112."
+ },
+ "f167780f5125": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Ce numéro ne correspond à aucun service d’urgence."
+ },
+ "800c9aeb53d0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Ce numéro ne correspond à aucun service d’urgence. Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112."
  },
  "fe196574e8f7": {
   "who": "narr",
@@ -1829,5 +2063,17 @@ export const LIGNES = {
   "mood": "",
   "kind": "replique",
   "text": "D’accord. Maëlys, elle va bien ?"
+ },
+ "8eeca0d22d4a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine n’est jamais un passage obligé."
+ },
+ "800ce52aebf6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. L’alerte va aux autorités judiciaires et, par l’organisateur, au SDJES. L’intervenant est écarté. Le reste de l’équipe sait seulement qu’une situation est prise en charge."
  }
 };

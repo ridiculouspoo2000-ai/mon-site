@@ -190,6 +190,7 @@
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
     let span = 0, stops = [], vhS = 0;
+    const CSS_TL = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') && CSS.supports('view-timeline-name: --a'));
     const size = () => {
       span = Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
       const cards = [...track.children];
@@ -197,9 +198,17 @@
       stops = cards.map(c => Math.min(span, c.offsetLeft - cards[0].offsetLeft));
       const vh = vhS = document.documentElement.clientHeight;
       hs.style.height = wide() ? `${innerHeight + span * 1.1}px` : `${vh + Math.max(1, cards.length - 1) * vh * .85 + vh * .5}px`;
+      // iPhone (Safari 26 et plus) et navigateurs récents : le glissement est confié au moteur de défilement lui-même
+      // (animation liée au défilement, en CSS) : parfaitement synchronisé avec le doigt, sans aucun tremblement.
+      const css = !wide() && CSS_TL && cards.length === 4;
+      hs.classList.toggle('hs-css', css);
+      if (css) { track.style.transform = ''; if (bar) bar.style.transform = ''; stops.forEach((v, i) => hs.style.setProperty('--s' + i, v.toFixed(1) + 'px')); }
     };
     size();
     let hsW = innerWidth; addEventListener('resize', () => { if (wide() || Math.abs(innerWidth - hsW) > 30) { hsW = innerWidth; size(); } });
+    // mesures refaites quand tout est chargé (polices, images) et au retour sur la page (cache du navigateur)
+    addEventListener('load', size); addEventListener('pageshow', () => { size(); runScenes(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(size);
     hs.classList.toggle('sc-h', true);
     let hsRaf = 0;
     track.addEventListener('scroll', () => {
@@ -220,7 +229,7 @@
       if (!follow) lastT = 0;
     };
     scenes.push(() => {
-      if (!span) return;
+      if (!span || hs.classList.contains('hs-css')) return;
       let p, x;
       if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; paint(x, p); cur = x; return; }
       // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement

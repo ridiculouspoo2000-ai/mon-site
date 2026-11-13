@@ -320,3 +320,23 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-reduced .sc-hero2 .sc-pin::before,html.ap-reduced .sc-hero2 .sc-pin::after{animation:none}
 /* les halos peuvent sortir de la zone du titre (seul le bord de l’écran les coupe, via main) */
 .page-intro,.sc-hero2{overflow-x:visible}
+
+/* ---------- Accueil, « Nos actions » sur téléphone : glissement piloté par le défilement lui-même (Safari 26+, Chrome) ----------
+   Une pause sur chaque carte, puis un glissement ; parfaitement synchronisé avec le doigt (aucun script pendant le défilement). */
+@supports (animation-timeline: view()) and (view-timeline-name: --a){
+  @media(max-width:900px){
+    html.ap-scenes [data-scene="hscroll"].hs-css{view-timeline-name:--fa-hs;view-timeline-axis:block}
+    html.ap-scenes [data-scene="hscroll"].hs-css .sc-track{animation:fa-hs-cards linear both;animation-timeline:--fa-hs;animation-range:contain 0% contain 100%}
+    html.ap-scenes [data-scene="hscroll"].hs-css .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:contain 0% contain 100%}
+  }
+}
+@keyframes fa-hs-cards{
+  0%{transform:translate3d(0,0,0)}
+  15.87%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
+  36.67%{transform:translate3d(calc(var(--s1,0px) * -1),0,0)}
+  42.53%{transform:translate3d(calc(var(--s1,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
+  63.33%{transform:translate3d(calc(var(--s2,0px) * -1),0,0)}
+  69.2%{transform:translate3d(calc(var(--s2,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
+  90%,100%{transform:translate3d(calc(var(--s3,0px) * -1),0,0)}
+}
+@keyframes fa-hs-bar{0%,10%{transform:scaleX(0)}90%,100%{transform:scaleX(1)}}

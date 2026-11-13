@@ -35,14 +35,14 @@
 /* coucou */
 .fa-fourmi[data-state="wave"] .fa-ant .m-arm{animation:fa-wave .42s ease-in-out 4 alternate}
 .fa-fourmi.fa-bigwave[data-state="wave"] .fa-ant .m-arm{animation:fa-wave .38s ease-in-out 8 alternate}
-@keyframes fa-wave{from{transform:rotate(8deg)}to{transform:rotate(-26deg)}}
+@keyframes fa-wave{from{transform:rotate(6deg)}to{transform:rotate(-20deg)}}
 .fa-fourmi[data-state="wave"] .fa-ant .m-face{animation:fa-tilt 1.6s ease-in-out}
 @keyframes fa-tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-6deg)}65%{transform:rotate(4deg)}}
 .fa-fourmi.fa-bigwave .fa-launch{animation:fa-hello 1.4s cubic-bezier(.2,.8,.3,1) 2}
 @keyframes fa-hello{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-10px) scale(1.08)}50%{transform:translateY(0) scale(1)}70%{transform:translateY(-4px) scale(1.03)}}
 .fa-fourmi.fa-bigwave .fa-ant .m-mouth{transform:scale(1.15,1.25)}
 /* elle cherche */
-.fa-fourmi[data-state="think"] .fa-ant .m-pupils{transform:translate(2.4px,-2.6px)!important}
+.fa-fourmi[data-state="think"] .fa-ant .m-pupils{transform:translate(1.6px,-1.8px)!important}
 .fa-fourmi[data-state="think"] .fa-ant .m-antl,.fa-fourmi[data-state="think"] .fa-ant .m-antr{animation-duration:.7s}
 .fa-fourmi[data-state="think"] .fa-launch{box-shadow:inset 0 1px 0 #fff,0 0 0 3px rgba(226,112,42,.2),0 18px 40px -16px rgba(226,112,42,.5)}
 /* elle a trouvé */

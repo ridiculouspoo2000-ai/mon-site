@@ -34,13 +34,17 @@ header nav .nav-fly a[href="bafa.html"]{background:transparent;color:#2a3a48}
 @media(max-width:1150px){
   header nav.open{background:#f5f5f7!important;max-height:calc(100vh - 60px);overflow:auto;-webkit-overflow-scrolling:touch}
   .nav-group{flex-direction:column;align-items:stretch;width:100%}
-  .nav-chev{display:none}
+  .nav-chev{display:inline-block;margin-left:auto;width:12px;height:8px;transition:transform .35s var(--ease)}
+  .nav-group>.nav-top{display:flex!important;align-items:center;width:100%}
+  .nav-group.open>.nav-top .nav-chev{transform:rotate(180deg)}
+  .nav-group:not(.open) .nav-fly{display:none!important}
+  .nav-group[data-group="bafa"] .nav-col:nth-child(2) a:not([href*="stage"]):not([href*="faq"]){display:none}
   .nav-fly-in{display:flex;flex-direction:column;gap:2px;padding:0 0 6px 14px;border-left:2px solid rgba(20,47,70,.08);margin:0 0 6px 16px}
   .nav-col{display:contents}
   .nav-k{display:none}
   header nav .nav-fly a{font-size:14px!important;padding:8px 12px!important;color:#46576a}
   .nav-big{display:block}.nav-big b{font-weight:600}.nav-big small{display:none}
-  .nav-col a[href="nos-actions.html"],.nav-col a[href="fourmi-action.html"]{display:none}
+  .nav-col a[href="fourmi-action.html"]{display:none}
   .nav-dim{display:none}
 }
 html.ap-reduced .nav-fly,html.ap-reduced .nav-col>*{transition:none!important}

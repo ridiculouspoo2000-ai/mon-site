@@ -122,7 +122,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const scenes = [];
   root.classList.toggle('ap-scenes', !reduced);
-  const wide = () => innerWidth > 900;
+  const wideMq = matchMedia('(min-width: 901px)'); const wide = () => wideMq.matches; // largeur réelle de l’écran (insensible au zoom)
   function sceneProgress(el) { const r = el.getBoundingClientRect(); const run = r.height - innerHeight; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
 
   // Héros de l'accueil, en trois temps (grand écran) :
@@ -147,7 +147,7 @@
     addEventListener('resize', () => { geo = null; });
     // Téléphone : le titre s’écrit dès l’arrivée (lignes qui montent, mots colorés qui se remplissent),
     // puis le texte et les boutons arrivent ; la photo s’ouvre en cercle, puis suit le défilement.
-    let intro = 0, mobile = !wide();
+    let intro = 0, open2 = 0, mobile = !wide();
     if (mobile && !reduced) {
       hero.classList.add('h2-m');
       requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('h2-go')));
@@ -161,7 +161,9 @@
         if (!hero.classList.contains('h2-m')) { photo.style.clipPath = ''; ems.forEach(e => e.style.setProperty('--f', '100%')); return; }
         ems.forEach(e => e.style.removeProperty('--f'));
         const r = photo.getBoundingClientRect();
-        const o = ease(Math.max(intro * .5, clamp((innerHeight - r.top) / (innerHeight * .85))));
+        open2 = Math.max(open2, intro * .5, clamp((innerHeight - r.top) / (innerHeight * .55)));
+        const o = ease(open2);
+        if (o >= .999) hero.classList.add('h2-open');
         photo.style.clipPath = o >= .999 ? '' : `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 45%)`;
         vis.style.transform = o >= .999 ? '' : `translate3d(0,${lerp(48, 0, o).toFixed(1)}px,0)`;
         return;
@@ -183,17 +185,17 @@
     });
   }
 
-  // Défilement horizontal des cartes « Nos actions » (grands écrans).
+  // Défilement horizontal des cartes « Nos actions » (grands écrans et téléphones).
   const hs = document.querySelector('[data-scene="hscroll"]');
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
     let span = 0;
     const size = () => {
-      if (!wide()) { hs.style.height = ''; track.style.transform = ''; span = 0; return; }
       span = Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
-      hs.style.height = `${innerHeight + span * 1.1}px`;
+      hs.style.height = `${(wide() ? innerHeight : document.documentElement.clientHeight) + span * (wide() ? 1.1 : .9)}px`;
     };
-    size(); addEventListener('resize', size);
+    size();
+    let hsW = innerWidth; addEventListener('resize', () => { if (wide() || Math.abs(innerWidth - hsW) > 30) { hsW = innerWidth; size(); } });
     hs.classList.toggle('sc-h', true);
     let hsRaf = 0;
     track.addEventListener('scroll', () => {
@@ -226,7 +228,7 @@
     em.classList.add('fx-fill');
     scenes.push(() => {
       const r = em.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
-      const t = clamp((innerHeight * .75 - r.top) / (innerHeight * .4));
+      const t = clamp((innerHeight * .75 - r.top) / (innerHeight * .28));
       em.style.setProperty('--f', `${(t * 100).toFixed(1)}%`);
     });
   });
@@ -266,7 +268,7 @@
     const target = +v, pad = v.length; let shown = -1;
     scenes.push(() => {
       const r = n.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;
-      const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .35)));
+      const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .28)));
       const x = Math.round(target * t); if (x === shown) return; shown = x;
       n.textContent = String(x).padStart(pad, '0');
     });
@@ -290,7 +292,7 @@
   // Grandes phrases qui prennent toute leur place en arrivant au centre.
   document.querySelectorAll('.help h2, .cj-quote, .cj-pq, .di-hero h1').forEach(el => scenes.push(() => {
     const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .5)));
+    const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .3)));
     el.style.transform = `scale(${lerp(.9, 1, t).toFixed(4)})`; el.style.opacity = lerp(.35, 1, t).toFixed(3);
   }));
 
@@ -334,7 +336,7 @@
   // Bannière BAFA qui grandit en arrivant.
   document.querySelectorAll('.bafa-banner').forEach(b => scenes.push(() => {
     const r = b.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight * .78 - r.top) / (innerHeight * .55)));
+    const t = ease(clamp((innerHeight * .78 - r.top) / (innerHeight * .32)));
     b.style.transform = `scale(${lerp(.86, 1, t).toFixed(4)})`;
     b.style.opacity = lerp(.4, 1, t).toFixed(3);
   }));
@@ -497,7 +499,7 @@
   /* ---------- Schémas : avancement piloté par le défilement ---------- */
   document.querySelectorAll('[data-dg-scrub]').forEach(el => scenes.push(() => {
     const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
-    const p = clamp((innerHeight * .75 - r.top) / (innerHeight * .4 + r.height * .5));
+    const p = clamp((innerHeight * .75 - r.top) / (innerHeight * .28 + r.height * .3));
     el.style.setProperty('--p', p.toFixed(3));
   }));
 
@@ -519,14 +521,15 @@
       g.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && desk.matches) later(null, 260); });
       g.addEventListener('focusin', () => { if (desk.matches) set(g); });
       g.addEventListener('focusout', e => { if (desk.matches && !g.contains(e.relatedTarget)) later(null, 10); });
-      top.addEventListener('click', e => { // écran tactile large : le premier appui ouvre le menu
+      top.addEventListener('click', e => { // écran tactile large : le premier appui ouvre le menu ; téléphone : la catégorie se déplie
         if (desk.matches && matchMedia('(hover:none)').matches && current !== g) { e.preventDefault(); set(g); }
+        else if (!desk.matches) { e.preventDefault(); set(current === g ? null : g); }
       });
     });
     dim.addEventListener('pointerenter', () => later(null, 120));
     dim.addEventListener('click', () => set(null));
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && current) { const t = current.querySelector('.nav-top'); set(null); t.focus(); } });
-    addEventListener('scroll', () => { if (current && !current.contains(document.activeElement)) set(null); }, { passive: true });
+    addEventListener('scroll', () => { if (desk.matches && current && !current.contains(document.activeElement)) set(null); }, { passive: true });
     desk.addEventListener?.('change', () => set(null));
   }
 
@@ -596,7 +599,7 @@
   const nav = document.querySelector('#navigation');
   const menuBtn = document.querySelector('.menu-toggle');
   const closeMenu = () => { if (nav?.classList.contains('open')) { nav.classList.remove('open'); menuBtn?.setAttribute('aria-expanded', 'false'); } };
-  nav?.addEventListener('click', e => { if (e.target.closest('a')) closeMenu(); });
+  nav?.addEventListener('click', e => { const a = e.target.closest('a'); if (a && !(a.classList.contains('nav-top') && !matchMedia('(min-width: 1151px)').matches)) closeMenu(); }); // une catégorie qui se déplie ne ferme pas le menu
   document.addEventListener('click', e => { if (header && !header.contains(e.target)) closeMenu(); });
   document.addEventListener('focusin', e => { if (header && !header.contains(e.target)) closeMenu(); });
   window.matchMedia('(min-width: 1151px)').addEventListener?.('change', closeMenu);

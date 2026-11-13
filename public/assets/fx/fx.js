@@ -32,7 +32,7 @@
   document.querySelectorAll('canvas.fx-swarm').forEach(cv => {
     const ctx = cv.getContext('2d');
     const word = cv.dataset.word || 'ensemble';
-    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null;
+    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null, fontPx = 0;
     function sample() {
       const r = cv.getBoundingClientRect(); W = r.width; H = r.height; if (!W || !H) return;
       dpr = Math.min(devicePixelRatio || 1, W < 600 ? 1.75 : 2);
@@ -47,6 +47,7 @@
       if (tw > W * .92) size *= (W * .92) / tw;
       o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
       o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
+      fontPx = size;
       const data = o.getImageData(0, 0, ow, oh).data, pts = [];
       const step = Math.max(2, Math.round(size / 34));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
@@ -60,7 +61,7 @@
       }));
       ready = true;
     }
-    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .78 - r.top) / (innerHeight * .5)); };
+    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .8 - r.top) / (innerHeight * .34)); };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
@@ -88,9 +89,18 @@
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
       for (let b = 0; b < BUCKETS; b++) {
         const k = b / (BUCKETS - 1);
-        ctx.globalAlpha = lerp(alphaFree, .95, k);
+        ctx.globalAlpha = lerp(alphaFree, .95, k) * (1 - .75 * clamp((p - .8) / .2));
         if (k < .5) { ctx.fillStyle = '#142f46'; ctx.fill(paths[b]); }
         else { const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); ctx.fillStyle = g; ctx.fill(paths[b]); }
+      }
+      // Une fois les fourmis rassemblées, le mot apparaît net (dégradé de la marque).
+      const crisp = clamp((p - .8) / .2);
+      if (crisp > 0) {
+        ctx.globalAlpha = ease(crisp);
+        ctx.font = `800 ${fontPx}px "FA Display", "FA Inter", -apple-system, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`));
+        ctx.fillStyle = g; ctx.fillText(word, W / 2, H * .52);
       }
       ctx.globalAlpha = 1;
       cv.style.setProperty('--fx-p', p.toFixed(3));
@@ -178,11 +188,12 @@
     whenVisible(c.el, now => {
       const t = now / 1000, r = c.el.getBoundingClientRect();
       // mouvement de repos : lent, ample sur téléphone, plus discret sur ordinateur
-      const k = (coarse ? .75 : .45) * (c.kind === 'hero' ? 1.25 : 1);
-      let ix = (Math.sin(t * .7 + c.ph) * .7 + Math.sin(t * .31 + c.ph * 2) * .3) * k;
-      let iy = (Math.cos(t * .55 + c.ph) * .6 + ((r.top + r.height / 2) / innerHeight - .5) * .8) * k;
+      if (c.kind === 'hero' && coarse && !c.el.closest('.h2-open')) return;
+      const k = (coarse ? .95 : .45) * (c.kind === 'hero' ? 1.25 : 1), sp = coarse ? 2 : 1;
+      let ix = (Math.sin(t * .7 * sp + c.ph) * .7 + Math.sin(t * .31 * sp + c.ph * 2) * .3) * k;
+      let iy = (Math.cos(t * .55 * sp + c.ph) * .6 + ((r.top + r.height / 2) / innerHeight - .5) * .8) * k;
       if (c.on) { ix = c.px; iy = c.py; }
-      const f = c.on ? .16 : .06;
+      const f = c.on ? .16 : (coarse ? .1 : .06);
       c.x += (ix - c.x) * f; c.y += (iy - c.y) * f;
       const [ay, ax] = AMP[c.kind];
       c.el.style.transform = `perspective(1000px) rotateY(${(c.x * ay).toFixed(2)}deg) rotateX(${(-c.y * ax).toFixed(2)}deg) translateZ(0)`;
@@ -291,7 +302,7 @@
     fromHash(false);
     // Le tracé de la bifurcation se dessine en arrivant dessus.
     if (!reduced) whenVisible(fork, () => {
-      const r = fork.getBoundingClientRect(), p = clamp((innerHeight * .8 - r.top) / (innerHeight * .4));
+      const r = fork.getBoundingClientRect(), p = clamp((innerHeight * .8 - r.top) / (innerHeight * .32));
       lines.forEach((l, i) => l.style.strokeDashoffset = (100 - clamp(p * 1.6 - (i ? .4 : 0)) * 100).toFixed(2));
     });
     else lines.forEach(l => l.style.strokeDashoffset = 0);
@@ -302,8 +313,36 @@
     if (reduced) { deck.style.setProperty('--fan', 1); return; }
     whenVisible(deck, () => {
       const r = deck.getBoundingClientRect();
-      deck.style.setProperty('--fan', ease(clamp((innerHeight * .8 - r.top) / (innerHeight * .45))).toFixed(4));
+      deck.style.setProperty('--fan', ease(clamp((innerHeight * .8 - r.top) / (innerHeight * .32))).toFixed(4));
     });
+  });
+
+
+  /* ---------------------------------------------------------------- 9. Schéma « Nos actions » sur téléphone : envois depuis le centre */
+  document.querySelectorAll('.dg-hub .dg-stage').forEach(stage => {
+    const core = stage.querySelector('.dg-core'), cards = [...stage.querySelectorAll('.dg-card')];
+    if (!core || !cards.length) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'fx-hub-m'); svg.setAttribute('aria-hidden', 'true');
+    stage.prepend(svg);
+    const draw = () => {
+      svg.innerHTML = '';
+      if (innerWidth > 760 || reduced) return;
+      const S = stage.getBoundingClientRect(), C = core.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
+      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#8a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>';
+      const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height * .82;
+      cards.forEach((card, i) => {
+        const R = card.getBoundingClientRect(), tx = R.left - S.left + R.width / 2, ty = R.top - S.top + 6;
+        const d = `M${cx},${cy} C${cx},${(cy + ty) / 2} ${tx},${(cy + ty) / 2 - 10} ${tx},${ty}`;
+        const path = document.createElementNS(NS, 'path'); path.setAttribute('d', d); path.setAttribute('class', 'fx-hub-wire'); svg.append(path);
+        const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', '4.5'); dot.setAttribute('class', 'fx-hub-dot');
+        const mo = document.createElementNS(NS, 'animateMotion'); mo.setAttribute('dur', (2.4 + i * .35).toFixed(2) + 's'); mo.setAttribute('repeatCount', 'indefinite'); mo.setAttribute('path', d); mo.setAttribute('begin', (i * .45).toFixed(2) + 's');
+        dot.append(mo); svg.append(dot);
+      });
+    };
+    draw(); let w0 = innerWidth; addEventListener('resize', () => { if (Math.abs(innerWidth - w0) > 30) { w0 = innerWidth; draw(); } });
+    if (document.fonts) document.fonts.ready.then(draw);
   });
 
   /* ---------------------------------------------------------------- 6. Photos vivantes */

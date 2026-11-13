@@ -26,28 +26,25 @@
     w.className = 'fa-ant';
     w.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">
 <defs>
-<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#f29a5a"/><stop offset=".45" stop-color="#df6e28"/><stop offset="1" stop-color="#ad4813"/></radialGradient>
-<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9672a"/><stop offset="1" stop-color="#a54414"/></linearGradient>
-<radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#4d7ae6"/><stop offset="1" stop-color="#1d3f99"/></radialGradient>
+<linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e67a35"/><stop offset="1" stop-color="#c85d1f"/></linearGradient>
 <clipPath id="${id}c"><circle cx="50" cy="50" r="48.5"/></clipPath>
 </defs>
 <g clip-path="url(#${id}c)">
-<path d="M29 101C29 85 37.5 75.5 50 75.5S71 85 71 101Z" fill="url(#${id}b)"/>
-<path d="M33.5 86C29 90 27.5 95.5 28 101" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-<path d="M43 76.5 50 88.5 57 76.5" stroke="#142f46" stroke-width="2.4" stroke-linejoin="round" fill="none"/>
-<rect x="44.6" y="87" width="10.8" height="12.5" rx="2.4" fill="#fff"/><rect x="44.6" y="87" width="10.8" height="3.6" rx="1.6" fill="#2b5bd7"/><rect x="47" y="93" width="6" height="1.6" rx=".8" fill="#c9d3e3"/>
+<rect x="46.6" y="62" width="6.8" height="16" rx="3" fill="#c85d1f"/>
+<path d="M26 101C26 85 36.5 76.5 50 76.5S74 85 74 101Z" fill="#1d3550"/>
+<path d="M32.5 86C28.5 90.5 27.5 95.5 28 101" stroke="#1d3550" stroke-width="7" stroke-linecap="round" fill="none"/>
+<path d="M43.5 77.2 50 83.6 56.5 77.2" stroke="#33506f" stroke-width="2" stroke-linejoin="round" fill="none"/>
+<path d="M44.2 78.5 48.6 91M55.8 78.5 51.4 91" stroke="#D35A0B" stroke-width="1.7" stroke-linecap="round"/>
+<rect x="45" y="90.2" width="10" height="11" rx="1.8" fill="#fff"/><rect x="45" y="90.2" width="10" height="3" rx="1.2" fill="#D35A0B"/>
 </g>
-<g class="m-arm"><path d="M66.5 85C74.5 81.5 78.6 73.5 79.6 64.5" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/><circle cx="80" cy="60.5" r="5" fill="#df6e28"/></g>
-<g class="m-antl"><path d="M41.5 25.5C38 15 32.5 9.5 26 7.5" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="25.3" cy="7.2" r="3.3" fill="#2b5bd7"/></g>
-<g class="m-antr"><path d="M58.5 25.5C62 15 67.5 9.5 74 7.5" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="74.7" cy="7.2" r="3.3" fill="#2b5bd7"/></g>
-<g class="m-face">
-<ellipse cx="50" cy="46" rx="25.5" ry="23.5" fill="url(#${id}h)"/>
-<ellipse cx="40.5" cy="32.5" rx="9" ry="3.8" fill="#fff" opacity=".2" transform="rotate(-18 40.5 32.5)"/>
-<path class="m-brows" d="M36 36.4q5.2-2 10.4-.6M53.6 35.8q5.2-1.4 10.4.6" stroke="#142f46" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".75"/>
-<g class="m-eyes"><ellipse cx="41.5" cy="46" rx="6.2" ry="7.2" fill="#fff"/><ellipse cx="58.5" cy="46" rx="6.2" ry="7.2" fill="#fff"/>
-<g class="m-pupils"><circle cx="42.1" cy="47.2" r="3.7" fill="url(#${id}i)"/><circle cx="59.1" cy="47.2" r="3.7" fill="url(#${id}i)"/><circle cx="42.1" cy="47.2" r="1.9" fill="#0a1022"/><circle cx="59.1" cy="47.2" r="1.9" fill="#0a1022"/><circle cx="43.4" cy="45.6" r="1.05" fill="#fff"/><circle cx="60.4" cy="45.6" r="1.05" fill="#fff"/></g></g>
-<path class="m-happy" d="M36 47.5q5.5-5.5 11 0M53 47.5q5.5-5.5 11 0" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-<path class="m-mouth" d="M44.6 58q5.4 4.4 10.8 0" stroke="#142f46" stroke-width="2.1" stroke-linecap="round" fill="none"/>
+<g class="m-arm"><path d="M67 85.5C71 83.5 73.4 80.6 74.8 77" stroke="#1d3550" stroke-width="7.4" stroke-linecap="round" fill="none"/><path d="M74.8 77C77.6 72.4 79 67.6 79.4 63" stroke="#d26a28" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="79.6" cy="60.2" r="4.4" fill="#d26a28"/></g>
+<g class="m-antl" transform="translate(0 3)"><path d="M42.6 26.4C40.4 17.6 35.8 12.4 30 10.6" stroke="#142f46" stroke-width="1.9" stroke-linecap="round" fill="none"/><circle cx="29.4" cy="10.4" r="2.6" fill="#142f46"/></g>
+<g class="m-antr" transform="translate(0 3)"><path d="M57.4 26.4C59.6 17.6 64.2 12.4 70 10.6" stroke="#142f46" stroke-width="1.9" stroke-linecap="round" fill="none"/><circle cx="70.6" cy="10.4" r="2.6" fill="#142f46"/></g>
+<g class="m-face" transform="translate(0 3)">
+<ellipse cx="50" cy="44" rx="22.5" ry="20.5" fill="url(#${id}h)"/>
+<g class="m-eyes"><g class="m-pupils"><ellipse cx="42" cy="44.5" rx="3" ry="4" fill="#142f46"/><ellipse cx="58" cy="44.5" rx="3" ry="4" fill="#142f46"/><circle cx="43" cy="43" r=".95" fill="#fff"/><circle cx="59" cy="43" r=".95" fill="#fff"/></g></g>
+<path class="m-happy" d="M38.8 45.4q3.2-3.4 6.4 0M54.8 45.4q3.2-3.4 6.4 0" stroke="#142f46" stroke-width="2" stroke-linecap="round" fill="none"/>
+<path class="m-mouth" d="M45.6 52.6q4.4 3.4 8.8 0" stroke="#142f46" stroke-width="1.9" stroke-linecap="round" fill="none"/>
 </g>
 </svg>`;
     return w;
@@ -100,7 +97,7 @@
     ants().forEach(a => {
       const r = a.getBoundingClientRect(); if (!r.width) return;
       const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height * .45), d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
-      const p = a.querySelector('.m-pupils'); if (p) p.style.transform = `translate(${(dx / d * 2.6 * k).toFixed(2)}px,${(dy / d * 2.8 * k).toFixed(2)}px)`;
+      const p = a.querySelector('.m-pupils'); if (p) p.style.transform = `translate(${(dx / d * 1.8 * k).toFixed(2)}px,${(dy / d * 1.6 * k).toFixed(2)}px)`;
     });
   }
   // Grand coucou à l’arrivée sur le site, puis un petit de temps en temps.

@@ -223,3 +223,16 @@ html.theme-verre .nw-feature,html.theme-verre .nw-feature.lg{background:#fff!imp
 @keyframes fx-hero-in{from{opacity:0}to{opacity:1}}
 @media(max-width:900px){.sc-hero2 .sc-pin::before{left:-20%;top:0;width:150vw}}
 @media (prefers-reduced-motion:reduce){.sc-hero2 .sc-pin::before{animation:none}}
+
+/* ---------- Téléphone : la page ne dépasse jamais de l’écran (plus de zoom qui « saute ») ---------- */
+html{overflow-x:clip}
+main,.sc-hero2,.page-intro{overflow-x:clip}
+@media(max-width:760px){
+  .page-intro::before{width:100vw;left:0;translate:0 -50%}
+  .sc-hero2 .sc-pin::before{left:-10px;width:calc(100vw - 20px)}
+}
+/* ---------- Schéma « Nos actions » sur téléphone ---------- */
+.fx-hub-m{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.fx-hub-wire{fill:none;stroke:url(#fxh-g);stroke-width:2;opacity:.35;stroke-dasharray:4 6}
+.fx-hub-dot{fill:#8a4fd0;filter:drop-shadow(0 0 4px rgba(138,79,208,.7))}
+@media(max-width:760px){.dg-hub .dg-stage{position:relative}.dg-hub .dg-core,.dg-hub .dg-card{z-index:1}}

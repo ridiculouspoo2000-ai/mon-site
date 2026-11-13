@@ -12,8 +12,8 @@ html.ap-scenes [data-steps] > li:not(.on){opacity:.22}
 
 /* ---------- Défilement horizontal des actions ---------- */
 .sc-track .card-body{background:transparent}
-html.ap-scenes .sc-h .sc-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center}
-@media(min-width:901px){html.ap-scenes .sc-h .sc-pin>.wrap{padding-block:0}}
+html.ap-scenes [data-scene="hscroll"] .sc-pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center}
+@media(min-width:901px){html.ap-scenes [data-scene="hscroll"] .sc-pin>.wrap{padding-block:0}}
 html.ap-scenes .sc-track{display:flex;gap:24px;width:max-content;will-change:transform}
 html.ap-scenes .sc-track>article{width:min(400px,78vw);flex:none}
 html.ap-scenes .sc-track .photo{height:min(260px,30vh)}
@@ -61,12 +61,13 @@ a.ct-tile:hover{color:inherit}
 /* ---------- Animations réduites : mise en page simple ---------- */
 html.ap-reduced .sc-hero2,html.ap-reduced .sc-h{height:auto!important}
 @media(max-width:900px){
-  html.ap-scenes .sc-h .sc-pin{position:static;height:auto;overflow:visible;display:block}
-  html.ap-scenes .sc-h .sc-pin>.wrap{padding-block:70px}
-  html.ap-scenes .sc-track{width:auto;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:4px 20px 18px;scroll-padding:0 20px}
-  html.ap-scenes .sc-track::-webkit-scrollbar{display:none}
-  html.ap-scenes .sc-track>article{width:82vw;scroll-snap-align:start}
-  html.ap-scenes .sc-progress{display:block;max-width:none;margin:6px 0 0}
+  html.ap-scenes [data-scene="hscroll"] .sc-pin{top:0;padding-top:60px}
+  html.ap-scenes [data-scene="hscroll"] .sc-pin>.wrap{padding-block:0}
+  html.ap-scenes .sc-track{gap:16px}
+  html.ap-scenes .sc-track>article{width:78vw}
+  html.ap-scenes .sc-track .photo{height:min(200px,24svh)}
+  html.ap-scenes [data-scene="hscroll"] .section-top{margin-bottom:18px}
+  html.ap-scenes .sc-progress{max-width:none;margin-top:18px}
 }
 
 /* ---------- Héros de l'accueil (rideau, sans zoom) ---------- */

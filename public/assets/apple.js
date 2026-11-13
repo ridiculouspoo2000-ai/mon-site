@@ -190,6 +190,7 @@
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
     let span = 0, stops = [], vhS = 0, flowA = 0, flowB = 1;
+    const snaps = [], SNAP_P = [.14, .47, .69, .93];
     const TOUCH = matchMedia('(hover: none)').matches;
     const CSS_TL = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') && CSS.supports('view-timeline-name: --a'));
     const size = () => {
@@ -199,20 +200,33 @@
       stops = cards.map(c => Math.min(span, c.offsetLeft - cards[0].offsetLeft));
       const vh = vhS = document.documentElement.clientHeight;
       hs.style.height = wide() ? `${innerHeight + span * 1.1}px` : `${vh + Math.max(1, cards.length - 1) * vh * .85 + vh * .5}px`;
-      // Écrans tactiles (iPhone…) : la section ne se fige pas (Safari fait trembler les grandes zones figées) ;
-      // les cartes glissent de droite à gauche pendant que la page descend normalement.
+      // Écrans tactiles (iPhone…) : pas de grande zone figée en plein écran (Safari la fait trembler) ;
+      // seule la bande des cartes reste collée sous la barre du haut pendant leur défilement.
       const flow = !wide() && TOUCH;
       hs.classList.remove('hs-css');
       hs.classList.toggle('hs-flow', flow);
       hs.classList.toggle('hs-tl', flow && CSS_TL);   // glissement confié au moteur de défilement (Safari 26+, Chrome)
       if (flow) {
         hs.style.height = ''; track.style.transform = ''; if (bar) bar.style.transform = ''; hs.style.setProperty('--span', span.toFixed(1) + 'px');
-        // Début : la première carte est entièrement visible en bas de l’écran. Fin : la dernière carte arrive avant de sortir par le haut.
-        const tTop = track.getBoundingClientRect().top - hs.getBoundingClientRect().top, tH = track.offsetHeight;
-        flowA = tTop + tH * .55; flowB = Math.max(flowA + 420, vh + tTop + tH * .25);
-        stops.forEach((v, i) => hs.style.setProperty('--s' + i, v.toFixed(1) + 'px'));
+        // La bande des cartes reste collée sous la barre du haut (comme les cartes empilées plus bas, stables sur iPhone)
+        // pendant une distance D de défilement : première carte, deux passages, dernière carte ; puis la page reprend.
+        const head = document.querySelector('header'), hH = head ? head.offsetHeight : 60;
+        const stick = Math.round(Math.max(hH + 14, (vh + hH - track.offsetHeight) / 2));   // bande centrée dans l’écran visible
+        hs.classList.add('hs-measure');
+        const tTop = track.getBoundingClientRect().top - hs.getBoundingClientRect().top;
+        hs.classList.remove('hs-measure');
+        const D = Math.round(vh * 1.9);
+        hs.style.setProperty('--hs-stick', stick + 'px'); hs.style.setProperty('--hs-d', D + 'px');
+        flowA = vh - stick + tTop; flowB = flowA + D;
         hs.style.setProperty('--hs-a', flowA.toFixed(0) + 'px'); hs.style.setProperty('--hs-b', flowB.toFixed(0) + 'px');
+        stops.forEach((v, i) => hs.style.setProperty('--s' + i, v.toFixed(1) + 'px'));
+        // Points d’arrêt : si l’on lâche pendant un passage, la page se cale en douceur sur la carte la plus proche
+        // (jamais d’arrêt entre deux cartes). Un point au milieu de chaque pause.
+        const pad = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0;
+        if (!snaps.length) SNAP_P.forEach(() => { const m = document.createElement('i'); m.className = 'hs-snap'; m.setAttribute('aria-hidden', 'true'); hs.append(m); snaps.push(m); });
+        SNAP_P.forEach((q, i) => { snaps[i].style.top = (pad - vh + flowA + q * D).toFixed(0) + 'px'; });
       }
+      root.classList.toggle('hs-snapping', flow);
     };
     size();
     let hsW = innerWidth; addEventListener('resize', () => { if (wide() || Math.abs(innerWidth - hsW) > 30) { hsW = innerWidth; size(); } });
@@ -245,7 +259,7 @@
         const r = hs.getBoundingClientRect();
         p = clamp(((vhS || innerHeight) - r.top - flowA) / (flowB - flowA));
         // même rythme que la version CSS : première carte qui reste, deux passages rapides, dernière carte qui reste
-        const K = [[0, 0], [.30, 0], [.45, 1], [.50, 1], [.63, 2], [.68, 2], [.82, 3], [1, 3]];
+        const K = [[0, 0], [.28, 0], [.42, 1], [.52, 1], [.64, 2], [.74, 2], [.86, 3], [1, 3]];
         let i = 0; while (i < K.length - 2 && p > K[i + 1][0]) i++;
         const [p0, a] = K[i], [p1, b] = K[i + 1], t = ease(clamp((p - p0) / (p1 - p0 || 1)));
         paint(lerp(stops[a] || 0, stops[b] || 0, t), p); return;

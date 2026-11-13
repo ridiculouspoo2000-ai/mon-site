@@ -321,12 +321,16 @@ html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-r
 /* les halos peuvent sortir de la zone du titre (seul le bord de l’écran les coupe, via main) */
 .page-intro,.sc-hero2{overflow-x:visible}
 
-/* ---------- Accueil, « Nos actions » sur écran tactile (iPhone…) : la section ne se fige pas ----------
-   Les cartes glissent de droite à gauche pendant que la page descend normalement : rien de figé, donc rien qui tremble. */
+/* ---------- Accueil, « Nos actions » sur écran tactile (iPhone…) : seule la bande des cartes reste collée ----------
+   (pas de grande zone figée en plein écran, que Safari fait trembler) ; les cartes défilent une à une, puis la page reprend. */
 @media(max-width:900px){
   html.ap-scenes [data-scene="hscroll"].hs-flow{height:auto!important}
-  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin{position:relative;top:auto;height:auto;padding-top:0;transform:none}
-  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin>.wrap{padding-block:64px 56px}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin{position:relative;top:auto;height:auto;padding-top:0;transform:none;display:block;overflow:visible;overflow-x:clip}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin>.wrap{padding-block:64px 40px}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin>.wrap::after{content:"";display:block;height:var(--hs-d,0px)}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-track{position:sticky;top:var(--hs-stick,76px)}
+  html.ap-scenes [data-scene="hscroll"].hs-flow.hs-measure .sc-track{position:relative;top:auto}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-progress{display:none}
 }
 @supports (animation-timeline: view()) and (view-timeline-name: --a){
   @media(max-width:900px){
@@ -335,7 +339,7 @@ html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-r
     html.ap-scenes [data-scene="hscroll"].hs-tl .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:cover var(--hs-a,22%) cover var(--hs-b,78%)}
   }
 }
-@keyframes fa-hs-flow{0%{transform:translate3d(0,0,0)}30%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}45%{transform:translate3d(calc(var(--s1,0px) * -1),0,0)}50%{transform:translate3d(calc(var(--s1,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}63%{transform:translate3d(calc(var(--s2,0px) * -1),0,0)}68%{transform:translate3d(calc(var(--s2,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}82%,100%{transform:translate3d(calc(var(--s3,var(--span,0px)) * -1),0,0)}}
+@keyframes fa-hs-flow{0%{transform:translate3d(0,0,0)}28%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}42%{transform:translate3d(calc(var(--s1,0px) * -1),0,0)}52%{transform:translate3d(calc(var(--s1,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}64%{transform:translate3d(calc(var(--s2,0px) * -1),0,0)}74%{transform:translate3d(calc(var(--s2,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}86%,100%{transform:translate3d(calc(var(--s3,var(--span,0px)) * -1),0,0)}}
 @keyframes fa-hs-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* pied de page : le bouton « Animations activées » était blanc sur fond clair */
@@ -361,3 +365,11 @@ footer .motion-toggle{color:#4b5b6a!important}
    est recalculée en retard à chaque image et tout ce qui est figé tremble de haut en bas (ex. « Nos actions »). */
 html.ap-scenes [data-scene="hscroll"] .sc-pin,html.ap-scenes .sc-hero2 .sc-pin,html.ap-scenes .fx-dial-pin,.bf-seg{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+
+/* points d’arrêt de « Nos actions » (écran tactile) : on se cale toujours sur une carte, jamais entre deux */
+.hs-snap{display:none}
+@media(max-width:900px){
+  html.hs-snapping{scroll-snap-type:y proximity}
+  html.ap-scenes [data-scene="hscroll"].hs-flow{position:relative}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .hs-snap{display:block;position:absolute;left:0;width:1px;height:1px;pointer-events:none;scroll-snap-align:start}
+}

@@ -448,7 +448,7 @@
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
     '.download', '.price-accordion', '#faq details', '.ap-faq details', '.trainer-entry', '.contact-grid form', '.legal-notice', '.ap-join',
     '.ct-tile', '.ct-form', '.nw-feature', '.nw-tile', '.cj-tile.light', '.cj-card', '.cj-rules article', '.cj-amount:not(.total)', '.bafa-resource-card',
-    '.dg-teaser-in', '.bafa-infographic', '.help'].join(',');
+    '.dg-teaser-in', '.bafa-infographic', '.help', '.fo-tile', '.fo-promo', '.fo-chips li'].join(',');
   const lgOn = () => document.querySelectorAll(LG).forEach((el, i) => { el.classList.add('lg'); if (i % 2) el.classList.add('lg-o'); });
   const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));
   const applyStyle = v => {

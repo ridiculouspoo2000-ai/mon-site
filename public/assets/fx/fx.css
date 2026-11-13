@@ -373,3 +373,8 @@ html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidd
   html.ap-scenes [data-scene="hscroll"].hs-flow{position:relative}
   html.ap-scenes [data-scene="hscroll"].hs-flow .hs-snap{display:block;position:absolute;left:0;width:1px;height:1px;pointer-events:none;scroll-snap-align:start}
 }
+
+/* ---------- Fourmilière : calque plein écran, derrière le contenu (les fourmis se promènent sur toute la page) ---------- */
+.fx-swarm-fly{position:fixed;left:0;top:0;z-index:-1;pointer-events:none;display:block}
+html.ap-reduced .fx-swarm-fly{display:none}
+@media print{.fx-swarm-fly{display:none}}

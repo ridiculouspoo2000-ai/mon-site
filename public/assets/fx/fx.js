@@ -29,15 +29,27 @@
   }
 
   /* ---------------------------------------------------------------- 1. La fourmilière */
+  // Les fourmis se promènent, éparpillées sur toute la largeur, dans la zone qui va du long texte d’introduction
+  // jusqu’au mot (calque transparent derrière le contenu) ; en arrivant sur le mot, elles convergent pour l’écrire.
   document.querySelectorAll('canvas.fx-swarm').forEach(cv => {
-    const ctx = cv.getContext('2d');
     const word = cv.dataset.word || 'ensemble';
-    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null, fontPx = 0, grain = 1.6;
+    const fly = reduced ? cv : document.body.appendChild(Object.assign(document.createElement('canvas'), { className: 'fx-swarm-fly' }));
+    fly.setAttribute('aria-hidden', 'true');
+    const ctx = fly.getContext('2d');
+    let W = 0, H = 0, VW = 0, VH = 0, dpr = 1, P = [], ready = false, pointer = null, grain = 1.6, cleared = false, RH = 0;
+    // Zone de promenade : du début du texte d’introduction (section précédente) jusqu’au bas de la section du mot.
+    const sec = cv.closest('section') || cv.parentElement, prev = sec.previousElementSibling;
+    const zoneTop = prev && prev.matches('.intro-grid, .section') ? prev : sec;
+    function sizeFly() {
+      VW = reduced ? W : document.documentElement.clientWidth; VH = reduced ? H : innerHeight;
+      dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.75 : 2);
+      fly.width = Math.round(VW * dpr); fly.height = Math.round(VH * dpr); sprites();
+      if (!reduced) { fly.style.width = VW + 'px'; fly.style.height = VH + 'px'; }
+    }
     function sample() {
       const r = cv.getBoundingClientRect(); W = r.width; H = r.height; if (!W || !H) return;
-      dpr = Math.min(devicePixelRatio || 1, W < 600 ? 1.75 : 2);
-      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-      // Points du mot, tirés d’un rendu hors écran.
+      sizeFly();
+      // Points du mot, tirés d’un rendu hors écran (coordonnées dans la section).
       const off = document.createElement('canvas'), ow = Math.round(W), oh = Math.round(H);
       off.width = ow; off.height = oh;
       const o = off.getContext('2d');
@@ -48,77 +60,127 @@
       if (tw > maxW) size *= maxW / tw;
       o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
       o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
-      fontPx = size;
       const data = o.getImageData(0, 0, ow, oh).data, pts = [];
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
       const n = Math.min(pts.length, W < 600 ? 1300 : 2300);
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
-      P = pts.slice(0, n).map((t, i) => ({
-        x: Math.random() * W, y: Math.random() * H, a: Math.random() * Math.PI * 2, v: .25 + Math.random() * .45,
+      RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top;
+      P = pts.slice(0, n).map(t => ({
+        x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
-        c: gradAt((t[0] - minX) / (maxX - minX || 1)), ra: Math.random() * Math.PI
+        ra: Math.random() * Math.PI
       }));
       grain = Math.max(1.5, step * (W < 600 ? .78 : .95));
+      maxD = Math.max(...P.map(q => q.d)); formed = null;
       ready = true;
     }
-    const progress = () => { const r = cv.getBoundingClientRect(), c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
+    // Planche de fourmis pré-dessinées (24 orientations) : pendant la promenade, on copie de petites images
+    // au lieu de tracer des milliers de formes à chaque image (bien plus fluide, même sur téléphone).
+    const ANG = 24, SPR = [], SB = 1.2, SS = 9;
+    function sprites() {
+      SPR.length = 0;
+      for (let i = 0; i < ANG; i++) {
+        const c = document.createElement('canvas'); c.width = c.height = Math.ceil(SS * dpr * 2);
+        const g = c.getContext('2d'); g.setTransform(dpr * 2, 0, 0, dpr * 2, 0, 0); g.translate(SS / 2, SS / 2);
+        const ang = i / ANG * Math.PI * 2, ca = Math.cos(ang), sa = Math.sin(ang), sz = SB;
+        g.fillStyle = '#142f46'; g.beginPath();
+        g.ellipse(-ca * sz * .9, -sa * sz * .9, sz * 1.25, sz * .78, ang, 0, 6.2832);
+        g.moveTo(ca * sz * 1.05 + sz * .7, sa * sz * 1.05); g.arc(ca * sz * 1.05, sa * sz * 1.05, sz * .7, 0, 6.2832); g.fill();
+        SPR.push(c);
+      }
+    }
+    let formed = null, maxD = 1, lastMove = 0;
+    const pointerIdle = () => performance.now() - lastMove > 900 && P.every(q => Math.abs(q.ox) + Math.abs(q.oy) < .3);
+    function bake() {   // le mot formé, dessiné une seule fois (mêmes fourmis, mêmes couleurs)
+      const c = document.createElement('canvas'); c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+      const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const path = new Path2D(), sz = grain * .62;
+      for (const q of P) {
+        const ca = Math.cos(q.ra), sa = Math.sin(q.ra), bx = q.tx - ca * sz * .9, by = q.ty - sa * sz * .9, hx = q.tx + ca * sz * 1.05, hy = q.ty + sa * sz * 1.05;
+        path.moveTo(bx + ca * sz * 1.25, by + sa * sz * 1.25); path.ellipse(bx, by, sz * 1.25, sz * .78, q.ra, 0, 6.2832);
+        path.moveTo(hx + sz * .7, hy); path.arc(hx, hy, sz * .7, 0, 6.2832);
+      }
+      const gr = g.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((col, i) => gr.addColorStop(i / (GRAD.length - 1), `rgb(${col})`));
+      g.fillStyle = gr; g.fill(path); return c;
+    }
+    const progress = r => { const c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
-      const p = reduced ? 1 : progress(), t = now / 1000;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      const R = cv.getBoundingClientRect();
+      // Section dépassée (mot sorti par le haut) : plus rien à dessiner.
+      if (!reduced && R.bottom < -40) { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } return; }
+      cleared = false;
+      const p = reduced ? 1 : progress(R), t = now / 1000;
+      const X0 = reduced ? 0 : R.left, Y0 = reduced ? 0 : R.top;
+      const ZT = reduced ? 0 : zoneTop.getBoundingClientRect().top;   // haut de la zone de promenade, à l’écran
+      if (!reduced && (ZT > VH + 10 || ZT + RH < -10)) { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } return; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
+      // Mot entièrement formé et personne ne le touche : on pose l’image du mot, gardée en mémoire (aucun calcul par fourmi).
+      const still = p * 1.35 - maxD >= .66 && (!pointer || pointerIdle());
+      if (still) {
+        if (!formed) formed = bake();
+        ctx.globalAlpha = 1; ctx.drawImage(formed, X0, Y0, W, H);
+        cv.parentElement.classList.toggle('fx-formed', true);
+        for (const q of P) { q.ox *= .9; q.oy *= .9; }
+        return;
+      }
       const paths = Array.from({ length: BUCKETS }, () => new Path2D());
-      const alphaFree = .38;
       for (const q of P) {
-        // Promenade de fourmi : petits changements de cap, rebond sur les bords.
+        // Promenade de fourmi sur tout l’écran : petits changements de cap, rebond sur les bords.
         q.a += (Math.random() - .5) * .35; q.x += Math.cos(q.a) * q.v; q.y += Math.sin(q.a) * q.v;
-        if (q.x < 4 || q.x > W - 4) { q.a = Math.PI - q.a; q.x = clamp(q.x, 4, W - 4); }
-        if (q.y < 4 || q.y > H - 4) { q.a = -q.a; q.y = clamp(q.y, 4, H - 4); }
+        if (q.x < 4 || q.x > VW - 4) { q.a = Math.PI - q.a; q.x = clamp(q.x, 4, VW - 4); }
+        if (q.y < 4 || q.y > RH - 4) { q.a = -q.a; q.y = clamp(q.y, 4, RH - 4); }
         const k = ease(clamp((p * 1.35 - q.d) / .65));
         // Au doigt ou à la souris : elles s’écartent, puis reviennent.
         if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
         q.ox *= .9; q.oy *= .9;
-        const x = lerp(q.x, q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(q.y, q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
+        const x = lerp(q.x, X0 + q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(ZT + q.y, Y0 + q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
+        if (x < -6 || x > VW + 6 || y < -6 || y > VH + 6) continue;
         const b = Math.min(BUCKETS - 1, Math.round(k * (BUCKETS - 1)));
-        // une petite fourmi (abdomen + tête), orientée dans le sens de sa marche, puis posée à sa place dans le mot
-        const ang = k < .5 ? q.a : q.ra, sz = lerp(1.15, grain * .62, k), ca = Math.cos(ang), sa = Math.sin(ang);
+        const sz = lerp(1.2, grain * .62, k);
+        if (b < BUCKETS / 2) {   // en promenade : petite image pré-dessinée, orientée dans le sens de la marche
+          let ai = Math.round(((q.a % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG;
+          const d = SS * sz / SB;
+          ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1));
+          ctx.drawImage(SPR[ai], x - d / 2, y - d / 2, d, d);
+          continue;
+        }
+        // une petite fourmi (abdomen + tête) posée à sa place dans le mot
+        const ang = q.ra, ca = Math.cos(ang), sa = Math.sin(ang);
         const path = paths[b];
         const bx = x - ca * sz * .9, by = y - sa * sz * .9, hx = x + ca * sz * 1.05, hy = y + sa * sz * 1.05;
         path.moveTo(bx + ca * sz * 1.25, by + sa * sz * 1.25); path.ellipse(bx, by, sz * 1.25, sz * .78, ang, 0, 6.2832);
         path.moveTo(hx + sz * .7, hy); path.arc(hx, hy, sz * .7, 0, 6.2832);
-        q.b = b; q.k = k;
       }
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
+      let g = null;
       for (let b = 0; b < BUCKETS; b++) {
         const k = b / (BUCKETS - 1);
-        ctx.globalAlpha = lerp(alphaFree, 1, k);
-        if (k < .5) { ctx.fillStyle = '#142f46'; ctx.fill(paths[b]); }
-        else { const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); ctx.fillStyle = g; ctx.fill(paths[b]); }
-      }
-      // Une fois les fourmis rassemblées, le mot apparaît net (dégradé de la marque).
-      const crisp = 0;
-      if (crisp > 0) {
-        ctx.globalAlpha = ease(crisp);
-        ctx.font = `800 ${fontPx}px "FA Display", "FA Inter", -apple-system, sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`));
-        ctx.fillStyle = g; ctx.fillText(word, W / 2, H * .52);
+        ctx.globalAlpha = lerp(.34, 1, k);
+        if (k < .5) continue;   // déjà dessinées (images pré-dessinées)
+        else { if (!g) { g = ctx.createLinearGradient(X0 + W * .1, 0, X0 + W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); } ctx.fillStyle = g; ctx.fill(paths[b]); }
       }
       ctx.globalAlpha = 1;
-      cv.style.setProperty('--fx-p', p.toFixed(3));
       cv.parentElement.classList.toggle('fx-formed', p > .92);
     }
-    const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; lastMove = performance.now(); };
     cv.addEventListener('pointermove', setP, { passive: true });
     cv.addEventListener('pointerdown', setP, { passive: true });
     cv.addEventListener('pointerleave', () => { pointer = null; });
     cv.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') pointer = null; });
     (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { sample(); if (reduced) frame(0); });
-    let rw = 0; addEventListener('resize', () => { if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; sample(); } });
-    rw = innerWidth;
-    if (!reduced) whenVisible(cv, frame);
+    let rw = innerWidth, rh = innerHeight;
+    addEventListener('resize', () => {
+      if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; rh = innerHeight; sample(); }
+      else if (!reduced && Math.abs(innerHeight - rh) > 1) { rh = innerHeight; sizeFly(); }   // barre d’adresse du téléphone : seul le calque change de hauteur
+    });
+    // hauteur de la zone remesurée quand tout est chargé (images, polices)
+    const zone = () => { if (ready) RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top; };
+    addEventListener('load', zone); setTimeout(zone, 2500);
+    if (!reduced) { live.add(frame); wake(); }
   });
 
   /* ---------------------------------------------------------------- 2. Le cadran du parcours BAFA */

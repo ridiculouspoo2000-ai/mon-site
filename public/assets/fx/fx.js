@@ -10,7 +10,7 @@
   const easeOut = t => 1 - Math.pow(1 - t, 3);
   const lerp = (a, b, t) => a + (b - a) * t;
   const coarse = matchMedia('(hover: none)').matches;
-  const GRAD = [[6, 78, 134], [11, 99, 168], [226, 114, 42], [211, 91, 11]];
+  const GRAD = [[6, 78, 134], [31, 111, 176], [226, 122, 60], [211, 91, 11]];
   const gradAt = t => { t = clamp(t) * (GRAD.length - 1); const i = Math.min(GRAD.length - 2, Math.floor(t)), f = t - i; return GRAD[i].map((c, k) => Math.round(lerp(c, GRAD[i + 1][k], f))); };
 
   // Une seule boucle d’animation pour tous les effets visibles.
@@ -344,7 +344,7 @@
       if (innerWidth > 760 || reduced) return;
       const S = stage.getBoundingClientRect(), C = core.getBoundingClientRect();
       svg.setAttribute('viewBox', `0 0 ${S.width} ${S.height}`);
-      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#064e86"/><stop offset=".55" stop-color="#0b63a8"/><stop offset="1" stop-color="#d35b0b"/></linearGradient></defs>';
+      svg.innerHTML = '<defs><linearGradient id="fxh-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#064e86"/><stop offset=".55" stop-color="#1f6fb0"/><stop offset="1" stop-color="#d35b0b"/></linearGradient></defs>';
       const cx = C.left - S.left + C.width / 2, cy = C.top - S.top + C.height / 2, rad = C.width / 2;
       cards.forEach((card, i) => {
         const R = card.getBoundingClientRect(), left = R.left - S.left + R.width / 2 < cx, up = R.top + R.height / 2 - S.top < cy;
@@ -386,7 +386,7 @@
   /* ---------------------------------------------------------------- 6. Photos vivantes */
   if (!reduced) {
     const imgs = [...document.querySelectorAll('main .cards article img, main .split img:not(.competences-image), main .cj-photo img')].filter(img => {
-      const p = img.parentElement; if (!p) return false;
+      const p = img.parentElement; if (!p || img.closest('[data-scene="hscroll"]')) return false;   // cartes qui défilent : pas de second mouvement
       const cs = getComputedStyle(p);
       return cs.overflow === 'hidden' || cs.overflowY === 'hidden' || cs.clipPath !== 'none';
     });

@@ -189,13 +189,13 @@
   const hs = document.querySelector('[data-scene="hscroll"]');
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
-    let span = 0, stops = [];
+    let span = 0, stops = [], vhS = 0;
     const size = () => {
       span = Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
       const cards = [...track.children];
       // Téléphone : une carte à la fois (chaque carte s’arrête, puis la suivante arrive), comme sur ordinateur.
       stops = cards.map(c => Math.min(span, c.offsetLeft - cards[0].offsetLeft));
-      const vh = document.documentElement.clientHeight;
+      const vh = vhS = document.documentElement.clientHeight;
       hs.style.height = wide() ? `${innerHeight + span * 1.1}px` : `${vh + Math.max(1, cards.length - 1) * vh * .85 + vh * .5}px`;
     };
     size();
@@ -206,18 +206,31 @@
       if (wide() || hsRaf) return;
       hsRaf = requestAnimationFrame(() => { hsRaf = 0; const m = track.scrollWidth - track.clientWidth; if (bar) bar.style.transform = `scaleX(${m > 0 ? (track.scrollLeft / m).toFixed(4) : 0})`; });
     }, { passive: true });
+    // Téléphone : la position visée est suivie en douceur à chaque image (aucun à-coup pendant l’élan du doigt),
+    // et la hauteur d’écran de référence reste fixe (la barre d’adresse qui apparaît ou disparaît ne fait plus sauter les cartes).
+    let cur = null, goal = 0, pGoal = 0, follow = 0, lastT = 0;
+    const dpr = Math.max(1, devicePixelRatio || 1), snap = v => Math.round(v * dpr) / dpr;
+    const paint = (x, p) => { track.style.transform = `translate3d(${(-snap(x)).toFixed(2)}px,0,0)`; if (bar) bar.style.transform = `scaleX(${p.toFixed(4)})`; };
+    const glide = now => {
+      const dt = lastT ? Math.min(64, now - lastT) : 16.7; lastT = now;
+      cur += (goal - cur) * (1 - Math.pow(1 - .24, dt / 16.7));
+      if (Math.abs(goal - cur) < .25) cur = goal;
+      paint(cur, pGoal);
+      follow = cur === goal ? 0 : requestAnimationFrame(glide);
+      if (!follow) lastT = 0;
+    };
     scenes.push(() => {
       if (!span) return;
       let p, x;
-      if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; }
-      else {
-        // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement
-        p = clamp((sceneProgress(hs) - .1) / .8);
-        const u = p * (stops.length - 1), k = Math.min(stops.length - 2, Math.floor(u)), t = ease(clamp((u - k - .22) / .78));
-        x = lerp(stops[k], stops[k + 1], t);
-      }
-      track.style.transform = `translate3d(${(-x).toFixed(1)}px,0,0)`;
-      if (bar) bar.style.transform = `scaleX(${p.toFixed(4)})`;
+      if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; paint(x, p); cur = x; return; }
+      // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement
+      const r = hs.getBoundingClientRect(), run = r.height - (vhS || innerHeight);
+      p = clamp(((run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0)) - .1) / .8);
+      const u = p * (stops.length - 1), k = Math.min(stops.length - 2, Math.floor(u)), t = ease(clamp((u - k - .22) / .78));
+      x = lerp(stops[k], stops[k + 1], t);
+      goal = x; pGoal = p;
+      if (cur === null || Math.abs(goal - cur) > innerWidth * 2) { cur = goal; paint(cur, p); return; }
+      if (!follow) follow = requestAnimationFrame(glide);
     });
   }
 

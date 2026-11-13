@@ -317,7 +317,7 @@ const SCREENS = [
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’un consentement se donne librement : il ne se déduit pas d’un silence.", "ok": true}, {"t": "Parce que tout contact physique entre jeunes est interdit en accueil collectif de mineurs.", "ok": false, "no": "Ce n’est pas la règle : la question est celle de l’accord, pas d’une interdiction générale."}, {"t": "Parce qu’un mineur ne peut jamais consentir à rien, quel que soit son âge.", "ok": false, "no": "C’est inexact dit ainsi : la loi protège spécialement les moins de 15 ans, mais la question posée ici est celle du silence."}]},
     better: "Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement." },
-  { id: "kevin", ch: 3, type: "multi", comp: "C2", npc: "kevin", mood: "smile", kicker: "En fin de journée, après le départ des enfants",
+  { id: "kevin", ch: 3, type: "multi", comp: "C2", npc: "kevin", mood: "smile", kicker: "Mercredi, 18 h · après le départ des enfants",
     context: "Kévin, animateur de 24 ans, vous confie : « Clara a 17 ans, elle est d’accord. Notre relation est autorisée, non ? » Clara fait partie du groupe qu’il encadre.",
     prompt: "Quels arguments lui opposer ? Sélectionnez tous ceux qui sont justes.",
     opts: [
@@ -376,7 +376,7 @@ const SCREENS = [
   { id: "numero", ch: 4, type: "dial", comp: "C3", kicker: "Jeudi, 16 h 05", title: "Il faut appeler quelqu’un, maintenant", timer: 30,
     intro: "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro.",
     help: "Le danger est immédiat : Lou risque d’être remis à cet adulte dans moins d’une heure. Ce sont les forces de l’ordre qu’il faut appeler : le 17, ou le 112.",
-    caller: "Gendarmerie", convo: [
+    caller: "Gendarmerie", relay: { "112": "Urgences, 112. Je vous mets en relation avec la gendarmerie, ne quittez pas." }, convo: [
       { t: "Gendarmerie nationale, je vous écoute.", opts: [
         { t: "Je suis animateur à l’accueil de loisirs des Hautes Herbes. Un enfant de 10 ans vient de me révéler des violences sexuelles de la part de l’adulte qui doit venir le chercher à 17 h.", q: 1, fb: "Qui vous êtes, où vous êtes, ce qui se passe et l’urgence : l’essentiel en une phrase." },
         { t: "Je crois qu’un père agresse son enfant, il faut venir l’arrêter.", q: 0.3, fb: "Vous rapportez une conclusion, pas ce que l’enfant a dit. Et l’enfant n’a pas désigné son père." },
@@ -535,9 +535,9 @@ const SCREENS = [
       "Un contrôle d’honorabilité ne remplace jamais cette vigilance.",
     ], refs: ["Carte des domaines de prévention", "CASF L226-8"] } },
 
-  { id: "dafter", ch: 5, type: "positions", mode: "after", title: "Tes convictions, une semaine plus tard",
+  { id: "dafter", ch: 5, type: "positions", mode: "after", kicker: "Vendredi, 17 h 30", title: "Tes convictions, une semaine plus tard",
     intro: "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez." },
-  { id: "souvenirs", ch: 5, type: "replay", kicker: "Fin de la semaine", title: "Vous vous souvenez ?" },
+  { id: "souvenirs", ch: 5, type: "replay", kicker: "Vendredi, 18 h · fin de la semaine", title: "Vous vous souvenez ?" },
   { id: "bilan", ch: 5, type: "bilan" }
 ];
 
@@ -603,7 +603,7 @@ const BUILD = {
 };
 
 const REFLEXES = [
-  { id: "protect", label: "Protéger d’abord : éviter toute nouvelle exposition", ch: 6, from: [["f1", 1]] },
+  { id: "protect", label: "Protéger d’abord : éviter toute nouvelle exposition", ch: 5, from: [["f1", 1]] },
   { id: "listen", label: "Écouter sans promettre le secret ni enquêter", ch: 4, from: [["lou", 0.8]] },
   { id: "alert", label: "Alerter les autorités adaptées, même si la direction freine", ch: 4, from: [["numero", 1], ["garnier", 0.75]] },
   { id: "note", label: "Séparer faits observés, paroles rapportées et suppositions", ch: 2, from: [["theo", 0.8], ["transm", 0.8]] },
@@ -703,14 +703,14 @@ const BRIDGE = {
   rire: "12 h 15, au réfectoire. Bastien s’assoit en face de toi. Il a vu Inès te parler ce matin, et il revient sur les remarques faites au briefing.",
   planning: "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi.",
   theo: "14 h, temps calme chez les 6-8 ans. Jade te montre un dessin de Théo, 8 ans, et te parle de lui.",
-  chat: "17 h 55. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
+  chat: "18 h. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
   sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, M. Garnier, le directeur, réunit l’équipe : il manque quelqu’un aujourd’hui.",
   ronde: "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin.",
   consent: "Mercredi, 16 h. Après le temps libre, Nour te retrouve en salle des animateurs, son carnet à la main.",
   temoin: "Pour comprendre ce qui s’est passé au local, tu retrouves Sacha, qui participait au rangement hier, dans la salle des grands.",
   bilanequipe: "Vendredi, 8 h 30. Dernier briefing de la semaine : Nour veut que l’on tire les leçons de ce qui s’est passé.",
   maelys: "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir te voir.",
-  garnier: "Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver M. Garnier dans son bureau.",
+  garnier: "13 h 40. Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver M. Garnier dans son bureau.",
 };
 SCREENS.forEach((sc) => {
   const b = BRIDGE[sc.id]; if (!b) return;

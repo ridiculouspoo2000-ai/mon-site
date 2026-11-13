@@ -288,17 +288,41 @@
   function rings(pulse) {
     let b = $("#rings");
     if (!b) {
-      b = el("div", { id: "rings", class: "rings", role: "img" });
+      b = el("button", { id: "rings", class: "rings", type: "button" });
+      b.addEventListener("click", () => ringInfo());
       b.innerHTML = `<svg viewBox="0 0 44 44" aria-hidden="true">${Object.keys(RING).map((c, i) => { const r = 19 - i * 4.6; return `<circle class="rt" cx="22" cy="22" r="${r}" stroke="${RING[c]}"/><circle class="rf" data-c="${c}" cx="22" cy="22" r="${r}" stroke="${RING[c]}" pathLength="100"/>`; }).join("")}</svg>`;
       $(".chapbox").after(b);
     }
     const P = compProgress();
     P.forEach(([c, p]) => { const f = b.querySelector(`.rf[data-c="${c}"]`); f.style.strokeDashoffset = (100 - Math.max(p * 100, p > 0 ? 3 : 0)).toFixed(1); });
-    b.setAttribute("aria-label", "Compétences : " + P.map(([c, p]) => `${c} ${Math.round(p * 100)} %`).join(", "));
+    b.setAttribute("aria-label", "Votre cible de compétences : " + P.map(([c, p]) => `${c} ${Math.round(p * 100)} %`).join(", ") + ". Toucher pour en savoir plus.");
     b.title = P.map(([c, p]) => `${c} · ${COMPS[c]} : ${Math.round(p * 100)} %`).join("\n");
     if (pulse) { b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); }
   }
+  const TIPS = {
+    C1: "Avant de conclure, demandez-vous qui a vu ou entendu directement. Notez les faits et les mots exacts, pas les hypothèses.",
+    C2: "Reprenez les repères du carnet : un consentement libre, éclairé, spécifique, préalable et révocable ; un harcèlement peut venir d’un groupe.",
+    C3: "Danger immédiat : le 17 ou le 112. Sinon la référente, la direction, la CRIP ou le 119. Et ne jamais promettre le secret.",
+    C4: "Une prévention se vérifie : un changement concret, une personne responsable, un moment, un indicateur.",
+  };
+  function ringsSVG(size) {
+    const P = compProgress();
+    return `<svg class="ringsbig" viewBox="0 0 44 44" width="${size}" height="${size}" aria-hidden="true">${P.map(([c, p], i) => { const r = 19 - i * 4.6; return `<circle cx="22" cy="22" r="${r}" fill="none" stroke="${RING[c]}" stroke-opacity=".18" stroke-width="3.4"/><circle cx="22" cy="22" r="${r}" fill="none" stroke="${RING[c]}" stroke-width="3.4" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${(100 - Math.max(p * 100, p > 0 ? 3 : 0)).toFixed(1)}" transform="rotate(-90 22 22)"/>`; }).join("")}</svg>`;
+  }
+  function ringList() {
+    return `<ul class="ringlist">${compProgress().map(([c, p]) => `<li><i style="background:${RING[c]}"></i><span><b>${Math.round(p * 100)} %</b> ${esc(COMPS[c])}</span></li>`).join("")}</ul>`;
+  }
+  // la cible en haut de l'écran : à quoi elle sert
+  function ringInfo() {
+    document.querySelector(".ringpop")?.remove();
+    const p = el("div", { class: "ringpop", role: "dialog", "aria-label": "Votre cible de compétences" },
+      `<div class="rp-h">${ringsSVG(84)}<div><p class="kicker">Votre cible</p><p>Chaque anneau est une compétence. Il se remplit à chaque décision juste. À la fin de la semaine, vous verrez où progresser.</p></div></div>${ringList()}`);
+    p.appendChild(btn("Fermer", () => p.remove(), "ghost"));
+    document.body.appendChild(p); Snd.click();
+    setTimeout(() => document.addEventListener("click", function off(e) { if (!p.contains(e.target)) { p.remove(); document.removeEventListener("click", off); } }), 0);
+  }
   function toast(c, q) {
+    if (!st.tut.rings) { st.tut.rings = 1; save(); setTimeout(() => { const t = el("div", { class: "gain msg", role: "status" }, `<span>La cible en haut de l’écran se remplit : chaque anneau est une compétence. Touchez-la pour la détailler.</span>`); document.body.appendChild(t); setTimeout(() => t.classList.add("out"), 5200); setTimeout(() => t.remove(), 5900); }, 2800); }
     const t = el("div", { class: "gain", "aria-hidden": "true" }, `<i style="background:${RING[c]}"></i><span><b>${q >= 1 ? "Réflexe acquis" : "Compétence en progrès"}</b>${esc(COMPS[c])}</span>`);
     document.body.appendChild(t); requestAnimationFrame(() => t.classList.add("on"));
     setTimeout(() => { t.classList.remove("on"); setTimeout(() => t.remove(), 600); }, 2600);
@@ -345,18 +369,30 @@
   }
   // une carte qu'on peut faire glisser un peu (quand l'interface en cache un morceau)
   function pannable(box, map) {
-    let x0 = 0, y0 = 0, dx = 0, dy = 0, sx = 0, sy = 0, drag = false, moved = false;
+    // la carte est agrandie ; on la promène du doigt ou à la souris pour explorer tout l'accueil
+    const Z = () => (innerWidth < 760 ? 2.3 : 1.55), ratio = (A.dio && A.dio.ratio) || 1.45;
+    let dx = 0, dy = 0, x0 = 0, y0 = 0, sx = 0, sy = 0, drag = false, moved = false;
     box.classList.add("pannable");
+    const lim = () => { const W = box.clientWidth, H = box.clientHeight, mw = map.offsetWidth, mh = map.offsetHeight; dx = Math.min(0, Math.max(W - mw, dx)); dy = Math.min(0, Math.max(H - mh, dy)); map.style.transform = `translate(${dx}px,${dy}px)`; };
+    const fit = (center) => {
+      const W = box.clientWidth || 600; box.style.height = Math.round(W / ratio * (innerWidth < 760 ? 1.25 : 1)) + "px";
+      map.style.width = (Z() * 100) + "%"; map.style.position = "absolute"; map.style.left = "0"; map.style.top = "0";
+      if (center) { dx = (W - map.offsetWidth) / 2; dy = (box.clientHeight - map.offsetHeight) / 2; }
+      lim();
+    };
+    requestAnimationFrame(() => fit(true)); addEventListener("resize", () => box.isConnected && fit(false));
     box.addEventListener("pointerdown", (e) => { if (e.button) return; drag = true; moved = false; x0 = e.clientX; y0 = e.clientY; sx = dx; sy = dy; });
     addEventListener("pointermove", (e) => {
       if (!drag) return; const mx = e.clientX - x0, my = e.clientY - y0;
       if (!moved && Math.hypot(mx, my) < 7) return; moved = true; box.classList.add("dragging");
-      const W = box.clientWidth * .3, H = box.clientHeight * .3;
-      dx = Math.max(-W, Math.min(W, sx + mx)); dy = Math.max(-H, Math.min(H, sy + my));
-      map.style.transform = `translate(${dx}px,${dy}px)`;
+      dx = sx + mx; dy = sy + my; lim();
     });
     addEventListener("pointerup", () => { drag = false; setTimeout(() => box.classList.remove("dragging"), 0); });
     box.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    // au clavier : la carte suit l'élément qui a le focus
+    map.addEventListener("focusin", (e) => { const r = e.target.getBoundingClientRect(), B = box.getBoundingClientRect();
+      if (r.left < B.left + 20) dx += B.left + 20 - r.left; if (r.right > B.right - 20) dx -= r.right - B.right + 20;
+      if (r.top < B.top + 20) dy += B.top + 20 - r.top; if (r.bottom > B.bottom - 20) dy -= r.bottom - B.bottom + 20; lim(); });
   }
   function toastMsg(t) {
     const g = el("div", { class: "gain msg", role: "status" }, `<span>${esc(t)}</span>`);
@@ -380,7 +416,7 @@
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
     const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
     const tm = /(\d+) h (\d+)/.exec(DC.t) || [0, 8, 30], hh = +tm[1], mm = +tm[2];
-    DC.el.innerHTML = `<svg class="dc-face" viewBox="-20 -20 40 40" aria-hidden="true"><circle r="18.5" class="f"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-15.5" x2="0" y2="${i % 3 ? -13.8 : -12.6}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="2" x2="0" y2="-8.5" transform="rotate(${(hh % 12) * 30 + mm / 2})"/><line class="mh" x1="0" y1="2.5" x2="0" y2="-13" transform="rotate(${mm * 6})"/><circle r="1.3" class="c"/></svg>
+    DC.el.innerHTML = `<svg class="dc-face" viewBox="-20 -20 40 40" aria-hidden="true"><circle r="18.5" class="f"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-15.5" x2="0" y2="${i % 3 ? -13.8 : -12.6}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="2" x2="0" y2="-8.5" transform="rotate(${(hh % 12) * 30 + mm / 2})"/>${[["12", 0, -10.4], ["3", 11.2, 1.4], ["6", 0, 13.2], ["9", -11.2, 1.4]].map(([t, x, y]) => `<text x="${x}" y="${y}" class="n">${t}</text>`).join("")}<text class="dg" x="0" y="7.6">${hh}:${String(mm).padStart(2, "0")}</text><line class="mh" x1="0" y1="2.5" x2="0" y2="-13" transform="rotate(${mm * 6})"/><circle r="1.3" class="c"/></svg>
       <div class="dc-top"><b>${DAYS[d]}</b><span>${DC.t}</span></div>
       <div class="dc-week">${DAYS.map((x, i) => `<i class="${i < d ? "past" : i === d ? "now" : ""}" title="${x}">${x[0]}</i>`).join("")}</div>
       <div class="dc-f"><small>Fatigue de l’équipe</small><span><i style="width:${f}%"></i></span></div>`;
@@ -393,12 +429,14 @@
       const H = DC.el.querySelector(".hh"), M = DC.el.querySelector(".mh");
       const tick = (now) => { const k2 = Math.min(1, (now - T0) / dur), m = Math.round(a0 + (a1 - a0) * k2); sp.textContent = `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
         if (H) H.setAttribute("transform", `rotate(${((m / 60) % 12) * 30})`); if (M) M.setAttribute("transform", `rotate(${(m % 60) * 6})`);
+        const dg = DC.el.querySelector(".dg"); if (dg) dg.textContent = `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
         if (k2 < 1 && sp.isConnected) requestAnimationFrame(tick); };
       requestAnimationFrame(tick);
     }
     if (changed) { DC.el.classList.remove("newday"); void DC.el.offsetWidth; DC.el.classList.add("newday"); }
   }
   function render(dir = 1) {
+    document.body.classList.remove("athome");
     const sc = tune(SCREENS[st.idx]);
     // partie reprise après la présentation : l'horloge et le téléphone sont déjà connus
     if (!st.rev) st.rev = {};
@@ -1527,9 +1565,11 @@
     const name = st.name || "Vous";
     n.innerHTML = `<div class="bilan">
       <div class="bhead"><div class="bav">${A.avatarsBig[st.av]}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
-      <p class="lead">${defi ? "Défi relevé : vous avez protégé d’abord et alerté les bons relais, sans promettre le secret." : "Vous avez beaucoup avancé. Un ou deux réflexes de protection restent à consolider : rejouez les chapitres indiqués."}</p></div></div>
-      ${epilogue()}<h3>Vos compétences</h3><div class="comps">${Object.keys(COMPS).map((k) => { const v = avg(by[k]); const [c, t] = lvl(v); return `<div class="comp ${c}"><div class="ct"><b>${k}</b> ${esc(COMPS[k])}</div><div class="bar" aria-hidden="true"><span style="width:${v == null ? 0 : Math.round(v * 100)}%"></span></div><span class="lv">${t}</span></div>`; }).join("")}</div>
-      <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer le chapitre ${r.ch}</button>`}</li>`).join("")}</ul>
+      <p class="lead">${defi ? "Défi relevé : vous avez protégé d’abord et alerté les bons relais, sans promettre le secret." : "Vous avez beaucoup avancé. Un ou deux réflexes de protection restent à consolider : rejouez les journées indiquées."}</p></div></div>
+      ${epilogue()}<h3>Votre cible</h3><div class="bring">${ringsSVG(150)}<div><p>Pendant la semaine, cette cible en haut de l’écran s’est remplie à chacune de vos décisions justes. Chaque anneau est une compétence.</p>${ringList()}
+        ${(() => { const P = compProgress().sort((a, b) => a[1] - b[1]); const w = P.filter(([, v]) => v < 0.8).slice(0, 2); return w.length ? `<div class="toimprove"><p class="kicker">Pour progresser</p>${w.map(([c]) => `<p><i style="background:${RING[c]}"></i><b>${esc(COMPS[c])}.</b> ${esc(TIPS[c])}</p>`).join("")}</div>` : `<p class="toimprove good">Toutes vos compétences sont au vert. Bravo.</p>`; })()}</div></div>
+      <h3>Vos compétences</h3><div class="comps">${Object.keys(COMPS).map((k) => { const v = avg(by[k]); const [c, t] = lvl(v); return `<div class="comp ${c}"><div class="ct"><b>${k}</b> ${esc(COMPS[k])}</div><div class="bar" aria-hidden="true"><span style="width:${v == null ? 0 : Math.round(v * 100)}%"></span></div><span class="lv">${t}</span></div>`; }).join("")}</div>
+      <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer ${(CHAPTERS[r.ch - 1] || {}).day ? "la journée du " + CHAPTERS[r.ch - 1].day.toLowerCase() : "cette journée"}</button>`}</li>`).join("")}</ul>
       ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à ta direction lors de ton prochain accueil.</p></div>` : ""}
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
       <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
@@ -1761,8 +1801,15 @@
       if (sc.ok.includes(num)) {
         over = true; clearInterval(tId); bar.remove(); fbz.innerHTML = ""; Snd.click(); document.querySelectorAll(".cr-pop.dint").forEach((x) => x.remove());
         ph.querySelector(".ip-dial").hidden = true; const ic = ph.querySelector(".ip-incall"); ic.hidden = false;
-        ic.querySelector(".ip-who").textContent = (sc.caller || "Appel") + " · " + num;
-        setTimeout(() => talk(0), 1500);
+        const rl = (sc.relay || {})[num];
+        ic.querySelector(".ip-who").textContent = num === "112" ? "Urgences · 112" : (sc.caller || "Appel") + " · " + num;
+        if (rl) setTimeout(() => {   // le 112 répond, puis passe la gendarmerie
+          if (!log.isConnected) panel.insertBefore(log, fbz);
+          const row = el("div", { class: "say npc" }, `<b>Urgences 112</b><p>${words(rl)}</p>`); log.appendChild(row);
+          Voice.say("operateur", rl, row.querySelector("p"));
+          setTimeout(() => { ic.querySelector(".ip-who").textContent = (sc.caller || "Appel") + " · transfert du 112"; talk(0); }, 3600);
+        }, 1400);
+        else setTimeout(() => talk(0), 1500);
       } else {
         ph.classList.remove("wrong"); void ph.offsetWidth; ph.classList.add("wrong"); Snd.low();
         const t = (sc.near[num] || "Ce numéro ne correspond à aucun service d’urgence.") + (tries >= 2 && sc.help ? " " + sc.help : "");
@@ -2008,9 +2055,13 @@
   });
 
   /* ---------- accueil ---------- */
+  const HOME_STAGE = { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "wave"], ["nour", "d", "wave"], ["sacha", "c", "walk"], ["zoe", "e"], ["kevin", "f", "talk"]] };
   function home() {
     if (DC.el) DC.el.hidden = true;
-    if (World.el) { World.el.classList.remove("on"); document.body.classList.remove("live"); World.cur = null; }
+    // l'accueil de loisirs, en vrai, derrière le titre : le matin, les familles arrivent
+    World.init();
+    if (World.el && !calm()) { World.cur = null; World.show(HOME_STAGE, { id: "home", type: "chapter", kicker: "Lundi, 8 h 20" }); document.body.classList.remove("live"); document.body.classList.add("athome"); }
+    else if (World.el) { World.el.classList.remove("on"); document.body.classList.remove("live"); World.cur = null; }
     hud(false);
     Snd.setMood("home");
     stage.innerHTML = "";
@@ -2027,7 +2078,7 @@
       <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
-      <div class="hcast" aria-hidden="true"><div class="hc-glass"></div>${["garnier", "nour", "bastien", "ines"].map((k, i) => `<div class="hc hc${i}">${A.chars[k][i === 1 ? "big" : "smile"]}</div>`).join("")}</div>`;
+`;
     const hb = n.querySelector(".hbtns");
     const opts = n.querySelectorAll(".hopt");
     const drawOpts = () => opts.forEach((b) => {

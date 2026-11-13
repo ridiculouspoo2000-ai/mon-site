@@ -882,11 +882,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
  },
- "90b030a62eb5": {
+ "3c08f68cafda": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "17 h 55. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi."
+  "text": "18 h. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi."
  },
  "d6447edb4168": {
   "who": "narr",
@@ -1314,11 +1314,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Sacha, 11 ans, vient vous voir : J’ai vu un truc à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
- "d7a44f2ef002": {
+ "43c2490d3607": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver Monsieur Garnier dans son bureau."
+  "text": "13 h 40. Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver Monsieur Garnier dans son bureau."
  },
  "a84e2fa7d02c": {
   "who": "narr",
@@ -1757,6 +1757,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Très bien. Une patrouille arrive. Restez avec l’enfant, ne le remettez à personne, ne prévenez pas cet adulte, et informez votre direction."
+ },
+ "7b2d4383031a": {
+  "who": "operateur",
+  "mood": "",
+  "kind": "replique",
+  "text": "Urgences, 112. Je vous mets en relation avec la gendarmerie, ne quittez pas."
  },
  "c49755a43d08": {
   "who": "gendarme",

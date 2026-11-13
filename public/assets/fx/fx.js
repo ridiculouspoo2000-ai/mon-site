@@ -1,0 +1,242 @@
+/* Effets Fourmi’Action : fourmilière, cadran du parcours BAFA, billets de session, titre qui tourne,
+   nuage des valeurs, photos vivantes. Créations originales ; tout s’arrête hors de l’écran et respecte
+   « réduire les animations ». Transformations et opacité uniquement quand c’est possible (fluides à la fréquence de l’écran). */
+(() => {
+  'use strict';
+  const root = document.documentElement;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches || root.classList.contains('ap-reduced');
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const coarse = matchMedia('(hover: none)').matches;
+  const GRAD = [[43, 91, 215], [93, 83, 211], [155, 86, 166], [217, 102, 47]];
+  const gradAt = t => { t = clamp(t) * (GRAD.length - 1); const i = Math.min(GRAD.length - 2, Math.floor(t)), f = t - i; return GRAD[i].map((c, k) => Math.round(lerp(c, GRAD[i + 1][k], f))); };
+
+  // Une seule boucle d’animation pour tous les effets visibles.
+  const live = new Set();
+  let looping = false;
+  function loop(now) {
+    if (!live.size || document.hidden) { looping = false; return; }
+    live.forEach(f => f(now));
+    requestAnimationFrame(loop);
+  }
+  const wake = () => { if (!looping && live.size) { looping = true; requestAnimationFrame(loop); } };
+  document.addEventListener('visibilitychange', wake);
+  function whenVisible(el, f, margin = '120px') {
+    if (!('IntersectionObserver' in window)) { live.add(f); wake(); return; }
+    new IntersectionObserver(es => es.forEach(e => { e.isIntersecting ? live.add(f) : live.delete(f); wake(); }), { rootMargin: margin }).observe(el);
+  }
+
+  /* ---------------------------------------------------------------- 1. La fourmilière */
+  document.querySelectorAll('canvas.fx-swarm').forEach(cv => {
+    const ctx = cv.getContext('2d');
+    const word = cv.dataset.word || 'ensemble';
+    let W = 0, H = 0, dpr = 1, P = [], ready = false, pointer = null;
+    function sample() {
+      const r = cv.getBoundingClientRect(); W = r.width; H = r.height; if (!W || !H) return;
+      dpr = Math.min(devicePixelRatio || 1, W < 600 ? 1.75 : 2);
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      // Points du mot, tirés d’un rendu hors écran.
+      const off = document.createElement('canvas'), ow = Math.round(W), oh = Math.round(H);
+      off.width = ow; off.height = oh;
+      const o = off.getContext('2d');
+      let size = H * .78;
+      o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
+      const tw = o.measureText(word).width;
+      if (tw > W * .92) size *= (W * .92) / tw;
+      o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
+      o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
+      const data = o.getImageData(0, 0, ow, oh).data, pts = [];
+      const step = Math.max(2, Math.round(size / 34));
+      for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
+      const n = Math.min(pts.length, W < 600 ? 700 : 1500);
+      for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
+      const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
+      P = pts.slice(0, n).map((t, i) => ({
+        x: Math.random() * W, y: Math.random() * H, a: Math.random() * Math.PI * 2, v: .25 + Math.random() * .45,
+        tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
+        c: gradAt((t[0] - minX) / (maxX - minX || 1))
+      }));
+      ready = true;
+    }
+    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .92 - r.top) / (innerHeight * .55)); };
+    const BUCKETS = 12;
+    function frame(now) {
+      if (!ready) return;
+      const p = reduced ? 1 : progress(), t = now / 1000;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      const paths = Array.from({ length: BUCKETS }, () => new Path2D());
+      const alphaFree = .38;
+      for (const q of P) {
+        // Promenade de fourmi : petits changements de cap, rebond sur les bords.
+        q.a += (Math.random() - .5) * .35; q.x += Math.cos(q.a) * q.v; q.y += Math.sin(q.a) * q.v;
+        if (q.x < 4 || q.x > W - 4) { q.a = Math.PI - q.a; q.x = clamp(q.x, 4, W - 4); }
+        if (q.y < 4 || q.y > H - 4) { q.a = -q.a; q.y = clamp(q.y, 4, H - 4); }
+        const k = ease(clamp((p * 1.35 - q.d) / .65));
+        // Au doigt ou à la souris : elles s’écartent, puis reviennent.
+        if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
+        q.ox *= .9; q.oy *= .9;
+        const x = lerp(q.x, q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(q.y, q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
+        const b = Math.min(BUCKETS - 1, Math.round(k * (BUCKETS - 1)));
+        const r = lerp(1.3, W < 600 ? 1.55 : 1.85, k), body = (1 - k) * 2.2, ca = Math.cos(q.a), sa = Math.sin(q.a);
+        const path = paths[b];
+        path.moveTo(x + r, y); path.arc(x, y, r, 0, 6.2832);
+        if (body > .2) { const bx = x - ca * body * 1.3, by = y - sa * body * 1.3; path.moveTo(bx + r * 1.15, by); path.arc(bx, by, r * 1.15, 0, 6.2832); }
+        q.b = b; q.k = k;
+      }
+      // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
+      for (let b = 0; b < BUCKETS; b++) {
+        const k = b / (BUCKETS - 1);
+        ctx.globalAlpha = lerp(alphaFree, .95, k);
+        if (k < .5) { ctx.fillStyle = '#142f46'; ctx.fill(paths[b]); }
+        else { const g = ctx.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); ctx.fillStyle = g; ctx.fill(paths[b]); }
+      }
+      ctx.globalAlpha = 1;
+      cv.style.setProperty('--fx-p', p.toFixed(3));
+      cv.parentElement.classList.toggle('fx-formed', p > .92);
+    }
+    const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    cv.addEventListener('pointermove', setP, { passive: true });
+    cv.addEventListener('pointerdown', setP, { passive: true });
+    cv.addEventListener('pointerleave', () => { pointer = null; });
+    cv.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') pointer = null; });
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { sample(); if (reduced) frame(0); });
+    let rw = 0; addEventListener('resize', () => { if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; sample(); } });
+    rw = innerWidth;
+    if (!reduced) whenVisible(cv, frame);
+  });
+
+  /* ---------------------------------------------------------------- 2. Le cadran du parcours BAFA */
+  document.querySelectorAll('.fx-dial').forEach(dial => {
+    root.classList.add('fx-has-dial');
+    const segs = [...dial.querySelectorAll('.fx-seg')], steps = [...dial.querySelectorAll('.fx-step')], dots = [...dial.querySelectorAll('.fx-dots i')];
+    const num = dial.querySelector('.fx-num'), days = dial.querySelector('.fx-days b'), unit = dial.querySelector('.fx-days small');
+    const D = steps.map(s => +s.dataset.days);
+    let cur = -1;
+    function set(i) {
+      if (i === cur) return; cur = i;
+      steps.forEach((s, k) => s.classList.toggle('on', k === i));
+      dots.forEach((d, k) => d.classList.toggle('on', k <= i));
+      num.dataset.n = num.textContent = '0' + (i + 1);
+      num.classList.remove('fx-tick'); void num.offsetWidth; num.classList.add('fx-tick');
+      if (unit) unit.textContent = steps[i].dataset.unit || 'jours effectifs';
+      countTo(D[i]);
+    }
+    let cv = 0, raf = 0;
+    function countTo(v) {
+      cancelAnimationFrame(raf); const from = cv, t0 = performance.now();
+      const run = now => { const t = clamp((now - t0) / 700); cv = Math.round(lerp(from, v, easeOut(t))); days.textContent = cv; if (t < 1) raf = requestAnimationFrame(run); };
+      reduced ? (cv = v, days.textContent = v) : (raf = requestAnimationFrame(run));
+    }
+    const scene = dial.closest('.fx-dial-scene');
+    // Chaque segment : longueur proportionnelle à la durée de l’étape (cercle découpé en 100).
+    function paint(s, f) { const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }
+    dial.querySelectorAll('.fx-track').forEach(t => { t.style.strokeDasharray = `${t.dataset.len} 200`; t.style.strokeDashoffset = -t.dataset.start; });
+    function frame() {
+      const r = scene.getBoundingClientRect(), run = r.height - innerHeight;
+      const p = run > 0 ? clamp(-r.top / run) : clamp((innerHeight * .6 - r.top) / (innerHeight * .6));
+      segs.forEach((s, i) => paint(s, clamp((p * 1.08 - i / 3) * 3)));
+      set(Math.min(2, Math.floor(clamp(p * 1.08) * 3)));
+      dial.style.setProperty('--p', p.toFixed(4));
+    }
+    if (reduced) { segs.forEach(s => paint(s, 1)); set(0); steps.forEach(s => s.classList.add('on')); dial.classList.add('fx-static'); return; }
+    set(0); whenVisible(scene, frame, '0px');
+  });
+
+  /* ---------------------------------------------------------------- 3. Billets de session (inclinaison et reflet) */
+  const cut = () => document.querySelectorAll('.tk-in').forEach(c => { const t = c.querySelector('.tk-top'); if (t) c.style.setProperty('--cut', (t.offsetHeight + 11) + 'px'); });
+  cut(); addEventListener('resize', cut); if (document.fonts) document.fonts.ready.then(cut);
+  document.querySelectorAll('.tk-in').forEach(card => {
+    if (reduced) return;
+    let tx = 0, ty = 0, cx = 0, cy = 0, on = false, gx = 50, gy = 30;
+    const move = e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      tx = (x - .5) * 2; ty = (y - .5) * 2; gx = x * 100; gy = y * 100; on = true; live.add(step); wake();
+    };
+    const leave = () => { tx = 0; ty = 0; on = false; };
+    function step() {
+      cx += (tx - cx) * .14; cy += (ty - cy) * .14;
+      card.style.transform = `perspective(900px) rotateY(${(cx * 7).toFixed(2)}deg) rotateX(${(-cy * 6).toFixed(2)}deg) translateZ(0)`;
+      card.style.setProperty('--gx', gx.toFixed(1) + '%'); card.style.setProperty('--gy', gy.toFixed(1) + '%');
+      card.classList.toggle('tk-lit', on);
+      if (!on && Math.abs(cx) < .002 && Math.abs(cy) < .002) { card.style.transform = ''; live.delete(step); }
+    }
+    card.addEventListener('pointermove', move, { passive: true });
+    card.addEventListener('pointerdown', move, { passive: true });
+    card.addEventListener('pointerleave', leave);
+    card.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') leave(); });
+    card.addEventListener('pointercancel', leave);
+  });
+
+  /* ---------------------------------------------------------------- 4. Le titre qui tourne */
+  document.querySelectorAll('.fx-rot').forEach(rot => {
+    const words = [...rot.querySelectorAll('.fx-w')];
+    if (words.length < 2) return;
+    const stack = rot.querySelector('.fx-stack');
+    stack.append(words[0].cloneNode(true));
+    let i = 0;
+    const fit = () => { rot.style.width = words[i % words.length].getBoundingClientRect().width + 'px'; };
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit);
+    if (reduced) return;
+    setInterval(() => {
+      if (document.hidden) return;
+      i++;
+      stack.style.transition = ''; stack.style.transform = `translate3d(0,${-i * 1.15}em,0)`;
+      rot.style.width = (i % words.length === 0 ? words[0] : words[i]).getBoundingClientRect().width + 'px';
+      if (i === words.length) setTimeout(() => { stack.style.transition = 'none'; stack.style.transform = 'translate3d(0,0,0)'; i = 0; }, 820);
+    }, 2300);
+  });
+
+  /* ---------------------------------------------------------------- 5. Le nuage des valeurs */
+  document.querySelectorAll('.fx-values').forEach(box => {
+    const items = [...box.children]; if (items.length < 6) return;
+    box.classList.add('fx-sphere'); box.setAttribute('role', 'list'); items.forEach(it => it.setAttribute('role', 'listitem'));
+    const n = items.length, G = Math.PI * (3 - Math.sqrt(5));
+    const pts = items.map((_, i) => { const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = G * i; return [Math.cos(th) * r, y, Math.sin(th) * r]; });
+    let ax = -.25, ay = 0, vx = 0, vy = reduced ? 0 : .0032, drag = null, hover = false, R = 150;
+    const size = () => { R = Math.min(box.clientWidth * .38, 190); box.style.height = (R * 2.35) + 'px'; };
+    size(); addEventListener('resize', size);
+    function draw() {
+      const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay);
+      items.forEach((it, i) => {
+        let [x, y, z] = pts[i];
+        let x1 = x * cy + z * sy, z1 = -x * sy + z * cy;           // rotation verticale
+        let y2 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;            // rotation horizontale
+        const s = .62 + (z2 + 1) * .3;
+        it.style.transform = `translate3d(${(x1 * R).toFixed(1)}px,${(y2 * R * .82).toFixed(1)}px,0) translate(-50%,-50%) scale(${s.toFixed(3)})`;
+        it.style.opacity = (.32 + (z2 + 1) * .34).toFixed(3);
+        it.style.zIndex = Math.round((z2 + 1) * 50);
+      });
+    }
+    function frame() {
+      if (!drag) { vx *= .95; vy += ((hover ? .0008 : .0032) - vy) * .03; }
+      ax = clamp(ax + vx, -.9, .9); ay += vy; draw();
+    }
+    box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; });
+    addEventListener('pointermove', e => { if (!drag) return; vy = (e.clientX - drag.x) * .0045; vx = -(e.clientY - drag.y) * .002; drag = { x: e.clientX, y: e.clientY }; }, { passive: true });
+    addEventListener('pointerup', () => { drag = null; });
+    box.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });
+    box.addEventListener('pointerleave', () => { hover = false; });
+    draw();
+    if (!reduced) whenVisible(box, frame);
+  });
+
+  /* ---------------------------------------------------------------- 6. Photos vivantes */
+  if (!reduced) {
+    const imgs = [...document.querySelectorAll('main .cards article img, main .split img:not(.competences-image), main .cj-photo img')].filter(img => {
+      const p = img.parentElement; if (!p) return false;
+      const cs = getComputedStyle(p);
+      return cs.overflow === 'hidden' || cs.overflowY === 'hidden' || cs.clipPath !== 'none';
+    });
+    imgs.forEach(img => {
+      img.classList.add('fx-par');
+      whenVisible(img, () => {
+        const r = img.getBoundingClientRect();
+        const t = clamp((r.top + r.height / 2) / innerHeight, -.2, 1.2) - .5;
+        img.style.setProperty('--py', (t * -6).toFixed(2) + '%');
+      }, '60px');
+    });
+  }
+})();

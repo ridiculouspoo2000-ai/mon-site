@@ -1,0 +1,118 @@
+/* Effets Fourmi’Action (fourmilière, cadran, billets, titre qui tourne, nuage des valeurs, photos vivantes, aura des titres) */
+
+/* ---------- Aura de couleur derrière les titres de page (dégradés précalculés, déplacement seul) ---------- */
+.page-intro{position:relative;isolation:isolate}
+.page-intro::before{content:"";position:absolute;z-index:-1;left:50%;top:46%;width:min(980px,120vw);aspect-ratio:2/1;translate:-50% -50%;pointer-events:none;
+  background:radial-gradient(32% 46% at 30% 50%,rgba(59,111,230,.22),transparent 70%),radial-gradient(28% 42% at 56% 42%,rgba(155,86,166,.17),transparent 70%),radial-gradient(30% 44% at 76% 58%,rgba(226,112,42,.16),transparent 70%);
+  animation:fx-aura 16s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-aura{0%{transform:translate3d(-3%,1%,0) rotate(-3deg) scale(1)}50%{transform:translate3d(2%,-2%,0) rotate(2deg) scale(1.06)}100%{transform:translate3d(4%,2%,0) rotate(-1deg) scale(.98)}}
+
+/* ---------- 1. La fourmilière ---------- */
+.fx-swarm-sec{position:relative;padding:10px 0 90px;text-align:center}
+.fx-swarm{display:block;width:100%;height:clamp(220px,30vw,380px);touch-action:pan-y;cursor:crosshair}
+.fx-swarm-cap{max-width:560px;margin:14px auto 0;font-size:clamp(17px,1.6vw,21px);line-height:1.5;color:var(--muted);opacity:.55;transform:translate3d(0,10px,0);transition:opacity .9s var(--ease),transform 1s var(--ease)}
+.fx-swarm-cap em{font-style:normal;font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fx-formed .fx-swarm-cap{opacity:1;transform:none}
+
+/* ---------- 2. Le cadran du parcours BAFA ---------- */
+html.fx-has-dial.ap-scenes #parcours>.steps{display:none}
+.fx-dial-scene{position:relative;margin:30px 0 10px}
+html.ap-scenes .fx-dial-scene{height:300vh}
+html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);display:flex;align-items:center}
+.fx-dial{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:64px;align-items:center;width:100%}
+.fx-ring{position:relative;width:min(440px,100%);aspect-ratio:1;margin:0 auto}
+.fx-ring svg{width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
+.fx-ring .fx-track{fill:none;stroke:rgba(20,47,70,.08);stroke-width:14;stroke-linecap:round}
+.fx-seg{fill:none;stroke-width:14;stroke-linecap:round}
+.fx-seg-1{stroke:url(#fxd-g1)}.fx-seg-2{stroke:url(#fxd-g2)}.fx-seg-3{stroke:url(#fxd-g3)}
+.fx-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.fx-num{font-family:var(--display);font-size:clamp(64px,8vw,112px);font-weight:800;letter-spacing:-.06em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.fx-num.fx-tick{animation:fx-tick .6s var(--ease)}
+@keyframes fx-tick{from{opacity:0;transform:translate3d(0,22px,0) scale(.94)}}
+.fx-days{display:flex;flex-direction:column;align-items:center;margin-top:6px}
+.fx-days b{font-family:var(--display);font-size:clamp(26px,2.6vw,34px);font-weight:800;letter-spacing:-.03em;color:var(--navy);font-variant-numeric:tabular-nums}
+.fx-days small{font-size:13px;color:var(--muted);letter-spacing:.02em}
+.fx-steps{position:relative;min-height:300px}
+.fx-step{position:absolute;inset:0 0 auto 0;opacity:0;transform:translate3d(0,26px,0);transition:opacity .5s var(--ease),transform .7s var(--ease);pointer-events:none}
+.fx-step.on{opacity:1;transform:none;pointer-events:auto}
+.fx-step .eyebrow{display:block;margin-bottom:10px}
+.fx-step h3{font-size:clamp(30px,3.4vw,46px);letter-spacing:-.035em;line-height:1.08;margin:0 0 14px;color:var(--navy)}
+.fx-step p{font-size:18px;line-height:1.6;color:var(--muted);max-width:480px}
+.fx-chip{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:8px 14px;border-radius:99px;background:rgba(93,83,211,.09);color:#4b3fb8;font-size:14px;font-weight:700}
+.fx-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grad)}
+.fx-dots{display:flex;gap:8px;margin-top:22px;padding:0;list-style:none}
+.fx-dots i{display:block;width:30px;height:4px;border-radius:4px;background:rgba(20,47,70,.12);transition:background .5s,width .5s var(--ease)}
+.fx-dots i.on{background:var(--grad);width:44px}
+.fx-static .fx-steps{min-height:0}.fx-static .fx-step{position:static;opacity:1;transform:none;margin-bottom:28px}
+@media(max-width:900px){
+  html.ap-scenes .fx-dial-scene{height:280vh}
+  html.ap-scenes .fx-dial-pin{top:64px;height:calc(100svh - 64px);align-items:flex-start;padding-top:12px}
+  .fx-dial{grid-template-columns:1fr;gap:18px}
+  .fx-ring{width:min(62vw,300px)}
+  .fx-steps{min-height:260px;text-align:center}
+  .fx-step p{margin-inline:auto;font-size:16px}
+  .fx-dots{justify-content:center}
+}
+
+/* ---------- 3. Billets de session (page Orléans) ---------- */
+.fo-sessions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:34px}
+.fo-ticket{position:relative;perspective:900px}
+.fo-ticket::before{content:"";position:absolute;inset:18px 12px 2px;border-radius:26px;box-shadow:0 26px 50px -22px rgba(20,47,70,.5);z-index:-1;pointer-events:none}
+.tk-in{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;will-change:transform;overflow:hidden;
+  -webkit-mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);-webkit-mask-composite:source-in;
+  mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);mask-composite:intersect}
+.tk-in::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(60% 50% at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.55),transparent 65%);mix-blend-mode:soft-light}
+.tk-in.tk-lit::after{opacity:1}
+.tk-top{position:relative;padding:22px 24px 26px;color:#fff;background:linear-gradient(125deg,#2b5bd7,#5d53d3 60%,#8a4fd0)}
+.fo-ticket.appro .tk-top{background:linear-gradient(125deg,#6a4fd0,#a5559c 55%,#e2702a)}
+.tk-top::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 90% at 90% 0%,rgba(255,255,255,.28),transparent 60%);pointer-events:none}
+.tk-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.92}
+.tk-head svg{width:20px;height:20px}
+.tk-in .tk-name{color:#fff!important;margin:14px 0 18px;font-family:var(--display);font-size:clamp(21px,1.9vw,25px);font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.tk-route{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:12px}
+.tk-route small{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+.tk-route b{font-family:var(--display);font-size:clamp(26px,2.4vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.tk-route>div:last-child{text-align:right}
+.tk-path{height:18px;margin-bottom:6px;position:relative}
+.tk-path::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dotted rgba(255,255,255,.65)}
+.tk-path i{position:absolute;top:50%;left:0;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.25);animation:fx-walk 4.5s cubic-bezier(.45,0,.55,1) infinite alternate}
+@keyframes fx-walk{to{left:calc(100% - 9px)}}
+.tk-perf{position:relative;height:22px;background:#fff}
+.tk-perf::before{content:"";position:absolute;left:18px;right:18px;top:50%;border-top:2px dashed rgba(20,47,70,.14)}
+.tk-body{flex:1;display:flex;flex-direction:column;padding:6px 24px 22px}
+.tk-body dl{margin:0 0 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.tk-body dl div{min-width:0}
+.tk-body dt{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tk-body dd{margin:2px 0 0;font-size:15.5px;font-weight:600;color:var(--navy)}
+.tk-body dd.tk-price{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.02em}
+.tk-note{font-size:13.5px;color:var(--muted);margin:0 0 14px}
+.tk-body .text-link{margin-top:auto}
+@media(max-width:980px){.fo-sessions{grid-template-columns:1fr;max-width:520px;margin-inline:auto}}
+
+/* ---------- 4. Le titre qui tourne ---------- */
+.fx-rotor{font-family:var(--display);font-size:clamp(26px,3.4vw,44px);font-weight:800;letter-spacing:-.035em;line-height:1.15;color:var(--navy);margin:6px auto 22px}
+.fx-rot{display:inline-block;vertical-align:bottom;height:1.15em;overflow:hidden;transition:width .7s var(--ease);
+  -webkit-mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 18%,#000 82%,transparent)}
+.fx-stack{display:flex;flex-direction:column;transition:transform .8s cubic-bezier(.7,0,.2,1);will-change:transform}
+.fx-w{display:block;height:1.15em;white-space:nowrap;width:max-content;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- 5. Le nuage des valeurs ---------- */
+.fx-values.fx-sphere{position:relative;display:block!important;height:360px;margin:30px 0 10px;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.fx-values.fx-sphere:active{cursor:grabbing}
+.fx-values.fx-sphere>span{position:absolute;left:50%;top:50%;white-space:nowrap;will-change:transform,opacity;font-weight:600;
+  font-size:clamp(14px,1.5vw,17px);padding:10px 18px;border-radius:99px;background:rgba(255,255,255,.82);box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(20,47,70,.06),0 10px 24px -14px rgba(20,47,70,.4);
+  -webkit-backdrop-filter:none;backdrop-filter:none;transition:none!important}
+.fx-values.fx-sphere>span:nth-child(3n+1){color:#2652b8}.fx-values.fx-sphere>span:nth-child(3n+2){color:#6a4fd0}.fx-values.fx-sphere>span:nth-child(3n){color:#c4561b}
+.fx-values.fx-sphere>span:hover{transform:none}
+
+/* ---------- 6. Photos vivantes ---------- */
+.fx-par{transform:translate3d(0,var(--py,0%),0) scale(var(--ps,1.1))!important;will-change:transform;transition:transform .5s var(--ease)!important}
+.cards article:hover .fx-par{--ps:1.15}
+
+@media (prefers-reduced-motion:reduce){.page-intro::before,.tk-path i{animation:none}.fx-stack{transition:none}}
+html.ap-reduced .page-intro::before,html.ap-reduced .tk-path i{animation:none}
+
+.fx-values{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.fx-values:not(.fx-sphere)>span{padding:10px 18px;border-radius:99px;background:var(--card);box-shadow:0 1px 2px rgba(20,47,70,.06),0 4px 14px rgba(20,47,70,.05);font-weight:500}

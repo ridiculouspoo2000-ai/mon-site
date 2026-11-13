@@ -1,16 +1,28 @@
 // Textes lus à voix haute dans « Les Hautes Herbes » (générés depuis le scénario).
 export const LIGNES = {
- "cbd33e614755": {
+ "48a3061a1596": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Pendant les vacances, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent chaque soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles."
+  "text": "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Chaque matin, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles."
  },
  "99811a9421b6": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
   "text": "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre."
+ },
+ "5e9c77ef12b8": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse."
+ },
+ "59ca1c664050": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Voici aussi le téléphone de l’accueil. Les jeunes et l’équipe t’y écrivent parfois, souvent au mauvais moment : à toi de juger ce qui peut attendre."
  },
  "e40c1efcfc26": {
   "who": "nour",
@@ -168,66 +180,6 @@ export const LIGNES = {
   "kind": "replique",
   "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
  },
- "b54848fbba50": {
-  "who": "jade",
-  "mood": "big",
-  "kind": "replique",
-  "text": "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !"
- },
- "229bb443c16a": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "Insister transforme une invitation en pression. Un refus doit pouvoir s’exprimer sans humiliation."
- },
- "888bbd9334f4": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "Se taire laisse un enfant seul face à la pression du groupe."
- },
- "e3102301a5ef": {
-  "who": "jade",
-  "mood": "o",
-  "kind": "replique",
-  "text": "Tu vois, il fait sa tête…"
- },
- "86e009a8d709": {
-  "who": "jade",
-  "mood": "big",
-  "kind": "replique",
-  "text": "Bon, Malo, on attend !"
- },
- "636a9b114e12": {
-  "who": "jade",
-  "mood": "smile",
-  "kind": "replique",
-  "text": "Ah… oui, bonne idée. Chacun choisit sa salutation !"
- },
- "087dd5b2a3f8": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "Corriger la consigne, oui ; mettre une collègue en difficulté devant les enfants, non."
- },
- "c3774c3e1524": {
-  "who": "jade",
-  "mood": "smile",
-  "kind": "replique",
-  "text": "Tu as raison, je réécris la consigne d’accueil ce soir."
- },
- "1c3bd8b085de": {
-  "who": "jade",
-  "mood": "concern",
-  "kind": "replique",
-  "text": "…D’accord. On en reparle."
- },
- "01116f3833b8": {
-  "who": "nour",
-  "mood": "calm",
-  "kind": "replique",
-  "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
- },
  "f491780644aa": {
   "who": "benali",
   "mood": "concern",
@@ -293,6 +245,66 @@ export const LIGNES = {
   "mood": "smile",
   "kind": "replique",
   "text": "D’accord. Merci de m’avoir écoutée."
+ },
+ "b54848fbba50": {
+  "who": "jade",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !"
+ },
+ "229bb443c16a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Insister transforme une invitation en pression. Un refus doit pouvoir s’exprimer sans humiliation."
+ },
+ "888bbd9334f4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Se taire laisse un enfant seul face à la pression du groupe."
+ },
+ "e3102301a5ef": {
+  "who": "jade",
+  "mood": "o",
+  "kind": "replique",
+  "text": "Tu vois, il fait sa tête…"
+ },
+ "86e009a8d709": {
+  "who": "jade",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Bon, Malo, on attend !"
+ },
+ "636a9b114e12": {
+  "who": "jade",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Ah… oui, bonne idée. Chacun choisit sa salutation !"
+ },
+ "087dd5b2a3f8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Corriger la consigne, oui ; mettre une collègue en difficulté devant les enfants, non."
+ },
+ "c3774c3e1524": {
+  "who": "jade",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Tu as raison, je réécris la consigne d’accueil ce soir."
+ },
+ "1c3bd8b085de": {
+  "who": "jade",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "…D’accord. On en reparle."
+ },
+ "01116f3833b8": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
  },
  "b21e595cfee9": {
   "who": "kevin",
@@ -564,11 +576,17 @@ export const LIGNES = {
   "kind": "systeme",
   "text": "Relisez le déroulé : dans l’urgence, l’ordre des actions protège."
  },
- "bc60457e4292": {
+ "9f44f34b8ee9": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Chapitre 1. Premier jour. Repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques."
+  "text": "Lundi, jour 1 sur 5. L’arrivée. Découvrir l’accueil et repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques de violences."
+ },
+ "b1013c2d2a6a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter."
  },
  "436f4b84cdd1": {
   "who": "narr",
@@ -708,11 +726,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Sexisme ou discrimination ? Un stéréotype attribue des aptitudes ou des rôles à tout un groupe. Il devient un levier d’inégalité quand il guide les décisions. Une discrimination, c’est une décision défavorable liée à un critère interdit (sexe, orientation sexuelle, identité de genre, handicap…), par exemple un refus d’embauche. Repérer un fonctionnement sexiste ne suffit pas à fixer une qualification pénale. On agit sur l’organisation : rôles, accès au matériel, affichage."
  },
- "aceff77664ca": {
+ "fa3c7e2cbfeb": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Chapitre 2. Le briefing. Distinguer ce qui est observé, rapporté ou supposé, et nommer le harcèlement."
+  "text": "Mardi, jour 2 sur 5. Les mots qui blessent. Distinguer ce qui est observé, rapporté ou supposé, et nommer le sexisme et le harcèlement."
  },
  "887f70cccccd": {
   "who": "narr",
@@ -725,12 +743,6 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle."
- },
- "f5172baf70b3": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
  "62ce693b69ca": {
   "who": "narr",
@@ -768,6 +780,66 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Nour est informée deux jours plus tard. Entre-temps, Bastien pense que rien n’a été dit de grave. Informer la référente est utile, mais sans rien dire à Bastien, vous laissez la situation se prolonger. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
  },
+ "f5172baf70b3": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
+ },
+ "7ac353ef9e53": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique : Il a été agressé par quelqu’un de sa famille."
+ },
+ "e2754dc5b24a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Classez chaque élément : est-il observé, rapporté ou supposé ?"
+ },
+ "7118357da86d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vous avez trié les faits. Jade attend votre réaction."
+ },
+ "f50bfd2536cf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Quelle est la réponse la plus juste ?"
+ },
+ "0f96fcb2bc01": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Théo se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter. Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+ },
+ "9237f11c0805": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous notez deux nouveaux signes jeudi. L’information part avec deux jours de retard. Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+ },
+ "1cd960dc8864": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Nour transmet une information préoccupante à la CRIP le jour même. Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue."
+ },
+ "165392a5e5ab": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+ },
+ "2f9d999facf9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
+ },
  "d6447edb4168": {
   "who": "narr",
   "mood": "",
@@ -804,71 +876,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Que faites-vous ? Sélectionnez toutes les actions utiles."
  },
- "7ac353ef9e53": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique : Il a été agressé par quelqu’un de sa famille."
- },
- "e2754dc5b24a": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Classez chaque élément : est-il observé, rapporté ou supposé ?"
- },
- "7118357da86d": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Vous avez trié les faits. Jade attend votre réaction."
- },
- "f50bfd2536cf": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Quelle est la réponse la plus juste ?"
- },
- "0f96fcb2bc01": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-faible",
-  "text": "Théo se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter. Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
- },
- "071226849047": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-moyen",
-  "text": "Vous notez deux nouveaux signes jeudi. L’information part avec trois jours de retard. Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
- },
- "1cd960dc8864": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-bon",
-  "text": "Nour transmet une information préoccupante à la CRIP le jour même. Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue."
- },
- "165392a5e5ab": {
-  "who": "narr",
-  "mood": "",
-  "kind": "retour-faible",
-  "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
- },
- "2f9d999facf9": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
- },
  "bce19bfbda14": {
   "who": "nour",
   "mood": "",
   "kind": "carnet",
   "text": "Harcèlement, faits et hypothèses Le harcèlement sexuel peut résulter de propos ou comportements sexuels ou sexistes répétés, même sans proposition sexuelle. Plusieurs personnes peuvent y contribuer, même si chacune n’agit qu’une fois, quand elles savent que leurs propos s’ajoutent à une répétition. Je décris les faits et ce qui manque. Je sépare observations et hypothèses. Je n’attends pas d’être certain pour demander de l’aide. Enfant en danger ou en risque de l’être : 119 ou CRIP, la cellule départementale qui recueille les informations préoccupantes."
  },
- "a13bc006932b": {
+ "58aec353f482": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Chapitre 3. Les règles du jeu. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
+  "text": "Mercredi, jour 3 sur 5. La grosse journée. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
  },
  "f3e1bc072749": {
   "who": "narr",
@@ -893,6 +911,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Le film calme la matinée, mais rien n’est prévu pour les sanitaires ni pour l’après-midi. Réduire l’activité peut aider, mais ne règle ni l’encadrement ni l’accompagnement : il faut un renfort."
+ },
+ "54c8757504e6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
  },
  "a0862c264630": {
   "who": "narr",
@@ -935,12 +959,6 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Les circonstances comptent pour apprécier le consentement, mais elles ne transforment jamais un silence en accord. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
- },
- "54c8757504e6": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
  },
  "f5a87a4beeb4": {
   "who": "narr",
@@ -1020,11 +1038,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Le consentement Sans pression, avec compréhension, pour ce qui est proposé, avant l’acte, et avec le droit de changer d’avis. Le silence ou l’absence de réaction ne suffisent pas. Une personne endormie ne peut pas donner son accord. L’âge et l’autorité comptent : un accord exprimé ne suffit pas à rendre licite tout acte entre un adulte et un mineur. Dans les gestes ordinaires : proposer des alternatives sans contact, laisser un refus possible sans humiliation."
  },
- "4782b7745e59": {
+ "bd6ebf22bc95": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Chapitre 4. Le départ. Accueillir une révélation, protéger et alerter les bons relais à temps."
+  "text": "Jeudi, jour 4 sur 5. La parole d’un enfant. Accueillir une révélation, protéger et alerter les bons relais à temps."
  },
  "caf6a003df08": {
   "who": "narr",
@@ -1122,11 +1140,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Agir face à une révélation Protéger et écouter : faire cesser l’exposition, écouter sans suggérer, ne pas promettre le secret. Noter sans enquêter : contexte, mots entendus, faits observés. Pas d’aveux, pas de confrontation. Danger immédiat : 17 ou 112 (114 par SMS). Urgence médicale : 15. Enfant en danger : 119 ou CRIP. Violences sexuelles sur un mineur : autorités judiciaires. En ACM, l’organisateur signale aussi sans délai au SDJES. L’information des parents s’organise avec les autorités lorsqu’un risque l’impose."
  },
- "a7ddd90610ff": {
+ "2b129367786e": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Chapitre 5. Ce qu’on change. Concevoir une prévention concrète et vérifiable."
+  "text": "Vendredi, jour 5 sur 5. Ce qu’on change. Concevoir une prévention concrète, puis tout mobiliser quand la direction freine."
  },
  "be20a8a13f22": {
   "who": "narr",
@@ -1200,18 +1218,6 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants. La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
  },
- "b2fade9fef73": {
-  "who": "nour",
-  "mood": "",
-  "kind": "carnet",
-  "text": "Une prévention qui se voit Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable. Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables. Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe. L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement. Un contrôle d’honorabilité ne remplace jamais cette vigilance."
- },
- "8ed511d488da": {
-  "who": "narr",
-  "mood": "",
-  "kind": "chapitre",
-  "text": "Chapitre 6. La dernière journée. Tout mobiliser dans une situation où la direction freine."
- },
  "f845a209bc08": {
   "who": "narr",
   "mood": "",
@@ -1265,6 +1271,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Que pouvez-vous lui dire ? Sélectionnez toutes les phrases justes."
+ },
+ "b2fade9fef73": {
+  "who": "nour",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Une prévention qui se voit Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable. Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables. Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe. L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement. Un contrôle d’honorabilité ne remplace jamais cette vigilance."
  },
  "abbe2c6b9de5": {
   "who": "narr",

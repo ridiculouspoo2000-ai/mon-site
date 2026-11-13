@@ -1,11 +1,20 @@
 /* Les Hautes Herbes — scénario. Fourmi'Action, « Prévenir les VSS et agir en ACM ». */
 const CHAPTERS = [
-  { n: 1, title: "Premier jour", goal: "Repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques.", comp: "C1" },
-  { n: 2, title: "Le briefing", goal: "Distinguer ce qui est observé, rapporté ou supposé, et nommer le harcèlement.", comp: "C2" },
-  { n: 3, title: "Les règles du jeu", goal: "Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte.", comp: "C2" },
-  { n: 4, title: "Le départ", goal: "Accueillir une révélation, protéger et alerter les bons relais à temps.", comp: "C3" },
-  { n: 5, title: "Ce qu’on change", goal: "Concevoir une prévention concrète et vérifiable.", comp: "C4" },
-  { n: 6, title: "La dernière journée", goal: "Tout mobiliser dans une situation où la direction freine.", comp: "C3" },
+  { n: 1, day: "Lundi", title: "L’arrivée", comp: "C1",
+    goal: "Découvrir l’accueil et repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques de violences.",
+    plan: [["7 h 45", "Ouverture, l’équipe se retrouve"], ["8 h 30", "Arrivée des familles"], ["9 h 30", "Le tour de l’accueil avec Nour"], ["14 h", "Atelier radio"], ["17 h", "Départ des enfants"]] },
+  { n: 2, day: "Mardi", title: "Les mots qui blessent", comp: "C2",
+    goal: "Distinguer ce qui est observé, rapporté ou supposé, et nommer le sexisme et le harcèlement.",
+    plan: [["8 h 30", "Briefing du matin"], ["12 h 15", "Déjeuner"], ["14 h", "Temps calme"], ["17 h", "Départ des familles"], ["19 h", "Messages de l’équipe"]] },
+  { n: 3, day: "Mercredi", title: "La grosse journée", comp: "C2",
+    goal: "Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte.",
+    plan: [["8 h", "52 enfants attendus"], ["15 h", "Temps libre"], ["17 h 30", "Départ des familles"], ["20 h 30", "Nuitée (accueil avec hébergement)"]] },
+  { n: 4, day: "Jeudi", title: "La parole d’un enfant", comp: "C3",
+    goal: "Accueillir une révélation, protéger et alerter les bons relais à temps.",
+    plan: [["8 h 30", "Arrivée des familles"], ["14 h", "Activités"], ["16 h", "Rangement et goûter"], ["17 h", "Départ des familles"]] },
+  { n: 5, day: "Vendredi", title: "Ce qu’on change", comp: "C4",
+    goal: "Concevoir une prévention concrète, puis tout mobiliser quand la direction freine.",
+    plan: [["8 h 30", "Réunion d’équipe"], ["10 h", "Message des familles"], ["13 h", "Fin de l’atelier bois"], ["17 h", "Fin de la semaine"]] },
 ];
 
 const COMPS = {
@@ -23,15 +32,17 @@ const DQ = [
 ];
 
 const SCREENS = [
-  /* ---------------- CHAPITRE 1 ---------------- */
   { id: "avatar", ch: 1, type: "avatar" },
   { id: "c1", ch: 1, type: "chapter" },
   { id: "intro", ch: 1, type: "story", scene: "welcome", kicker: "Lundi, 8 h 30",
     lines: [
-      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Pendant les vacances, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent chaque soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles." },
+      { who: null, t: "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter." },
+      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Chaque matin, une cinquantaine d’enfants et de jeunes, de 6 à 17 ans, arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe. Je suis aussi la référente de l’équipe pour les violences sexistes et sexuelles." },
       { who: null, t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
       { who: null, t: "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles." },
       { who: "nour", mood: "smile", t: "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre." },
+      { who: "nour", mood: "calm", reveal: "clock", t: "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse." },
+      { who: "nour", mood: "smile", reveal: "phone", t: "Voici aussi le téléphone de l’accueil. Les jeunes et l’équipe t’y écrivent parfois, souvent au mauvais moment : à toi de juger ce qui peut attendre." },
       { who: "nour", mood: "calm", t: "À chaque étape, je te laisse une page de mon carnet. Tu pourras l’ouvrir à tout moment, en haut de l’écran." },
     ] },
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
@@ -52,7 +63,7 @@ const SCREENS = [
       { x: 50, y: 45, w: 16, h: 22, key: "direction", label: "L’accueil et le bureau", real: false, title: "L’accueil et le bureau de direction", t: "Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé.", lesson: "Rien à signaler : les informations confidentielles sont protégées." },
             { x: 52, y: 62, w: 10, h: 10, key: "cour", label: "Le portail des familles", real: false, title: "Le portail des familles", t: "Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité.", lesson: "Rien d’inquiétant : le départ des enfants est contrôlé." },
     ] },
-  { id: "radio", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Mardi, atelier radio",
+  { id: "radio", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio",
     context: "Bastien anime l’atelier : « Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. » Léna lui redemande d’apprendre à régler les micros.",
     prompt: "Que faites-vous ?",
     opts: [
@@ -69,35 +80,14 @@ const SCREENS = [
       "Une discrimination, c’est une décision défavorable liée à un critère interdit (sexe, orientation sexuelle, identité de genre, handicap…), par exemple un refus d’embauche.",
       "Repérer un fonctionnement sexiste ne suffit pas à fixer une qualification pénale. On agit sur l’organisation : rôles, accès au matériel, affichage.",
     ], refs: ["R01", "R02", "Code du travail L1142-2-1", "Code pénal 225-1 et 225-2", "CASF L226-8"] } },
-
-  /* ---------------- CHAPITRE 2 ---------------- */
   { id: "c2", ch: 2, type: "chapter" },
-  { id: "brief", ch: 2, type: "story", scene: "S03", kicker: "Mercredi, briefing du matin",
+  { id: "brief", ch: 2, type: "story", scene: "S03", kicker: "Mardi, 8 h 30 · briefing du matin",
     lines: [
       { who: null, t: "Depuis lundi, à chaque briefing, Bastien et Yanis lancent à Inès, responsable de l’atelier vélo, des remarques sur « les filles qui se prennent pour des garçons »." },
       { who: null, t: "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle." },
       { who: "ines", mood: "concern", t: "Tu as deux minutes ? Je crois que je commence à exagérer…" },
     ] },
-  { id: "planning", ch: 2, type: "planning", comp: "C4", kicker: "Mercredi, 13 h 30 · avant les activités", title: "Organiser l’après-midi",
-    intro: "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet.",
-    staff: [["jade", "Jade", "animatrice, référente des petits"], ["ines", "Inès", "animatrice"], ["kevin", "Kévin", "animateur"], ["bastien", "Bastien", "stagiaire BAFA"], ["you", "Vous", "animateur ou animatrice"]],
-    posts: [
-      { id: "atelier", t: "Atelier bois à la régie", d: "6 grands, avec l’intervenant extérieur", n: 1 },
-      { id: "sanit", t: "Sanitaires des petits", d: "accompagnement", n: 2 },
-      { id: "calme", t: "Temps calme des petits", d: "salle des petits", n: 1 },
-      { id: "parc", t: "Grands au parc", d: "12 jeunes", n: 1 },
-    ],
-    rules: [
-      { k: "calme", t: "Le temps calme des petits est encadré par leur référente.", test: "calme=jade" },
-      { k: "sanit", t: "Aux sanitaires des petits, on accompagne en binôme.", test: "sanit#2" },
-      { k: "stagiaire", t: "Un stagiaire n’est jamais le seul animateur d’un groupe.", test: "bastien-not:atelier,parc,calme" },
-      { k: "atelier", t: "Un intervenant extérieur n’encadre jamais seul : un animateur est toujours présent.", test: "atelier#1" },
-    ],
-    twist: { who: "kevin", t: "Message de Kévin, depuis la régie : « L’intervenant propose de garder Maëlys seule avec lui après l’atelier, pour finir son étagère. Je dis oui ? »",
-      opts: [{ t: "Non : personne ne reste seul avec un enfant dans la régie. Elle finira demain, avec le groupe.", q: 1 },
-             { t: "Oui, mais tu passes jeter un œil toutes les dix minutes.", q: 0.3, fb: "Un passage régulier ne change rien : l’enfant reste seule avec un adulte, porte fermée, dans un local sans fenêtre." },
-             { t: "Oui, c’est un professionnel, et Maëlys a l’air contente.", q: 0, fb: "La règle protège tout le monde, y compris de l’habitude qui s’installe : jamais un adulte seul avec un enfant hors de la vue des autres." }] } },
-  { id: "ines", ch: 2, type: "dialogue", comp: "C3", title: "Inès, après le briefing", npc: "ines", start: "n1",
+  { id: "ines", ch: 2, type: "dialogue", comp: "C3", title: "Inès, après le briefing", kicker: "Mardi, 9 h", npc: "ines", start: "n1",
     nodes: {
       n1: { mood: "concern", t: "Tu as vu ? Je me dis que c’est peut-être moi qui le prends mal.",
         opts: [
@@ -121,7 +111,7 @@ const SCREENS = [
         opts: [{ t: "Tu as raison, se taire ne réglera rien. Allons voir Nour ensemble : l’employeur doit faire cesser ces faits.", to: "end", q: 0.5 }] },
       end: { end: true, mood: "smile", t: "D’accord. On y va après le déjeuner.",
         lesson: "Le harcèlement sexuel peut reposer sur des propos sexistes répétés, sans aucune proposition sexuelle. Écouter sans minimiser, soutenir, alerter un responsable : l’employeur doit faire cesser les faits (Code du travail, L1153-5)." } } },
-  { id: "rire", ch: 2, type: "choice", comp: "C2", npc: "bastien", mood: "smile", kicker: "Au déjeuner",
+  { id: "rire", ch: 2, type: "choice", comp: "C2", npc: "bastien", mood: "smile", kicker: "Mardi, 12 h 15 · au déjeuner",
     context: "Bastien vous arrête : « Franchement, c’était pour rire. On ne voulait pas la blesser. »",
     prompt: "Que lui répondez-vous ?",
     opts: [
@@ -133,33 +123,26 @@ const SCREENS = [
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que compte l’effet sur elle, et qu’elle a demandé d’arrêter.", "ok": true}, {"t": "Parce que tout humour à connotation sexuelle est interdit au travail, quel que soit le contexte.", "ok": false, "no": "La règle n’est pas l’interdiction de tout humour : c’est le respect de la personne et de sa demande."}, {"t": "Parce que Bastien risque une sanction disciplinaire s’il recommence.", "ok": false, "no": "La sanction possible n’est pas la raison : il s’agit de faire cesser une situation qui atteint Inès."}]},
     later: true,
     better: "Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée." },
-  { id: "chat", ch: 2, type: "choice", comp: "C2", kicker: "Jeudi soir, conversation de l’équipe",
-    chat: [
-      { who: "Yanis", t: "Inès en short aujourd’hui… on comprend le succès de l’atelier vélo." },
-      { who: "Bastien", t: "Ha ha, elle devrait faire ça plus souvent." },
-      { who: "Hugo", t: "+1, et pas que pour le vélo." },
-      { who: "Inès", t: "Arrêtez, s’il vous plaît.", me: false, her: true },
-      { who: "Kévin", t: "Détends-toi, c’est entre nous." },
+  { id: "planning", ch: 2, type: "planning", comp: "C4", kicker: "Mardi, 13 h 30 · avant les activités", title: "Organiser l’après-midi",
+    intro: "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet.",
+    staff: [["jade", "Jade", "animatrice, référente des petits"], ["ines", "Inès", "animatrice"], ["kevin", "Kévin", "animateur"], ["bastien", "Bastien", "stagiaire BAFA"], ["you", "Vous", "animateur ou animatrice"]],
+    posts: [
+      { id: "atelier", t: "Atelier bois à la régie", d: "6 grands, avec l’intervenant extérieur", n: 1 },
+      { id: "sanit", t: "Sanitaires des petits", d: "accompagnement", n: 2 },
+      { id: "calme", t: "Temps calme des petits", d: "salle des petits", n: 1 },
+      { id: "parc", t: "Grands au parc", d: "12 jeunes", n: 1 },
     ],
-    prompt: "Chacun n’a écrit qu’un seul message. Peut-on parler de harcèlement sexuel ?",
-    opts: [
-      {t:  "Non : aucun message, pris seul, n’est assez grave ou répété pour constituer un harcèlement.", q:  0, cons:  "", fb:  "La loi prévoit justement le cas de plusieurs personnes : la répétition peut venir du groupe."},
-      {t:  "Oui : à plusieurs, un seul message chacun peut suffire à faire la répétition.", q:  1, cons:  "", fb:  "C’est le « harcèlement de meute » prévu par le Code pénal, sans qu’il y ait besoin de concertation entre les auteurs."},
-      {t:  "Seulement si Inès porte plainte ; sans plainte, cela reste un conflit d’équipe à régler en interne.", q:  0, cons:  "", fb:  "La qualification ne dépend pas d’une plainte. Et l’employeur doit faire cesser des agissements dont il a connaissance."},
-      {t:  "Non : la conversation est privée et se tient hors du temps de travail, l’employeur n’y peut rien.", q:  0, cons:  "", fb:  "Une messagerie d’équipe n’efface pas le lien de travail, et les propos visent une collègue."},
+    rules: [
+      { k: "calme", t: "Le temps calme des petits est encadré par leur référente.", test: "calme=jade" },
+      { k: "sanit", t: "Aux sanitaires des petits, on accompagne en binôme.", test: "sanit#2" },
+      { k: "stagiaire", t: "Un stagiaire n’est jamais le seul animateur d’un groupe.", test: "bastien-not:atelier,parc,calme" },
+      { k: "atelier", t: "Un intervenant extérieur n’encadre jamais seul : un animateur est toujours présent.", test: "atelier#1" },
     ],
-    why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que des propos de plusieurs personnes qui s’additionnent font la répétition.", "ok": true}, {"t": "Parce qu’un seul message à connotation sexuelle suffit toujours à constituer un harcèlement.", "ok": false, "no": "Pas toujours : c’est la répétition, ici collective, qui caractérise le harcèlement."}, {"t": "Parce que tout ce qui se dit dans un groupe de travail engage la responsabilité de l’employeur.", "ok": false, "no": "C’est trop large : la qualification repose sur les propos et leur répétition, pas sur le canal."}]},
-    better: "Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition." },
-  { id: "chatact", ch: 2, type: "multi", comp: "C3", kicker: "Toujours ce jeudi soir",
-    prompt: "Que faites-vous ? Sélectionnez toutes les actions utiles.",
-    opts: [
-      { t: "Je demande d’arrêter et j’écris à Inès pour la soutenir.", ok: true, why: "Faire cesser les propos et soutenir la personne : premiers gestes." },
-      { t: "Je conserve une trace utile, sans republier les messages.", ok: true, why: "Préserver les éléments sans prolonger l’exposition d’Inès." },
-      { t: "J’alerte Nour : l’employeur doit faire cesser les faits.", ok: true, why: "L’alerte interne déclenche l’obligation de l’employeur." },
-      { t: "Je transfère la conversation à toute l’équipe pour que chacun voie.", ok: false, why: "Diffuser à nouveau, c’est prolonger l’exposition d’Inès." },
-      { t: "J’attends de voir si ça recommence.", ok: false, why: "La répétition est déjà là, et Inès a demandé d’arrêter." },
-    ] },
-  { id: "theo", ch: 2, type: "sort", comp: "C1", kicker: "Vendredi, temps calme",
+    twist: { who: "kevin", t: "Message de Kévin, depuis la régie : « L’intervenant propose de garder Maëlys seule avec lui après l’atelier, pour finir son étagère. Je dis oui ? »",
+      opts: [{ t: "Non : personne ne reste seul avec un enfant dans la régie. Elle finira demain, avec le groupe.", q: 1 },
+             { t: "Oui, mais tu passes jeter un œil toutes les dix minutes.", q: 0.3, fb: "Un passage régulier ne change rien : l’enfant reste seule avec un adulte, porte fermée, dans un local sans fenêtre." },
+             { t: "Oui, c’est un professionnel, et Maëlys a l’air contente.", q: 0, fb: "La règle protège tout le monde, y compris de l’habitude qui s’installe : jamais un adulte seul avec un enfant hors de la vue des autres." }] } },
+  { id: "theo", ch: 2, type: "sort", comp: "C1", kicker: "Mardi, 14 h · temps calme",
     context: "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique : « Il a été agressé par quelqu’un de sa famille. »",
     prompt: "Classez chaque élément : est-il observé, rapporté ou supposé ?",
     hint: "Demandez-vous qui a vu ou entendu directement. Une conclusion, même convaincue, reste une hypothèse.",
@@ -176,7 +159,7 @@ const SCREENS = [
     prompt: "Quelle est la réponse la plus juste ?",
     opts: [
       {t:  "Prendre Théo à part, au calme, et lui demander directement si quelqu’un lui a fait du mal.", q:  0, cons:  "Théo se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter.", fb:  "Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future."},
-      {t:  "Tout noter et attendre la fin de la semaine pour voir si d’autres signes apparaissent.", q:  0.5, cons:  "Vous notez deux nouveaux signes jeudi. L’information part avec trois jours de retard.", fb:  "Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai."},
+      {t:  "Tout noter et attendre la fin de la semaine pour voir si d’autres signes apparaissent.", q:  0.5, cons:  "Vous notez deux nouveaux signes jeudi. L’information part avec deux jours de retard.", fb:  "Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai."},
       {t:  "Noter les faits, rester disponible sans questionner Théo, et transmettre à Nour aujourd’hui.", q:  1, cons:  "Nour transmet une information préoccupante à la CRIP le jour même.", fb:  "Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue.", mood:  "calm"},
       {t:  "En parler à ses parents ce soir au portail, pour comprendre ce qui se passe à la maison.", q:  0, cons:  "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis.", fb:  "Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions."},
     ],
@@ -208,6 +191,32 @@ const SCREENS = [
         opts: [{ t: "Vous avez raison. Écoutez-la simplement, notez ses mots, et revenez vers nous. Je transmets ce soir à Nour.", to: "end", q: 1 }] },
       end: { end: true, mood: "smile", t: "Merci. Ça me rassure de savoir comment vous vous organisez.",
         lesson: "Les parents sont des alliés de la prévention. On répond par des règles concrètes et vérifiables, on ne met jamais en doute la parole de l’enfant, et toute remarque inquiétante est transmise à la direction le jour même." } } },
+  { id: "chat", ch: 2, type: "choice", comp: "C2", kicker: "Mardi, 19 h · conversation de l’équipe",
+    chat: [
+      { who: "Yanis", t: "Inès en short aujourd’hui… on comprend le succès de l’atelier vélo." },
+      { who: "Bastien", t: "Ha ha, elle devrait faire ça plus souvent." },
+      { who: "Hugo", t: "+1, et pas que pour le vélo." },
+      { who: "Inès", t: "Arrêtez, s’il vous plaît.", me: false, her: true },
+      { who: "Kévin", t: "Détends-toi, c’est entre nous." },
+    ],
+    prompt: "Chacun n’a écrit qu’un seul message. Peut-on parler de harcèlement sexuel ?",
+    opts: [
+      {t:  "Non : aucun message, pris seul, n’est assez grave ou répété pour constituer un harcèlement.", q:  0, cons:  "", fb:  "La loi prévoit justement le cas de plusieurs personnes : la répétition peut venir du groupe."},
+      {t:  "Oui : à plusieurs, un seul message chacun peut suffire à faire la répétition.", q:  1, cons:  "", fb:  "C’est le « harcèlement de meute » prévu par le Code pénal, sans qu’il y ait besoin de concertation entre les auteurs."},
+      {t:  "Seulement si Inès porte plainte ; sans plainte, cela reste un conflit d’équipe à régler en interne.", q:  0, cons:  "", fb:  "La qualification ne dépend pas d’une plainte. Et l’employeur doit faire cesser des agissements dont il a connaissance."},
+      {t:  "Non : la conversation est privée et se tient hors du temps de travail, l’employeur n’y peut rien.", q:  0, cons:  "", fb:  "Une messagerie d’équipe n’efface pas le lien de travail, et les propos visent une collègue."},
+    ],
+    why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que des propos de plusieurs personnes qui s’additionnent font la répétition.", "ok": true}, {"t": "Parce qu’un seul message à connotation sexuelle suffit toujours à constituer un harcèlement.", "ok": false, "no": "Pas toujours : c’est la répétition, ici collective, qui caractérise le harcèlement."}, {"t": "Parce que tout ce qui se dit dans un groupe de travail engage la responsabilité de l’employeur.", "ok": false, "no": "C’est trop large : la qualification repose sur les propos et leur répétition, pas sur le canal."}]},
+    better: "Plusieurs auteurs, même avec un seul message chacun, peuvent caractériser un harcèlement quand ils savent que leurs propos s’ajoutent à une répétition." },
+  { id: "chatact", ch: 2, type: "multi", comp: "C3", kicker: "Toujours ce mardi soir",
+    prompt: "Que faites-vous ? Sélectionnez toutes les actions utiles.",
+    opts: [
+      { t: "Je demande d’arrêter et j’écris à Inès pour la soutenir.", ok: true, why: "Faire cesser les propos et soutenir la personne : premiers gestes." },
+      { t: "Je conserve une trace utile, sans republier les messages.", ok: true, why: "Préserver les éléments sans prolonger l’exposition d’Inès." },
+      { t: "J’alerte Nour : l’employeur doit faire cesser les faits.", ok: true, why: "L’alerte interne déclenche l’obligation de l’employeur." },
+      { t: "Je transfère la conversation à toute l’équipe pour que chacun voie.", ok: false, why: "Diffuser à nouveau, c’est prolonger l’exposition d’Inès." },
+      { t: "J’attends de voir si ça recommence.", ok: false, why: "La répétition est déjà là, et Inès a demandé d’arrêter." },
+    ] },
   { id: "k2", ch: 2, type: "explain", page: { title: "Harcèlement, faits et hypothèses",
     pts: [
       "Le harcèlement sexuel peut résulter de propos ou comportements sexuels ou sexistes répétés, même sans proposition sexuelle.",
@@ -215,8 +224,6 @@ const SCREENS = [
       "Je décris les faits et ce qui manque. Je sépare observations et hypothèses. Je n’attends pas d’être certain pour demander de l’aide.",
       "Enfant en danger ou en risque de l’être : 119 ou CRIP, la cellule départementale qui recueille les informations préoccupantes.",
     ], refs: ["R03", "R10", "Code pénal 222-33", "Code du travail L1153-5"] } },
-
-  /* ---------------- CHAPITRE 3 ---------------- */
   { id: "c3", ch: 3, type: "chapter" },
   { id: "sousef", ch: 3, type: "choice", npc: "garnier", mood: "calm", comp: "C4", timer: 30, kicker: "Mercredi, 8 h 05 · le milieu de la semaine",
     context: "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. M. Garnier vous prend à part : « On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires. »",
@@ -232,6 +239,31 @@ const SCREENS = [
         cons: "Le film calme la matinée, mais rien n’est prévu pour les sanitaires ni pour l’après-midi.",
         fb: "Réduire l’activité peut aider, mais ne règle ni l’encadrement ni l’accompagnement : il faut un renfort." },
     ] },
+  { id: "parent2", ch: 3, type: "dialogue", comp: "C4", title: "Au portail : la maman de Malo", npc: "benali", start: "n1", parent: true,
+    intro: "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas.",
+    nodes: {
+      n1: { mood: "concern", t: "Je peux vous parler deux minutes ? Hier soir, Malo m’a dit qu’un grand lui avait montré des vidéos « pas pour les enfants » sur un téléphone, aux toilettes. Il m’a fait promettre de ne rien dire.",
+        opts: [
+          { t: "Merci d’être venue. Ce n’est pas normal, ni de sa faute. Je préviens la direction maintenant.", to: "n2", q: 1 },
+          { t: "Les grands testent beaucoup à cet âge ; on va surtout rappeler les règles sur les téléphones.", to: "n1b", q: 0, note: "Montrer des images pornographiques à un enfant n’est jamais anodin, même entre enfants. L’équipe doit réagir." },
+          { t: "Qui est-ce ? Donnez-moi son nom, je vais aller le voir tout de suite pour régler ça.", to: "n1c", q: 0.5, note: "Agir seul et à chaud, sans la direction, peut exposer les enfants concernés. On transmet : la direction organise la réponse." },
+        ] },
+      n1b: { mood: "angry", t: "C’est l’âge ?! Il a huit ans, il était choqué ! Vous trouvez ça normal ?",
+        opts: [{ t: "Vous avez raison, pardon. Ce n’est pas anodin, et ce n’est pas sa faute. Je préviens la direction maintenant.", to: "n2", q: 0.5 }] },
+      n1c: { mood: "o", t: "Je ne sais pas qui c’est. Il ne veut pas me le dire.",
+        opts: [{ t: "D’accord, ne le forcez pas. Je préviens la direction maintenant : c’est elle qui organise la suite.", to: "n2", q: 1 }] },
+      n2: { mood: "calm", t: "Et à Malo, qu’est-ce que je dis ? Il a peur qu’on sache que c’est lui qui a parlé.",
+        opts: [
+          { t: "Dites-lui qu’il a eu raison de parler et que les adultes s’en occupent, sans l’exposer.", to: "end", q: 1 },
+          { t: "Conseillez-lui de ne plus aller aux toilettes en même temps que les grands, pour le protéger.", to: "n3", q: 0, note: "La consigne fait porter la protection sur l’enfant. C’est à l’équipe d’organiser les lieux et la surveillance." },
+          { t: "On réunit tous les enfants ce matin pour faire un rappel collectif sur les vidéos.", to: "n3b", q: 0.5, note: "Une prévention collective est utile, mais pas à chaud : Malo serait identifié. La direction décide de la réponse, en protégeant sa parole." },
+        ] },
+      n3: { mood: "angry", t: "Mais ce n’est pas à lui de faire attention ! C’est à vous de surveiller, non ?",
+        opts: [{ t: "Non, vous avez raison. C’est à nous d’organiser les toilettes et l’usage des téléphones pour que ça ne se reproduise pas. Dites-lui qu’il a eu raison de parler.", to: "end", q: 0.5 }] },
+      n3b: { mood: "o", t: "Tous les enfants ? Il va se sentir montré du doigt…",
+        opts: [{ t: "Vous avez raison : on protège d’abord Malo. La direction décidera de la suite, sans l’exposer.", to: "end", q: 0.5 }] },
+      end: { end: true, mood: "smile", t: "D’accord. Merci de m’avoir écoutée.",
+        lesson: "Quand un parent rapporte la parole de son enfant, on remercie, on ne minimise pas, on n’enquête pas soi-même et on transmet le jour même à la direction. Exposer un mineur à des images pornographiques est interdit (Code pénal, art. 227-24) : même entre enfants, l’équipe réagit et réorganise les lieux sensibles (toilettes, téléphones)." } } },
   { id: "ronde", ch: 3, type: "dialogue", comp: "C4", title: "La ronde de l’accueil", npc: "jade", scene: "S15", start: "n1",
     nodes: {
       n1: { mood: "big", narr: "Samedi matin, accueil du nouveau groupe.", t: "Pour se dire bonjour, chacun fait un câlin à son voisin ! … Malo ? Allez, toute l’équipe le fait, ne fais pas ton timide !",
@@ -284,31 +316,6 @@ const SCREENS = [
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’un consentement se donne librement : il ne se déduit pas d’un silence.", "ok": true}, {"t": "Parce que tout contact physique entre jeunes est interdit en accueil collectif de mineurs.", "ok": false, "no": "Ce n’est pas la règle : la question est celle de l’accord, pas d’une interdiction générale."}, {"t": "Parce qu’un mineur ne peut jamais consentir à rien, quel que soit son âge.", "ok": false, "no": "C’est inexact dit ainsi : la loi protège spécialement les moins de 15 ans, mais la question posée ici est celle du silence."}]},
     better: "Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement." },
-  { id: "parent2", ch: 3, type: "dialogue", comp: "C4", title: "Au portail : la maman de Malo", npc: "benali", start: "n1", parent: true,
-    intro: "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas.",
-    nodes: {
-      n1: { mood: "concern", t: "Je peux vous parler deux minutes ? Hier soir, Malo m’a dit qu’un grand lui avait montré des vidéos « pas pour les enfants » sur un téléphone, aux toilettes. Il m’a fait promettre de ne rien dire.",
-        opts: [
-          { t: "Merci d’être venue. Ce n’est pas normal, ni de sa faute. Je préviens la direction maintenant.", to: "n2", q: 1 },
-          { t: "Les grands testent beaucoup à cet âge ; on va surtout rappeler les règles sur les téléphones.", to: "n1b", q: 0, note: "Montrer des images pornographiques à un enfant n’est jamais anodin, même entre enfants. L’équipe doit réagir." },
-          { t: "Qui est-ce ? Donnez-moi son nom, je vais aller le voir tout de suite pour régler ça.", to: "n1c", q: 0.5, note: "Agir seul et à chaud, sans la direction, peut exposer les enfants concernés. On transmet : la direction organise la réponse." },
-        ] },
-      n1b: { mood: "angry", t: "C’est l’âge ?! Il a huit ans, il était choqué ! Vous trouvez ça normal ?",
-        opts: [{ t: "Vous avez raison, pardon. Ce n’est pas anodin, et ce n’est pas sa faute. Je préviens la direction maintenant.", to: "n2", q: 0.5 }] },
-      n1c: { mood: "o", t: "Je ne sais pas qui c’est. Il ne veut pas me le dire.",
-        opts: [{ t: "D’accord, ne le forcez pas. Je préviens la direction maintenant : c’est elle qui organise la suite.", to: "n2", q: 1 }] },
-      n2: { mood: "calm", t: "Et à Malo, qu’est-ce que je dis ? Il a peur qu’on sache que c’est lui qui a parlé.",
-        opts: [
-          { t: "Dites-lui qu’il a eu raison de parler et que les adultes s’en occupent, sans l’exposer.", to: "end", q: 1 },
-          { t: "Conseillez-lui de ne plus aller aux toilettes en même temps que les grands, pour le protéger.", to: "n3", q: 0, note: "La consigne fait porter la protection sur l’enfant. C’est à l’équipe d’organiser les lieux et la surveillance." },
-          { t: "On réunit tous les enfants ce matin pour faire un rappel collectif sur les vidéos.", to: "n3b", q: 0.5, note: "Une prévention collective est utile, mais pas à chaud : Malo serait identifié. La direction décide de la réponse, en protégeant sa parole." },
-        ] },
-      n3: { mood: "angry", t: "Mais ce n’est pas à lui de faire attention ! C’est à vous de surveiller, non ?",
-        opts: [{ t: "Non, vous avez raison. C’est à nous d’organiser les toilettes et l’usage des téléphones pour que ça ne se reproduise pas. Dites-lui qu’il a eu raison de parler.", to: "end", q: 0.5 }] },
-      n3b: { mood: "o", t: "Tous les enfants ? Il va se sentir montré du doigt…",
-        opts: [{ t: "Vous avez raison : on protège d’abord Malo. La direction décidera de la suite, sans l’exposer.", to: "end", q: 0.5 }] },
-      end: { end: true, mood: "smile", t: "D’accord. Merci de m’avoir écoutée.",
-        lesson: "Quand un parent rapporte la parole de son enfant, on remercie, on ne minimise pas, on n’enquête pas soi-même et on transmet le jour même à la direction. Exposer un mineur à des images pornographiques est interdit (Code pénal, art. 227-24) : même entre enfants, l’équipe réagit et réorganise les lieux sensibles (toilettes, téléphones)." } } },
   { id: "kevin", ch: 3, type: "multi", comp: "C2", npc: "kevin", mood: "smile", kicker: "En fin de journée, après le départ des enfants",
     context: "Kévin, animateur de 24 ans, vous confie : « Clara a 17 ans, elle est d’accord. Notre relation est autorisée, non ? » Clara fait partie du groupe qu’il encadre.",
     prompt: "Quels arguments lui opposer ? Sélectionnez tous ceux qui sont justes.",
@@ -332,8 +339,6 @@ const SCREENS = [
       "L’âge et l’autorité comptent : un accord exprimé ne suffit pas à rendre licite tout acte entre un adulte et un mineur.",
       "Dans les gestes ordinaires : proposer des alternatives sans contact, laisser un refus possible sans humiliation.",
     ], refs: ["R06", "R07", "Code pénal 222-22", "Code pénal 227-27"] } },
-
-  /* ---------------- CHAPITRE 4 ---------------- */
   { id: "c4", ch: 4, type: "chapter" },
   { id: "depart", ch: 4, type: "story", scene: "S13", kicker: "Jeudi, 16 h · les familles arrivent à 17 h",
     lines: [
@@ -435,10 +440,8 @@ const SCREENS = [
       "Violences sexuelles sur un mineur : autorités judiciaires. En ACM, l’organisateur signale aussi sans délai au SDJES.",
       "L’information des parents s’organise avec les autorités lorsqu’un risque l’impose.",
     ], refs: ["A01 à A10", "R10", "Code pénal 434-3", "CASF R227-11"] } },
-
-  /* ---------------- CHAPITRE 5 ---------------- */
   { id: "c5", ch: 5, type: "chapter" },
-  { id: "bilanequipe", ch: 5, type: "story", scene: "S17", kicker: "Vendredi matin, réunion d’équipe",
+  { id: "bilanequipe", ch: 5, type: "story", scene: "S17", kicker: "Vendredi, 8 h 30 · réunion d’équipe",
     lines: [
       { who: "nour", mood: "smile", t: "On ne repart pas comme on est venus. Reprends un des points repérés lundi pendant le tour de l’accueil." },
       { who: "nour", mood: "calm", t: "Propose une mesure qu’on pourra vraiment vérifier : un changement, une personne responsable, un moment, un indicateur." },
@@ -457,24 +460,13 @@ const SCREENS = [
     later: true,
     better: "Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable." },
   {"id": "familles", "fact": "Ce message fait écho à l’actualité : en avril 2026, Paris a adopté un plan pour sécuriser le périscolaire, et en octobre, un rapport du Sénat a dénoncé l’omerta et demandé des contrôles d’honorabilité chaque année.", "ch": 5, "type": "choice", "npc": "nour", "mood": "calm", "comp": "C4", "kicker": "Vendredi, 10 h · un message des familles", "context": "Après les affaires du périscolaire parisien, plusieurs parents écrivent à l’accueil : « Qui encadre nos enfants, et comment savoir qu’ils sont en sécurité ? » Nour vous demande ce que l’accueil doit répondre.", "prompt": "Que proposez-vous ?", "opts": [{"t": "Des règles vérifiables : jamais un adulte seul hors de vue, toilettes organisées, contrôles, et à qui parler.", "q": 1, "cons": "Le livret part lundi. Deux parents proposent même de relire la version destinée aux enfants.", "fb": "La confiance se gagne par des règles concrètes, connues de tous et vérifiables.", "mood": "smile"}, {"t": "Rassurer : « Aucun incident n’a jamais eu lieu chez nous, et toute l’équipe est de confiance. »", "q": 0, "cons": "Les parents ne sont pas rassurés. L’un d’eux demande ce qui serait fait si un incident survenait.", "fb": "L’absence d’incident connu ne protège personne : c’est souvent le silence qui l’explique. Les familles attendent des règles."}, {"t": "Interdire tout contact physique entre adultes et enfants, même pour consoler ou pour soigner.", "q": 0.5, "cons": "Une petite qui s’est fait mal attend seule qu’on « trouve une solution ». L’équipe est mal à l’aise.", "fb": "La règle se veut protectrice mais empêche des soins et un réconfort nécessaires. On encadre les gestes plutôt que de les interdire."}, {"t": "Installer des caméras dans les couloirs et à l’entrée des sanitaires, pour pouvoir tout vérifier.", "q": 0, "cons": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants.", "fb": "La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger."}], "why": {"q": "Et pourquoi ?", "opts": [{"t": "Parce que la sécurité repose sur des règles connues que les familles peuvent vérifier.", "ok": true}, {"t": "Parce que la loi oblige à informer toutes les familles de chaque incident survenu dans l’accueil.", "ok": false, "no": "Ce n’est pas le fond du sujet : la question est ce qui protège réellement, avant tout incident."}, {"t": "Parce que les parents doivent pouvoir entrer librement dans l’accueil à tout moment.", "ok": false, "no": "L’ouverture totale n’est pas une mesure de protection : c’est l’organisation de l’équipe qui compte."}]}, "better": "Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."},
-  { id: "k5", ch: 5, type: "explain", page: { title: "Une prévention qui se voit",
-    pts: [
-      "Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable.",
-      "Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables.",
-      "Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe.",
-      "L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement.",
-      "Un contrôle d’honorabilité ne remplace jamais cette vigilance.",
-    ], refs: ["Carte des domaines de prévention", "CASF L226-8"] } },
-
-  /* ---------------- CHAPITRE 6 ---------------- */
-  { id: "c6", ch: 6, type: "chapter" },
-  { id: "maelys", ch: 6, type: "story", scene: "S07", kicker: "Vendredi, 13 h",
+  { id: "maelys", ch: 5, type: "story", scene: "S07", kicker: "Vendredi, 13 h",
     lines: [
       { who: "maelys", mood: "calm", t: "Je peux te parler ? … Hier, pendant le rangement du local, l’intervenant de l’atelier bois m’a imposé des attouchements." },
       { who: "maelys", mood: "concern", t: "Je ne veux plus entrer dans cette pièce. Et il y a atelier bois à 15 h." },
       { who: null, t: "Vous remerciez Maëlys de vous avoir parlé et lui dites que ce n’est pas de sa faute. Maintenant, il faut décider." },
     ] },
-  { id: "f1", ch: 6, type: "choice", comp: "C3", kicker: "13 h 05",
+  { id: "f1", ch: 5, type: "choice", comp: "C3", kicker: "13 h 05",
     prompt: "Votre toute première décision ?",
     opts: [
       {t:  "Tout de suite, Maëlys ne croise plus l’intervenant : un adulte reste avec elle.", q:  1, cons:  "Maëlys reste avec Inès, loin du local. Vous pouvez alerter.", fb:  "Protéger d’abord : éviter toute nouvelle exposition, puis alerter.", mood:  "calm"},
@@ -485,7 +477,7 @@ const SCREENS = [
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’on protège d’abord : aucune nouvelle exposition, puis on alerte.", "ok": true}, {"t": "Parce qu’on doit d’abord vérifier que son récit est crédible et cohérent.", "ok": false, "no": "Ce n’est pas à l’équipe d’évaluer la crédibilité : on protège et on alerte."}, {"t": "Parce que l’intervenant n’est pas salarié de l’accueil, il dépend d’une association.", "ok": false, "no": "Son statut ne change rien : toute personne mise en cause est tenue à l’écart."}]},
     timer: 25,
     better: "Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités." },
-  { id: "temoin", ch: 6, type: "interview", comp: "C1", kicker: "13 h 20 · salle des grands", title: "Sacha a vu quelque chose",
+  { id: "temoin", ch: 5, type: "interview", comp: "C1", kicker: "13 h 20 · salle des grands", title: "Sacha a vu quelque chose",
     intro: "Sacha, 11 ans, vient vous voir : « J’ai vu un truc à la régie. » Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez.",
     npc: "sacha", facts: ["où", "qui", "quand", "après"],
     qs: [
@@ -498,7 +490,7 @@ const SCREENS = [
       { t: "Je te promets que je ne le répéterai à personne.", kind: "promesse", a: "D’accord…", trust: -6, fb: "Vous ne pouvez pas tenir cette promesse : vous allez devoir transmettre." },
     ],
     close: { t: "Merci Sacha, tu as bien fait de me le dire. Je vais en parler à des adultes dont c’est le rôle.", a: "D’accord. Maëlys, elle va bien ?" } },
-  { id: "garnier", ch: 6, type: "dialogue", comp: "C3", title: "Le bureau du directeur", npc: "garnier", start: "n1",
+  { id: "garnier", ch: 5, type: "dialogue", comp: "C3", title: "Le bureau du directeur", npc: "garnier", start: "n1",
     nodes: {
       n1: { mood: "concern", t: "Maëlys ? Elle a dû mal comprendre. Il travaille ici depuis dix ans. On verra demain avec l’organisateur, je ne veux pas de scandale.",
         opts: [
@@ -519,7 +511,7 @@ const SCREENS = [
         lesson: "Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine n’est jamais un passage obligé." },
       endb: { end: true, mood: "concern", t: "Toute l’équipe ? Et Maëlys, dans tout ça ?",
         lesson: "L’alerte va aux autorités judiciaires et, par l’organisateur, au SDJES. L’intervenant est écarté. Le reste de l’équipe sait seulement qu’une situation est prise en charge." } } },
-  { id: "f3", ch: 6, type: "multi", comp: "C3", npc: "maelys", mood: "calm", kicker: "14 h",
+  { id: "f3", ch: 5, type: "multi", comp: "C3", npc: "maelys", mood: "calm", kicker: "14 h",
     context: "Maëlys vous demande : « Je vais avoir des problèmes ? »",
     prompt: "Que pouvez-vous lui dire ? Sélectionnez toutes les phrases justes.",
     opts: [
@@ -529,10 +521,19 @@ const SCREENS = [
       { t: "Je te promets qu’il sera puni.", ok: false, why: "On ne garantit pas une peine." },
       { t: "Personne d’autre ne le saura.", ok: false, why: "On ne promet jamais le secret." },
     ] },
-  { id: "dafter", ch: 6, type: "positions", mode: "after", title: "Tes convictions, une semaine plus tard",
+  { id: "k5", ch: 5, type: "explain", page: { title: "Une prévention qui se voit",
+    pts: [
+      "Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable.",
+      "Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables.",
+      "Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe.",
+      "L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement.",
+      "Un contrôle d’honorabilité ne remplace jamais cette vigilance.",
+    ], refs: ["Carte des domaines de prévention", "CASF L226-8"] } },
+
+  { id: "dafter", ch: 5, type: "positions", mode: "after", title: "Tes convictions, une semaine plus tard",
     intro: "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez." },
-  { id: "souvenirs", ch: 6, type: "replay", kicker: "Fin de la semaine", title: "Vous vous souvenez ?" },
-  { id: "bilan", ch: 6, type: "bilan" },
+  { id: "souvenirs", ch: 5, type: "replay", kicker: "Fin de la semaine", title: "Vous vous souvenez ?" },
+  { id: "bilan", ch: 5, type: "bilan" }
 ];
 
 const BUILD = {
@@ -690,7 +691,11 @@ const ROOM_SAY = {
 const SOURCES = [{"t": "Franceinfo · Périscolaire à Paris : 132 animateurs suspendus depuis le début de l’année", "u": "https://www.franceinfo.fr/societe/education/violences-dans-le-periscolaire/periscolaire-a-paris-132-animateurs-suspendus-depuis-le-debut-de-l-annee-dont-52-pour-suspicions-de-violences-sexuelles-ou-sexistes_8052383.html"}, {"t": "Sud Radio · Paris : plus aucun animateur seul avec un enfant", "u": "https://www.sudradio.fr/societe/crise-du-periscolaire-a-paris-sous-pression-gregoire-lance-une-concertation-sur-les-rythmes-scolaires"}, {"t": "Préfecture des Côtes-d’Armor · Activité accessoire à un accueil sans hébergement", "u": "https://www.cotes-darmor.gouv.fr/contenu/telechargement/49258/345921/file/Activit%C3%A9%20accessoire%20%C3%A0%20un%20accueil%20sans%20h%C3%A9bergement.pdf"}, {"t": "Euronews · Paris adopte un plan pour sécuriser le périscolaire", "u": "https://fr.euronews.com/2026/04/14/paris-adopte-un-plan-pour-securiser-le-periscolaire-apres-les-scandales-des-violences-sexu"}, {"t": "Aleteia · Le rapport du Sénat sur les violences dans le périscolaire", "u": "https://fr.aleteia.org/2026/10/15/la-france-ne-protege-pas-ses-enfants-le-rapport-du-senat-sur-les-violences-dans-le-periscolaire/"}];
 
 const STAGE = {
-  c1: { at: "ensemble" }, c2: { at: "ensemble" }, c3: { at: "ensemble" }, c4: { at: "ensemble" }, c5: { at: "ensemble" }, c6: { at: "ensemble" },
+  c1: { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b"], ["nour", "d", "wave"], ["sacha", "c", "walk"]] },
+  c2: { at: "entree", cast: [["parent", "a", "talk"], ["theo", "b"], ["nour", "d", "wave"], ["you", "e"], ["zoe", "c", "walk"]] },
+  c3: { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "walk"], ["malo", "c"], ["ines", "d", "wave"], ["you", "e"], ["sacha", "f", "walk"]] },
+  c4: { at: "entree", cast: [["parent", "a", "talk"], ["lou", "b"], ["kevin", "d", "wave"], ["you", "e"], ["enzo", "c", "walk"]] },
+  c5: { at: "entree", cast: [["parent", "a", "walk"], ["clara", "b", "walk"], ["nour", "d", "wave"], ["you", "e"], ["theo", "c"]] },
   intro: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b"], ["parent", "d", "walk"], ["theo", "c"], ["sacha", "f", "wave"]] },
   dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
   radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["malo", "s1"], ["lena", "s2"], ["clara", "d"]] },
@@ -731,7 +736,7 @@ const VOICE_TXT = {
   // Contexte d'une situation : récit par la narratrice ou le narrateur, citations par le personnage présent.
   parts(sc) {
     const P = [];
-    if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `Chapitre ${c.n}. ${c.title}. ${c.goal}`]); return P; }
+    if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `${c.day}, jour ${c.n} sur ${CHAPTERS.length}. ${c.title}. ${c.goal}`]); return P; }
     if (sc.type === "explain" && sc.page) { P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
     if (sc.crisis) { P.push(["narr", sc.crisis.intro]); return P; }
     if (sc.fact) P.push(["narr", sc.fact]);

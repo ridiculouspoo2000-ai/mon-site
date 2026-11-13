@@ -19,7 +19,7 @@
   const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali" };
 
   /* ---------- état et sauvegarde ---------- */
-  const fresh = () => ({ v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, later: {}, trust: {}, stars: {}, nuitee: false, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
+  const fresh = () => ({ rev: {}, v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, later: {}, trust: {}, stars: {}, nuitee: false, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
   let st = null;
   st = fresh();
   st.settings = { sound: true, voice: true, calm: window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches };
@@ -241,9 +241,11 @@
     dots.innerHTML = "";
     CHAPTERS.forEach((c) => {
       const cur = sc && sc.ch === c.n, done = sc && c.n < sc.ch;
-      dots.appendChild(el("li", { class: "dot" + (cur ? " cur" : "") + (done ? " done" : ""), title: `Chapitre ${c.n} · ${c.title}` }, `<span class="sr-only">Chapitre ${c.n}, ${esc(c.title)}${cur ? ", en cours" : done ? ", terminé" : ""}</span>`));
+      dots.appendChild(el("li", { class: "dot" + (cur ? " cur" : "") + (done ? " done" : ""), title: `${c.day} · ${c.title}` }, `<span class="sr-only">${c.day}, ${esc(c.title)}${cur ? ", en cours" : done ? ", terminé" : ""}</span>`));
     });
-    $("#chaptitle").textContent = sc ? `Chapitre ${sc.ch} · ${CHAPTERS[sc.ch - 1].title}` : "";
+    $("#chaptitle").textContent = sc ? `${CHAPTERS[sc.ch - 1].day} · ${CHAPTERS[sc.ch - 1].title}` : "";
+    // le téléphone n'apparaît qu'une fois présenté
+    $("#btn-phone").hidden = !(st.rev && st.rev.phone);
     $("#carnetcount").textContent = st.carnet.length;
     $("#btn-level .lbl").textContent = LV().name;
     $("#hudav").innerHTML = A.avatars[st.av];
@@ -311,27 +313,40 @@
     document.body.appendChild(g); setTimeout(() => g.classList.add("out"), 3200); setTimeout(() => g.remove(), 3900);
   }
   // La semaine qui passe : jour, heure, avancée dans la semaine, fatigue de l'équipe
-  const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"], CHDAY = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 3, 6: 4 }, TIRED = [12, 30, 55, 68, 82];
+  const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"], CHDAY = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4 }, TIRED = [12, 30, 55, 68, 82];
   const DC = { d: -1, t: "8 h 30", el: null };
   function dayclock(sc) {
     if (!DC.el) { DC.el = el("div", { id: "dayclock", "aria-live": "polite" }); document.body.appendChild(DC.el); }
-    const show = !["home", "avatar"].includes(sc.type);
-    DC.el.hidden = !show; if (!show) return;
+    const show = !["home", "avatar"].includes(sc.type) && !!(st.rev && st.rev.clock);
+    DC.el.hidden = !show; if (!show) { DC.d = null; return; }
     let d = CHDAY[sc.ch] != null ? CHDAY[sc.ch] : 0;
     const k = sc.kicker || "", m = k.match(/(lundi|mardi|mercredi|jeudi|vendredi)/i);
     if (m) d = DAYS.findIndex((x) => x.toLowerCase() === m[1].toLowerCase());
-    const h = k.match(/(\d{1,2}) ?h ?(\d{2})?/); if (h) DC.t = `${h[1]} h ${h[2] || "00"}`;
+    const h = k.match(/(\d{1,2}) ?h ?(\d{2})?/), t0 = DC.t;
+    if (sc.type === "chapter") DC.t = "7 h 45";
+    else if (h) DC.t = `${h[1]} h ${h[2] || "00"}`;
     else if (d !== DC.d) DC.t = "8 h 30";
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
-    const changed = d !== DC.d; DC.d = d;
+    const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
     DC.el.innerHTML = `<div class="dc-top"><b>${DAYS[d]}</b><span>${DC.t}</span></div>
       <div class="dc-week">${DAYS.map((x, i) => `<i class="${i < d ? "past" : i === d ? "now" : ""}" title="${x}">${x[0]}</i>`).join("")}</div>
       <div class="dc-f"><small>Fatigue de l’équipe</small><span><i style="width:${f}%"></i></span></div>`;
     DC.el.classList.toggle("tired", f >= 55);
+    // l'heure défile jusqu'à la nouvelle heure
+    const toMin = (x) => { const m = /(\d+) h (\d+)/.exec(x || ""); return m ? +m[1] * 60 + +m[2] : null; };
+    const a0 = toMin(t0), a1 = toMin(DC.t), sp = DC.el.querySelector(".dc-top span");
+    if (sp && a0 != null && a1 != null && a1 > a0 && d === DCprev && !calm()) {
+      const T0 = performance.now(), dur = Math.min(2200, 300 + (a1 - a0) * 6);
+      const tick = (now) => { const k2 = Math.min(1, (now - T0) / dur), m = Math.round(a0 + (a1 - a0) * k2); sp.textContent = `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`; if (k2 < 1 && sp.isConnected) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }
     if (changed) { DC.el.classList.remove("newday"); void DC.el.offsetWidth; DC.el.classList.add("newday"); }
   }
   function render(dir = 1) {
     const sc = tune(SCREENS[st.idx]);
+    // partie reprise après la présentation : l'horloge et le téléphone sont déjà connus
+    if (!st.rev) st.rev = {};
+    if (st.idx > SCREENS.findIndex((x) => x.id === "intro")) { st.rev.clock = 1; st.rev.phone = 1; }
     Voice.stop();
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); Voice.prefetch(L); }
@@ -401,6 +416,22 @@
       const svg = (A.dio.img || A.dio.svg).replace(/viewBox="[^"]*"/, `viewBox="${L.vb}"`).replace("</style>", st + "</style>");
       try { this.url[k] = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); } catch (e) { this.url[k] = ""; }
       return this.url[k];
+    },
+  };
+  // Les affiches des murs : un clic pour les lire en grand
+  const Aff = {
+    open(k) {
+      const a = (A.dio.aff || {})[k]; if (!a) return;
+      document.querySelector(".affview")?.remove();
+      const v = el("div", { class: "affview", role: "dialog", "aria-modal": "true", "aria-label": a.t },
+        `<div class="affbox"><img alt="${a.t}" src="${a.L}"><div class="afftxt"><h3>${a.t}</h3><p>${a.x}</p><button class="btn affclose">Fermer</button></div></div>`);
+      const close = () => { v.classList.remove("in"); setTimeout(() => v.remove(), 250); removeEventListener("keydown", esc); };
+      const esc = (e) => { if (e.key === "Escape") close(); };
+      v.addEventListener("click", (e) => { if (e.target === v || e.target.closest(".affclose")) close(); });
+      addEventListener("keydown", esc);
+      document.body.appendChild(v); requestAnimationFrame(() => v.classList.add("in"));
+      v.querySelector(".affclose").focus();
+      try { Snd.click(); } catch (e) {}
     },
   };
   const World = {
@@ -496,9 +527,11 @@
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(.84)">${m[ps] || m.stand}</g></g>${who === "you" ? `<text class="rlab" y="8" text-anchor="middle">Vous</text>` : ""}</g>`;
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
-        L.push([g, [P.x, 0]]);
+        L.push([g, [P.x, 0], P]);
       });
-      if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p]) => g.querySelector(".rbody").classList.toggle("flip", p[0] > cx + 2)); }
+      if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P]) => g.querySelector(".rbody").classList.toggle("flip", P && P.sit ? !!P.fx : p[0] > cx + 2)); }
+      else L.forEach(([g, , P]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", !!P.fx));
+      w.addEventListener("click", (e) => { const g = e.target.closest && e.target.closest(".aff"); if (g) Aff.open(g.dataset.aff); });
       host.appendChild(w);
       requestAnimationFrame(() => w.classList.add("in"));
     },
@@ -634,7 +667,7 @@
   const R = {};
 
   R.avatar = (sc, n) => {
-    n.innerHTML = `<div class="solo"><h2 id="h-${sc.id}">Votre rôle</h2><p class="lead">Vous êtes animateur ou animatrice et c’est votre premier jour à l’accueil de loisirs des Hautes Herbes.</p></div>`;
+    n.innerHTML = `<div class="solo"><h2 id="h-${sc.id}">Votre rôle</h2><p class="lead">Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Ce jeu porte sur la prévention des violences sexistes et sexuelles : les repérer, protéger les enfants et alerter.</p></div>`;
     const box = n.querySelector(".solo");
     const lab = el("label", { for: "pname", class: "flabel" }, "Votre prénom (facultatif)");
     const inp = el("input", { id: "pname", type: "text", maxlength: "20", autocomplete: "off", placeholder: "Sam", value: st.name || "" });
@@ -645,7 +678,7 @@
       grid.appendChild(b);
     });
     const fmt = el("div", { class: "fmt", role: "radiogroup", "aria-label": "Format de l’accueil" });
-    [[false, "Accueil de loisirs", "Des journées d’accueil, sans hébergement."], [true, "Avec une nuitée", "Une nuit à l’accueil le mercredi : un parcours en plus sur les risques de la nuit."]].forEach(([v, t, d]) => {
+    [[false, "Sans hébergement (ALSH)", "Accueil de loisirs : les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement (ALAH)", "Une nuit sur place le mercredi : un parcours en plus sur les risques de la nuit."]].forEach(([v, t, d]) => {
       const b = el("button", { class: "fmtb" + (!!st.nuitee === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(!!st.nuitee === v) }, `<b>${t}</b><small>${d}</small>`);
       b.addEventListener("click", () => { st.nuitee = v; fmt.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
       fmt.appendChild(b);
@@ -659,12 +692,32 @@
     box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau (modifiable à tout moment)"), lvl, btn("Commencer", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
   };
 
+  // Chaque journée commence au portail : la nuit tombe sur la veille, le jour se lève, les familles arrivent.
   R.chapter = (sc, n) => {
-    const c = CHAPTERS[sc.ch - 1];
-    const stations = CHAPTERS.map((x) => `<li class="${x.n < c.n ? "done" : x.n === c.n ? "cur" : ""}"><span>${x.n}</span></li>`).join("");
-    n.innerHTML = `<div class="chap"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div><p class="chapnum">Chapitre ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.title)}</h2><p class="lead">${esc(c.goal)}</p></div>`;
-    n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Continuer", next));
+    const c = CHAPTERS[sc.ch - 1], prev = CHAPTERS[sc.ch - 2];
+    const stations = CHAPTERS.map((x) => `<li class="${x.n < c.n ? "done" : x.n === c.n ? "cur" : ""}"><span>${x.day.slice(0, 2)}</span></li>`).join("");
+    let hier = "";
+    if (prev) {
+      const L = SCREENS.filter((x) => x.ch === prev.n && x.comp && st.res[x.id] != null);
+      const ok = L.filter((x) => st.res[x.id] >= 1).length, mid = L.length - ok;
+      const titres = L.slice(0, 4).map((x) => `<li class="${st.res[x.id] >= 1 ? "good" : "mid"}">${esc((x.kicker || x.title || "").replace(/^[^,·]*, ?/, ""))}</li>`).join("");
+      hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${ok} situation${ok > 1 ? "s" : ""} bien gérée${ok > 1 ? "s" : ""}${mid ? `, ${mid} à reprendre` : ""}.` : "Une première journée pour prendre ses repères."}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
+    }
+    const plan = (c.plan || []).filter((p) => st.nuitee || !/nuitée/i.test(p[1])).map((p) => `<li><b>${p[0]}</b><span>${esc(p[1])}</span></li>`).join("");
+    n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div>
+      <p class="chapnum">Jour ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.day)}</h2><p class="daytitle">${esc(c.title)}</p>
+      ${hier}<div class="dayplan"><p class="kicker">Aujourd’hui</p><ul>${plan}</ul></div><p class="lead"><b>Objectif du jour.</b> ${esc(c.goal)}</p></div>`;
+    n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Commencer la journée", next));
     Snd.page();
+    // la nuit tombe sur la veille, puis le jour se lève
+    if (prev && !calm() && !n.dataset.nf) {
+      n.dataset.nf = "1";
+      const nf = el("div", { class: "nightfall", "aria-hidden": "true" }, `<div class="nf-moon"></div><p>La nuit tombe sur les Hautes Herbes…</p>`);
+      document.body.appendChild(nf);
+      requestAnimationFrame(() => nf.classList.add("in"));
+      setTimeout(() => { nf.querySelector("p").textContent = `${c.day}, 7 h 45. Le jour se lève.`; nf.classList.add("dawn"); }, 1700);
+      setTimeout(() => { nf.classList.remove("in"); setTimeout(() => nf.remove(), 900); }, 3000);
+    }
   };
 
   R.story = (sc, n) => {
@@ -682,6 +735,7 @@
       if (L.who) row.innerHTML = `<div class="mini">${A.chars[L.who][L.mood || "smile"]}</div><div class="bub"><b>${esc(nm)}</b><p>${words(L.t)}</p></div>`;
       else row.innerHTML = `<p>${words(L.t)}</p>`;
       lines.appendChild(row);
+      if (L.reveal) { st.rev = st.rev || {}; st.rev[L.reveal] = 1; save(); hud(true); dayclock(sc); const t = L.reveal === "clock" ? DC.el : $("#btn-phone"); if (t) { t.classList.remove("revealed"); void t.offsetWidth; t.classList.add("revealed"); } }
       say((nm ? nm + " : " : "") + L.t);
       if (L.who && L.who !== "player") Voice.say(L.who, L.t, row);
       else if (!L.who) Voice.say("narr", L.t, row);
@@ -1370,7 +1424,7 @@
     if (isNew) { st.carnet.push(sc.id); save(); }
     hud(true);
     n.innerHTML = `<div class="page-note"><div class="pn-ant">${A.chars.nour.big}</div><div class="pn-body"><p class="kicker">${isNew ? "Nouvelle page dans votre carnet" : "Page du carnet"}</p><h2 id="h-${sc.id}">${esc(p.title)}</h2>${p.quote ? `<blockquote>${esc(p.quote)}</blockquote>` : ""}<ul>${p.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${p.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></div></div>`;
-    n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Chapitre suivant" : "Continuer", next));
+    n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Finir la journée" : "Continuer", next));
     if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
   };
@@ -1472,6 +1526,7 @@
   const Phone = {
     waiting: [],
     check(sc) {
+      if (!(st.rev && st.rev.phone)) return;
       PHONE.filter((p) => p.at === sc.id && st.res["tel-" + p.id] == null && !this.waiting.includes(p)).forEach((p) => {
         const fire = () => { if (SCREENS[st.idx].id !== p.at && !p.urgent) return; if (Voice.busy() && !p.urgent) return document.addEventListener("voice-idle", () => setTimeout(fire, 1200), { once: true }); this.notify(p); };
         setTimeout(fire, p.urgent ? 6500 : 2800);
@@ -1850,7 +1905,7 @@
       <p class="hk">Formation BAFA · BAFD · mise en situation</p>
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
       <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles. Repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
-      <div class="meta"><span>Environ 25 minutes</span><span>6 chapitres</span><span>Progression enregistrée</span></div>
+      <div class="meta"><span>Environ 25 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
       <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
@@ -1868,7 +1923,7 @@
     drawOpts(); Voice._onReady = drawOpts;
     if (canResume) {
       const sc = SCREENS[prev.idx];
-      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · chapitre ${sc.ch}`, () => { begin(); st = prev; st.settings = st.settings || { sound: true, calm: false }; applySettings(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
+      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { begin(); st = prev; st.settings = st.settings || { sound: true, calm: false }; applySettings(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
       hb.appendChild(btn("Nouvelle partie", () => { begin(); restart(); }, "ghost light"));
     } else hb.appendChild(btn("Commencer", () => { begin(); go(0); }));
     stage.appendChild(n);

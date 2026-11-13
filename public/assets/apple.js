@@ -84,7 +84,7 @@
         if (!e.target.style.getPropertyValue('--ap-d')) e.target.style.setProperty('--ap-d', Math.min(i * 0.08, 0.4).toFixed(2) + 's');
         show(e.target);
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    }, { threshold: 0, rootMargin: '0px 0px -25% 0px' }); // les apparitions démarrent au premier quart de l’écran, en partant du bas
     pending.forEach(el => io.observe(el));
     // Filet de sécurité : ce qui est déjà au-dessus de l’écran (ancre, rotation) apparaît.
     const sweep = () => pending.forEach(el => { if (el.getBoundingClientRect().top < innerHeight) { io.unobserve(el); pending.delete(el); show(el); } });
@@ -225,7 +225,7 @@
     em.classList.add('fx-fill');
     scenes.push(() => {
       const r = em.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
-      const t = clamp((innerHeight * .92 - r.top) / (innerHeight * .45));
+      const t = clamp((innerHeight * .75 - r.top) / (innerHeight * .4));
       em.style.setProperty('--f', `${(t * 100).toFixed(1)}%`);
     });
   });
@@ -254,7 +254,7 @@
     const bar = rail.firstChild;
     scenes.push(() => {
       const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
-      const t = clamp((innerHeight * .8 - r.top) / (r.height + innerHeight * .2));
+      const t = clamp((innerHeight * .72 - r.top) / (r.height + innerHeight * .2));
       bar.style.transform = el.classList.contains('process') ? `scaleY(${t.toFixed(4)})` : `scaleX(${t.toFixed(4)})`;
     });
   });
@@ -265,7 +265,7 @@
     const target = +v, pad = v.length; let shown = -1;
     scenes.push(() => {
       const r = n.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;
-      const t = ease(clamp((innerHeight * .95 - r.top) / (innerHeight * .35)));
+      const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .35)));
       const x = Math.round(target * t); if (x === shown) return; shown = x;
       n.textContent = String(x).padStart(pad, '0');
     });
@@ -289,7 +289,7 @@
   // Grandes phrases qui prennent toute leur place en arrivant au centre.
   document.querySelectorAll('.help h2, .cj-quote, .cj-pq, .di-hero h1').forEach(el => scenes.push(() => {
     const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight - r.top) / (innerHeight * .6)));
+    const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .5)));
     el.style.transform = `scale(${lerp(.9, 1, t).toFixed(4)})`; el.style.opacity = lerp(.35, 1, t).toFixed(3);
   }));
 
@@ -312,7 +312,7 @@
     let lit = -1;
     scenes.push(() => {
       const r = el.getBoundingClientRect();
-      const p = clamp((innerHeight * .82 - r.top) / (r.height + innerHeight * .25));
+      const p = clamp((innerHeight * .72 - r.top) / (r.height + innerHeight * .25));
       const n = Math.round(p * items.length);
       if (n === lit) return;
       items.forEach((it, i) => it.classList.toggle('on', i < n));
@@ -333,7 +333,7 @@
   // Bannière BAFA qui grandit en arrivant.
   document.querySelectorAll('.bafa-banner').forEach(b => scenes.push(() => {
     const r = b.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight - r.top) / (innerHeight * .7)));
+    const t = ease(clamp((innerHeight * .78 - r.top) / (innerHeight * .55)));
     b.style.transform = `scale(${lerp(.86, 1, t).toFixed(4)})`;
     b.style.opacity = lerp(.4, 1, t).toFixed(3);
   }));
@@ -471,7 +471,7 @@
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',
     '.download', '.price-accordion', '#faq details', '.ap-faq details', '.trainer-entry', '.contact-grid form', '.legal-notice', '.ap-join',
     '.ct-tile', '.ct-form', '.nw-feature', '.nw-tile', '.cj-tile.light', '.cj-card', '.cj-rules article', '.cj-amount:not(.total)', '.bafa-resource-card',
-    '.dg-teaser-in', '.bafa-infographic', '.help', '.fo-tile', '.fo-promo', '.fo-chips li'].join(',');
+    '.dg-teaser-in', '.bafa-infographic', '.help', '.fo-tile', '.fo-promo', '.fo-chips li', '.bf-choice'].join(',');
   const lgOn = () => document.querySelectorAll(LG).forEach((el, i) => { el.classList.add('lg'); if (i % 2) el.classList.add('lg-o'); });
   const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));
   // Toujours « Verre liquide » : plus de sélecteur d’apparence.
@@ -494,7 +494,7 @@
   /* ---------- Schémas : avancement piloté par le défilement ---------- */
   document.querySelectorAll('[data-dg-scrub]').forEach(el => scenes.push(() => {
     const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
-    const p = clamp((innerHeight * .95 - r.top) / (innerHeight * .45 + r.height * .5));
+    const p = clamp((innerHeight * .75 - r.top) / (innerHeight * .4 + r.height * .5));
     el.style.setProperty('--p', p.toFixed(3));
   }));
 

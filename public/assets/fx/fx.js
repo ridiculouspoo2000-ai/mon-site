@@ -60,7 +60,7 @@
       }));
       ready = true;
     }
-    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .92 - r.top) / (innerHeight * .55)); };
+    const progress = () => { const r = cv.getBoundingClientRect(); return clamp((innerHeight * .78 - r.top) / (innerHeight * .5)); };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
@@ -233,6 +233,60 @@
     box.addEventListener('pointerleave', () => { hover = false; });
     draw();
     if (!reduced) whenVisible(box, frame);
+  });
+
+
+  /* ---------------------------------------------------------------- 7. Page BAFA : le site se divise en deux */
+  const fork = document.querySelector('.bf-fork');
+  if (fork) {
+    const main = document.querySelector('main');
+    const br = { a: document.getElementById('decouvrir'), b: document.getElementById('prochaines-sessions') };
+    const branchOf = el => { const b = el && el.closest && el.closest('.bf-branch'); return b ? b.dataset.branch : null; };
+    const lines = [...fork.querySelectorAll('.bf-l, .bf-stem')];
+    function choose(k, target, smooth) {
+      const first = !main.dataset.branch;
+      main.dataset.branch = k;
+      Object.entries(br).forEach(([n, el]) => el && el.classList.toggle('on', n === k));
+      document.querySelectorAll('[data-branch-link]').forEach(a => { const on = a.dataset.branchLink === k; a.classList.toggle('on', on); a.classList.toggle('off', !on); a.setAttribute('aria-current', on ? 'true' : 'false'); });
+      dispatchEvent(new Event('resize'));
+      const go = target || (first ? fork : br[k]);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const y = go.getBoundingClientRect().top + scrollY - (go === fork ? 70 : 140);
+        scrollTo({ top: Math.max(0, y), behavior: smooth && !reduced ? 'smooth' : 'auto' });
+      }));
+    }
+    document.addEventListener('click', e => {
+      const a = e.target.closest && e.target.closest('a[href*="#"]'); if (!a) return;
+      const u = new URL(a.href, location.href); if (u.pathname !== location.pathname || !u.hash) return;
+      const id = decodeURIComponent(u.hash.slice(1));
+      let k = a.dataset.branchLink, t = null;
+      if (!k) { t = document.getElementById(id); k = branchOf(t); if (!k) return; }
+      e.preventDefault(); e.stopPropagation();
+      history.pushState(null, '', '#' + id);
+      choose(k, t, true);
+    }, true);
+    const fromHash = smooth => {
+      const id = decodeURIComponent(location.hash.slice(1)); if (!id) return;
+      if (id === 'decouvrir' || id === 'prochaines-sessions') return choose(id === 'decouvrir' ? 'a' : 'b', null, smooth);
+      const t = document.getElementById(id), k = branchOf(t); if (k) choose(k, t, smooth);
+    };
+    addEventListener('popstate', () => fromHash(false));
+    fromHash(false);
+    // Le tracé de la bifurcation se dessine en arrivant dessus.
+    if (!reduced) whenVisible(fork, () => {
+      const r = fork.getBoundingClientRect(), p = clamp((innerHeight * .8 - r.top) / (innerHeight * .4));
+      lines.forEach((l, i) => l.style.strokeDashoffset = (100 - clamp(p * 1.6 - (i ? .4 : 0)) * 100).toFixed(2));
+    });
+    else lines.forEach(l => l.style.strokeDashoffset = 0);
+  }
+
+  /* ---------------------------------------------------------------- 8. Accueil : raccourci vers les prochaines sessions (billets en éventail) */
+  document.querySelectorAll('.bf-deck').forEach(deck => {
+    if (reduced) { deck.style.setProperty('--fan', 1); return; }
+    whenVisible(deck, () => {
+      const r = deck.getBoundingClientRect();
+      deck.style.setProperty('--fan', ease(clamp((innerHeight * .8 - r.top) / (innerHeight * .45))).toFixed(4));
+    });
   });
 
   /* ---------------------------------------------------------------- 6. Photos vivantes */

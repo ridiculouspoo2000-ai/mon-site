@@ -34,6 +34,7 @@
 <ellipse cx="29.4" cy="21.6" rx="5.3" ry="3.1" transform="rotate(-16 29.4 21.6)" stroke="none"/>
 <ellipse cx="38.4" cy="17.6" rx="4.7" ry="4.1" stroke="none"/>
 <path d="M42.4 19.4c1.6.4 2.4 1.4 2.4 2.8-.9-.6-1.8-.8-2.9-.7" stroke="none"/>
+<g class="fa-eye"><circle cx="40.1" cy="16.5" r="1.85" fill="#fff" stroke="none"/><circle cx="40.55" cy="16.7" r="1.05" fill="#0d1d2b" stroke="none"/><circle cx="40.85" cy="16.25" r=".38" fill="#fff" stroke="none"/></g>
 <ellipse cx="11" cy="22.2" rx="3.4" ry="1.5" transform="rotate(-14 11 22.2)" fill="#fff" opacity=".3" stroke="none"/>
 </g>
 </svg>`;
@@ -43,16 +44,16 @@
   /* ---------- Interface ---------- */
   const root = el('div', 'fa-fourmi'); root.setAttribute('data-state', 'idle');
   const launcher = el('button', 'fa-launch'); launcher.type = 'button';
-  launcher.setAttribute('aria-label', 'Ouvrir l’assistant de recherche'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
+  launcher.setAttribute('aria-label', 'Ouvrir Mica, l’assistante virtuelle de Fourmi’Action'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
   const big = ant(42); launcher.append(big);
   const dot = el('span', 'fa-dot'); dot.setAttribute('aria-hidden', 'true'); launcher.append(dot);
   const bubble = el('div', 'fa-bubble'); bubble.setAttribute('role', 'status');
   const bubbleTxt = el('span'); const bubbleX = el('button', 'fa-bubble-x', '×'); bubbleX.type = 'button'; bubbleX.setAttribute('aria-label', 'Fermer');
   bubble.append(bubbleTxt, bubbleX);
 
-  const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Assistant de recherche Fourmi’Action'); panel.hidden = true;
+  const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Mica, l’assistante virtuelle de Fourmi’Action'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(30); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'Assistant Fourmi’Action'), el('small', '', 'Réponses tirées des pages et des documents du site'));
+  const headAnt = ant(30); const headTxt = el('div', 'fa-head-t'); const nm = el('b'); nm.append('Mica', el('span', 'fa-badge', 'Assistante virtuelle')); headTxt.append(nm, el('small', '', 'Je cherche dans les pages et les documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';
@@ -111,19 +112,28 @@
     contact: 'Je peux aussi transmettre votre message à l’équipe.',
     'projet-educatif': 'Je peux retrouver un passage du projet éducatif pour vous.'
   };
+  const meet = el('span', 'fa-meet'); meet.append(ant(30));
   function tease() {
     const seen = store.get('teased') || {};
-    if (seen[page] || !panel.hidden) return;
-    bubbleTxt.textContent = TEASE[page] || 'Une question ? Je cherche dans tous les documents du site.';
+    if (!panel.hidden) return;
+    const first = !store.get('met');
+    if (!first && seen[page]) return;
+    bubble.classList.toggle('fa-intro', first);
+    bubbleTxt.textContent = '';
+    if (first) {
+      const t = el('span', 'fa-meet-t'); const nm = el('b'); nm.append('Bonjour, je suis Mica', el('span', 'fa-badge', 'Assistante virtuelle'));
+      t.append(nm, el('span', '', 'Une question sur le BAFA, l’association ou nos actions ? Je cherche la réponse pour vous dans nos documents.'));
+      bubbleTxt.append(meet, t); store.set('met', 1);
+    } else bubbleTxt.textContent = TEASE[page] || 'Une question ? Je cherche dans tous les documents du site.';
     root.classList.add('fa-teasing'); setState('wave');
     seen[page] = 1; store.set('teased', seen);
     setTimeout(() => { if (root.getAttribute('data-state') === 'wave') setState('idle'); }, 2400);
-    setTimeout(hideTease, 9000);
+    setTimeout(hideTease, first ? 12000 : 9000);
   }
   const hideTease = () => root.classList.remove('fa-teasing');
   bubbleX.addEventListener('click', e => { e.stopPropagation(); hideTease(); });
   bubbleTxt.addEventListener('click', () => { hideTease(); open(); });
-  setTimeout(tease, 3800);
+  setTimeout(tease, store.get('met') ? 3800 : 2200);
   if ((store.get('log') || []).length) dot.classList.add('on');
 
   /* ---------- Ouverture / fermeture ---------- */
@@ -270,7 +280,7 @@
   };
   function greet() {
     const d = el('div');
-    d.append(el('p', '', 'Bonjour. Posez votre question : je cherche la réponse dans les pages et les documents de Fourmi’Action, et je vous indique où elle est écrite.'));
+    d.append(el('p', '', 'Bonjour, je suis Mica, l’assistante virtuelle de Fourmi’Action. Posez votre question : je cherche dans nos pages et nos documents, et je vous indique où se trouve la réponse.'));
     d.append(chips(SUGG[page] || SUGG.index));
     say('fa-f', d);
   }
@@ -306,7 +316,7 @@
       if (ME.test(n) || !VSSQ.test(n)) { say('fa-f fa-safe', safety()); return; }
       soft = true;
     }
-    if (WHO.test(n)) { d.append(el('p', '', 'Je suis l’assistant de recherche du site. Je n’invente rien : je cherche dans les pages et les documents de Fourmi’Action et je vous montre ce qui y est écrit, avec le lien. Si je ne trouve pas, je peux transmettre votre question à l’équipe.')); return say('fa-f', d); }
+    if (WHO.test(n)) { d.append(el('p', '', 'Je suis Mica, l’assistante virtuelle de Fourmi’Action : un programme de recherche qui fonctionne directement dans votre navigateur. Je ne rédige pas de réponses inventées : je retrouve ce qui est écrit dans nos pages et nos documents, avec le lien. Si je ne trouve pas, je transmets votre question à l’équipe.')); return say('fa-f', d); }
     const it = intentOf(q); lastIntent = it;
     const toks0 = toks(q);
     if (!it && HELLO.test(n) && toks0.length <= 2) { if (!quiet) happy(); d.append(el('p', '', 'Bonjour. Que puis-je chercher pour vous ?')); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }

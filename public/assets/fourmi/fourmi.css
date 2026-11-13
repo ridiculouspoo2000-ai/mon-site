@@ -115,3 +115,14 @@
 @media print{.fa-fourmi{display:none}}
 @media (prefers-reduced-motion:reduce){.fa-fourmi *,.fa-fourmi *::before{animation:none!important;transition:none!important}}
 html.ap-reduced .fa-fourmi *{animation:none!important;transition:none!important}
+
+/* Mica : regard, nom et bulle de présentation */
+.fa-ant .fa-eye{transform-origin:50% 50%;animation:fa-blink 5.2s ease-in-out infinite}
+@keyframes fa-blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.12)}}
+.fa-badge{display:inline-block;vertical-align:middle;margin-left:8px;padding:3px 8px;border-radius:99px;font-family:"FA Inter",-apple-system,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#4b3fb8;background:rgba(93,83,211,.1)}
+.fa-bubble.fa-intro{width:min(330px,calc(100vw - 40px));max-width:none;padding:14px 12px 14px 14px}
+.fa-bubble .fa-meet{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(93,83,211,.09)}
+.fa-bubble.fa-intro>span:first-child{display:flex;gap:12px;align-items:flex-start}
+.fa-meet-t{display:flex;flex-direction:column;gap:4px;font-weight:500;color:#3b4a58}
+.fa-meet-t b{font-family:"FA Display","FA Inter",-apple-system,sans-serif;font-size:16px;font-weight:800;color:var(--fa-navy);letter-spacing:-.01em}
+.fa-meet-t b .fa-badge{margin-left:6px}

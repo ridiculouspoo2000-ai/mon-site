@@ -17,7 +17,7 @@ Fourmi’Action prépare des formations BAFA à Orléans, mène des actions édu
 
 ## Pages principales
 
-- [Formation BAFA à Orléans : dates, lieu, tarifs, FAQ](https://fourmiaction.fr/formation-bafa-orleans.html)
+- [Formation BAFA à Orléans : dates, lieu, tarifs, FAQ](https://fourmiaction.fr/bafa.html)
 - [Le parcours BAFA avec Fourmi’Action](https://fourmiaction.fr/bafa.html)
 - [Guide « informations avant inscription » (PDF)](https://fourmiaction.fr/assets/bafa/informations-avant-inscription-bafa.pdf)
 - [Annuaire des stages pratiques BAFA en Centre-Val de Loire (PDF)](https://fourmiaction.fr/assets/bafa/annuaire-stage-pratique-centre-val-de-loire.pdf)

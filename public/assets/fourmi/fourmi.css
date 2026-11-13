@@ -1,6 +1,6 @@
 /* La Fourmi · assistant de recherche (mascotte en bas à droite, fenêtre en verre) */
 .fa-fourmi{--fa-navy:#142f46;--fa-ink:#1d2a36;--fa-muted:#5b6876;--fa-grad:linear-gradient(100deg,#2459d6 0%,#5d53d3 38%,#9b56a6 66%,#d9662f 100%);
-  --fa-ease:cubic-bezier(.16,1,.3,1);position:fixed;right:22px;bottom:20px;z-index:2147483000;font-family:"FA Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--fa-ink)}
+  --fa-ease:cubic-bezier(.16,1,.3,1);position:fixed;right:calc(22px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));z-index:2147483000;font-family:"FA Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--fa-ink)}
 .fa-fourmi *{box-sizing:border-box}
 /* bouton mascotte */
 .fa-launch{position:relative;display:grid;place-items:center;width:74px;height:74px;padding:0;border:0;border-radius:50%;cursor:pointer;
@@ -117,7 +117,7 @@
 @keyframes fa-hl{0%,60%{box-shadow:0 0 0 4px rgba(93,83,211,.45),0 0 40px rgba(93,83,211,.35)}100%{box-shadow:0 0 0 0 rgba(93,83,211,0)}}
 /* téléphone : la fenêtre devient une feuille */
 @media (max-width:600px){
-  .fa-fourmi{right:14px;bottom:14px}
+  .fa-fourmi{right:calc(14px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom))}
   .fa-launch{width:66px;height:66px}.fa-launch .fa-ant svg{width:58px;height:58px}
   .fa-bubble{bottom:76px;font-size:14px}
   .fa-panel{position:fixed;left:8px;right:8px;bottom:8px;width:auto;height:min(78vh,640px);height:min(78dvh,640px);border-radius:28px;transform-origin:50% 100%}

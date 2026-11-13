@@ -260,6 +260,13 @@ html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!i
 .ap-lb .lb-c{font-size:13px;color:#6e7b88;font-weight:500}
 @media(max-width:600px){.ap-lb .lb-p,.ap-lb .lb-n{top:auto;bottom:24px;margin:0}.ap-lb img{max-height:70vh}}
 
+/* ---------- Écrans tactiles : retour visuel au toucher (remplace le survol) ---------- */
+@media(hover:none){
+  html.ap-motion :is(.cards article,.steps article,.fo-tile,.ct-tile,.download,.bafa-resource-card,.news-teaser,.nw-tile,.cj-card,.fo-promo,.price-accordion summary,#faq summary){-webkit-tap-highlight-color:transparent}
+  html.ap-motion :is(.cards article,.steps article,.fo-tile,.ct-tile,.download,.bafa-resource-card,.news-teaser,.nw-tile,.cj-card,.fo-promo):active{transform:scale(.975)!important;transition:transform .18s var(--ease)!important}
+  html.ap-motion .button:active{transform:scale(.95)!important;transition:transform .15s var(--ease)!important}
+}
+
 /* fo: page « Formation BAFA à Orléans », carte d’accès et menu BAFA */
 .fo-hero .lead{max-width:640px;margin-inline:auto}
 .fo-chips{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:0;margin:28px auto 30px;max-width:820px}

@@ -90,6 +90,8 @@
     if (e.pointerType !== 'mouse' || reduced()) return; px = e.clientX; py = e.clientY;
     if (raf) return; raf = requestAnimationFrame(() => { raf = 0; look(px, py); });
   }, { passive: true });
+  // Au doigt : elle regarde l’endroit touché.
+  addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || reduced()) return; look(e.clientX, e.clientY); clearTimeout(look.t); look.t = setTimeout(() => ants().forEach(a => { const p = a.querySelector('.fa-pupils'); if (p) p.style.transform = ''; }), 1600); }, { passive: true });
   function look(x, y) {
     ants().forEach(a => {
       const r = a.getBoundingClientRect(); if (!r.width) return;

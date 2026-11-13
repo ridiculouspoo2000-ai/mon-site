@@ -145,8 +145,27 @@
       geo = { s0, dx: (pin.left + pin.width / 2) - (r.left + r.width * s0 / 2), dy: (pin.top + pin.height * .46) - (r.top + r.height * s0 / 2) };
     };
     addEventListener('resize', () => { geo = null; });
+    // Téléphone : le titre s’écrit dès l’arrivée (lignes qui montent, mots colorés qui se remplissent),
+    // puis le texte et les boutons arrivent ; la photo s’ouvre en cercle, puis suit le défilement.
+    let intro = 0, mobile = !wide();
+    if (mobile && !reduced) {
+      hero.classList.add('h2-m');
+      requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('h2-go')));
+      const t0 = performance.now() + 700;
+      const tick = now => { intro = Math.max(0, Math.min(1, (now - t0) / 1300)); runScenes(); if (intro < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }
     scenes.push(() => {
-      if (!wide()) { h1.style.transform = ''; photo.style.clipPath = ''; after.forEach(e => { e.style.opacity = ''; e.style.transform = ''; }); ems.forEach(e => e.style.setProperty('--f', '100%')); return; }
+      if (!wide()) {
+        h1.style.transform = ''; after.forEach(e => { e.style.opacity = ''; e.style.transform = ''; e.style.pointerEvents = ''; });
+        if (!hero.classList.contains('h2-m')) { photo.style.clipPath = ''; ems.forEach(e => e.style.setProperty('--f', '100%')); return; }
+        ems.forEach(e => e.style.removeProperty('--f'));
+        const r = photo.getBoundingClientRect();
+        const o = ease(Math.max(intro * .5, clamp((innerHeight - r.top) / (innerHeight * .85))));
+        photo.style.clipPath = o >= .999 ? '' : `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 45%)`;
+        vis.style.transform = o >= .999 ? '' : `translate3d(0,${lerp(48, 0, o).toFixed(1)}px,0)`;
+        return;
+      }
       if (!geo) measure();
       const p = sceneProgress(hero);
       // 1. les lignes du titre s'affirment une à une, les mots colorés se remplissent
@@ -175,6 +194,11 @@
     };
     size(); addEventListener('resize', size);
     hs.classList.toggle('sc-h', true);
+    let hsRaf = 0;
+    track.addEventListener('scroll', () => {
+      if (wide() || hsRaf) return;
+      hsRaf = requestAnimationFrame(() => { hsRaf = 0; const m = track.scrollWidth - track.clientWidth; if (bar) bar.style.transform = `scaleX(${m > 0 ? (track.scrollLeft / m).toFixed(4) : 0})`; });
+    }, { passive: true });
     scenes.push(() => {
       if (!span) return;
       const p = ease(sceneProgress(hs));
@@ -391,7 +415,6 @@
   })();
   const lensOn = () => {
     Lens.on('header', { bezel: 20, edge: 22, mag: .07 });
-    Lens.on('.ap-style', { bezel: 14, edge: 12, mag: .08 });
   };
 
   /* ---------- Galerie : visionneuse ---------- */
@@ -451,22 +474,12 @@
     '.dg-teaser-in', '.bafa-infographic', '.help', '.fo-tile', '.fo-promo', '.fo-chips li'].join(',');
   const lgOn = () => document.querySelectorAll(LG).forEach((el, i) => { el.classList.add('lg'); if (i % 2) el.classList.add('lg-o'); });
   const lgOff = () => document.querySelectorAll('.lg').forEach(el => el.classList.remove('lg', 'lg-o'));
-  const applyStyle = v => {
-    root.classList.toggle('theme-verre', v === 'verre');
-    v === 'verre' ? (lgOn(), requestAnimationFrame(lensOn)) : (lgOff(), Lens.off());
-    try { localStorage.setItem('fa-style', v); } catch (_) {}
-    picker.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
-  };
-  const picker = document.createElement('div');
-  picker.className = 'ap-style'; picker.setAttribute('role', 'group'); picker.setAttribute('aria-label', 'Apparence du site');
-  picker.innerHTML = '<span>Apparence</span><button type="button" data-v="epure">Épuré</button><button type="button" data-v="verre">Verre liquide</button>';
-  picker.addEventListener('click', e => { const b = e.target.closest('button'); if (b) applyStyle(b.dataset.v); });
-  document.body.appendChild(picker);
-  applyStyle(root.classList.contains('theme-verre') ? 'verre' : 'epure');
+  // Toujours « Verre liquide » : plus de sélecteur d’apparence.
+  root.classList.add('theme-verre'); lgOn(); requestAnimationFrame(lensOn);
   // Reflet qui suit le pointeur sur le verre.
   let lgRaf = 0, lgEv = null;
-  document.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse' || !root.classList.contains('theme-verre')) return;
+  const lgMove = e => {
+    if (!root.classList.contains('theme-verre')) return;
     lgEv = e; if (lgRaf) return;
     lgRaf = requestAnimationFrame(() => {
       lgRaf = 0; const el = lgEv.target.closest && lgEv.target.closest('.lg'); if (!el) return;
@@ -474,7 +487,9 @@
       el.style.setProperty('--mx', ((lgEv.clientX - r.left) / r.width * 100).toFixed(1) + '%');
       el.style.setProperty('--my', ((lgEv.clientY - r.top) / r.height * 100 - 30).toFixed(1) + '%');
     });
-  }, { passive: true });
+  };
+  document.addEventListener('pointermove', lgMove, { passive: true });
+  document.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') lgMove(e); }, { passive: true });
 
   /* ---------- Schémas : avancement piloté par le défilement ---------- */
   document.querySelectorAll('[data-dg-scrub]').forEach(el => scenes.push(() => {

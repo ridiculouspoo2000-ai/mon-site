@@ -52,7 +52,7 @@
     },
     init() {
       if (this.ctx) return;
-      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; return; }
+      try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) { } try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; return; } try { const b0 = this.ctx.createBuffer(1, 1, 22050), s0 = this.ctx.createBufferSource(); s0.buffer = b0; s0.connect(this.ctx.destination); s0.start(0); } catch (e) { }
       const c = this.ctx;
       this.master = c.createGain(); this.master.gain.value = 0.9;
       const comp = c.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
@@ -168,7 +168,7 @@
       if (this.on && this.ctx) this.setNature((MOODS[key] || MOODS.home).nature);
     },
     startAmb() {
-      if (!this.ctx || this.on || !st.settings.sound) return;
+      if (!this.ctx || !st.settings.sound) return; try { if (this.ctx.state !== "running") this.ctx.resume(); } catch (e) { } if (this.on) return;
       try { if (this.ctx.state === "suspended") this.ctx.resume(); } catch (e) { }
       this.on = true;
       const t = this.ctx.currentTime;
@@ -2098,13 +2098,15 @@
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }
   // Le son et la musique démarrent d'eux-mêmes au premier geste (les navigateurs interdisent le son avant)
-  const firstGesture = () => {
-    document.removeEventListener("pointerdown", firstGesture, true); document.removeEventListener("keydown", firstGesture, true);
+  const GESTES = ["pointerup", "touchend", "click", "keydown"]; let begun = false;
+  const firstGesture = () => {   // gestes autorisés par iPhone et Android pour lancer le son ; on réessaie tant qu’il n’est pas lancé
     if (st.settings.sound === undefined) st.settings.sound = true;
-    if (st.settings.sound) begin();
+    if (!st.settings.sound) return;
+    if (!begun) { begun = true; begin(); } else { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); }
+    if (Snd.ctx && Snd.ctx.state === "running") GESTES.forEach((ev) => document.removeEventListener(ev, firstGesture, true));
   };
-  document.addEventListener("pointerdown", firstGesture, true); document.addEventListener("keydown", firstGesture, true);
-  function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state === "suspended") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
+  GESTES.forEach((ev) => document.addEventListener(ev, firstGesture, true));
+  function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   applySettings();
   home();

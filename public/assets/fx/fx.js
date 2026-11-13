@@ -39,7 +39,9 @@
     let W = 0, H = 0, VW = 0, VH = 0, dpr = 1, P = [], ready = false, pointer = null, grain = 1.6, cleared = false, RH = 0;
     // Zone de promenade : du début du texte d’introduction (section précédente) jusqu’au bas de la section du mot.
     const sec = cv.closest('section') || cv.parentElement, prev = sec.previousElementSibling;
-    const zoneTop = prev && prev.matches('.intro-grid, .section') ? prev : sec;
+    // Les fourmis apparaissent vers la fin du texte d’introduction (dernier paragraphe), pas dès son début.
+    const lastP = prev && prev.matches('.intro-grid, .section') ? [...prev.querySelectorAll('p')].pop() : null;
+    const zoneTop = lastP || sec;
     function sizeFly() {
       VW = reduced ? W : document.documentElement.clientWidth; VH = reduced ? H : innerHeight;
       dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.75 : 2);
@@ -69,6 +71,7 @@
       RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top;
       P = pts.slice(0, n).map(t => ({
         x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
+        hid: Math.random() < .62,   // la plupart restent invisibles pendant la promenade et n’apparaissent qu’en rejoignant le mot
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
         ra: Math.random() * Math.PI
       }));
@@ -144,7 +147,8 @@
         if (b < BUCKETS / 2) {   // en promenade : petite image pré-dessinée, orientée dans le sens de la marche
           let ai = Math.round(((q.a % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG;
           const d = SS * sz / SB;
-          ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1));
+          const vis = (q.hid ? clamp((k - .08) / .25) : 1) * lerp(clamp(q.y / 160), 1, k); if (vis <= .01) continue;   // invisibles au départ ; fondu sur le bord haut de la zone
+          ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1)) * vis;
           ctx.drawImage(SPR[ai], x - d / 2, y - d / 2, d, d);
           continue;
         }

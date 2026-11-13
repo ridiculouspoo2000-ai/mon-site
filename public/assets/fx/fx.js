@@ -44,14 +44,15 @@
       let size = H * .78;
       o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
       const tw = o.measureText(word).width;
-      if (tw > W * .92) size *= (W * .92) / tw;
+      const maxW = W < 600 ? W * .84 : Math.min(W * .78, 1100);
+      if (tw > maxW) size *= maxW / tw;
       o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
       o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
       fontPx = size;
       const data = o.getImageData(0, 0, ow, oh).data, pts = [];
-      const step = Math.max(W < 600 ? 1.6 : 2, Math.round(size / 46));
+      const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      const n = Math.min(pts.length, W < 600 ? 1600 : 2600);
+      const n = Math.min(pts.length, W < 600 ? 1300 : 2300);
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
       P = pts.slice(0, n).map((t, i) => ({
@@ -59,7 +60,7 @@
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
         c: gradAt((t[0] - minX) / (maxX - minX || 1)), ra: Math.random() * Math.PI
       }));
-      grain = Math.max(1.05, step * (W < 600 ? .5 : .62));
+      grain = Math.max(1.5, step * (W < 600 ? .78 : .95));
       ready = true;
     }
     const progress = () => { const r = cv.getBoundingClientRect(), c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
@@ -81,10 +82,12 @@
         q.ox *= .9; q.oy *= .9;
         const x = lerp(q.x, q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(q.y, q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
         const b = Math.min(BUCKETS - 1, Math.round(k * (BUCKETS - 1)));
-        // un grain de riz : orienté dans le sens de la marche, puis selon sa place dans le mot
-        const ang = k < .5 ? q.a : q.ra, len = lerp(1.9, grain * 1.25, k), wid = lerp(.95, grain * .55, k);
+        // une petite fourmi (abdomen + tête), orientée dans le sens de sa marche, puis posée à sa place dans le mot
+        const ang = k < .5 ? q.a : q.ra, sz = lerp(1.15, grain * .62, k), ca = Math.cos(ang), sa = Math.sin(ang);
         const path = paths[b];
-        path.moveTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); path.ellipse(x, y, len, wid, ang, 0, 6.2832);
+        const bx = x - ca * sz * .9, by = y - sa * sz * .9, hx = x + ca * sz * 1.05, hy = y + sa * sz * 1.05;
+        path.moveTo(bx + ca * sz * 1.25, by + sa * sz * 1.25); path.ellipse(bx, by, sz * 1.25, sz * .78, ang, 0, 6.2832);
+        path.moveTo(hx + sz * .7, hy); path.arc(hx, hy, sz * .7, 0, 6.2832);
         q.b = b; q.k = k;
       }
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.

@@ -331,11 +331,11 @@ html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-r
 @supports (animation-timeline: view()) and (view-timeline-name: --a){
   @media(max-width:900px){
     html.ap-scenes [data-scene="hscroll"].hs-tl{view-timeline-name:--fa-hs;view-timeline-axis:block}
-    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-track{animation:fa-hs-flow linear both;animation-timeline:--fa-hs;animation-range:cover 22% cover 78%}
-    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:cover 22% cover 78%}
+    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-track{animation:fa-hs-flow linear both;animation-timeline:--fa-hs;animation-range:cover var(--hs-a,22%) cover var(--hs-b,78%)}
+    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:cover var(--hs-a,22%) cover var(--hs-b,78%)}
   }
 }
-@keyframes fa-hs-flow{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(var(--span,0px) * -1),0,0)}}
+@keyframes fa-hs-flow{0%{transform:translate3d(0,0,0)}30%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}45%{transform:translate3d(calc(var(--s1,0px) * -1),0,0)}50%{transform:translate3d(calc(var(--s1,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}63%{transform:translate3d(calc(var(--s2,0px) * -1),0,0)}68%{transform:translate3d(calc(var(--s2,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}82%,100%{transform:translate3d(calc(var(--s3,var(--span,0px)) * -1),0,0)}}
 @keyframes fa-hs-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* pied de page : le bouton « Animations activées » était blanc sur fond clair */

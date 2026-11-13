@@ -189,7 +189,7 @@
   const hs = document.querySelector('[data-scene="hscroll"]');
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
-    let span = 0, stops = [], vhS = 0;
+    let span = 0, stops = [], vhS = 0, flowA = 0, flowB = 1;
     const TOUCH = matchMedia('(hover: none)').matches;
     const CSS_TL = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') && CSS.supports('view-timeline-name: --a'));
     const size = () => {
@@ -205,7 +205,14 @@
       hs.classList.remove('hs-css');
       hs.classList.toggle('hs-flow', flow);
       hs.classList.toggle('hs-tl', flow && CSS_TL);   // glissement confié au moteur de défilement (Safari 26+, Chrome)
-      if (flow) { hs.style.height = ''; track.style.transform = ''; if (bar) bar.style.transform = ''; hs.style.setProperty('--span', span.toFixed(1) + 'px'); }
+      if (flow) {
+        hs.style.height = ''; track.style.transform = ''; if (bar) bar.style.transform = ''; hs.style.setProperty('--span', span.toFixed(1) + 'px');
+        // Début : la première carte est entièrement visible en bas de l’écran. Fin : la dernière carte arrive avant de sortir par le haut.
+        const tTop = track.getBoundingClientRect().top - hs.getBoundingClientRect().top, tH = track.offsetHeight;
+        flowA = tTop + tH * .55; flowB = Math.max(flowA + 420, vh + tTop + tH * .25);
+        stops.forEach((v, i) => hs.style.setProperty('--s' + i, v.toFixed(1) + 'px'));
+        hs.style.setProperty('--hs-a', flowA.toFixed(0) + 'px'); hs.style.setProperty('--hs-b', flowB.toFixed(0) + 'px');
+      }
     };
     size();
     let hsW = innerWidth; addEventListener('resize', () => { if (wide() || Math.abs(innerWidth - hsW) > 30) { hsW = innerWidth; size(); } });
@@ -236,8 +243,12 @@
       let p, x;
       if (hs.classList.contains('hs-flow')) {   // repli (anciens iPhone) : position calculée directement, sans figer la section
         const r = hs.getBoundingClientRect();
-        p = clamp(((innerHeight - r.top) / (innerHeight + r.height) - .22) / .56);
-        paint(span * ease(p), p); return;
+        p = clamp(((vhS || innerHeight) - r.top - flowA) / (flowB - flowA));
+        // même rythme que la version CSS : première carte qui reste, deux passages rapides, dernière carte qui reste
+        const K = [[0, 0], [.30, 0], [.45, 1], [.50, 1], [.63, 2], [.68, 2], [.82, 3], [1, 3]];
+        let i = 0; while (i < K.length - 2 && p > K[i + 1][0]) i++;
+        const [p0, a] = K[i], [p1, b] = K[i + 1], t = ease(clamp((p - p0) / (p1 - p0 || 1)));
+        paint(lerp(stops[a] || 0, stops[b] || 0, t), p); return;
       }
       if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; paint(x, p); cur = x; return; }
       // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement

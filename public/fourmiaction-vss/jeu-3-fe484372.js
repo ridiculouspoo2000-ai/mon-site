@@ -434,6 +434,14 @@
       try { Snd.click(); } catch (e) {}
     },
   };
+  // Le plan est sous l'interface : on retrouve l'affiche sous le pointeur quand on clique dans le vide
+  {
+    const affAt = (x, y) => { const e = document.elementsFromPoint(x, y).find((n) => n.closest && n.closest(".inroom-w .aff")); return e ? e.closest(".aff") : null; };
+    const free = (t) => !t.closest("button,a,input,textarea,select,label,.panel,.side,.solo,.affview,#hud,#dayclock,.phone,.carnet,[role=dialog]");
+    document.addEventListener("click", (e) => { if (!free(e.target)) return; const a = affAt(e.clientX, e.clientY); if (a) Aff.open(a.dataset.aff); });
+    let raf = 0;
+    document.addEventListener("pointermove", (e) => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; document.body.classList.toggle("over-aff", free(e.target) && !!affAt(e.clientX, e.clientY)); }); }, { passive: true });
+  }
   const World = {
     el: null, ext: null, cam: null, wint: null, room: null, cur: null,
     init() {
@@ -485,7 +493,7 @@
       const IN = S.room && A.dio.inner && A.dio.inner[S.room];
       if (IN) {   // on cadre la salle elle-même, assez près pour voir les visages
         const hp = IN.w * A.dio.ratio / IN.r, camW = this.cam.offsetWidth || 1500;
-        const want = innerWidth < 760 ? innerWidth * .98 : Math.min(innerWidth * .6, 1050);
+        const want = innerWidth < 760 ? innerWidth * .98 : Math.min(innerWidth * .52, 940);
         z = Math.max(1.6, Math.min(5, want / (IN.w / 100 * camW)));
         p = { x: (IN.l + IN.w / 2) / 100, y: (IN.t + hp * .52) / 100 };
       }

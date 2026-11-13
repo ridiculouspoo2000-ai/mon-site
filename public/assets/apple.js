@@ -430,7 +430,7 @@
      Navigateurs Chromium uniquement ; ailleurs, verre dépoli classique. */
   const Lens = (() => {
     const ua = navigator.userAgent;
-    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\.|Mobile|Android/.test(ua) && !matchMedia('(hover: none)').matches && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced'); // effet de loupe : ordinateur seulement (trop lourd sur téléphone)
+    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\./.test(ua) && !/iPhone|iPad|iPod/.test(ua) && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced'); // effet de loupe : moteur Chrome (ordinateur et Android) ; Safari ne sait pas déformer l’arrière-plan
     if (!ok) return { on() {}, off() {} };
     const NS = 'http://www.w3.org/2000/svg';
     const defs = document.createElementNS(NS, 'svg');

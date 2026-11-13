@@ -237,14 +237,28 @@ main,.sc-hero2,.page-intro{overflow-x:clip}
 .fx-hub-dot{fill:#8a4fd0;filter:drop-shadow(0 0 4px rgba(138,79,208,.7))}
 @media(max-width:760px){.dg-hub .dg-stage{position:relative}.dg-hub .dg-core,.dg-hub .dg-card{z-index:1}}
 
-/* ---------- Téléphone : en-tête stable au défilement (pas de flou recalculé à chaque image) ---------- */
+/* ---------- Téléphone et tablette : la barre devient une capsule de verre flottante, comme sur ordinateur ----------
+   (loupe sur Android ; verre dépoli et reflets sur iPhone, où Safari ne sait pas déformer l’arrière-plan) */
 @media (hover:none),(max-width:900px){
-  header,header nav,.bf-seg-in{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-  header{background:rgba(245,245,247,.97)!important;transform:translateZ(0);will-change:transform;backface-visibility:hidden}
-  header nav:not(.open){background:transparent!important}
-  .bf-seg-in{background:rgba(255,255,255,.97)}
-  .bf-seg{top:66px}
+  .bf-seg-in{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(255,255,255,.97)}
+  .bf-seg{top:74px}
 }
+@media(max-width:1150px){
+  html.theme-verre header{top:8px;margin:8px 10px 0;border-radius:22px;border:0!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.40))!important;
+    -webkit-backdrop-filter:blur(16px) saturate(190%) brightness(1.04);backdrop-filter:blur(16px) saturate(190%) brightness(1.04);
+    box-shadow:var(--lg-spec),0 14px 34px -16px rgba(var(--lg-navy),.38)!important;transform:translateZ(0)}
+  html.theme-verre header::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;pointer-events:none;background:var(--lg-rim);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  html.theme-verre header::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.55) 45%,transparent 60%);background-size:260% 100%;background-position:100% 0;
+    mix-blend-mode:soft-light;animation:fx-sheen 7s ease-in-out infinite}
+  html.theme-verre header nav:not(.open){background:transparent!important}
+  html.theme-verre header nav.open{top:calc(100% + 8px);border-radius:24px!important}
+  html.theme-verre .header-inner{min-height:56px}
+}
+@keyframes fx-sheen{0%,55%{background-position:100% 0}85%,100%{background-position:-60% 0}}
+@media (prefers-reduced-motion:reduce){html.theme-verre header::before{animation:none}}
 /* le cercle « Éducation populaire » émet : on comprend que tout part de lui */
 @media(max-width:760px){
   .dg-hub .dg-core{box-shadow:0 0 0 0 rgba(138,79,208,.45);animation:fx-emit 2.4s ease-out infinite}
@@ -287,7 +301,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   html:has(#navigation.open) .fa-fourmi{opacity:0;pointer-events:none;transition:opacity .25s}
   html:has(#navigation.open){overflow:hidden}
   header nav.open{overscroll-behavior:contain}
-  header nav.open{background:rgba(250,250,252,.94)!important;border-radius:0 0 26px 26px;box-shadow:0 24px 50px -24px rgba(20,47,70,.35)!important;padding:14px 18px 22px!important;max-height:calc(100svh - 64px)}
+  header nav.open{background:rgba(250,250,252,.94)!important;border-radius:0 0 26px 26px;box-shadow:0 24px 50px -24px rgba(20,47,70,.35)!important;padding:14px 18px 22px!important;max-height:calc(100svh - 90px)}
   header nav.open>a,header nav.open .nav-group>.nav-top{font-size:21px!important;font-weight:650;letter-spacing:-.015em;padding:14px 16px!important;color:#13283b}
   header nav.open .nav-fly a,header nav.open .nav-fly a.nav-sm{font-size:17px!important;padding:11px 14px!important;color:#34475a}
   header nav.open .nav-big b{font-size:17px!important;font-weight:600}
@@ -378,3 +392,10 @@ html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidd
 .fx-swarm-fly{position:fixed;left:0;top:0;z-index:-1;pointer-events:none;display:block}
 html.ap-reduced .fx-swarm-fly{display:none}
 @media print{.fx-swarm-fly{display:none}}
+
+/* Écran tactile : les petits éléments de verre ont un fond presque opaque plutôt que leur propre flou,
+   pour que la capsule de la barre floute bien tout ce qui passe derrière elle (sur tous les navigateurs). */
+@media (hover:none){
+  html.theme-verre .button.secondary:not(.bafa-banner .button){-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(255,255,255,.84))!important}
+  html.theme-verre .ap-ribbon{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(255,255,255,.9)!important}
+}

@@ -4,7 +4,7 @@
 .page-intro{position:relative;isolation:isolate}
 .page-intro::before{content:"";position:absolute;z-index:-1;left:50%;top:46%;width:min(980px,120vw);aspect-ratio:2/1;translate:-50% -50%;pointer-events:none;
   background:radial-gradient(32% 46% at 30% 50%,rgba(59,111,230,.30),transparent 70%),radial-gradient(28% 42% at 56% 42%,rgba(155,86,166,.24),transparent 70%),radial-gradient(30% 44% at 76% 58%,rgba(226,112,42,.20),transparent 70%);
-  animation:fx-aura 7s ease-in-out infinite alternate;will-change:transform}
+  animation:fx-aura 4s ease-in-out infinite alternate;will-change:transform}
 @keyframes fx-aura{0%{transform:translate3d(-9%,3%,0) rotate(-8deg) scale(.96)}35%{transform:translate3d(5%,-6%,0) rotate(5deg) scale(1.1)}70%{transform:translate3d(9%,4%,0) rotate(-3deg) scale(1.02)}100%{transform:translate3d(-4%,-3%,0) rotate(7deg) scale(1.12)}}
 
 /* ---------- 1. La fourmilière ---------- */
@@ -62,9 +62,6 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
 .tk-card{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;overflow:hidden;
   -webkit-mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);-webkit-mask-composite:source-in;
   mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);mask-composite:intersect}
-.tk-card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
-  background:radial-gradient(60% 50% at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.55),transparent 65%);mix-blend-mode:soft-light}
-.tk-lit .tk-card::after,.h2-photo.tk-lit::after{opacity:1}
 .tk-top{position:relative;padding:22px 24px 26px;color:#fff;background:linear-gradient(125deg,#2b5bd7,#5d53d3 60%,#8a4fd0)}
 .fo-ticket.appro .tk-top{background:linear-gradient(125deg,#6a4fd0,#a5559c 55%,#e2702a)}
 .tk-top::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 90% at 90% 0%,rgba(255,255,255,.28),transparent 60%);pointer-events:none}
@@ -119,8 +116,6 @@ html.ap-reduced .page-intro::before,html.ap-reduced .tk-path i{animation:none}
 .fx-values:not(.fx-sphere)>span{padding:10px 18px;border-radius:99px;background:var(--card);box-shadow:0 1px 2px rgba(20,47,70,.06),0 4px 14px rgba(20,47,70,.05);font-weight:500}
 
 /* ---------- Photo de l’accueil : même inclinaison et reflet que les billets ---------- */
-.h2-photo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
-  background:radial-gradient(55% 45% at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.42),transparent 65%);mix-blend-mode:soft-light}
 
 /* ---------- Cadran : l’infographie en complément ---------- */
 html.fx-has-dial.ap-scenes #parcours .bafa-infographic{display:none}
@@ -206,3 +201,11 @@ html.theme-verre .bf-short .button.secondary{background:rgba(255,255,255,.12)!im
   .bf-mini{transform:translate3d(calc(var(--k) * 78px * var(--fan) * var(--hov)),calc(var(--ky) * 18px * var(--fan)),0) rotate(calc(var(--k) * 9deg * var(--fan) * var(--hov)))}}
 html.theme-verre .bf-short .button:not(.secondary){background:#fff!important;color:var(--navy)!important;box-shadow:0 10px 24px -12px rgba(0,0,0,.6)!important}
 html.theme-verre .bf-short .button:not(.secondary):hover{background:#fff!important;color:var(--fa-blue)!important}
+
+/* ---------- Cartes vivantes : reflet de lumière (déplacé par transformation) ---------- */
+.fx-glare{position:absolute;z-index:3;left:-50%;top:-50%;width:200%;height:200%;pointer-events:none;opacity:0;will-change:transform,opacity;transition:opacity .6s;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.42),rgba(255,255,255,.12) 22%,transparent 42%)}
+.h2-photo{will-change:transform,clip-path}
+.fx-live-img{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;will-change:transform;box-shadow:var(--sh-hi)}
+.fx-live-img img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}
+#sessions-2027 .small{margin-top:40px}

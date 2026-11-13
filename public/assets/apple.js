@@ -462,8 +462,10 @@
     speed += ((now - lastScroll < 260 ? .25 : 1) - speed) * Math.min(1, dt * 4);
     drift += dt * speed;
     const k = 1 - Math.pow(.92, dt * 60); px += (tx - px) * k; py += (ty - py) * k;
-    const v = vmax(), x = Math.sin(drift / 9) * 3.5 * v + Math.sin(drift / 4.3) * .8 * v + px, y = Math.cos(drift / 11) * 3 * v + Math.sin(drift / 6.1) * .8 * v + py;
-    orbs.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
+    // Lumières bien visibles : déplacement ample, légère rotation et respiration de la nappe.
+    const v = vmax(), x = Math.sin(drift / 2.6) * 7 * v + Math.sin(drift / 1.35) * 1.6 * v + px, y = Math.cos(drift / 3.1) * 5.5 * v + Math.sin(drift / 1.7) * 1.4 * v + py;
+    const rot = Math.sin(drift / 3.7) * 9, sc = 1 + Math.sin(drift / 2.2) * .07;
+    orbs.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(4)})`;
   };
   requestAnimationFrame(t => { lastT = t; orbTick(t); });
 

@@ -19,23 +19,35 @@
   /* ---------- La mascotte (dessin original) ---------- */
   let gid = 0;
   function ant(size) {
-    // Pictogramme : silhouette de fourmi de profil (tête et mandibules, antennes coudées, thorax, taille fine, abdomen, pattes articulées).
+    // Mica : fourmi originale, debout, en buste, aux couleurs de Fourmi’Action (badge d’animatrice), qui fait coucou.
     const id = 'fa-ant-' + (++gid);
     const w = document.createElement('span');
     w.className = 'fa-ant';
-    w.innerHTML = `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-<defs><linearGradient id="${id}g" x1="6" y1="8" x2="44" y2="38" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#6a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>
-<g transform="translate(0.4 4.4)" fill="url(#${id}g)" stroke="url(#${id}g)" stroke-linecap="round" stroke-linejoin="round">
-<g class="fa-legs-b" fill="none" stroke-width="1.7" opacity=".42"><path d="M30.6 24.6 33.4 29.4 35.4 34.4"/><path d="M28.2 24.8 26.6 30 27 35"/><path d="M26.2 24.2 20.6 28.6 16.4 32.6"/></g>
-<g class="fa-antennae" fill="none" stroke-width="1.75"><path d="M39.2 14.2 38.6 8.6 44.6 5.4"/><path d="M40.9 14.6 41.6 9.6 46.6 8.4" opacity=".55"/></g>
-<g class="fa-legs-a" fill="none" stroke-width="1.85"><path d="M31.6 24.4 35.4 28.6 38.6 34.2"/><path d="M29.4 24.8 29 30 31.2 35"/><path d="M27.2 24.4 22.8 29.4 19.4 34.6"/></g>
-<ellipse cx="13.2" cy="24.6" rx="9.2" ry="6.6" transform="rotate(-14 13.2 24.6)" stroke="none"/>
-<circle cx="23.4" cy="23.2" r="1.9" stroke="none"/>
-<ellipse cx="29.4" cy="21.6" rx="5.3" ry="3.1" transform="rotate(-16 29.4 21.6)" stroke="none"/>
-<ellipse cx="38.4" cy="17.6" rx="4.7" ry="4.1" stroke="none"/>
-<path d="M42.4 19.4c1.6.4 2.4 1.4 2.4 2.8-.9-.6-1.8-.8-2.9-.7" stroke="none"/>
-<g class="fa-eye"><circle cx="40.1" cy="16.5" r="1.85" fill="#fff" stroke="none"/><circle cx="40.55" cy="16.7" r="1.05" fill="#0d1d2b" stroke="none"/><circle cx="40.85" cy="16.25" r=".38" fill="#fff" stroke="none"/></g>
-<ellipse cx="11" cy="22.2" rx="3.4" ry="1.5" transform="rotate(-14 11 22.2)" fill="#fff" opacity=".3" stroke="none"/>
+    w.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">
+<defs>
+<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#ffb47a"/><stop offset=".42" stop-color="#ef7f35"/><stop offset="1" stop-color="#bf5219"/></radialGradient>
+<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ea7a33"/><stop offset="1" stop-color="#b44c18"/></linearGradient>
+<radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#4d7ae6"/><stop offset="1" stop-color="#1d3f99"/></radialGradient>
+<clipPath id="${id}c"><circle cx="50" cy="50" r="48.5"/></clipPath>
+</defs>
+<g clip-path="url(#${id}c)">
+<path d="M29 101C29 85 37.5 75.5 50 75.5S71 85 71 101Z" fill="url(#${id}b)"/>
+<path d="M33.5 86C29 90 27.5 95.5 28 101" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+<path d="M43 76.5 50 88.5 57 76.5" stroke="#142f46" stroke-width="2.4" stroke-linejoin="round" fill="none"/>
+<rect x="44.6" y="87" width="10.8" height="12.5" rx="2.4" fill="#fff"/><rect x="44.6" y="87" width="10.8" height="3.6" rx="1.6" fill="#2b5bd7"/><rect x="47" y="93" width="6" height="1.6" rx=".8" fill="#c9d3e3"/>
+</g>
+<g class="m-arm"><path d="M66.5 85C74.5 81.5 78.6 73.5 79.6 64.5" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/><circle cx="80" cy="60.5" r="5.6" fill="#ef7f35"/><path d="M77.2 56.6v-3.4M80.4 55.6v-3.6M83.4 57v-3" stroke="#ef7f35" stroke-width="2.6" stroke-linecap="round"/></g>
+<g class="m-antl"><path d="M41.5 25.5C38 15 32.5 9.5 26 7.5" stroke="#142f46" stroke-width="2.7" stroke-linecap="round" fill="none"/><circle cx="25" cy="7" r="4.3" fill="#2b5bd7"/><circle cx="23.8" cy="5.7" r="1.3" fill="#fff" opacity=".7"/></g>
+<g class="m-antr"><path d="M58.5 25.5C62 15 67.5 9.5 74 7.5" stroke="#142f46" stroke-width="2.7" stroke-linecap="round" fill="none"/><circle cx="75" cy="7" r="4.3" fill="#2b5bd7"/><circle cx="73.8" cy="5.7" r="1.3" fill="#fff" opacity=".7"/></g>
+<g class="m-face">
+<ellipse cx="50" cy="46" rx="25.5" ry="23.5" fill="url(#${id}h)"/>
+<ellipse cx="40.5" cy="32.5" rx="9.5" ry="4.4" fill="#fff" opacity=".3" transform="rotate(-18 40.5 32.5)"/>
+<path class="m-brows" d="M34.6 34.6q6.2-3.6 12.2-.6M53.2 34q6-3 12.2.6" stroke="#142f46" stroke-width="2.1" stroke-linecap="round" fill="none" opacity=".85"/>
+<g class="m-eyes"><ellipse cx="41" cy="45.5" rx="7.6" ry="8.8" fill="#fff"/><ellipse cx="59" cy="45.5" rx="7.6" ry="8.8" fill="#fff"/>
+<g class="m-pupils"><circle cx="41.8" cy="47" r="4.6" fill="url(#${id}i)"/><circle cx="59.8" cy="47" r="4.6" fill="url(#${id}i)"/><circle cx="41.8" cy="47" r="2.3" fill="#0a1022"/><circle cx="59.8" cy="47" r="2.3" fill="#0a1022"/><circle cx="43.5" cy="44.9" r="1.5" fill="#fff"/><circle cx="61.5" cy="44.9" r="1.5" fill="#fff"/></g></g>
+<path class="m-happy" d="M34 47q7-7.5 14 0M52 47q7-7.5 14 0" stroke="#142f46" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+<ellipse cx="31.5" cy="56.5" rx="4.2" ry="2.5" fill="#ff5f57" opacity=".28"/><ellipse cx="68.5" cy="56.5" rx="4.2" ry="2.5" fill="#ff5f57" opacity=".28"/>
+<path class="m-mouth" d="M43.5 57.2q6.5 7.8 13 0q-6.5 2.4-13 0Z" fill="#5a1c0c" stroke="#142f46" stroke-width="1.6" stroke-linejoin="round"/>
 </g>
 </svg>`;
     return w;
@@ -45,7 +57,7 @@
   const root = el('div', 'fa-fourmi'); root.setAttribute('data-state', 'idle');
   const launcher = el('button', 'fa-launch'); launcher.type = 'button';
   launcher.setAttribute('aria-label', 'Ouvrir Mica, l’assistante virtuelle de Fourmi’Action'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
-  const big = ant(42); launcher.append(big);
+  const big = ant(70); launcher.append(big);
   const dot = el('span', 'fa-dot'); dot.setAttribute('aria-hidden', 'true'); launcher.append(dot);
   const bubble = el('div', 'fa-bubble'); bubble.setAttribute('role', 'status');
   const bubbleTxt = el('span'); const bubbleX = el('button', 'fa-bubble-x', '×'); bubbleX.type = 'button'; bubbleX.setAttribute('aria-label', 'Fermer');
@@ -53,7 +65,7 @@
 
   const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Mica, l’assistante virtuelle de Fourmi’Action'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(30); const headTxt = el('div', 'fa-head-t'); const nm = el('b'); nm.append('Mica', el('span', 'fa-badge', 'Assistante virtuelle')); headTxt.append(nm, el('small', '', 'Je cherche dans les pages et les documents du site'));
+  const headAnt = ant(40); const headTxt = el('div', 'fa-head-t'); const nm = el('b'); nm.append('Mica', el('span', 'fa-badge', 'Assistante virtuelle')); headTxt.append(nm, el('small', '', 'Je cherche dans les pages et les documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';
@@ -82,16 +94,19 @@
     if (e.pointerType !== 'mouse' || reduced()) return; px = e.clientX; py = e.clientY;
     if (raf) return; raf = requestAnimationFrame(() => { raf = 0; look(px, py); });
   }, { passive: true });
-  // Le pictogramme s’oriente légèrement vers le pointeur (souris) ou l’endroit touché.
-  addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || reduced()) return; look(e.clientX, e.clientY); clearTimeout(look.t); look.t = setTimeout(() => ants().forEach(a => { const g = a.querySelector('svg'); if (g) g.style.transform = ''; }), 1600); }, { passive: true });
+  // Les yeux suivent le pointeur (souris) ou l’endroit touché.
+  addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' || reduced()) return; look(e.clientX, e.clientY); clearTimeout(look.t); look.t = setTimeout(() => ants().forEach(a => { const p = a.querySelector('.m-pupils'); if (p) p.style.transform = ''; }), 1600); }, { passive: true });
   function look(x, y) {
     ants().forEach(a => {
       const r = a.getBoundingClientRect(); if (!r.width) return;
-      const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
-      const ang = Math.atan2(dx, -dy) * 180 / Math.PI, k = Math.min(1, Math.hypot(dx, dy) / 300);
-      const g = a.querySelector('svg'); if (g) g.style.transform = `rotate(${(Math.max(-14, Math.min(14, ang)) * k * .45).toFixed(2)}deg)`;
+      const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height * .45), d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 260);
+      const p = a.querySelector('.m-pupils'); if (p) p.style.transform = `translate(${(dx / d * 2.6 * k).toFixed(2)}px,${(dy / d * 2.8 * k).toFixed(2)}px)`;
     });
   }
+  // Grand coucou à l’arrivée sur le site, puis un petit de temps en temps.
+  const wave = (big) => { if (reduced() || !panel.hidden) return; root.classList.toggle('fa-bigwave', !!big); setState('wave'); setTimeout(() => { if (root.getAttribute('data-state') === 'wave') setState('idle'); root.classList.remove('fa-bigwave'); }, big ? 3200 : 1700); };
+  setTimeout(() => wave(!store.get('waved')), 900); store.set('waved', 1);
+  setInterval(() => { if (!document.hidden) wave(false); }, 38000);
   // Elle suit la page : petit saut quand on fait défiler, regard vers le haut ou le bas.
   let lastY = scrollY, hopT = 0, lookT = 0;
   addEventListener('scroll', () => {
@@ -112,7 +127,7 @@
     contact: 'Je peux aussi transmettre votre message à l’équipe.',
     'projet-educatif': 'Je peux retrouver un passage du projet éducatif pour vous.'
   };
-  const meet = el('span', 'fa-meet'); meet.append(ant(30));
+  const meet = el('span', 'fa-meet'); meet.append(ant(44));
   function tease() {
     const seen = store.get('teased') || {};
     if (!panel.hidden) return;

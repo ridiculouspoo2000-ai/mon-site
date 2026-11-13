@@ -150,28 +150,45 @@
   /* ---------------------------------------------------------------- 3. Billets de session (inclinaison et reflet) */
   const cut = () => document.querySelectorAll('.tk-card').forEach(c => { const t = c.querySelector('.tk-top'); if (t) c.style.setProperty('--cut', (t.offsetHeight + 11) + 'px'); });
   cut(); addEventListener('resize', cut); if (document.fonts) document.fonts.ready.then(cut);
-  document.querySelectorAll('.tk-in, .h2-photo').forEach(card => {
+  // Cartes vivantes : elles ondulent d’elles-mêmes (ordinateur et téléphone), suivent la souris ou le doigt,
+  // et un reflet de lumière glisse dessus. Transformations seules (fluides à la fréquence de l’écran).
+  const LIVE = [];
+  // Les photos de « Nos actions » reçoivent un cadre pour l’inclinaison et le reflet.
+  document.querySelectorAll('main .split img.photo').forEach(img => {
+    if (!/nos-actions/.test(location.pathname)) return;
+    const w = document.createElement('span'); w.className = 'fx-live-img';
+    img.parentNode.insertBefore(w, img); w.append(img);
+  });
+  document.querySelectorAll('.tk-in, .h2-photo, .fx-live-img').forEach((el, i) => {
+    const host = el.querySelector('.tk-card') || el;
+    const g = document.createElement('span'); g.className = 'fx-glare'; g.setAttribute('aria-hidden', 'true'); host.append(g);
+    const kind = el.classList.contains('tk-in') ? 'tk' : el.classList.contains('h2-photo') ? 'hero' : 'img';
+    LIVE.push({ el, g, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false });
+  });
+  const AMP = { tk: [16, 12], hero: [9, 7], img: [10, 8] };
+  LIVE.forEach(c => {
+    const set = e => { const r = c.el.getBoundingClientRect(); c.px = ((e.clientX - r.left) / r.width - .5) * 2; c.py = ((e.clientY - r.top) / r.height - .5) * 2; c.on = true; };
+    c.el.addEventListener('pointermove', set, { passive: true });
+    c.el.addEventListener('pointerdown', set, { passive: true });
+    const off = () => { c.on = false; };
+    c.el.addEventListener('pointerleave', off);
+    c.el.addEventListener('pointercancel', off);
+    c.el.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') setTimeout(off, 600); });
     if (reduced) return;
-    const amp = card.classList.contains('h2-photo') ? .6 : 1;
-    let tx = 0, ty = 0, cx = 0, cy = 0, on = false, gx = 50, gy = 30;
-    const move = e => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      tx = (x - .5) * 2; ty = (y - .5) * 2; gx = x * 100; gy = y * 100; on = true; live.add(step); wake();
-    };
-    const leave = () => { tx = 0; ty = 0; on = false; };
-    function step() {
-      cx += (tx - cx) * .14; cy += (ty - cy) * .14;
-      card.style.transform = `perspective(900px) rotateY(${(cx * 7 * amp).toFixed(2)}deg) rotateX(${(-cy * 6 * amp).toFixed(2)}deg) translateZ(0)`;
-      card.style.setProperty('--gx', gx.toFixed(1) + '%'); card.style.setProperty('--gy', gy.toFixed(1) + '%');
-      card.classList.toggle('tk-lit', on);
-      if (!on && Math.abs(cx) < .002 && Math.abs(cy) < .002) { card.style.transform = ''; live.delete(step); }
-    }
-    card.addEventListener('pointermove', move, { passive: true });
-    card.addEventListener('pointerdown', move, { passive: true });
-    card.addEventListener('pointerleave', leave);
-    card.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') leave(); });
-    card.addEventListener('pointercancel', leave);
+    whenVisible(c.el, now => {
+      const t = now / 1000, r = c.el.getBoundingClientRect();
+      // mouvement de repos : lent, ample sur téléphone, plus discret sur ordinateur
+      const k = coarse ? .75 : .45;
+      let ix = (Math.sin(t * .7 + c.ph) * .7 + Math.sin(t * .31 + c.ph * 2) * .3) * k;
+      let iy = (Math.cos(t * .55 + c.ph) * .6 + ((r.top + r.height / 2) / innerHeight - .5) * .8) * k;
+      if (c.on) { ix = c.px; iy = c.py; }
+      const f = c.on ? .16 : .06;
+      c.x += (ix - c.x) * f; c.y += (iy - c.y) * f;
+      const [ay, ax] = AMP[c.kind];
+      c.el.style.transform = `perspective(1000px) rotateY(${(c.x * ay).toFixed(2)}deg) rotateX(${(-c.y * ax).toFixed(2)}deg) translateZ(0)`;
+      c.g.style.transform = `translate3d(${(c.x * 32).toFixed(2)}%,${(c.y * 32).toFixed(2)}%,0)`;
+      c.g.style.opacity = c.on ? 1 : (coarse ? .85 : .55);
+    });
   });
 
   /* ---------------------------------------------------------------- 4. Le titre qui tourne */

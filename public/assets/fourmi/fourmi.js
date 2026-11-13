@@ -77,7 +77,8 @@
   form.append(input, send);
   const foot = el('p', 'fa-foot', 'Réponses tirées des documents du site. Vos questions restent sur votre appareil.');
   panel.append(head, log, form, foot);
-  root.append(panel, bubble, launcher);
+  const siri = el('div', 'fa-siri'); siri.setAttribute('aria-hidden', 'true'); siri.append(el('i'));
+  root.append(siri, panel, bubble, launcher);
 
   const mount = () => document.body.append(root);
   document.body ? mount() : addEventListener('DOMContentLoaded', mount);

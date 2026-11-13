@@ -190,6 +190,7 @@
   if (hs) {
     const track = hs.querySelector('.sc-track'), bar = hs.querySelector('.sc-progress i');
     let span = 0, stops = [], vhS = 0;
+    const TOUCH = matchMedia('(hover: none)').matches;
     const CSS_TL = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()') && CSS.supports('view-timeline-name: --a'));
     const size = () => {
       span = Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
@@ -198,11 +199,13 @@
       stops = cards.map(c => Math.min(span, c.offsetLeft - cards[0].offsetLeft));
       const vh = vhS = document.documentElement.clientHeight;
       hs.style.height = wide() ? `${innerHeight + span * 1.1}px` : `${vh + Math.max(1, cards.length - 1) * vh * .85 + vh * .5}px`;
-      // iPhone (Safari 26 et plus) et navigateurs récents : le glissement est confié au moteur de défilement lui-même
-      // (animation liée au défilement, en CSS) : parfaitement synchronisé avec le doigt, sans aucun tremblement.
-      const css = !wide() && CSS_TL && cards.length === 4;
-      hs.classList.toggle('hs-css', css);
-      if (css) { track.style.transform = ''; if (bar) bar.style.transform = ''; stops.forEach((v, i) => hs.style.setProperty('--s' + i, v.toFixed(1) + 'px')); }
+      // Écrans tactiles (iPhone…) : la section ne se fige pas (Safari fait trembler les grandes zones figées) ;
+      // les cartes glissent de droite à gauche pendant que la page descend normalement.
+      const flow = !wide() && TOUCH;
+      hs.classList.remove('hs-css');
+      hs.classList.toggle('hs-flow', flow);
+      hs.classList.toggle('hs-tl', flow && CSS_TL);   // glissement confié au moteur de défilement (Safari 26+, Chrome)
+      if (flow) { hs.style.height = ''; track.style.transform = ''; if (bar) bar.style.transform = ''; hs.style.setProperty('--span', span.toFixed(1) + 'px'); }
     };
     size();
     let hsW = innerWidth; addEventListener('resize', () => { if (wide() || Math.abs(innerWidth - hsW) > 30) { hsW = innerWidth; size(); } });
@@ -229,8 +232,13 @@
       if (!follow) lastT = 0;
     };
     scenes.push(() => {
-      if (!span || hs.classList.contains('hs-css')) return;
+      if (!span || hs.classList.contains('hs-tl')) return;
       let p, x;
+      if (hs.classList.contains('hs-flow')) {   // repli (anciens iPhone) : position calculée directement, sans figer la section
+        const r = hs.getBoundingClientRect();
+        p = clamp(((innerHeight - r.top) / (innerHeight + r.height) - .22) / .56);
+        paint(span * ease(p), p); return;
+      }
       if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; paint(x, p); cur = x; return; }
       // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement
       const r = hs.getBoundingClientRect(), run = r.height - (vhS || innerHeight);

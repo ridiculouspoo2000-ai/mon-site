@@ -321,25 +321,22 @@ html.ap-reduced .page-intro::before,html.ap-reduced .page-intro::after,html.ap-r
 /* les halos peuvent sortir de la zone du titre (seul le bord de l’écran les coupe, via main) */
 .page-intro,.sc-hero2{overflow-x:visible}
 
-/* ---------- Accueil, « Nos actions » sur téléphone : glissement piloté par le défilement lui-même (Safari 26+, Chrome) ----------
-   Une pause sur chaque carte, puis un glissement ; parfaitement synchronisé avec le doigt (aucun script pendant le défilement). */
+/* ---------- Accueil, « Nos actions » sur écran tactile (iPhone…) : la section ne se fige pas ----------
+   Les cartes glissent de droite à gauche pendant que la page descend normalement : rien de figé, donc rien qui tremble. */
+@media(max-width:900px){
+  html.ap-scenes [data-scene="hscroll"].hs-flow{height:auto!important}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin{position:relative;top:auto;height:auto;padding-top:0;transform:none}
+  html.ap-scenes [data-scene="hscroll"].hs-flow .sc-pin>.wrap{padding-block:64px 56px}
+}
 @supports (animation-timeline: view()) and (view-timeline-name: --a){
   @media(max-width:900px){
-    html.ap-scenes [data-scene="hscroll"].hs-css{view-timeline-name:--fa-hs;view-timeline-axis:block}
-    html.ap-scenes [data-scene="hscroll"].hs-css .sc-track{animation:fa-hs-cards linear both;animation-timeline:--fa-hs;animation-range:contain 0% contain 100%}
-    html.ap-scenes [data-scene="hscroll"].hs-css .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:contain 0% contain 100%}
+    html.ap-scenes [data-scene="hscroll"].hs-tl{view-timeline-name:--fa-hs;view-timeline-axis:block}
+    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-track{animation:fa-hs-flow linear both;animation-timeline:--fa-hs;animation-range:cover 22% cover 78%}
+    html.ap-scenes [data-scene="hscroll"].hs-tl .sc-progress i{transform-origin:0 50%;animation:fa-hs-bar linear both;animation-timeline:--fa-hs;animation-range:cover 22% cover 78%}
   }
 }
-@keyframes fa-hs-cards{
-  0%{transform:translate3d(0,0,0)}
-  15.87%{transform:translate3d(0,0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
-  36.67%{transform:translate3d(calc(var(--s1,0px) * -1),0,0)}
-  42.53%{transform:translate3d(calc(var(--s1,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
-  63.33%{transform:translate3d(calc(var(--s2,0px) * -1),0,0)}
-  69.2%{transform:translate3d(calc(var(--s2,0px) * -1),0,0);animation-timing-function:cubic-bezier(.65,0,.35,1)}
-  90%,100%{transform:translate3d(calc(var(--s3,0px) * -1),0,0)}
-}
-@keyframes fa-hs-bar{0%,10%{transform:scaleX(0)}90%,100%{transform:scaleX(1)}}
+@keyframes fa-hs-flow{from{transform:translate3d(0,0,0)}to{transform:translate3d(calc(var(--span,0px) * -1),0,0)}}
+@keyframes fa-hs-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* pied de page : le bouton « Animations activées » était blanc sur fond clair */
 footer .motion-toggle{color:#4b5b6a!important}

@@ -3,9 +3,9 @@
 /* ---------- Aura de couleur derrière les titres de page (dégradés précalculés, déplacement seul) ---------- */
 .page-intro{position:relative;isolation:isolate}
 .page-intro::before{content:"";position:absolute;z-index:-1;left:50%;top:46%;width:min(980px,120vw);aspect-ratio:2/1;translate:-50% -50%;pointer-events:none;
-  background:radial-gradient(32% 46% at 30% 50%,rgba(59,111,230,.22),transparent 70%),radial-gradient(28% 42% at 56% 42%,rgba(155,86,166,.17),transparent 70%),radial-gradient(30% 44% at 76% 58%,rgba(226,112,42,.16),transparent 70%);
-  animation:fx-aura 16s ease-in-out infinite alternate;will-change:transform}
-@keyframes fx-aura{0%{transform:translate3d(-3%,1%,0) rotate(-3deg) scale(1)}50%{transform:translate3d(2%,-2%,0) rotate(2deg) scale(1.06)}100%{transform:translate3d(4%,2%,0) rotate(-1deg) scale(.98)}}
+  background:radial-gradient(32% 46% at 30% 50%,rgba(59,111,230,.30),transparent 70%),radial-gradient(28% 42% at 56% 42%,rgba(155,86,166,.24),transparent 70%),radial-gradient(30% 44% at 76% 58%,rgba(226,112,42,.20),transparent 70%);
+  animation:fx-aura 7s ease-in-out infinite alternate;will-change:transform}
+@keyframes fx-aura{0%{transform:translate3d(-9%,3%,0) rotate(-8deg) scale(.96)}35%{transform:translate3d(5%,-6%,0) rotate(5deg) scale(1.1)}70%{transform:translate3d(9%,4%,0) rotate(-3deg) scale(1.02)}100%{transform:translate3d(-4%,-3%,0) rotate(7deg) scale(1.12)}}
 
 /* ---------- 1. La fourmilière ---------- */
 .fx-swarm-sec{position:relative;padding:10px 0 90px;text-align:center}
@@ -26,7 +26,7 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
 .fx-seg{fill:none;stroke-width:14;stroke-linecap:round}
 .fx-seg-1{stroke:url(#fxd-g1)}.fx-seg-2{stroke:url(#fxd-g2)}.fx-seg-3{stroke:url(#fxd-g3)}
 .fx-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.fx-num{font-family:var(--display);font-size:clamp(64px,8vw,112px);font-weight:800;letter-spacing:-.06em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.fx-num{padding:0 .12em;margin:0 -.12em;font-family:var(--display);font-size:clamp(64px,8vw,112px);font-weight:800;letter-spacing:-.06em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
 .fx-num.fx-tick{animation:fx-tick .6s var(--ease)}
 @keyframes fx-tick{from{opacity:0;transform:translate3d(0,22px,0) scale(.94)}}
 .fx-days{display:flex;flex-direction:column;align-items:center;margin-top:6px}
@@ -52,24 +52,25 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
   .fx-steps{min-height:260px;text-align:center}
   .fx-step p{margin-inline:auto;font-size:16px}
   .fx-dots{justify-content:center}
+  .fx-dial .fx-more{display:flex;justify-content:center}
 }
 
 /* ---------- 3. Billets de session (page Orléans) ---------- */
 .fo-sessions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:34px}
-.fo-ticket{position:relative;perspective:900px}
-.fo-ticket::before{content:"";position:absolute;inset:18px 12px 2px;border-radius:26px;box-shadow:0 26px 50px -22px rgba(20,47,70,.5);z-index:-1;pointer-events:none}
-.tk-in{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;will-change:transform;overflow:hidden;
+.fo-ticket{position:relative}
+.tk-in{height:100%;will-change:transform;filter:drop-shadow(0 22px 26px rgba(20,47,70,.2)) drop-shadow(0 2px 3px rgba(20,47,70,.08));transform-origin:50% 50%}
+.tk-card{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;overflow:hidden;
   -webkit-mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);-webkit-mask-composite:source-in;
   mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);mask-composite:intersect}
-.tk-in::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+.tk-card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
   background:radial-gradient(60% 50% at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.55),transparent 65%);mix-blend-mode:soft-light}
-.tk-in.tk-lit::after{opacity:1}
+.tk-lit .tk-card::after,.h2-photo.tk-lit::after{opacity:1}
 .tk-top{position:relative;padding:22px 24px 26px;color:#fff;background:linear-gradient(125deg,#2b5bd7,#5d53d3 60%,#8a4fd0)}
 .fo-ticket.appro .tk-top{background:linear-gradient(125deg,#6a4fd0,#a5559c 55%,#e2702a)}
 .tk-top::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 90% at 90% 0%,rgba(255,255,255,.28),transparent 60%);pointer-events:none}
 .tk-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.92}
 .tk-head svg{width:20px;height:20px}
-.tk-in .tk-name{color:#fff!important;margin:14px 0 18px;font-family:var(--display);font-size:clamp(21px,1.9vw,25px);font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.tk-card .tk-name{color:#fff!important;margin:14px 0 18px;font-family:var(--display);font-size:clamp(21px,1.9vw,25px);font-weight:800;letter-spacing:-.025em;line-height:1.15}
 .tk-route{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:12px}
 .tk-route small{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
 .tk-route b{font-family:var(--display);font-size:clamp(26px,2.4vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1}
@@ -116,3 +117,23 @@ html.ap-reduced .page-intro::before,html.ap-reduced .tk-path i{animation:none}
 
 .fx-values{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
 .fx-values:not(.fx-sphere)>span{padding:10px 18px;border-radius:99px;background:var(--card);box-shadow:0 1px 2px rgba(20,47,70,.06),0 4px 14px rgba(20,47,70,.05);font-weight:500}
+
+/* ---------- Photo de l’accueil : même inclinaison et reflet que les billets ---------- */
+.h2-photo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(55% 45% at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.42),transparent 65%);mix-blend-mode:soft-light}
+
+/* ---------- Cadran : l’infographie en complément ---------- */
+html.fx-has-dial.ap-scenes #parcours .bafa-infographic{display:none}
+.fx-more{display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-weight:600}
+.fx-more svg{width:18px;height:18px}
+
+/* ---------- Nuage des valeurs : commandes ---------- */
+.fx-cloud-ctl{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 14px;margin-top:6px}
+.fx-cloud-btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;font:inherit;font-size:14.5px;font-weight:600;color:var(--navy);padding:10px 16px 10px 12px;border-radius:99px;
+  background:rgba(255,255,255,.8);box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(20,47,70,.06),0 10px 24px -14px rgba(20,47,70,.4);transition:transform .4s var(--ease)}
+.fx-cloud-btn:hover{transform:translateY(-1px)}
+.fx-cloud-btn svg{width:18px;height:18px;fill:currentColor}
+.fx-cloud-hint{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);transition:opacity .6s}
+.fx-cloud-hint svg{width:22px;height:22px;animation:fx-swipe 2.2s ease-in-out infinite}
+@keyframes fx-swipe{0%,100%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+.fx-cloud-ctl.used .fx-cloud-hint{opacity:.45}

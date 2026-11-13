@@ -130,6 +130,9 @@
       reduced ? (cv = v, days.textContent = v) : (raf = requestAnimationFrame(run));
     }
     const scene = dial.closest('.fx-dial-scene');
+    const box = dial.querySelector('.fx-steps');
+    const fitH = () => { box.style.minHeight = Math.max(...steps.map(x => x.offsetHeight)) + 'px'; };
+    fitH(); addEventListener('resize', fitH); if (document.fonts) document.fonts.ready.then(fitH);
     // Chaque segment : longueur proportionnelle à la durée de l’étape (cercle découpé en 100).
     function paint(s, f) { const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }
     dial.querySelectorAll('.fx-track').forEach(t => { t.style.strokeDasharray = `${t.dataset.len} 200`; t.style.strokeDashoffset = -t.dataset.start; });
@@ -145,10 +148,11 @@
   });
 
   /* ---------------------------------------------------------------- 3. Billets de session (inclinaison et reflet) */
-  const cut = () => document.querySelectorAll('.tk-in').forEach(c => { const t = c.querySelector('.tk-top'); if (t) c.style.setProperty('--cut', (t.offsetHeight + 11) + 'px'); });
+  const cut = () => document.querySelectorAll('.tk-card').forEach(c => { const t = c.querySelector('.tk-top'); if (t) c.style.setProperty('--cut', (t.offsetHeight + 11) + 'px'); });
   cut(); addEventListener('resize', cut); if (document.fonts) document.fonts.ready.then(cut);
-  document.querySelectorAll('.tk-in').forEach(card => {
+  document.querySelectorAll('.tk-in, .h2-photo').forEach(card => {
     if (reduced) return;
+    const amp = card.classList.contains('h2-photo') ? .6 : 1;
     let tx = 0, ty = 0, cx = 0, cy = 0, on = false, gx = 50, gy = 30;
     const move = e => {
       const r = card.getBoundingClientRect();
@@ -158,7 +162,7 @@
     const leave = () => { tx = 0; ty = 0; on = false; };
     function step() {
       cx += (tx - cx) * .14; cy += (ty - cy) * .14;
-      card.style.transform = `perspective(900px) rotateY(${(cx * 7).toFixed(2)}deg) rotateX(${(-cy * 6).toFixed(2)}deg) translateZ(0)`;
+      card.style.transform = `perspective(900px) rotateY(${(cx * 7 * amp).toFixed(2)}deg) rotateX(${(-cy * 6 * amp).toFixed(2)}deg) translateZ(0)`;
       card.style.setProperty('--gx', gx.toFixed(1) + '%'); card.style.setProperty('--gy', gy.toFixed(1) + '%');
       card.classList.toggle('tk-lit', on);
       if (!on && Math.abs(cx) < .002 && Math.abs(cy) < .002) { card.style.transform = ''; live.delete(step); }
@@ -195,7 +199,15 @@
     box.classList.add('fx-sphere'); box.setAttribute('role', 'list'); items.forEach(it => it.setAttribute('role', 'listitem'));
     const n = items.length, G = Math.PI * (3 - Math.sqrt(5));
     const pts = items.map((_, i) => { const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = G * i; return [Math.cos(th) * r, y, Math.sin(th) * r]; });
-    let ax = -.25, ay = 0, vx = 0, vy = reduced ? 0 : .0032, drag = null, hover = false, R = 150;
+    let ax = -.25, ay = 0, vx = 0, vy = reduced ? 0 : .03, drag = null, hover = false, R = 150, auto = !reduced;
+    const BASE = .0055;
+    const ctl = document.createElement('div'); ctl.className = 'fx-cloud-ctl';
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'fx-cloud-btn';
+    const hint = document.createElement('span'); hint.className = 'fx-cloud-hint';
+    hint.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0v3.5a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.6-2.2L4.4 14.6a1.5 1.5 0 0 1 2.3-1.9L9 15"/></svg>' + (coarse ? 'Faites-la tourner du doigt' : 'Faites-la tourner à la souris');
+    const paintBtn = () => { btn.innerHTML = auto ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>Arrêter la rotation' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg>Rotation automatique'; btn.setAttribute('aria-pressed', String(auto)); };
+    btn.addEventListener('click', () => { auto = !auto; paintBtn(); ctl.classList.add('used'); });
+    paintBtn(); ctl.append(btn, hint); box.after(ctl);
     const size = () => { R = Math.min(box.clientWidth * .38, 190); box.style.height = (R * 2.35) + 'px'; };
     size(); addEventListener('resize', size);
     function draw() {
@@ -211,10 +223,10 @@
       });
     }
     function frame() {
-      if (!drag) { vx *= .95; vy += ((hover ? .0008 : .0032) - vy) * .03; }
+      if (!drag) { vx *= .95; vy += ((auto ? (hover ? .0015 : BASE) : 0) - vy) * .025; }
       ax = clamp(ax + vx, -.9, .9); ay += vy; draw();
     }
-    box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; });
+    box.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; ctl.classList.add('used'); });
     addEventListener('pointermove', e => { if (!drag) return; vy = (e.clientX - drag.x) * .0045; vx = -(e.clientY - drag.y) * .002; drag = { x: e.clientX, y: e.clientY }; }, { passive: true });
     addEventListener('pointerup', () => { drag = null; });
     box.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });

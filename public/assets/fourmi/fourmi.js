@@ -19,22 +19,23 @@
   /* ---------- La mascotte (dessin original) ---------- */
   let gid = 0;
   function ant(size) {
-    // Pictogramme : une fourmi stylisée vue de dessus, centrée dans son cadre, au dégradé de la marque.
+    // Pictogramme : silhouette de fourmi de profil (tête et mandibules, antennes coudées, thorax, taille fine, abdomen, pattes articulées).
     const id = 'fa-ant-' + (++gid);
     const w = document.createElement('span');
     w.className = 'fa-ant';
     w.innerHTML = `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-<defs><linearGradient id="${id}g" x1="10" y1="4" x2="38" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#6a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>
-<g class="fa-body" stroke="url(#${id}g)" fill="url(#${id}g)" stroke-linecap="round" stroke-linejoin="round">
-<g class="fa-ant-l" fill="none" stroke-width="1.9"><path d="M22.4 10.2 20.6 6.4 17.4 4.6"/></g>
-<g class="fa-ant-r" fill="none" stroke-width="1.9"><path d="M25.6 10.2 27.4 6.4 30.6 4.6"/></g>
-<g class="fa-legs-a" fill="none" stroke-width="1.9"><path d="M21.2 19.6 16.4 16.4 14.6 12.2"/><path d="M26.8 22.4 32.6 23 35.6 25.8"/><path d="M21.2 25.2 16.6 29.4 15.4 34.2"/></g>
-<g class="fa-legs-b" fill="none" stroke-width="1.9"><path d="M26.8 19.6 31.6 16.4 33.4 12.2"/><path d="M21.2 22.4 15.4 23 12.4 25.8"/><path d="M26.8 25.2 31.4 29.4 32.6 34.2"/></g>
-<circle cx="24" cy="12.6" r="3.7" stroke="none"/>
-<ellipse cx="24" cy="21.6" rx="2.9" ry="4.1" stroke="none"/>
-<ellipse cx="24" cy="33.4" rx="5.4" ry="7.6" stroke="none"/>
+<defs><linearGradient id="${id}g" x1="6" y1="8" x2="44" y2="38" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2b5bd7"/><stop offset=".55" stop-color="#6a4fd0"/><stop offset="1" stop-color="#e2702a"/></linearGradient></defs>
+<g transform="translate(0.4 4.4)" fill="url(#${id}g)" stroke="url(#${id}g)" stroke-linecap="round" stroke-linejoin="round">
+<g class="fa-legs-b" fill="none" stroke-width="1.7" opacity=".42"><path d="M30.6 24.6 33.4 29.4 35.4 34.4"/><path d="M28.2 24.8 26.6 30 27 35"/><path d="M26.2 24.2 20.6 28.6 16.4 32.6"/></g>
+<g class="fa-antennae" fill="none" stroke-width="1.75"><path d="M39.2 14.2 38.6 8.6 44.6 5.4"/><path d="M40.9 14.6 41.6 9.6 46.6 8.4" opacity=".55"/></g>
+<g class="fa-legs-a" fill="none" stroke-width="1.85"><path d="M31.6 24.4 35.4 28.6 38.6 34.2"/><path d="M29.4 24.8 29 30 31.2 35"/><path d="M27.2 24.4 22.8 29.4 19.4 34.6"/></g>
+<ellipse cx="13.2" cy="24.6" rx="9.2" ry="6.6" transform="rotate(-14 13.2 24.6)" stroke="none"/>
+<circle cx="23.4" cy="23.2" r="1.9" stroke="none"/>
+<ellipse cx="29.4" cy="21.6" rx="5.3" ry="3.1" transform="rotate(-16 29.4 21.6)" stroke="none"/>
+<ellipse cx="38.4" cy="17.6" rx="4.7" ry="4.1" stroke="none"/>
+<path d="M42.4 19.4c1.6.4 2.4 1.4 2.4 2.8-.9-.6-1.8-.8-2.9-.7" stroke="none"/>
+<ellipse cx="11" cy="22.2" rx="3.4" ry="1.5" transform="rotate(-14 11 22.2)" fill="#fff" opacity=".3" stroke="none"/>
 </g>
-<ellipse class="fa-shine" cx="22.2" cy="30.6" rx="1.6" ry="3.4" fill="#fff" opacity=".35"/>
 </svg>`;
     return w;
   }
@@ -43,7 +44,7 @@
   const root = el('div', 'fa-fourmi'); root.setAttribute('data-state', 'idle');
   const launcher = el('button', 'fa-launch'); launcher.type = 'button';
   launcher.setAttribute('aria-label', 'Ouvrir l’assistant de recherche'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
-  const big = ant(38); launcher.append(big);
+  const big = ant(42); launcher.append(big);
   const dot = el('span', 'fa-dot'); dot.setAttribute('aria-hidden', 'true'); launcher.append(dot);
   const bubble = el('div', 'fa-bubble'); bubble.setAttribute('role', 'status');
   const bubbleTxt = el('span'); const bubbleX = el('button', 'fa-bubble-x', '×'); bubbleX.type = 'button'; bubbleX.setAttribute('aria-label', 'Fermer');
@@ -51,7 +52,7 @@
 
   const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Assistant de recherche Fourmi’Action'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(26); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'Assistant Fourmi’Action'), el('small', '', 'Réponses tirées des pages et des documents du site'));
+  const headAnt = ant(30); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'Assistant Fourmi’Action'), el('small', '', 'Réponses tirées des pages et des documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';
@@ -87,7 +88,7 @@
       const r = a.getBoundingClientRect(); if (!r.width) return;
       const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
       const ang = Math.atan2(dx, -dy) * 180 / Math.PI, k = Math.min(1, Math.hypot(dx, dy) / 300);
-      const g = a.querySelector('svg'); if (g) g.style.transform = `rotate(${(Math.max(-14, Math.min(14, ang)) * k).toFixed(2)}deg)`;
+      const g = a.querySelector('svg'); if (g) g.style.transform = `rotate(${(Math.max(-14, Math.min(14, ang)) * k * .45).toFixed(2)}deg)`;
     });
   }
   // Elle suit la page : petit saut quand on fait défiler, regard vers le haut ou le bas.

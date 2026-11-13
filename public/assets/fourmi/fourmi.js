@@ -19,27 +19,32 @@
   /* ---------- La mascotte (dessin original) ---------- */
   let gid = 0;
   function ant(size) {
+    // Tête ronde centrée exactement dans le cadre (50,50) ; seules les antennes en dépassent.
     const id = 'fa-ant-' + (++gid);
     const w = document.createElement('span');
     w.className = 'fa-ant';
-    w.innerHTML = `<svg viewBox="0 0 120 124" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-<defs><linearGradient id="${id}h" x1="0" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#3b6fe6"/><stop offset=".55" stop-color="#2652b8"/><stop offset="1" stop-color="#142f46"/></linearGradient>
-<linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6552d3"/><stop offset="1" stop-color="#d9662f"/></linearGradient></defs>
-<g class="fa-legs" stroke="#142f46" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M50 104l-9 10"/><path d="M60 107v11"/><path d="M70 104l9 10"/></g>
-<ellipse class="fa-abdo" cx="60" cy="100" rx="21" ry="13" fill="url(#${id}b)"/>
-<ellipse cx="54" cy="96" rx="7" ry="3" fill="#fff" opacity=".22"/>
-<g class="fa-arm-l"><path d="M44 88c-7 2-12 0-15-5" stroke="#142f46" stroke-width="3.4" stroke-linecap="round" fill="none"/><circle cx="28.5" cy="82" r="3.6" fill="#142f46"/></g>
-<g class="fa-arm-r"><path d="M76 88c7 2 12 0 15-5" stroke="#142f46" stroke-width="3.4" stroke-linecap="round" fill="none"/><circle cx="91.5" cy="82" r="3.6" fill="#142f46"/>
-<g class="fa-loupe"><circle cx="99" cy="70" r="8.5" fill="#fff" fill-opacity=".55" stroke="#142f46" stroke-width="3"/><path d="M94 77l-3 5" stroke="#142f46" stroke-width="3.4" stroke-linecap="round"/><circle cx="96.5" cy="67.5" r="2.2" fill="#fff"/></g></g>
-<g class="fa-antl"><path d="M47 33C42 22 36 15 29 12" stroke="#142f46" stroke-width="3.2" stroke-linecap="round" fill="none"/><circle cx="28" cy="11.5" r="5.6" fill="#e2702a"/><circle cx="26.3" cy="9.8" r="1.7" fill="#fff" opacity=".7"/></g>
-<g class="fa-antr"><path d="M73 33C78 22 84 15 91 12" stroke="#142f46" stroke-width="3.2" stroke-linecap="round" fill="none"/><circle cx="92" cy="11.5" r="5.6" fill="#e2702a"/><circle cx="90.3" cy="9.8" r="1.7" fill="#fff" opacity=".7"/></g>
-<circle class="fa-head" cx="60" cy="58" r="31" fill="url(#${id}h)"/>
-<ellipse cx="47" cy="38" rx="11" ry="6.5" fill="#fff" opacity=".2" transform="rotate(-24 47 38)"/>
-<g class="fa-eyes"><ellipse cx="48.5" cy="56" rx="9.4" ry="11" fill="#fff"/><ellipse cx="71.5" cy="56" rx="9.4" ry="11" fill="#fff"/>
-<g class="fa-pupils"><circle cx="49.5" cy="58" r="5.6" fill="#0d1d2b"/><circle cx="72.5" cy="58" r="5.6" fill="#0d1d2b"/><circle cx="51.4" cy="55.6" r="1.9" fill="#fff"/><circle cx="74.4" cy="55.6" r="1.9" fill="#fff"/></g></g>
-<path class="fa-happy" d="M41 57q7.5-8 15 0M64 57q7.5-8 15 0" stroke="#fff" stroke-width="3.4" stroke-linecap="round" fill="none"/>
-<ellipse cx="39" cy="71" rx="5.4" ry="3.3" fill="#ff8f86" opacity=".6"/><ellipse cx="81" cy="71" rx="5.4" ry="3.3" fill="#ff8f86" opacity=".6"/>
-<path class="fa-mouth" d="M53.5 72.5q6.5 6 13 0" stroke="#fff" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+    w.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">
+<defs>
+<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#7fa6ff"/><stop offset=".38" stop-color="#3d6ee6"/><stop offset=".78" stop-color="#2546a8"/><stop offset="1" stop-color="#1b2f6e"/></radialGradient>
+<radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#3a4f8f"/><stop offset=".55" stop-color="#16213f"/><stop offset="1" stop-color="#0a1022"/></radialGradient>
+<radialGradient id="${id}t" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffc08a"/><stop offset=".6" stop-color="#f07a32"/><stop offset="1" stop-color="#c4501b"/></radialGradient>
+<linearGradient id="${id}r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+</defs>
+<g class="fa-face">
+<g class="fa-antl"><path d="M38 23.5C34 14 29 7.5 22 4" stroke="#1b2f6e" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="21" cy="3.6" r="5" fill="url(#${id}t)"/></g>
+<g class="fa-antr"><path d="M62 23.5C66 14 71 7.5 78 4" stroke="#1b2f6e" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="79" cy="3.6" r="5" fill="url(#${id}t)"/></g>
+<ellipse cx="50" cy="50" rx="33" ry="30.5" fill="url(#${id}h)"/>
+<ellipse cx="50" cy="50" rx="32.2" ry="29.7" fill="none" stroke="url(#${id}r)" stroke-width="1.6"/>
+<ellipse cx="38" cy="30.5" rx="11" ry="5.2" fill="#fff" opacity=".28" transform="rotate(-20 38 30.5)"/>
+<ellipse cx="29.5" cy="61" rx="5.6" ry="3.4" fill="#ff8f86" opacity=".55"/><ellipse cx="70.5" cy="61" rx="5.6" ry="3.4" fill="#ff8f86" opacity=".55"/>
+<g class="fa-eyes">
+<ellipse cx="38.5" cy="48" rx="10.2" ry="11.6" fill="#fff"/><ellipse cx="61.5" cy="48" rx="10.2" ry="11.6" fill="#fff"/>
+<g class="fa-pupils"><circle cx="39.5" cy="49.5" r="6.6" fill="url(#${id}i)"/><circle cx="62.5" cy="49.5" r="6.6" fill="url(#${id}i)"/>
+<circle cx="41.8" cy="46.6" r="2.4" fill="#fff"/><circle cx="64.8" cy="46.6" r="2.4" fill="#fff"/><circle cx="37.6" cy="52.4" r="1.1" fill="#fff" opacity=".8"/><circle cx="60.6" cy="52.4" r="1.1" fill="#fff" opacity=".8"/></g></g>
+<path class="fa-happy" d="M30 50q8.5-9 17 0M53 50q8.5-9 17 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+<path class="fa-mouth" d="M45 63.5q5 4.6 10 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+</g>
+<g class="fa-loupe"><circle cx="82" cy="80" r="11" fill="#fff"/><circle cx="80.5" cy="78.5" r="5.2" fill="none" stroke="#2546a8" stroke-width="2.4"/><path d="M84.4 82.4l3.6 3.6" stroke="#2546a8" stroke-width="2.6" stroke-linecap="round"/></g>
 </svg>`;
     return w;
   }
@@ -48,7 +53,7 @@
   const root = el('div', 'fa-fourmi'); root.setAttribute('data-state', 'idle');
   const launcher = el('button', 'fa-launch'); launcher.type = 'button';
   launcher.setAttribute('aria-label', 'Poser une question à la fourmi'); launcher.setAttribute('aria-expanded', 'false'); launcher.setAttribute('aria-controls', 'fa-panel');
-  const big = ant(90); launcher.append(big);
+  const big = ant(64); launcher.append(big);
   const dot = el('span', 'fa-dot'); dot.setAttribute('aria-hidden', 'true'); launcher.append(dot);
   const bubble = el('div', 'fa-bubble'); bubble.setAttribute('role', 'status');
   const bubbleTxt = el('span'); const bubbleX = el('button', 'fa-bubble-x', '×'); bubbleX.type = 'button'; bubbleX.setAttribute('aria-label', 'Fermer');
@@ -56,7 +61,7 @@
 
   const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'La fourmi, assistant de recherche'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(46); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'La Fourmi'), el('small', '', 'Je cherche dans les pages et les documents du site'));
+  const headAnt = ant(40); const headTxt = el('div', 'fa-head-t'); headTxt.append(el('b', '', 'La Fourmi'), el('small', '', 'Je cherche dans les pages et les documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';

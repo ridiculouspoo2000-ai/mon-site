@@ -3,46 +3,48 @@
   --fa-ease:cubic-bezier(.16,1,.3,1);position:fixed;right:22px;bottom:20px;z-index:2147483000;font-family:"FA Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--fa-ink)}
 .fa-fourmi *{box-sizing:border-box}
 /* bouton mascotte */
-.fa-launch{position:relative;display:grid;place-items:center;width:76px;height:76px;padding:0;border:0;border-radius:50%;cursor:pointer;
+.fa-launch{position:relative;display:grid;place-items:center;width:74px;height:74px;padding:0;border:0;border-radius:50%;cursor:pointer;
   background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.95),rgba(255,255,255,.62) 60%,rgba(255,255,255,.5));
   -webkit-backdrop-filter:blur(18px) saturate(1.8);backdrop-filter:blur(18px) saturate(1.8);
   box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(20,47,70,.06),0 2px 6px rgba(20,47,70,.08),0 18px 40px -16px rgba(20,47,70,.45);
   transition:transform .6s var(--fa-ease),box-shadow .6s var(--fa-ease)}
 .fa-launch:hover{transform:translateY(-3px) scale(1.04);box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(20,47,70,.08),0 26px 50px -18px rgba(93,83,211,.55)}
 .fa-launch:focus-visible{outline:3px solid #5d53d3;outline-offset:3px}
-.fa-launch .fa-ant{margin-top:-26px;filter:drop-shadow(0 6px 8px rgba(20,47,70,.22))}
+.fa-launch .fa-ant{display:block;filter:drop-shadow(0 4px 6px rgba(27,47,110,.28))}
 .fa-ant{display:inline-block;line-height:0}
 .fa-ant svg{overflow:visible;display:block}
-.fa-dot{position:absolute;top:6px;right:6px;width:13px;height:13px;border-radius:50%;background:#e2702a;box-shadow:0 0 0 3px #fff;transform:scale(0);transition:transform .4s var(--fa-ease)}
+.fa-dot{position:absolute;top:4px;right:4px;width:13px;height:13px;border-radius:50%;background:#e2702a;box-shadow:0 0 0 3px #fff;transform:scale(0);transition:transform .4s var(--fa-ease)}
 .fa-dot.on{transform:scale(1)}
-/* animations de la mascotte */
-.fa-ant .fa-head,.fa-ant .fa-eyes,.fa-ant .fa-pupils,.fa-ant .fa-antl,.fa-ant .fa-antr,.fa-ant .fa-arm-r,.fa-ant .fa-arm-l,.fa-ant .fa-mouth{transform-box:fill-box}
-.fa-ant .fa-pupils{transition:transform .25s ease-out}
-.fa-ant .fa-antl{transform-origin:100% 100%;animation:fa-antl 3.8s ease-in-out infinite}
-.fa-ant .fa-antr{transform-origin:0 100%;animation:fa-antr 4.3s ease-in-out infinite}
-.fa-launch .fa-ant svg{animation:fa-bob 3.4s ease-in-out infinite;transform-origin:50% 100%}
-@keyframes fa-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
-@keyframes fa-antl{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
-@keyframes fa-antr{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}
-.fa-ant .fa-eyes{transform-origin:50% 50%;transition:transform .08s}
-.fa-blink .fa-ant .fa-eyes{transform:scaleY(.1)}
-.fa-ant .fa-happy{opacity:0}
-.fa-ant .fa-loupe{opacity:0;transform:translate(-6px,8px) scale(.6);transform-box:fill-box;transform-origin:20% 90%;transition:opacity .25s,transform .45s var(--fa-ease)}
-.fa-ant .fa-arm-r{transform-origin:0 50%;transition:transform .45s var(--fa-ease)}
-.fa-fourmi[data-state="wave"] .fa-ant .fa-arm-r{animation:fa-wave .5s ease-in-out 4 alternate}
-@keyframes fa-wave{from{transform:rotate(10deg)}to{transform:rotate(-38deg)}}
+/* animations de la mascotte : transformations seules, sur une couche à part (fluides à la fréquence de l’écran) */
+.fa-ant svg *{transform-box:fill-box}
+.fa-launch .fa-ant{will-change:transform;animation:fa-bob 3.6s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes fa-bob{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-2px,0)}}
+.fa-ant .fa-face{transform-origin:50% 90%;transition:transform .5s var(--fa-ease)}
+.fa-ant .fa-pupils{transition:transform .22s cubic-bezier(.2,.8,.3,1)}
+.fa-ant .fa-antl{transform-origin:100% 100%;animation:fa-antl 3.8s cubic-bezier(.45,0,.55,1) infinite}
+.fa-ant .fa-antr{transform-origin:0 100%;animation:fa-antr 4.4s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes fa-antl{0%,100%{transform:rotate(0)}50%{transform:rotate(-10deg)}}
+@keyframes fa-antr{0%,100%{transform:rotate(0)}50%{transform:rotate(10deg)}}
+.fa-ant .fa-eyes{transform-origin:50% 50%;transition:transform .09s ease-out}
+.fa-blink .fa-ant .fa-eyes{transform:scaleY(.08)}
+.fa-ant .fa-happy{opacity:0;transition:opacity .15s}
+.fa-ant .fa-eyes{transition:transform .09s ease-out,opacity .15s}
+.fa-ant .fa-mouth{transform-origin:50% 0;transition:transform .35s var(--fa-ease)}
+.fa-ant .fa-loupe{opacity:0;transform:scale(.4) rotate(-30deg);transform-origin:50% 50%;transition:opacity .2s,transform .45s var(--fa-ease)}
+.fa-fourmi[data-state="wave"] .fa-ant .fa-face{animation:fa-tilt .9s cubic-bezier(.45,0,.55,1) 2}
+.fa-fourmi[data-state="wave"] .fa-ant .fa-antl,.fa-fourmi[data-state="wave"] .fa-ant .fa-antr{animation-duration:.45s}
+@keyframes fa-tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-7deg)}70%{transform:rotate(6deg)}}
 .fa-fourmi[data-state="think"] .fa-ant .fa-loupe{opacity:1;transform:none}
-.fa-fourmi[data-state="think"] .fa-ant .fa-arm-r{transform:rotate(-26deg)}
-.fa-fourmi[data-state="think"] .fa-ant .fa-pupils{transform:translate(3px,-2.6px)!important}
-.fa-fourmi[data-state="think"] .fa-ant .fa-antl,.fa-fourmi[data-state="think"] .fa-ant .fa-antr{animation-duration:.7s}
+.fa-fourmi[data-state="think"] .fa-ant .fa-pupils{transform:translate(3px,2.6px)!important}
+.fa-fourmi[data-state="think"] .fa-ant .fa-antl,.fa-fourmi[data-state="think"] .fa-ant .fa-antr{animation-duration:.8s}
 .fa-fourmi[data-state="happy"] .fa-ant .fa-eyes{opacity:0}
 .fa-fourmi[data-state="happy"] .fa-ant .fa-happy{opacity:1}
-.fa-fourmi[data-state="happy"] .fa-ant .fa-mouth{transform:scale(1.25,1.5);transform-origin:50% 0}
-.fa-fourmi[data-state="happy"] .fa-launch .fa-ant svg{animation:fa-jump .6s var(--fa-ease) 2}
-@keyframes fa-jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px) rotate(-4deg)}}
-.fa-hop .fa-launch .fa-ant svg{animation:fa-hop .5s var(--fa-ease)}
-@keyframes fa-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-7px) scaleY(1.03)}70%{transform:translateY(1px) scaleY(.97)}}
-.fa-looking .fa-launch .fa-pupils{transform:translate(0,calc(var(--fa-look,0) * 3.6px))!important}
+.fa-fourmi[data-state="happy"] .fa-ant .fa-mouth{transform:scale(1.3,1.6)}
+.fa-fourmi[data-state="happy"] .fa-launch .fa-ant{animation:fa-jump .7s var(--fa-ease) 2}
+@keyframes fa-jump{0%,100%{transform:translate3d(0,0,0)}40%{transform:translate3d(0,-7px,0) rotate(-5deg)}}
+.fa-hop .fa-launch .fa-ant{animation:fa-hop .55s var(--fa-ease)}
+@keyframes fa-hop{0%,100%{transform:translate3d(0,0,0)}35%{transform:translate3d(0,-5px,0)}70%{transform:translate3d(0,1px,0)}}
+.fa-looking .fa-launch .fa-pupils{transform:translate(0,calc(var(--fa-look,0) * 3.4px))!important}
 /* bulle d’accueil */
 .fa-bubble{position:absolute;right:6px;bottom:90px;display:flex;align-items:flex-start;gap:8px;width:max-content;max-width:min(270px,calc(100vw - 40px));
   padding:13px 12px 13px 16px;border-radius:20px 20px 6px 20px;background:rgba(255,255,255,.86);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);
@@ -60,7 +62,7 @@
 .fa-open .fa-panel{opacity:1;transform:none}
 .fa-panel[hidden]{display:none}
 .fa-head{display:flex;align-items:center;gap:10px;padding:14px 12px 12px 14px;background:rgba(255,255,255,.6);border-bottom:1px solid rgba(20,47,70,.07)}
-.fa-head .fa-ant{flex:none;margin-top:-4px}
+.fa-head .fa-ant{flex:none;margin:6px 2px 0}
 .fa-head-t{flex:1;min-width:0;display:flex;flex-direction:column}
 .fa-head-t b{font-family:"FA Display","FA Inter",-apple-system,sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--fa-navy)}
 .fa-head-t small{font-size:12.5px;color:var(--fa-muted);line-height:1.3}
@@ -116,7 +118,7 @@
 /* téléphone : la fenêtre devient une feuille */
 @media (max-width:600px){
   .fa-fourmi{right:14px;bottom:14px}
-  .fa-launch{width:66px;height:66px}.fa-launch .fa-ant svg{width:78px;height:78px}.fa-launch .fa-ant{margin-top:-22px}
+  .fa-launch{width:66px;height:66px}.fa-launch .fa-ant svg{width:58px;height:58px}
   .fa-bubble{bottom:76px;font-size:14px}
   .fa-panel{position:fixed;left:8px;right:8px;bottom:8px;width:auto;height:min(78vh,640px);height:min(78dvh,640px);border-radius:28px;transform-origin:50% 100%}
   .fa-open .fa-launch{opacity:0;pointer-events:none}

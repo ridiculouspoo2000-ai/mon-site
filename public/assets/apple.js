@@ -426,21 +426,21 @@
   const orbs = document.createElement('div'); orbs.className = 'lg-orbs'; orbs.setAttribute('aria-hidden', 'true');
   orbs.innerHTML = '<i></i>';
   document.body.prepend(orbs);
-  // Les lumières dérivent lentement et suivent un peu la souris ; elles s'arrêtent pendant le défilement
-  // pour que celui-ci reste parfaitement fluide.
-  let px = 0, py = 0, tx = 0, ty = 0, drift = 0, lastScroll = 0, lastT = 0;
+  // Les lumières dérivent lentement et suivent un peu la souris.
+  let px = 0, py = 0, tx = 0, ty = 0, drift = 0, lastScroll = 0, lastT = 0, speed = 1;
   document.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; tx = (e.clientX / innerWidth - .5) * 50; ty = (e.clientY / innerHeight - .5) * 34; }, { passive: true });
   addEventListener('scroll', () => { lastScroll = performance.now(); }, { passive: true });
   const vmax = () => Math.max(innerWidth, innerHeight) / 100;
   const orbTick = now => {
     requestAnimationFrame(orbTick);
     if (!root.classList.contains('theme-verre') || root.classList.contains('ap-reduced') || document.hidden) return;
-    if (now - lastScroll < 260) { lastT = now; return; } // pas pendant le défilement
-    if (now - lastT < 33) return; // 30 images/s suffisent
-    drift += (now - lastT) / 1000; lastT = now;
-    px += (tx - px) * .08; py += (ty - py) * .08;
+    // À chaque image de l’écran (60, 90 ou 120 par seconde) ; pendant le défilement, les lumières ralentissent en douceur au lieu de s’arrêter net.
+    const dt = Math.min(64, now - lastT) / 1000; lastT = now;
+    speed += ((now - lastScroll < 260 ? .25 : 1) - speed) * Math.min(1, dt * 4);
+    drift += dt * speed;
+    const k = 1 - Math.pow(.92, dt * 60); px += (tx - px) * k; py += (ty - py) * k;
     const v = vmax(), x = Math.sin(drift / 9) * 3.5 * v + Math.sin(drift / 4.3) * .8 * v + px, y = Math.cos(drift / 11) * 3 * v + Math.sin(drift / 6.1) * .8 * v + py;
-    orbs.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+    orbs.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0)`;
   };
   requestAnimationFrame(t => { lastT = t; orbTick(t); });
 

@@ -199,10 +199,12 @@ footer h2{font-family:var(--display);color:#fff}
 .motion-toggle{border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.8)}
 
 /* ---------- Apparitions au défilement ---------- */
-html.ap-motion .ap-r{opacity:0;transform:translate3d(0,var(--ap-y,34px),0) scale(var(--ap-s,1));filter:blur(var(--ap-b,8px))}
-html.ap-motion .ap-r.ap-in{opacity:1;transform:none;filter:blur(0);transition:opacity 1s var(--ease),transform 1.15s var(--ease),filter 1s var(--ease)!important;transition-delay:var(--ap-d,0s)!important}
+html.ap-motion .ap-r{opacity:0;transform:translate3d(0,var(--ap-y,34px),0) scale(var(--ap-s,1))}
+html.ap-motion .ap-r.ap-in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform 1.1s var(--ease)!important;transition-delay:var(--ap-d,0s)!important}
+/* flou d’apparition réservé aux grands titres (texte seul, peu coûteux) */
+html.ap-motion .ap-r.ap-blur-lg{filter:blur(var(--ap-b))}html.ap-motion .ap-r.ap-blur-lg.ap-in{filter:blur(0);transition:opacity .9s var(--ease),transform 1.1s var(--ease),filter .9s var(--ease)!important}
 html.ap-motion .ap-r.ap-done{will-change:auto}
-html.ap-motion .ap-r:not(.ap-in){will-change:opacity,transform}
+html.ap-motion .ap-r:not(.ap-done){will-change:opacity,transform}
 html.ap-motion .ap-blur-lg{--ap-b:18px;--ap-y:0px;--ap-s:.96}
 @media(max-width:1150px),(pointer:coarse){html.ap-motion .ap-r{--ap-b:0px;--ap-y:24px}html.ap-motion .ap-blur-lg{--ap-b:6px;--ap-y:0px}}
 html.ap-reduced .ap-r{opacity:1!important;transform:none!important;filter:none!important}

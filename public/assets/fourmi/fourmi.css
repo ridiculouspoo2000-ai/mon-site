@@ -40,7 +40,7 @@
 @keyframes fa-tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-6deg)}65%{transform:rotate(4deg)}}
 .fa-fourmi.fa-bigwave .fa-launch{animation:fa-hello 1.4s cubic-bezier(.2,.8,.3,1) 2}
 @keyframes fa-hello{0%,100%{transform:translateY(0) scale(1)}25%{transform:translateY(-10px) scale(1.08)}50%{transform:translateY(0) scale(1)}70%{transform:translateY(-4px) scale(1.03)}}
-.fa-fourmi.fa-bigwave .fa-ant .m-mouth{transform:scale(1.25,1.5)}
+.fa-fourmi.fa-bigwave .fa-ant .m-mouth{transform:scale(1.15,1.25)}
 /* elle cherche */
 .fa-fourmi[data-state="think"] .fa-ant .m-pupils{transform:translate(2.4px,-2.6px)!important}
 .fa-fourmi[data-state="think"] .fa-ant .m-antl,.fa-fourmi[data-state="think"] .fa-ant .m-antr{animation-duration:.7s}
@@ -48,7 +48,7 @@
 /* elle a trouvé */
 .fa-fourmi[data-state="happy"] .fa-ant .m-eyes{opacity:0}
 .fa-fourmi[data-state="happy"] .fa-ant .m-happy{opacity:1}
-.fa-fourmi[data-state="happy"] .fa-ant .m-mouth{transform:scale(1.25,1.5)}
+.fa-fourmi[data-state="happy"] .fa-ant .m-mouth{transform:scale(1.2,1.3)}
 .fa-fourmi[data-state="happy"] .fa-launch .fa-ant{animation:fa-jump .7s var(--fa-ease) 2}
 @keyframes fa-jump{0%,100%{transform:translate3d(0,0,0)}40%{transform:translate3d(0,-6px,0)}}
 .fa-launch::after{content:"";position:absolute;inset:-1px;border-radius:50%;pointer-events:none;opacity:0}
@@ -144,3 +144,9 @@ html.ap-reduced .fa-fourmi *{animation:none!important;transition:none!important}
 .fa-meet-t{display:flex;flex-direction:column;gap:4px;font-weight:500;color:#3b4a58}
 .fa-meet-t b{font-family:"FA Display","FA Inter",-apple-system,sans-serif;font-size:16px;font-weight:800;color:var(--fa-navy);letter-spacing:-.01em}
 .fa-meet-t b .fa-badge{margin-left:6px}
+
+.fa-typing{padding:14px 16px}
+.fa-dots{display:inline-flex;gap:5px}
+.fa-dots i{width:7px;height:7px;border-radius:50%;background:#df6e28;opacity:.35;animation:fa-dot 1s ease-in-out infinite}
+.fa-dots i:nth-child(2){animation-delay:.15s}.fa-dots i:nth-child(3){animation-delay:.3s}
+@keyframes fa-dot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}

@@ -209,3 +209,17 @@ html.theme-verre .bf-short .button:not(.secondary):hover{background:#fff!importa
 .fx-live-img{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;will-change:transform;box-shadow:var(--sh-hi)}
 .fx-live-img img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}
 #sessions-2027 .small{margin-top:40px}
+
+/* ---------- Affiche du Collectif dans les cartes : entière, jamais coupée ---------- */
+.cards article img[src*="collectif-affiche"]{object-fit:contain!important;background:#fff;padding:10px}
+/* ---------- Actualités : la carte « À la une » est pleine (on ne voit pas à travers) ---------- */
+html.theme-verre .nw-feature,html.theme-verre .nw-feature.lg{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* ---------- Accueil : lumières derrière le titre, vivantes dès l’arrivée ---------- */
+.sc-hero2 .sc-pin{position:relative;isolation:isolate}
+@media(max-width:900px){.sc-hero2 .sc-pin{position:relative}}
+.sc-hero2 .sc-pin::before{content:"";position:absolute;z-index:-1;left:4%;top:8%;width:min(900px,110vw);aspect-ratio:1.6/1;pointer-events:none;
+  background:radial-gradient(30% 42% at 32% 46%,rgba(59,111,230,.34),transparent 70%),radial-gradient(26% 38% at 58% 38%,rgba(155,86,166,.26),transparent 70%),radial-gradient(28% 40% at 72% 62%,rgba(226,112,42,.24),transparent 70%);
+  animation:fx-hero-in .9s ease-out both,fx-aura 3.2s ease-in-out infinite alternate;will-change:transform,opacity}
+@keyframes fx-hero-in{from{opacity:0}to{opacity:1}}
+@media(max-width:900px){.sc-hero2 .sc-pin::before{left:-20%;top:0;width:150vw}}
+@media (prefers-reduced-motion:reduce){.sc-hero2 .sc-pin::before{animation:none}}

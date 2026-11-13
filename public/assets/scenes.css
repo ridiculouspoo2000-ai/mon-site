@@ -147,15 +147,18 @@ html.ap-reduced :is(.cj-ico,.ct-ico,.cj-badge){transform:none!important;opacity:
 
 /* ---------- Héros de l’accueil sur téléphone ---------- */
 @property --f{syntax:'<percentage>';inherits:false;initial-value:0%}
-html.ap-scenes .sc-hero2.h2-m .hero-line{display:inline-block;opacity:0;transform:translate3d(0,28px,0);will-change:transform,opacity}
-html.ap-scenes .sc-hero2.h2-m.h2-go .hero-line{opacity:1;transform:none;transition:opacity .8s var(--ease),transform 1s var(--ease)}
-html.ap-scenes .sc-hero2.h2-m.h2-go .hero-line:nth-of-type(2){transition-delay:.12s}
-html.ap-scenes .sc-hero2.h2-m.h2-go .hero-line:nth-of-type(3){transition-delay:.24s}
-html.ap-scenes .sc-hero2.h2-m em.fx-fill{--f:0%}
-html.ap-scenes .sc-hero2.h2-m.h2-go em.fx-fill{--f:100%;transition:--f 1.15s cubic-bezier(.65,0,.35,1) .5s}
-html.ap-scenes .sc-hero2.h2-m.h2-go h1 .hero-line:nth-of-type(3) em.fx-fill{transition-delay:.85s}
-html.ap-scenes .sc-hero2.h2-m .h2-copy .lead,html.ap-scenes .sc-hero2.h2-m .h2-copy .buttons{opacity:0;transform:translate3d(0,22px,0);will-change:transform,opacity}
-html.ap-scenes .sc-hero2.h2-m.h2-go .h2-copy .lead{opacity:1;transform:none;transition:opacity .9s var(--ease) 1.15s,transform 1s var(--ease) 1.15s}
-html.ap-scenes .sc-hero2.h2-m.h2-go .h2-copy .buttons{opacity:1;transform:none;transition:opacity .9s var(--ease) 1.3s,transform 1s var(--ease) 1.3s}
-html.ap-scenes .sc-hero2.h2-m .h2-photo{clip-path:circle(0% at 50% 45%)}
-html.ap-scenes .sc-hero2.h2-m .h2-visual{will-change:transform}
+@media(max-width:900px){
+html.ap-scenes .sc-hero2 .hero-line{display:inline-block;opacity:0;transform:translate3d(0,28px,0);will-change:transform,opacity}
+html.ap-scenes .sc-hero2.h2-go .hero-line{opacity:1;transform:none;transition:opacity .8s var(--ease),transform 1s var(--ease)}
+html.ap-scenes .sc-hero2.h2-go .hero-line:nth-of-type(2){transition-delay:.12s}
+html.ap-scenes .sc-hero2.h2-go .hero-line:nth-of-type(3){transition-delay:.24s}
+html.ap-scenes .sc-hero2 em.fx-fill{--f:0%}
+html.ap-scenes .sc-hero2.h2-go em.fx-fill{--f:100%;transition:--f 1.15s cubic-bezier(.65,0,.35,1) .5s}
+html.ap-scenes .sc-hero2.h2-go h1 .hero-line:nth-of-type(3) em.fx-fill{transition-delay:.85s}
+html.ap-scenes .sc-hero2 .h2-copy .lead,html.ap-scenes .sc-hero2 .h2-copy .buttons{opacity:0;transform:translate3d(0,22px,0);will-change:transform,opacity}
+html.ap-scenes .sc-hero2.h2-go .h2-copy .lead{opacity:1;transform:none;transition:opacity .9s var(--ease) 1.15s,transform 1s var(--ease) 1.15s}
+html.ap-scenes .sc-hero2.h2-go .h2-copy .buttons{opacity:1;transform:none;transition:opacity .9s var(--ease) 1.3s,transform 1s var(--ease) 1.3s}
+html.ap-scenes .sc-hero2 .h2-photo{clip-path:circle(0% at 50% 45%)}
+html.ap-scenes .sc-hero2 .h2-visual{will-change:transform}
+}
+@media(min-width:901px){html.ap-scenes .sc-hero2:not(.h2-ready) h1{opacity:0}html.ap-scenes .sc-hero2.h2-ready h1{transition:opacity .5s ease}}

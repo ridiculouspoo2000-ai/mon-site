@@ -165,7 +165,7 @@
     const kind = el.classList.contains('tk-in') ? 'tk' : el.classList.contains('h2-photo') ? 'hero' : 'img';
     LIVE.push({ el, g, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false });
   });
-  const AMP = { tk: [16, 12], hero: [9, 7], img: [10, 8] };
+  const AMP = { tk: [16, 12], hero: [17, 13], img: [12, 9] };
   LIVE.forEach(c => {
     const set = e => { const r = c.el.getBoundingClientRect(); c.px = ((e.clientX - r.left) / r.width - .5) * 2; c.py = ((e.clientY - r.top) / r.height - .5) * 2; c.on = true; };
     c.el.addEventListener('pointermove', set, { passive: true });
@@ -178,7 +178,7 @@
     whenVisible(c.el, now => {
       const t = now / 1000, r = c.el.getBoundingClientRect();
       // mouvement de repos : lent, ample sur téléphone, plus discret sur ordinateur
-      const k = coarse ? .75 : .45;
+      const k = (coarse ? .75 : .45) * (c.kind === 'hero' ? 1.25 : 1);
       let ix = (Math.sin(t * .7 + c.ph) * .7 + Math.sin(t * .31 + c.ph * 2) * .3) * k;
       let iy = (Math.cos(t * .55 + c.ph) * .6 + ((r.top + r.height / 2) / innerHeight - .5) * .8) * k;
       if (c.on) { ix = c.px; iy = c.py; }

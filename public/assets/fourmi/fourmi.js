@@ -12,6 +12,7 @@
     get(k) { try { return JSON.parse(sessionStorage.getItem('fa-fourmi-' + k)); } catch (_) { return null; } },
     set(k, v) { try { sessionStorage.setItem('fa-fourmi-' + k, JSON.stringify(v)); } catch (_) {} }
   };
+  let AI = !!store.get('ai');
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
   const SUJETS = ['Formation BAFA', 'Intervention dans une structure', 'Projet d’accueil collectif', 'Bénévolat ou partenariat', 'Autre demande'];
   const page = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
@@ -25,8 +26,8 @@
     w.className = 'fa-ant';
     w.innerHTML = `<svg viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true" focusable="false">
 <defs>
-<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#ffb47a"/><stop offset=".42" stop-color="#ef7f35"/><stop offset="1" stop-color="#bf5219"/></radialGradient>
-<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ea7a33"/><stop offset="1" stop-color="#b44c18"/></linearGradient>
+<radialGradient id="${id}h" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#f29a5a"/><stop offset=".45" stop-color="#df6e28"/><stop offset="1" stop-color="#ad4813"/></radialGradient>
+<linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9672a"/><stop offset="1" stop-color="#a54414"/></linearGradient>
 <radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#4d7ae6"/><stop offset="1" stop-color="#1d3f99"/></radialGradient>
 <clipPath id="${id}c"><circle cx="50" cy="50" r="48.5"/></clipPath>
 </defs>
@@ -36,18 +37,17 @@
 <path d="M43 76.5 50 88.5 57 76.5" stroke="#142f46" stroke-width="2.4" stroke-linejoin="round" fill="none"/>
 <rect x="44.6" y="87" width="10.8" height="12.5" rx="2.4" fill="#fff"/><rect x="44.6" y="87" width="10.8" height="3.6" rx="1.6" fill="#2b5bd7"/><rect x="47" y="93" width="6" height="1.6" rx=".8" fill="#c9d3e3"/>
 </g>
-<g class="m-arm"><path d="M66.5 85C74.5 81.5 78.6 73.5 79.6 64.5" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/><circle cx="80" cy="60.5" r="5.6" fill="#ef7f35"/><path d="M77.2 56.6v-3.4M80.4 55.6v-3.6M83.4 57v-3" stroke="#ef7f35" stroke-width="2.6" stroke-linecap="round"/></g>
-<g class="m-antl"><path d="M41.5 25.5C38 15 32.5 9.5 26 7.5" stroke="#142f46" stroke-width="2.7" stroke-linecap="round" fill="none"/><circle cx="25" cy="7" r="4.3" fill="#2b5bd7"/><circle cx="23.8" cy="5.7" r="1.3" fill="#fff" opacity=".7"/></g>
-<g class="m-antr"><path d="M58.5 25.5C62 15 67.5 9.5 74 7.5" stroke="#142f46" stroke-width="2.7" stroke-linecap="round" fill="none"/><circle cx="75" cy="7" r="4.3" fill="#2b5bd7"/><circle cx="73.8" cy="5.7" r="1.3" fill="#fff" opacity=".7"/></g>
+<g class="m-arm"><path d="M66.5 85C74.5 81.5 78.6 73.5 79.6 64.5" stroke="url(#${id}b)" stroke-width="6.5" stroke-linecap="round" fill="none"/><circle cx="80" cy="60.5" r="5" fill="#df6e28"/></g>
+<g class="m-antl"><path d="M41.5 25.5C38 15 32.5 9.5 26 7.5" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="25.3" cy="7.2" r="3.3" fill="#2b5bd7"/></g>
+<g class="m-antr"><path d="M58.5 25.5C62 15 67.5 9.5 74 7.5" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="74.7" cy="7.2" r="3.3" fill="#2b5bd7"/></g>
 <g class="m-face">
 <ellipse cx="50" cy="46" rx="25.5" ry="23.5" fill="url(#${id}h)"/>
-<ellipse cx="40.5" cy="32.5" rx="9.5" ry="4.4" fill="#fff" opacity=".3" transform="rotate(-18 40.5 32.5)"/>
-<path class="m-brows" d="M34.6 34.6q6.2-3.6 12.2-.6M53.2 34q6-3 12.2.6" stroke="#142f46" stroke-width="2.1" stroke-linecap="round" fill="none" opacity=".85"/>
-<g class="m-eyes"><ellipse cx="41" cy="45.5" rx="7.6" ry="8.8" fill="#fff"/><ellipse cx="59" cy="45.5" rx="7.6" ry="8.8" fill="#fff"/>
-<g class="m-pupils"><circle cx="41.8" cy="47" r="4.6" fill="url(#${id}i)"/><circle cx="59.8" cy="47" r="4.6" fill="url(#${id}i)"/><circle cx="41.8" cy="47" r="2.3" fill="#0a1022"/><circle cx="59.8" cy="47" r="2.3" fill="#0a1022"/><circle cx="43.5" cy="44.9" r="1.5" fill="#fff"/><circle cx="61.5" cy="44.9" r="1.5" fill="#fff"/></g></g>
-<path class="m-happy" d="M34 47q7-7.5 14 0M52 47q7-7.5 14 0" stroke="#142f46" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-<ellipse cx="31.5" cy="56.5" rx="4.2" ry="2.5" fill="#ff5f57" opacity=".28"/><ellipse cx="68.5" cy="56.5" rx="4.2" ry="2.5" fill="#ff5f57" opacity=".28"/>
-<path class="m-mouth" d="M43.5 57.2q6.5 7.8 13 0q-6.5 2.4-13 0Z" fill="#5a1c0c" stroke="#142f46" stroke-width="1.6" stroke-linejoin="round"/>
+<ellipse cx="40.5" cy="32.5" rx="9" ry="3.8" fill="#fff" opacity=".2" transform="rotate(-18 40.5 32.5)"/>
+<path class="m-brows" d="M36 36.4q5.2-2 10.4-.6M53.6 35.8q5.2-1.4 10.4.6" stroke="#142f46" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".75"/>
+<g class="m-eyes"><ellipse cx="41.5" cy="46" rx="6.2" ry="7.2" fill="#fff"/><ellipse cx="58.5" cy="46" rx="6.2" ry="7.2" fill="#fff"/>
+<g class="m-pupils"><circle cx="42.1" cy="47.2" r="3.7" fill="url(#${id}i)"/><circle cx="59.1" cy="47.2" r="3.7" fill="url(#${id}i)"/><circle cx="42.1" cy="47.2" r="1.9" fill="#0a1022"/><circle cx="59.1" cy="47.2" r="1.9" fill="#0a1022"/><circle cx="43.4" cy="45.6" r="1.05" fill="#fff"/><circle cx="60.4" cy="45.6" r="1.05" fill="#fff"/></g></g>
+<path class="m-happy" d="M36 47.5q5.5-5.5 11 0M53 47.5q5.5-5.5 11 0" stroke="#142f46" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+<path class="m-mouth" d="M44.6 58q5.4 4.4 10.8 0" stroke="#142f46" stroke-width="2.1" stroke-linecap="round" fill="none"/>
 </g>
 </svg>`;
     return w;
@@ -65,7 +65,7 @@
 
   const panel = el('section', 'fa-panel'); panel.id = 'fa-panel'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Mica, l’assistante virtuelle de Fourmi’Action'); panel.hidden = true;
   const head = el('header', 'fa-head');
-  const headAnt = ant(40); const headTxt = el('div', 'fa-head-t'); const nm = el('b'); nm.append('Mica', el('span', 'fa-badge', 'Assistante virtuelle')); headTxt.append(nm, el('small', '', 'Je cherche dans les pages et les documents du site'));
+  const headAnt = ant(40); const headTxt = el('div', 'fa-head-t'); const nm = el('b'); nm.append('Mica', el('span', 'fa-badge', AI ? 'Assistante IA' : 'Assistante virtuelle')); headTxt.append(nm, el('small', '', 'Je cherche dans les pages et les documents du site'));
   const close = el('button', 'fa-close'); close.type = 'button'; close.setAttribute('aria-label', 'Fermer');
   close.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const reset = el('button', 'fa-reset'); reset.type = 'button'; reset.setAttribute('aria-label', 'Nouvelle conversation'); reset.title = 'Nouvelle conversation';
@@ -136,7 +136,7 @@
     bubble.classList.toggle('fa-intro', first);
     bubbleTxt.textContent = '';
     if (first) {
-      const t = el('span', 'fa-meet-t'); const nm = el('b'); nm.append('Bonjour, je suis Mica', el('span', 'fa-badge', 'Assistante virtuelle'));
+      const t = el('span', 'fa-meet-t'); const nm = el('b'); nm.append('Bonjour, je suis Mica', el('span', 'fa-badge', AI ? 'Assistante IA' : 'Assistante virtuelle'));
       t.append(nm, el('span', '', 'Une question sur le BAFA, l’association ou nos actions ? Je cherche la réponse pour vous dans nos documents.'));
       bubbleTxt.append(meet, t); store.set('met', 1);
     } else bubbleTxt.textContent = TEASE[page] || 'Une question ? Je cherche dans tous les documents du site.';
@@ -167,6 +167,16 @@
   close.addEventListener('click', shut);
   reset.addEventListener('click', () => { store.set('log', []); log.textContent = ''; greet(); input.focus(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) shut(); });
+
+  /* ---------- Mode IA (activé quand la clé Mistral est configurée côté serveur) ---------- */
+  const paintMode = () => {
+    root.querySelectorAll('.fa-badge').forEach(x => { x.textContent = AI ? 'Assistante IA' : 'Assistante virtuelle'; });
+    foot.textContent = AI ? 'Réponses rédigées par une IA (Mistral AI) à partir de nos documents : elles peuvent contenir des erreurs. Ne partagez pas d’informations personnelles.'
+                          : 'Réponses tirées des documents du site. Vos questions restent sur votre appareil.';
+  };
+  fetch(new URL('api/mica', ROOT), { cache: 'no-store' }).then(r => r.ok ? r.json() : { actif: false }).then(d => { AI = !!(d && d.actif); store.set('ai', AI); paintMode(); }).catch(() => {});
+  const conv = [];
+  paintMode();
 
   /* ---------- Données ---------- */
   let DB = null, loading = null;
@@ -305,6 +315,23 @@
     greet(); past.slice(-6).forEach(q => answer(q, true));
   }
   let lastQ = '', lastIntent = null;
+  // La vision de Fourmi’Action (reprise de ses pages), pour répondre aux questions d’avis.
+  const VIEWS = {
+    animation: ['Pour Fourmi’Action, encadrer des enfants et des jeunes n’est ni une garderie ni un simple travail d’appoint : c’est une mission d’intérêt général, essentielle pour construire les citoyens de demain. D’où une animation exigeante, concrète et sécurisante.', 'Notre histoire', 'fourmi-action.html#histoire'],
+    bafa: ['Pour Fourmi’Action, le BAFA s’apprend en faisant : expérimenter, observer, échanger, puis essayer à nouveau, dans un cadre bienveillant et avec un vrai accompagnement jusqu’au stage pratique.', 'Découvrir le BAFA', 'bafa.html#decouvrir'],
+    education: ['L’éducation populaire, pour Fourmi’Action, c’est permettre à chacun de développer sa capacité à comprendre, à choisir et à agir, à tout âge, en reliant la réflexion à l’action.', 'Le projet éducatif', 'fourmi-action.html#projet'],
+    jeune: ['Fourmi’Action croit au pouvoir d’agir des jeunes : dans le Collectif jeunes, ce sont eux qui choisissent et organisent leur projet, avec un adulte référent à leurs côtés.', 'Le Collectif jeunes', 'collectif-jeunes.html'],
+    cooperation: ['Comme dans une fourmilière, Fourmi’Action pense qu’un groupe solidaire, diversifié et bienveillant produit des réponses plus riches qu’une personne seule.', 'Nos valeurs', 'fourmi-action.html#projet'],
+    benevol: ['Chaque coup de main compte : Fourmi’Action défend une vie associative participative, avec une vraie place pour chacun dans les décisions.', 'Écrire à l’équipe', '#ecrire']
+  };
+  VIEWS['education populaire'] = VIEWS.education; VIEWS.jeunes = VIEWS.jeune; VIEWS.ados = VIEWS.jeune; VIEWS.animateur = VIEWS.animation; VIEWS.colo = VIEWS.animation;
+  const SMALL = [
+    [/\b(ca va|comment vas tu|comment allez vous|tu vas bien|vous allez bien)\b/, 'Très bien, merci ! Et vous ? Je suis là pour vous aider à y voir clair sur le BAFA, l’association ou nos projets.'],
+    [/\b(blague|drole|rigole|humour)\b/, 'Une fourmi peut soulever bien plus que son propre poids. Une équipe d’animation soudée, elle, soulève des montagnes : c’est un peu notre devise.'],
+    [/\b(au revoir|bonne (journee|soiree)|a bientot|bye|salut a\b)/, 'Au revoir, et à bientôt ! Je reste ici, en bas à droite, si une question vous revient.'],
+    [/\b(tu es (nulle?|bete)|t es nulle?|inutile)\b/, 'Je fais de mon mieux avec ce qui est écrit dans nos documents ! Reformulez votre question, ou écrivez directement à l’équipe : elle vous répondra.'],
+    [/\b(bravo|genial|trop bien|merci beaucoup|tu es (top|geniale))\b/, 'Merci, ça me fait plaisir ! N’hésitez pas si vous avez une autre question.']
+  ];
   form.addEventListener('submit', e => { e.preventDefault(); const q = input.value.trim(); if (!q) return; input.value = ''; ask(q); });
   function ask(q) {
     if (/^[ée]crire à l.?équipe$/i.test(q)) { say('fa-u', el('p', '', q)); return writeForm(); }
@@ -331,9 +358,48 @@
       if (ME.test(n) || !VSSQ.test(n)) { say('fa-f fa-safe', safety()); return; }
       soft = true;
     }
-    if (WHO.test(n)) { d.append(el('p', '', 'Je suis Mica, l’assistante virtuelle de Fourmi’Action : un programme de recherche qui fonctionne directement dans votre navigateur. Je ne rédige pas de réponses inventées : je retrouve ce qui est écrit dans nos pages et nos documents, avec le lien. Si je ne trouve pas, je transmets votre question à l’équipe.')); return say('fa-f', d); }
-    const it = intentOf(q); lastIntent = it;
+    if (WHO.test(n) && !AI) { d.append(el('p', '', 'Je suis Mica, l’assistante virtuelle de Fourmi’Action : un programme qui cherche dans nos pages et nos documents, directement dans votre navigateur. Je vous montre ce qui y est écrit, avec le lien, et si je ne trouve pas, je transmets votre question à l’équipe.')); return say('fa-f', d); }
+    const prevIntent = lastIntent;
+    const it = intentOf(q); if (it) lastIntent = it;
     const toks0 = toks(q);
+    conv.push({ r: 'u', c: q });
+    // Avec l’IA : réponse rédigée à partir des meilleurs extraits (sauf au rechargement de la conversation).
+    if (AI && !quiet) {
+      const typing = say('fa-f fa-typing', Object.assign(el('span', 'fa-dots'), { innerHTML: '<i></i><i></i><i></i>' }));
+      setState('think');
+      const pass = search(q, 4).map(c => ({ t: db.docs[c.di].t, s: c.s, x: c.x }));
+      if (it) pass.unshift({ t: 'Réponse préparée par l’équipe', s: it.id, x: it.a });
+      let r = null;
+      try { r = await fetch(new URL('api/mica', ROOT), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q, h: conv.slice(-7, -1), p: pass.slice(0, 5) }) }).then(x => x.json()); } catch (_) {}
+      typing.remove(); setState('idle');
+      if (r && r.ok && r.a) {
+        conv.push({ r: 'a', c: r.a });
+        r.a.split(/\n{2,}/).forEach(par => d.append(el('p', '', par.replace(/\*\*/g, '').trim())));
+        if (it) d.append(row(it.l.map((l, i) => link(l[0], l[1], i === 0))));
+        const more = el('p', 'fa-more'); more.append('Une précision ? '); more.append(link('Demander à l’équipe', '#ecrire')); d.append(more);
+        happy(); return say('fa-f', d);
+      }
+      if (r && r.limite && r.error) { d.append(el('p', '', r.error)); d.append(row([link('Écrire à l’équipe', '#ecrire', 1)])); return say('fa-f', d); }
+    }
+    // Sans IA : un minimum de conversation.
+    const CONFUS = /\b(je (ne )?comprends? (pas|rien)|pas compris|c est pas clair|pas clair|reformule\w*|explique\w* (mieux|autrement)|plus simplement|hein)\b/;
+    const AVIS = /\b(qu est ce que tu penses|que penses tu|tu en penses|ton avis|vous en pensez|tu aimes|tu trouves)\b/;
+    if (CONFUS.test(n) && toks0.length <= 6) {
+      if (prevIntent) {
+        d.append(el('p', '', 'Pas de souci, je reformule plus simplement :'));
+        d.append(el('p', '', prevIntent.a.split(/(?<=[.!?])\s/)[0]));
+        d.append(row(prevIntent.l.map((l, i) => link(l[0], l[1], i === 0))));
+        d.append(el('p', 'fa-more', 'Vous pouvez aussi me poser la question avec vos mots, ou choisir un sujet :'));
+      } else d.append(el('p', '', 'Pas de souci ! Dites-moi simplement ce que vous cherchez, avec vos mots. Par exemple :'));
+      d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d);
+    }
+    if (AVIS.test(n) && !it) {
+      const topic = Object.keys(VIEWS).find(k => n.includes(' ' + k)) || 'animation';
+      d.append(el('p', '', 'Je suis une assistante : je n’ai pas d’avis personnel. Mais je peux vous dire comment Fourmi’Action voit les choses.'));
+      d.append(el('p', '', VIEWS[topic][0])); d.append(row([link(VIEWS[topic][1], VIEWS[topic][2], 1)]));
+      conv.push({ r: 'a', c: VIEWS[topic][0] }); return say('fa-f', d);
+    }
+    for (const [rx, txt] of SMALL) if (rx.test(n) && toks0.length <= 6) { if (!quiet) happy(); d.append(el('p', '', txt)); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
     if (!it && HELLO.test(n) && toks0.length <= 2) { if (!quiet) happy(); d.append(el('p', '', 'Bonjour. Que puis-je chercher pour vous ?')); d.append(chips(SUGG[page] || SUGG.index)); return say('fa-f', d); }
     if (!it && THANKS.test(n) && toks0.length <= 3) { if (!quiet) happy(); d.append(el('p', '', 'Avec plaisir. Je reste disponible en bas à droite pour toute autre question.')); return say('fa-f', d); }
     const found = search(q, it ? 2 : 3, it);
@@ -354,8 +420,8 @@
       d.append(list);
     }
     if (!it && !found.length) {
-      d.append(el('p', '', 'Je n’ai rien trouvé à ce sujet dans les documents du site. Essayez avec d’autres mots, ou posez directement la question à l’équipe : je peux préparer le message.'));
-      d.append(row([link('Écrire à l’équipe', '#ecrire', 1)]));
+      d.append(el('p', '', 'Je ne trouve pas ça dans nos documents. Pouvez-vous me le dire autrement ? Sinon, je transmets volontiers votre question à l’équipe.'));
+      d.append(row([link('Écrire à l’équipe', '#ecrire', 1)])); d.append(chips((SUGG[page] || SUGG.index).filter(x => !/^Écrire/.test(x))));
     } else {
       const more = el('p', 'fa-more'); more.append('Pas tout à fait la réponse ? '); more.append(link('Demander à l’équipe', '#ecrire')); d.append(more);
     }

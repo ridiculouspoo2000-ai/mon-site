@@ -121,7 +121,7 @@
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const lerp = (a, b, t) => a + (b - a) * t;
   const scenes = [];
-  if (!reduced) root.classList.add('ap-scenes');
+  root.classList.toggle('ap-scenes', !reduced);
   const wide = () => innerWidth > 900;
   function sceneProgress(el) { const r = el.getBoundingClientRect(); const run = r.height - innerHeight; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
 
@@ -167,6 +167,7 @@
         return;
       }
       if (!geo) measure();
+      if (!hero.classList.contains('h2-ready')) requestAnimationFrame(() => hero.classList.add('h2-ready'));
       const p = sceneProgress(hero);
       // 1. les lignes du titre s'affirment une à une, les mots colorés se remplissent
       ems.forEach((e, i) => e.style.setProperty('--f', `${(seg(p, .01 + i * .07, .16 + i * .07) * 100).toFixed(1)}%`));

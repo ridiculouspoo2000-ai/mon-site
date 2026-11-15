@@ -114,14 +114,15 @@ export const PROFILS = {
   benali: { nom: "Mme Benali", role: "Mère de Malo, la trentaine, émue", gender: "female", ages: ["middle_aged", "young"] },
   // Enfants : la bibliothèque ElevenLabs n’accepte pas de voix d’enfant. On propose les voix les plus aiguës
   // (françaises, puis personnages « enfant » vérifiés en français) ; la page mesure leur hauteur et les classe.
-  lou: { nom: "Lou (10 ans)", role: "Garçon de 10 ans, hésitant : « Je… je veux pas rentrer. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
-  sacha: { nom: "Sacha (11 ans)", role: "Garçon de 11 ans, témoin : « Ben… j’ai vu le monsieur, euh… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
-  e_fille: { nom: "Petite fille (prélude)", role: "Enfant de 7 ans : « Il… il m’a soulevé ma jupe… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
-  e_garcon: { nom: "Petit garçon (prélude)", role: "Enfant de 8 ans : « Il m’a dit que… que c’était notre secret. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  lou: { nom: "Lou (10 ans)", role: "Garçon de 10 ans, hésitant : « Je… je veux pas rentrer. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  sacha: { nom: "Sacha (11 ans)", role: "Garçon de 11 ans, témoin : « Ben… j’ai vu le monsieur, euh… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  e_fille: { nom: "Petite fille (prélude)", role: "Enfant de 7 ans : « Il… il m’a soulevé ma jupe… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  e_garcon: { nom: "Petit garçon (prélude)", role: "Enfant de 8 ans : « Il m’a dit que… que c’était notre secret. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
 };
 const PAS_PARIS = /qu[ée]b|canad|belg|suiss|swiss|afri|antill|marseill|sud|south|occitan|alsac|corse|nord|ch.ti/i;
-async function bibliotheque(gender, age, key, search, tousAccents) {
+async function bibliotheque(gender, age, key, search, tousAccents, page) {
   const q = new URLSearchParams({ page_size: tousAccents ? "100" : "40", language: "fr", accent: "parisian", gender, age });
+  if (page) q.set("page", String(page));
   if (!gender) q.delete("gender"); if (!age) q.delete("age");
   if (search || tousAccents) q.delete("accent");
   if (search) { q.delete("age"); q.set("search", search); }
@@ -141,7 +142,7 @@ async function casting() {
   const cache = new Map(); const erreurs = [];
   const get = async (g, a) => { const k = g + a; if (!cache.has(k)) cache.set(k, bibliotheque(g, a, key).catch((e) => { erreurs.push(String(e.message || e)); return []; })); return cache.get(k); };
   const getS = (t) => { const k = "s:" + t; if (!cache.has(k)) cache.set(k, bibliotheque("", "", key, t).catch((e) => { erreurs.push(String(e.message || e)); return []; })); return cache.get(k); };
-  const getJ = () => { if (!cache.has("j")) cache.set("j", bibliotheque("female", "young", key, "", true).catch(() => [])); return cache.get("j"); };
+  const getJ = () => { if (!cache.has("j")) cache.set("j", Promise.all([0, 1, 2].map((pg) => bibliotheque("female", "young", key, "", true, pg).catch(() => []))).then((l) => l.flat())); return cache.get("j"); };
   const compte = new Set(); try { const r = await fetch("https://api.elevenlabs.io/v2/voices?page_size=100", { headers: { "xi-api-key": key } }); if (r.ok) for (const v of (await r.json()).voices || []) compte.add(v.voice_id); } catch {}
   const autorisees = new Set();
   const actuelles = voix(); const out = {};
@@ -163,7 +164,8 @@ async function casting() {
     }
     const kid = (v) => /child|kid|enfant|girl|boy|fille|gar[çc]on|young child|little/i.test(v.nom + " " + v.description);
     liste.sort((a, b) => (p.enfant ? kid(b) - kid(a) : 0) || (/paris/i.test(b.accent) - /paris/i.test(a.accent)) || b.popularite - a.popularite);
-    const garde = p.enfant ? [...liste.filter(kid).slice(0, 8), ...liste.filter((v) => !kid(v) && v.langue === "fr").slice(0, 30)] : liste.slice(0, 8);
+    const choisies = new Set(["lou", "sacha", "e_fille", "e_garcon"].map((w) => actuelles[w]));
+    const garde = p.enfant ? [...new Set([...liste.filter(kid).slice(0, 16), ...liste.filter((v) => choisies.has(v.id)), ...liste.filter((v) => !kid(v) && v.langue === "fr").slice(0, 36)])] : liste.slice(0, 8);
     if (p.enfant && actuelles[who] && !garde.some((v) => v.id === actuelles[who])) { const a = liste.find((v) => v.id === actuelles[who]); if (a) garde.unshift(a); }
     garde.forEach((v) => autorisees.add(v.id + "|" + v.proprio));
     out[who] = { ...p, enfant: !!p.enfant, actuelle: actuelles[who], voix: garde };

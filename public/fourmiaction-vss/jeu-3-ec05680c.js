@@ -15,6 +15,9 @@
     if (html != null) e.innerHTML = html;
     return e;
   };
+  // Durée d’un enregistrement : la vraie si le navigateur la connaît ; sinon (iPhone, réponse sans taille) une estimation
+  // d’après le texte, un peu courte pour que les mots s’affichent avec la voix, jamais après.
+  const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali" };
 
@@ -50,6 +53,7 @@
       if (on) { this._g = this._g ?? g.value; this._n = this._n ?? n.value; g.setTargetAtTime(Math.max(0.0001, (this._g || 0.01) * 0.3), t, 0.15); n.setTargetAtTime(Math.max(0.0001, (this._n || 0.01) * 0.3), t, 0.15); }
       else if (this._g != null) { g.setTargetAtTime(this._g, t, 0.4); n.setTargetAtTime(this._n, t, 0.4); this._g = this._n = null; }
     },
+    unlock() { if (!this.ctx || this._unl) return; try { const b0 = this.ctx.createBuffer(1, 1, 22050), s0 = this.ctx.createBufferSource(); s0.buffer = b0; s0.connect(this.ctx.destination); s0.start(0); if (this.ctx.state !== "running") this.ctx.resume(); if (this.ctx.state === "running") this._unl = true; } catch (e) { } },
     init() {
       if (this.ctx) return;
       try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) { } try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; return; } try { const b0 = this.ctx.createBuffer(1, 1, 22050), s0 = this.ctx.createBufferSource(); s0.buffer = b0; s0.connect(this.ctx.destination); s0.start(0); } catch (e) { }
@@ -221,7 +225,7 @@
       cancelAnimationFrame(this._raf);
       const f = () => {
         const it = this._cur; if (!it || !it.e || !this.el || this.el.paused) return;
-        const d = this.el.duration; if (d && isFinite(d)) {
+        const d = audDur(this.el, it.e.textContent); if (d) {
           const ws = it.e.querySelectorAll(".wd"), k = Math.min(ws.length, Math.ceil((this.el.currentTime / d) * ws.length * 1.04));
           for (let i = 0; i < k; i++) if (!ws[i].classList.contains("sp")) ws[i].classList.add("sp");
         }
@@ -443,7 +447,7 @@
     if (st.idx > SCREENS.findIndex((x) => x.id === "intro")) { st.rev.clock = 1; st.rev.phone = 1; }
     Voice.stop();
     const nx = SCREENS[st.idx + 1];
-    if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); Voice.prefetch(L); }
+    if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
     camera(sc);
     document.querySelectorAll(".cr-pop").forEach((x) => x.remove());
@@ -865,7 +869,8 @@
       });
       fillTab(); draw(true);
       su.querySelector(".su-form").appendChild(btn("Continuer", () => { st.name = (inp.value || "").trim().slice(0, 20); save(); stepGoal(); }));
-      if (!n.dataset.spoken) { n.dataset.spoken = "1"; setTimeout(() => { if (n.isConnected) Voice.say("narr", ROLE.voice); }, 450); }
+      if (!n.dataset.spoken) { n.dataset.spoken = "1"; if (n.isConnected) Voice.say("narr", ROLE.voice); }
+      Voice.prefetch([["narr", ROLE.goalVoice]]);   // la voix des règles est prête avant même qu’on clique
     }
     function stepGoal() {
       Voice.stop();
@@ -886,7 +891,7 @@
       form.append(el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl,
         btn("Commencer la semaine", () => { save(); next(); }), btn("Revenir à mon personnage", () => { Voice.stop(); stepLook(); }, "linkb"));
       su.querySelector("h2").focus({ preventScroll: true }); n.scrollIntoView({ block: "start" });
-      setTimeout(() => { if (n.isConnected) Voice.say("narr", ROLE.goalVoice); }, 350);
+      if (n.isConnected) Voice.say("narr", ROLE.goalVoice);
     }
     stepLook();
   };
@@ -1797,6 +1802,7 @@
       requestAnimationFrame(() => end.classList.add("on"));
       say(ECHOES.outro);
       end.appendChild(btn("Entrer aux Hautes Herbes", finish));
+      Voice.prefetch([["narr", ROLE.voice], ["narr", ROLE.goalVoice]]);
       if (voiceOn) { Snd.duck(false); setTimeout(() => { if (alive) Voice.say("narr", ECHOES.outro, outP); }, 500); }
     }
     function step() {
@@ -1812,7 +1818,7 @@
       if (!u) { byTime(); nextOnce(read); return; }
       audio.onended = () => { f.querySelectorAll(".wd").forEach((w) => w.classList.add("sp")); nextOnce(calm() ? 300 : 60); };
       audio.onerror = () => { byTime(); nextOnce(read); };
-      audio.onplaying = () => reveal(f, () => (audio.duration && isFinite(audio.duration) ? audio.currentTime / audio.duration : 0));
+      audio.onplaying = () => reveal(f, () => audio.currentTime / audDur(audio, line.t));
       audio.src = u;
       const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { byTime(); nextOnce(read); });
       timer = setTimeout(() => nextOnce(0), Math.max(read, 9000));   // garde-fou si l’audio ne répond pas
@@ -2550,10 +2556,22 @@
   const firstGesture = () => {   // gestes autorisés par iPhone et Android pour lancer le son ; on réessaie tant qu’il n’est pas lancé
     if (st.settings.sound === undefined) st.settings.sound = true;
     if (!st.settings.sound) return;
+    Snd.unlock && Snd.unlock();
     if (!begun) { begun = true; begin(); } else { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); }
     if (Snd.ctx && Snd.ctx.state === "running") GESTES.forEach((ev) => document.removeEventListener(ev, firstGesture, true));
   };
   GESTES.forEach((ev) => document.addEventListener(ev, firstGesture, true));
+  // Dès l’arrivée sur l’accueil : on essaie de lancer la musique sans attendre de geste.
+  // Chrome, Edge et Android l’autorisent quand on arrive depuis un clic sur le site (« Jouer ») ;
+  // Safari (iPhone, Mac) l’interdit toujours : la musique part alors au premier toucher, n’importe où.
+  function autoStart() {
+    if (begun || st.settings.sound === false) return;
+    Snd.init(); if (!Snd.ctx) return;
+    const ok = () => { if (begun || Snd.ctx.state !== "running") return; begun = true; Snd.startAmb(); GESTES.forEach((ev) => document.removeEventListener(ev, firstGesture, true)); };
+    try { const p = Snd.ctx.resume(); if (p && p.then) p.then(ok, () => { }); } catch (e) { }
+    ok(); setTimeout(ok, 120);
+  }
+  try { if (navigator.getAutoplayPolicy && navigator.getAutoplayPolicy("audiocontext") === "disallowed") { /* le premier geste s’en chargera */ } else autoStart(); } catch (e) { autoStart(); }
   function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   applySettings();

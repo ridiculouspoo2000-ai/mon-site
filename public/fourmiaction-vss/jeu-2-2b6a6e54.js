@@ -39,13 +39,13 @@ const ECHOES = {
     { who: "e_maman", label: "Une maman, au portail", t: "Allez, fais un bisou à tonton, ne fais pas ta timide." },
     { who: "e_papa", label: "Un papa", t: "Arrête de pleurer, t’es un garçon." },
     { who: "e_anim", label: "Un animateur", t: "Les filles, vous rangez. Les garçons, vous portez les tables." },
-    { who: "e_fille", label: "Une petite fille, 7 ans", t: "Il m’a soulevé ma jupe devant tout le monde…" },
+    { who: "e_fille", label: "Une petite fille, 7 ans", t: "Il… il m’a soulevé ma jupe… devant tout le monde…" },
     { who: "e_animatrice", label: "Une animatrice", t: "Ce n’est rien, c’est parce qu’il t’aime bien." },
     { who: "e_ado", label: "Un ado, 15 ans", t: "C’était pour rire. Elle sait pas rigoler." },
     { who: "e_maman", label: "Une voisine", t: "Habillée comme ça, faut pas s’étonner." },
     { who: "e_ado_f", label: "Une adolescente, 14 ans", t: "Il m’envoie des messages tous les soirs. J’ose pas en parler." },
     { who: "e_papa", label: "Un père", t: "Ce qui se passe à la maison, ça ne regarde personne." },
-    { who: "e_garcon", label: "Un petit garçon, 8 ans", t: "Il m’a dit que c’était notre secret." },
+    { who: "e_garcon", label: "Un petit garçon, 8 ans", t: "Il m’a dit que… que c’était notre secret." },
     { who: "e_anim", label: "Un adulte", t: "Elle invente. Elle veut juste se rendre intéressante." },
   ],
   outro: "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir.",
@@ -53,14 +53,14 @@ const ECHOES = {
 // Écran du rôle : phrase lue par le narrateur, puis le but du jeu expliqué simplement.
 const ROLE = {
   voice: "Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes.",
-  goalTitle: "Le but du jeu",
+  goalTitle: "Comment on joue",
   goal: [
-    ["Cinq journées", "Du lundi au vendredi, vous vivez une semaine d’animation, avec 48 enfants de 6 à 17 ans."],
-    ["Des choix à faire", "À chaque situation, vous décidez quoi faire. Il n’y a pas toujours une seule bonne réponse, mais certaines protègent mieux les enfants."],
-    ["Quatre gestes à acquérir", "Repérer les faits, nommer le sexisme et les violences, protéger l’enfant et alerter les bonnes personnes, prévenir pour que cela ne se reproduise pas."],
-    ["Un bilan à la fin", "Ce que vous apprenez s’ajoute à votre carnet. Le vendredi, un bilan montre vos points forts et ce qu’il reste à travailler."],
+    ["Laissez-vous guider", "Nour, la directrice adjointe, vous accompagne toute la semaine. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
+    ["Choisissez la bonne réaction", "Quand une situation se présente, touchez la réponse qui vous semble la plus juste. Un retour vous explique tout de suite pourquoi elle protège l’enfant, ou pourquoi elle ne suffit pas."],
+    ["Relevez des petites missions", "Faire le tour de l’accueil, organiser le planning, trouver un enfant qui vous cherche, composer un numéro d’urgence, vérifier les départs au portail : chaque mission entraîne un réflexe concret."],
+    ["Progressez jusqu’au vendredi", "Chaque bonne décision fait grandir vos quatre gestes, en haut de l’écran : repérer, nommer, protéger et alerter, prévenir. Le vendredi, vous découvrez votre bilan, votre score et votre place au classement."],
   ],
-  goalVoice: "Le but du jeu. Pendant cinq journées, vous décidez quoi faire à chaque situation. Votre objectif : repérer, protéger, alerter et prévenir. À la fin de la semaine, un bilan vous montre vos points forts.",
+  goalVoice: "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. À vous de choisir les bonnes réactions et de réussir les petites missions. Chaque bonne décision vous fait progresser, jusqu’au bilan du vendredi.",
 };
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
@@ -320,7 +320,7 @@ const SCREENS = [
   { id: "chercher", ch: 3, type: "find", comp: "C1", kicker: "Mercredi, 15 h · temps libre", title: "Léna vous cherche",
     intro: "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la.",
     who: "lena", at: [16.6, 6.2], decoys: [["clara", 9.0, 25.0], ["enzo", 24.4, 21.0], ["sacha", 18.2, 24.6], ["zoe", 2.6, 21.2], ["theo", 12.2, 20.6]], timer: 60,
-    found: "Léna, à voix basse : « Enzo a pris Clara en photo dans les vestiaires. Il dit qu’il va l’envoyer au groupe des grands. »",
+    found: "Léna, à voix basse : « Euh… Enzo, il a pris Clara en photo… dans les vestiaires. Et il dit qu’il va l’envoyer au groupe des grands. »",
     opts: [
       { t: "« Merci de me l’avoir dit, tu as bien fait. Je préviens Nour tout de suite, et on protège Clara. »", q: 1, fb: "Vous accueillez sa parole, sans enquêter, et vous alertez immédiatement : la photo n’a peut-être pas encore circulé." },
       { t: "« Tu es sûre ? Tu l’as vue, cette photo ? Montre-moi. »", q: 0, fb: "Demander à voir l’image, c’est risquer de la faire circuler davantage, et mettre en doute la parole de Léna." },
@@ -375,12 +375,12 @@ const SCREENS = [
   { id: "depart", ch: 4, type: "story", scene: "S13", kicker: "Jeudi, 16 h · les familles arrivent à 17 h",
     lines: [
       { who: null, t: "Les familles arrivent dans une heure. Lou, 10 ans, s’approche, son sac à la main." },
-      { who: "lou", mood: "calm", t: "Je veux pas rentrer. Un adulte à la maison me touche, et il m’a dit de rien dire. Tu gardes le secret, hein ?" },
+      { who: "lou", mood: "calm", t: "Je… je veux pas rentrer. Y a un adulte, à la maison… il me touche. Et il m’a dit de rien dire. Tu gardes le secret, hein ?" },
       { who: null, t: "La personne que Lou désigne doit venir le chercher dans une heure." },
     ] },
   { id: "lou", ch: 4, type: "dialogue", comp: "C3", title: "Accueillir la parole de Lou", npc: "lou", start: "n1",
     nodes: {
-      n1: { mood: "calm", t: "Tu gardes le secret, hein ?",
+      n1: { mood: "calm", t: "Tu… tu gardes le secret, hein ?",
         opts: [
           { t: "D’accord, c’est promis : je ne dirai rien à personne, tu peux me faire confiance.", to: "nsecret", q: 0, flag: "secret", note: "Tu promets ce que tu ne pourras pas tenir : pour protéger Lou, tu devras en parler." },
           { t: "Qui ça ? Il t’a fait quoi exactement ? Raconte-moi tout, depuis le début.", to: "nquest", q: 0, flag: "enquete", note: "Demander une démonstration ou des détails n’est pas ton rôle : ça peut orienter et fragiliser sa parole." },
@@ -388,19 +388,19 @@ const SCREENS = [
         ] },
       nsecret: { mood: "smile", t: "Merci…",
         opts: [{ t: "Lou, je me suis trompé·e. Pour t’aider, je vais devoir prévenir des personnes dont c’est le métier de protéger les enfants.", to: "n2b", q: 0.5 }] },
-      nquest: { mood: "concern", t: "…Je sais pas. Laisse tomber.",
+      nquest: { mood: "concern", t: "Euh… je sais pas. Laisse tomber.",
         opts: [{ t: "Pardon, tu n’as pas à m’en dire plus. Merci de m’avoir parlé, ce n’est pas de ta faute.", to: "n2", q: 0.5 }] },
-      n2: { mood: "calm", t: "Tu vas le dire à qui ?",
+      n2: { mood: "calm", t: "Tu vas… tu vas le dire à qui ?",
         opts: [
           { t: "À des gens dont c’est le métier de protéger les enfants. Je reste avec toi.", to: "end", q: 1 },
           { t: "À personne sans ton accord, ne t’inquiète pas : c’est toi qui décides.", to: "nsecret2", q: 0, flag: "secret", note: "Rassurer par un secret, c’est bloquer la protection." },
           { t: "Je te promets qu’il ne pourra plus jamais te faire de mal, il ira en prison.", to: "n3", q: 0, note: "On ne garantit ni une peine, ni l’absence de conséquence familiale." },
         ] },
-      n2b: { mood: "concern", t: "Tu avais promis…",
+      n2b: { mood: "concern", t: "Mais… t’avais promis…",
         opts: [{ t: "Je sais. Je préfère te dire la vérité : on va chercher de l’aide, et je reste avec toi.", to: "end", q: 1 }] },
       nsecret2: { mood: "smile", t: "D’accord…",
         opts: [{ t: "En fait, non : je dois prévenir des personnes qui protègent les enfants. Je reste avec toi.", to: "end", q: 0.5 }] },
-      n3: { mood: "o", t: "En prison ?!",
+      n3: { mood: "o", t: "Euh… en prison ?!",
         opts: [{ t: "Je ne sais pas ce qui va se passer. Mais je vais chercher de l’aide, et je reste avec toi.", to: "end", q: 0.5 }] },
       end: { end: true, mood: "calm", t: "…D’accord.",
         lesson: "Remercier, dire que l’enfant n’est pas responsable, ne jamais promettre le secret, expliquer simplement que certaines informations doivent être partagées pour le protéger. Ne pas demander de démonstration, ne pas faire répéter." } } },
@@ -413,7 +413,7 @@ const SCREENS = [
         { t: "Je crois qu’un père agresse son enfant, il faut venir l’arrêter.", q: 0.3, fb: "Vous rapportez une conclusion, pas ce que l’enfant a dit. Et l’enfant n’a pas désigné son père." },
         { t: "Je voulais juste vous demander conseil, ce n’est peut-être rien.", q: 0, fb: "Minimiser retarde l’intervention : le danger est immédiat, dites-le." } ] },
       { t: "Qu’est-ce que l’enfant vous a dit, exactement ?", opts: [
-        { t: "Ses mots : « Un adulte à la maison me touche, et il m’a dit de rien dire. » Je les ai notés, avec l’heure.", q: 1, fb: "Les mots exacts, sans les interpréter : c’est ce qui protège sa parole." },
+        { t: "Ses mots : « Y a un adulte, à la maison… il me touche. Et il m’a dit de rien dire. » Je les ai notés, avec l’heure.", q: 1, fb: "Les mots exacts, sans les interpréter : c’est ce qui protège sa parole." },
         { t: "Je lui ai posé des questions pour avoir des détails, et il a fini par dire oui.", q: 0, fb: "Des questions orientées fragilisent la parole de l’enfant. Ce n’est pas votre rôle." },
         { t: "En gros, qu’on le touche. Je ne me souviens plus des mots.", q: 0.4, fb: "Notez les mots exacts dès que l’enfant parle : ils comptent pour la suite." } ] },
       { t: "Où se trouve l’enfant en ce moment ?", opts: [
@@ -440,7 +440,7 @@ const SCREENS = [
       { t: "A10 · Informer toute l’équipe", cat: "eca", why: "Seules les personnes qui doivent agir reçoivent les informations nécessaires." },
       { t: "A08 · Organiser le suivi", cat: "dur", why: "Vérifier les mesures de protection, les relais, l’absence de représailles." },
     ] },
-  { id: "ordre", crisis: {"secs": 75, "start": "16 h 06", "intro": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver.", "events": [{"at": 9, "t": "Le téléphone de l’accueil sonne : une maman demande si sa fille peut partir plus tôt.", "opts": [{"t": "Je décroche et je règle ça", "ok": false, "no": "Vous quittez Lou des yeux pendant de longues minutes."}, {"t": "Je demande à Jade de répondre", "ok": true}]}, {"at": 24, "t": "Des enfants vous appellent : le ballon est coincé sur le toit du préau.", "opts": [{"t": "Je reste avec Lou et je demande à Bastien de s’en occuper", "ok": true}, {"t": "J’y vais vite, Lou m’attend ici", "ok": false, "no": "Lou se retrouve seul, à quelques mètres du portail."}]}, {"at": 42, "t": "Lou vous demande tout bas : « Tu vas le dire à qui ? »", "opts": [{"t": "« À personne, promis. Ne t’inquiète pas. »", "ok": false, "no": "Promettre le secret est impossible : vous devez alerter, et Lou se sentirait trahi."}, {"t": "« À des personnes dont le métier est de te protéger. Tu as bien fait de parler. »", "ok": true}]}]}, ch: 4, type: "order", comp: "C3", kicker: "Les dix premières minutes",
+  { id: "ordre", crisis: {"secs": 75, "start": "16 h 06", "intro": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver.", "events": [{"at": 9, "t": "Le téléphone de l’accueil sonne : une maman demande si sa fille peut partir plus tôt.", "opts": [{"t": "Je décroche et je règle ça", "ok": false, "no": "Vous quittez Lou des yeux pendant de longues minutes."}, {"t": "Je demande à Jade de répondre", "ok": true}]}, {"at": 24, "t": "Des enfants vous appellent : le ballon est coincé sur le toit du préau.", "opts": [{"t": "Je reste avec Lou et je demande à Bastien de s’en occuper", "ok": true}, {"t": "J’y vais vite, Lou m’attend ici", "ok": false, "no": "Lou se retrouve seul, à quelques mètres du portail."}]}, {"at": 42, "t": "Lou vous demande tout bas : « Tu vas… tu vas le dire à qui ? »", "opts": [{"t": "« À personne, promis. Ne t’inquiète pas. »", "ok": false, "no": "Promettre le secret est impossible : vous devez alerter, et Lou se sentirait trahi."}, {"t": "« À des personnes dont le métier est de te protéger. Tu as bien fait de parler. »", "ok": true}]}]}, ch: 4, type: "order", comp: "C3", kicker: "Les dix premières minutes",
     prompt: "Remettez ces actions dans un ordre pertinent à l’aide des flèches.",
     items: [
       { t: "Rester avec Lou, à l’écart du portail des familles", g: 1, why: "Protéger d’abord : Lou n’est jamais laissé seul." },
@@ -462,7 +462,7 @@ const SCREENS = [
     prompt: "Cochez ce qui doit figurer dans votre transmission.",
     opts: [
       { t: "Jeudi, 16 h, près du portail : Lou (10 ans) vient me parler.", ok: true, why: "Date et contexte." },
-      { t: "Ses mots : « Un adulte à la maison me touche, et il m’a dit de rien dire. »", ok: true, why: "Les paroles exactes, entre guillemets." },
+      { t: "Ses mots : « Y a un adulte, à la maison… il me touche. Et il m’a dit de rien dire. »", ok: true, why: "Les paroles exactes, entre guillemets." },
       { t: "Mesures prises : Lou reste avec moi ; 17 appelé à 15 h 05 ; Nour prévenue.", ok: true, why: "Mesures et interlocuteurs contactés." },
       { t: "Identité exacte de l’adulte : non connue.", ok: true, why: "On écrit « non connu » plutôt que d’inventer." },
       { t: "Lou avait l’air de dramatiser.", ok: false, why: "Une interprétation, qui n’a pas sa place dans les faits." },
@@ -498,8 +498,8 @@ const SCREENS = [
   {"id": "familles", "fact": "Ce message fait écho à l’actualité : en avril 2026, Paris a adopté un plan pour sécuriser le périscolaire, et en octobre, un rapport du Sénat a dénoncé l’omerta et demandé des contrôles d’honorabilité chaque année.", "ch": 5, "type": "choice", "npc": "nour", "mood": "calm", "comp": "C4", "kicker": "Vendredi, 10 h · un message des familles", "context": "Après les affaires du périscolaire parisien, plusieurs parents écrivent à l’accueil : « Qui encadre nos enfants, et comment savoir qu’ils sont en sécurité ? » Nour vous demande ce que l’accueil doit répondre.", "prompt": "Que proposez-vous ?", "opts": [{"t": "Des règles vérifiables : jamais un adulte seul hors de vue, toilettes organisées, contrôles, et à qui parler.", "q": 1, "cons": "Le livret part lundi. Deux parents proposent même de relire la version destinée aux enfants.", "fb": "La confiance se gagne par des règles concrètes, connues de tous et vérifiables.", "mood": "smile"}, {"t": "Rassurer : « Aucun incident n’a jamais eu lieu chez nous, et toute l’équipe est de confiance. »", "q": 0, "cons": "Les parents ne sont pas rassurés. L’un d’eux demande ce qui serait fait si un incident survenait.", "fb": "L’absence d’incident connu ne protège personne : c’est souvent le silence qui l’explique. Les familles attendent des règles."}, {"t": "Interdire tout contact physique entre adultes et enfants, même pour consoler ou pour soigner.", "q": 0.5, "cons": "Une petite qui s’est fait mal attend seule qu’on « trouve une solution ». L’équipe est mal à l’aise.", "fb": "La règle se veut protectrice mais empêche des soins et un réconfort nécessaires. On encadre les gestes plutôt que de les interdire."}, {"t": "Installer des caméras dans les couloirs et à l’entrée des sanitaires, pour pouvoir tout vérifier.", "q": 0, "cons": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants.", "fb": "La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger."}], "why": {"q": "Et pourquoi ?", "opts": [{"t": "Parce que la sécurité repose sur des règles connues que les familles peuvent vérifier.", "ok": true}, {"t": "Parce que la loi oblige à informer toutes les familles de chaque incident survenu dans l’accueil.", "ok": false, "no": "Ce n’est pas le fond du sujet : la question est ce qui protège réellement, avant tout incident."}, {"t": "Parce que les parents doivent pouvoir entrer librement dans l’accueil à tout moment.", "ok": false, "no": "L’ouverture totale n’est pas une mesure de protection : c’est l’organisation de l’équipe qui compte."}]}, "better": "Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."},
   { id: "maelys", ch: 5, type: "story", scene: "S07", kicker: "Vendredi, 13 h",
     lines: [
-      { who: "maelys", mood: "calm", t: "Je peux te parler ? … Hier, pendant le rangement du local, l’intervenant de l’atelier bois m’a imposé des attouchements." },
-      { who: "maelys", mood: "concern", t: "Je ne veux plus entrer dans cette pièce. Et il y a atelier bois à 15 h." },
+      { who: "maelys", mood: "calm", t: "Je… je peux te parler ? … Hier, quand on rangeait le local… le monsieur de l’atelier bois, il m’a touchée. Là où il a pas le droit. Moi, je voulais pas." },
+      { who: "maelys", mood: "concern", t: "Je veux plus aller là-bas. Et… y a atelier bois à 15 h." },
       { who: null, t: "Vous remerciez Maëlys de vous avoir parlé et lui dites que ce n’est pas de sa faute. Maintenant, il faut décider." },
     ] },
   { id: "f1", ch: 5, type: "choice", comp: "C3", kicker: "13 h 05",
@@ -514,18 +514,18 @@ const SCREENS = [
     timer: 25,
     better: "Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités." },
   { id: "temoin", ch: 5, type: "interview", comp: "C1", kicker: "13 h 20 · salle des grands", title: "Sacha a vu quelque chose",
-    intro: "Sacha, 11 ans, vient vous voir : « J’ai vu un truc à la régie. » Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez.",
+    intro: "Sacha, 11 ans, vient vous voir : « Euh… j’ai vu un truc, à la régie. » Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez.",
     npc: "sacha", facts: ["où", "qui", "quand", "après"],
     qs: [
-      { t: "Tu veux me raconter ce que tu as vu ?", kind: "ouverte", a: "J’ai vu le monsieur de l’atelier bois fermer la porte de la régie. Maëlys était dedans.", fact: ["où", "qui"], trust: 6 },
-      { t: "C’était à quel moment ?", kind: "neutre", a: "À la fin de l’atelier, quand on rangeait les outils.", fact: ["quand"], trust: 2 },
-      { t: "Et après ?", kind: "relance", a: "Après, elle est sortie. Elle pleurait, et elle est partie aux toilettes.", fact: ["après"], trust: 4 },
+      { t: "Tu veux me raconter ce que tu as vu ?", kind: "ouverte", a: "Ben… j’ai vu le monsieur, euh… celui de l’atelier bois. Il a fermé la porte de la régie. Et Maëlys, elle était dedans.", fact: ["où", "qui"], trust: 6 },
+      { t: "C’était à quel moment ?", kind: "neutre", a: "C’était… à la fin de l’atelier. Quand on rangeait les outils, tout ça.", fact: ["quand"], trust: 2 },
+      { t: "Et après ?", kind: "relance", a: "Après… elle est sortie. Elle pleurait. Et elle est partie aux toilettes en courant.", fact: ["après"], trust: 4 },
       { t: "Il l’a touchée, c’est ça ?", kind: "suggestive", a: "Euh… oui… peut-être… je sais pas.", taint: true, trust: -14, fb: "Question suggestive : la réponse vient de vous, pas de lui. Elle ne vaut plus rien, et peut fragiliser l’enquête." },
       { t: "Pourquoi tu n’es pas venu me le dire tout de suite ?", kind: "culpabilisante", a: "…", trust: -18, fb: "Un « pourquoi » sonne comme un reproche : Sacha se ferme." },
       { t: "Tu es sûr ? Tu ne te trompes pas ?", kind: "doute", a: "Ben… je crois. Laisse tomber.", trust: -16, fb: "Mettre en doute sa parole lui apprend qu’il vaut mieux se taire." },
       { t: "Je te promets que je ne le répéterai à personne.", kind: "promesse", a: "D’accord…", trust: -6, fb: "Vous ne pouvez pas tenir cette promesse : vous allez devoir transmettre." },
     ],
-    close: { t: "Merci Sacha, tu as bien fait de me le dire. Je vais en parler à des adultes dont c’est le rôle.", a: "D’accord. Maëlys, elle va bien ?" } },
+    close: { t: "Merci Sacha, tu as bien fait de me le dire. Je vais en parler à des adultes dont c’est le rôle.", a: "D’accord. Et… Maëlys, elle va bien ?" } },
   { id: "garnier", ch: 5, type: "dialogue", comp: "C3", title: "Le bureau du directeur", npc: "garnier", start: "n1",
     nodes: {
       n1: { mood: "concern", t: "Maëlys ? Elle a dû mal comprendre. Il travaille ici depuis dix ans. On verra demain avec l’organisateur, je ne veux pas de scandale.",
@@ -548,7 +548,7 @@ const SCREENS = [
       endb: { end: true, mood: "concern", t: "Toute l’équipe ? Et Maëlys, dans tout ça ?",
         lesson: "L’alerte va aux autorités judiciaires et, par l’organisateur, au SDJES. L’intervenant est écarté. Le reste de l’équipe sait seulement qu’une situation est prise en charge." } } },
   { id: "f3", ch: 5, type: "multi", comp: "C3", npc: "maelys", mood: "calm", kicker: "14 h",
-    context: "Maëlys vous demande : « Je vais avoir des problèmes ? »",
+    context: "Maëlys vous demande : « Je… je vais avoir des problèmes ? »",
     prompt: "Que pouvez-vous lui dire ? Sélectionnez toutes les phrases justes.",
     opts: [
       { t: "Tu as bien fait de parler. Ce n’est pas de ta faute.", ok: true, why: "Prendre la parole au sérieux, déculpabiliser." },
@@ -728,20 +728,51 @@ const SOURCES = [{"t": "Franceinfo · Périscolaire à Paris : 132 animateurs su
 
 // Transitions : une phrase qui dit où l'on est et ce qui vient de se passer, lue en premier.
 const BRIDGE = {
-  radio: "Lundi, 14 h. Après le repas, Nour t’envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans.",
+  // Lundi
+  dbefore: "Une fois que Nour vous a donné ces informations, elle vous accompagne à la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme un instant, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui.",
+  map: "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs.",
+  radio: "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans.",
+  k1: "17 h 30. Les enfants sont repartis avec leurs familles : votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet.",
+  // Mardi
   brief: "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin.",
-  ines: "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et te fait signe.",
-  rire: "12 h 15, au réfectoire. Bastien s’assoit en face de toi. Il a vu Inès te parler ce matin, et il revient sur les remarques faites au briefing.",
+  ines: "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe.",
+  rire: "12 h 15, au réfectoire. Bastien s’assoit en face de vous. Il a vu Inès vous parler ce matin, et il revient sur les remarques faites au briefing.",
   planning: "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi.",
-  theo: "14 h, temps calme chez les 6-8 ans. Jade te montre un dessin de Théo, 8 ans, et te parle de lui.",
-  chat: "18 h. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
-  sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, M. Garnier, le directeur, réunit l’équipe : il manque quelqu’un aujourd’hui.",
-  ronde: "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin.",
-  consent: "Mercredi, 16 h. Après le temps libre, Nour te retrouve en salle des animateurs, son carnet à la main.",
-  temoin: "Pour comprendre ce qui s’est passé au local, tu retrouves Sacha, qui participait au rangement hier, dans la salle des grands.",
+  theo: "14 h, c’est le temps calme. Jade vous montre un dessin de Théo, 8 ans, et vous parle de lui.",
+  parent1: "Les activités de l’après-midi se terminent : vous accompagnez les enfants jusqu’au portail.",
+  chat: "18 h. Le papa de Zoé est reparti. Vous rejoignez la salle des animateurs pour le point du soir. En sortant votre téléphone, vous découvrez la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
+  k2: "Fin de la deuxième journée. Avant que vous rentriez chez vous, Nour vous laisse une nouvelle page de son carnet.",
+  // Mercredi
+  sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, M. Garnier, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui.",
+  parent2: "La réunion est finie. Le portail ouvre, et vous prenez votre poste d’accueil.",
+  ronde: "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin, et vous la rejoignez.",
+  chercher: "La matinée et le repas sont passés. Mercredi, 15 h : c’est le temps libre, les enfants sont partout sur le terrain.",
+  consent: "Mercredi, 16 h. Après ce que vous a dit Léna, Nour vous retrouve, son carnet à la main.",
+  kevin: "Mercredi, 18 h. Les enfants de la journée sont repartis. Pendant que vous rangez la salle des animateurs, Kévin s’approche de vous, l’air gêné.",
+  nuit1: "Après le dîner, une partie de l’équipe reste dormir sur place avec les enfants : vous en faites partie.",
+  nuit3: "La soirée s’est bien passée et tout le monde est couché. Vous êtes de veille avec Bastien, près du dortoir.",
+  kn: "Le lendemain matin, Nour vous laisse une page de son carnet sur la nuitée.",
+  k3: "La grosse journée du mercredi est terminée. Nour vous laisse une page de son carnet pour en garder l’essentiel.",
+  // Jeudi
+  depart: "Jeudi, 16 h. La journée s’est déroulée sans histoire. Dans la cour, les enfants jouent en attendant leurs parents.",
+  lou: "Vous emmenez Lou un peu à l’écart, dans la salle d’activités libre, pour l’écouter au calme, la porte ouverte.",
+  numero: "Lou a parlé. Vous l’avez écouté sans le questionner, et il est toujours à côté de vous.",
+  acts: "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter.",
+  ordre: "Tout s’est enchaîné très vite. Avec Nour, vous reprenez les dix premières minutes qui ont suivi la parole de Lou.",
+  portail: "17 h. Nour vous demande de tenir le portail pendant qu’elle reste avec Lou.",
+  transm: "17 h 20. Tous les enfants sont partis. Dans le bureau de la direction, vous écrivez ce que vous avez vu et entendu, pendant que c’est encore frais.",
+  k4: "Fin d’une journée difficile. Avant que vous partiez, Nour vous laisse une page de son carnet.",
+  // Vendredi
   bilanequipe: "Vendredi, 8 h 30. Dernier briefing de la semaine : Nour veut que l’on tire les leçons de ce qui s’est passé.",
-  maelys: "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir te voir.",
-  garnier: "13 h 40. Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver M. Garnier dans son bureau.",
+  build: "Nour vous confie une mission pour la matinée : rendre la prévention visible à l’accueil, pour les enfants comme pour les adultes.",
+  affiche: "Devant le panneau d’affichage, Bastien vous rattrape : il a une idée.",
+  familles: "Vendredi, 10 h. Dans le bureau de la direction, Nour vous montre un message arrivé ce matin.",
+  maelys: "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir vous voir.",
+  temoin: "13 h 20. Pour comprendre ce qui s’est passé au local, vous retrouvez Sacha, qui participait au rangement hier, dans la salle des grands.",
+  f3: "14 h. Maëlys attend à l’infirmerie, avec Nour. Vous allez la rejoindre.",
+  k5: "La semaine touche à sa fin. Nour vous laisse la dernière page de son carnet.",
+  dafter: "Vendredi, 17 h 30. Les enfants sont partis. Vous revenez dans la salle des animateurs, là où tout a commencé lundi. Les mêmes questions vous reviennent en tête.",
+  souvenirs: "18 h. Avant de quitter les Hautes Herbes, vous repensez aux moments forts de la semaine.",
 };
 SCREENS.forEach((sc) => {
   const b = BRIDGE[sc.id]; if (!b) return;
@@ -797,8 +828,8 @@ const VOICE_TXT = {
   parts(sc) {
     const P = [];
     if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `${c.day}, jour ${c.n} sur ${CHAPTERS.length}. ${c.title}. ${c.goal}`]); return P; }
-    if (sc.type === "explain" && sc.page) { P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
-    if (sc.crisis) { P.push(["narr", sc.crisis.intro]); return P; }
+    if (sc.type === "explain" && sc.page) { if (sc.bridge) P.push(["narr", sc.bridge]); P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
+    if (sc.crisis) { if (sc.bridge) P.push(["narr", sc.bridge]); P.push(["narr", sc.crisis.intro]); return P; }
     if (sc.bridge) P.push(["narr", sc.bridge]);
     if (sc.fact) P.push(["narr", sc.fact]);
     if (sc.intro) P.push(["narr", sc.intro]);

@@ -18,11 +18,11 @@ export const LIGNES = {
   "kind": "echo",
   "text": "Les filles, vous rangez. Les garçons, vous portez les tables."
  },
- "da1010bf2578": {
+ "ddcc8644fca0": {
   "who": "e_fille",
   "mood": "",
   "kind": "echo",
-  "text": "Il m’a soulevé ma jupe devant tout le monde…"
+  "text": "Il… il m’a soulevé ma jupe… devant tout le monde…"
  },
  "552cca72502a": {
   "who": "e_animatrice",
@@ -54,11 +54,11 @@ export const LIGNES = {
   "kind": "echo",
   "text": "Ce qui se passe à la maison, ça ne regarde personne."
  },
- "42497b7036de": {
+ "e50928fe65c8": {
   "who": "e_garcon",
   "mood": "",
   "kind": "echo",
-  "text": "Il m’a dit que c’était notre secret."
+  "text": "Il m’a dit que… que c’était notre secret."
  },
  "645f9975c9e8": {
   "who": "e_anim",
@@ -78,11 +78,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Vous êtes animateur ou animatrice, recruté pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes."
  },
- "be41a433064e": {
+ "4dcd6d7d9434": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Le but du jeu. Pendant cinq journées, vous décidez quoi faire à chaque situation. Votre objectif : repérer, protéger, alerter et prévenir. À la fin de la semaine, un bilan vous montre vos points forts."
+  "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. À vous de choisir les bonnes réactions et de réussir les petites missions. Chaque bonne décision vous fait progresser, jusqu’au bilan du vendredi."
  },
  "20c879fbfeb6": {
   "who": "nour",
@@ -414,17 +414,17 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je le prends dans mon lit cinq minutes, il va se calmer."
  },
- "51d0d5e1ecd0": {
+ "359fb9c85ec4": {
   "who": "lou",
   "mood": "calm",
   "kind": "replique",
-  "text": "Je veux pas rentrer. Un adulte à la maison me touche, et il m’a dit de rien dire. Tu gardes le secret, hein ?"
+  "text": "Je… je veux pas rentrer. Y a un adulte, à la maison… il me touche. Et il m’a dit de rien dire. Tu gardes le secret, hein ?"
  },
- "d8d32cda6ae2": {
+ "5b040b3772fe": {
   "who": "lou",
   "mood": "calm",
   "kind": "replique",
-  "text": "Tu gardes le secret, hein ?"
+  "text": "Tu… tu gardes le secret, hein ?"
  },
  "ad7c99d625ca": {
   "who": "narr",
@@ -444,17 +444,17 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Merci…"
  },
- "a57df1fb9d38": {
+ "02b2266ee55a": {
   "who": "lou",
   "mood": "concern",
   "kind": "replique",
-  "text": "…Je sais pas. Laisse tomber."
+  "text": "Euh… je sais pas. Laisse tomber."
  },
- "be7edd019831": {
+ "ca88afb729eb": {
   "who": "lou",
   "mood": "calm",
   "kind": "replique",
-  "text": "Tu vas le dire à qui ?"
+  "text": "Tu vas… tu vas le dire à qui ?"
  },
  "c63bdc02f78c": {
   "who": "narr",
@@ -468,11 +468,11 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "On ne garantit ni une peine, ni l’absence de conséquence familiale."
  },
- "869c6c2dfcb7": {
+ "8fec5aa6db60": {
   "who": "lou",
   "mood": "concern",
   "kind": "replique",
-  "text": "Tu avais promis…"
+  "text": "Mais… t’avais promis…"
  },
  "27a7dd742742": {
   "who": "lou",
@@ -480,11 +480,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "D’accord…"
  },
- "0111d6b4a50d": {
+ "3ec6f59ab6ff": {
   "who": "lou",
   "mood": "o",
   "kind": "replique",
-  "text": "En prison ?!"
+  "text": "Euh… en prison ?!"
  },
  "c65c155ad5a6": {
   "who": "lou",
@@ -516,17 +516,17 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Qui encadre nos enfants, et comment savoir qu’ils sont en sécurité ?"
  },
- "412959d79a0c": {
+ "2a4a1effb0e6": {
   "who": "maelys",
   "mood": "calm",
   "kind": "replique",
-  "text": "Je peux te parler ? … Hier, pendant le rangement du local, l’intervenant de l’atelier bois m’a imposé des attouchements."
+  "text": "Je… je peux te parler ? … Hier, quand on rangeait le local… le monsieur de l’atelier bois, il m’a touchée. Là où il a pas le droit. Moi, je voulais pas."
  },
- "52672d898157": {
+ "66c67e748da8": {
   "who": "maelys",
   "mood": "concern",
   "kind": "replique",
-  "text": "Je ne veux plus entrer dans cette pièce. Et il y a atelier bois à 15 h."
+  "text": "Je veux plus aller là-bas. Et… y a atelier bois à 15 h."
  },
  "b1ea2f4c85c3": {
   "who": "garnier",
@@ -582,11 +582,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Toute l’équipe ? Et Maëlys, dans tout ça ?"
  },
- "23a4df0eae8b": {
+ "c0e7218b2af4": {
   "who": "maelys",
   "mood": "calm",
   "kind": "replique",
-  "text": "Je vais avoir des problèmes ?"
+  "text": "Je… je vais avoir des problèmes ?"
  },
  "48a34342df10": {
   "who": "narr",
@@ -690,11 +690,23 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles."
  },
+ "28735a2d9373": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Une fois que Nour vous a donné ces informations, elle vous accompagne à la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme un instant, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui."
+ },
  "1b77d962ceba": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine."
+ },
+ "9950896bce49": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs."
  },
  "328e8bd93066": {
   "who": "narr",
@@ -774,11 +786,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité. Rien d’inquiétant : le départ des enfants est contrôlé."
  },
- "5e7a6b8eb7c6": {
+ "5d24c034d9c5": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Lundi, 14 h. Après le repas, Nour t’envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
+  "text": "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
  },
  "ac0e5cd41a17": {
   "who": "narr",
@@ -816,6 +828,12 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Léna retourne à ses textes. À la fin de la semaine, aucune fille n’a touché la console. Léna a pourtant demandé deux fois. Un choix orienté par une consigne de l’adulte n’est pas un choix libre. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
  },
+ "0ca0b3afcc7c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "17 h 30. Les enfants sont repartis avec leurs familles : votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet."
+ },
  "493011b45f06": {
   "who": "nour",
   "mood": "",
@@ -846,17 +864,17 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle."
  },
- "a3b136fc67cd": {
+ "064502019e71": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et te fait signe."
+  "text": "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe."
  },
- "b326bf944668": {
+ "a1402e704dd2": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "12 h 15, au réfectoire. Bastien s’assoit en face de toi. Il a vu Inès te parler ce matin, et il revient sur les remarques faites au briefing."
+  "text": "12 h 15, au réfectoire. Bastien s’assoit en face de vous. Il a vu Inès vous parler ce matin, et il revient sur les remarques faites au briefing."
  },
  "62ce693b69ca": {
   "who": "narr",
@@ -906,11 +924,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
- "e8a25ba8ffa4": {
+ "b3fd78d06831": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "14 h, temps calme chez les 6-8 ans. Jade te montre un dessin de Théo, 8 ans, et te parle de lui."
+  "text": "14 h, c’est le temps calme. Jade vous montre un dessin de Théo, 8 ans, et vous parle de lui."
  },
  "7ac353ef9e53": {
   "who": "narr",
@@ -960,17 +978,17 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
  },
- "2f9d999facf9": {
+ "d6e47ef5ed77": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
+  "text": "Les activités de l’après-midi se terminent : vous accompagnez les enfants jusqu’au portail. Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. Monsieur Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler."
  },
- "3c08f68cafda": {
+ "7bdc61b491cd": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "18 h. Le papa de Zoé est reparti. Tu rejoins la salle des animateurs pour le point du soir. En sortant ton téléphone, tu découvres la conversation de groupe de l’équipe, écrite pendant l’après-midi."
+  "text": "18 h. Le papa de Zoé est reparti. Vous rejoignez la salle des animateurs pour le point du soir. En sortant votre téléphone, vous découvrez la conversation de groupe de l’équipe, écrite pendant l’après-midi."
  },
  "d6447edb4168": {
   "who": "narr",
@@ -1008,6 +1026,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Que faites-vous ? Sélectionnez toutes les actions utiles."
  },
+ "d63629e0662b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Fin de la deuxième journée. Avant que vous rentriez chez vous, Nour vous laisse une nouvelle page de son carnet."
+ },
  "bce19bfbda14": {
   "who": "nour",
   "mood": "",
@@ -1020,11 +1044,11 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mercredi, jour 3 sur 5. La grosse journée. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
  },
- "c4b633f9f078": {
+ "d2cc39b4ec48": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Monsieur Garnier, le directeur, réunit l’équipe : il manque quelqu’un aujourd’hui."
+  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Monsieur Garnier, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
  },
  "f3e1bc072749": {
   "who": "narr",
@@ -1050,17 +1074,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Le film calme la matinée, mais rien n’est prévu pour les sanitaires ni pour l’après-midi. Réduire l’activité peut aider, mais ne règle ni l’encadrement ni l’accompagnement : il faut un renfort."
  },
- "54c8757504e6": {
+ "4c307755c28e": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
+  "text": "La réunion est finie. Le portail ouvre, et vous prenez votre poste d’accueil. Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas."
  },
- "e5861619be70": {
+ "700ca5979b40": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin."
+  "text": "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin, et vous la rejoignez."
+ },
+ "fb0b1b880b57": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "La matinée et le repas sont passés. Mercredi, 15 h : c’est le temps libre, les enfants sont partout sur le terrain."
  },
  "a0862c264630": {
   "who": "narr",
@@ -1068,11 +1098,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la."
  },
- "cbaf66e50c7d": {
+ "c39856a4a668": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 16 h. Après le temps libre, Nour te retrouve en salle des animateurs, son carnet à la main."
+  "text": "Mercredi, 16 h. Après ce que vous a dit Léna, Nour vous retrouve, son carnet à la main."
  },
  "ea3e60130230": {
   "who": "narr",
@@ -1110,6 +1140,12 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Les circonstances comptent pour apprécier le consentement, mais elles ne transforment jamais un silence en accord. Pour faire mieux : Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement."
  },
+ "f1358db7c0a3": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Mercredi, 18 h. Les enfants de la journée sont repartis. Pendant que vous rangez la salle des animateurs, Kévin s’approche de vous, l’air gêné."
+ },
  "f5a87a4beeb4": {
   "who": "narr",
   "mood": "",
@@ -1128,6 +1164,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Quels arguments lui opposer ? Sélectionnez tous ceux qui sont justes."
  },
+ "b203b1d13be2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Après le dîner, une partie de l’équipe reste dormir sur place avec les enfants : vous en faites partie."
+ },
  "c86cf4975c0d": {
   "who": "narr",
   "mood": "",
@@ -1145,6 +1187,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Dans l’organisation de la nuit, qu’est-ce qui protège, et qu’est-ce qui expose ?"
+ },
+ "886cb3ee8f48": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "La soirée s’est bien passée et tout le monde est couché. Vous êtes de veille avec Bastien, près du dortoir."
  },
  "a1fff73096f8": {
   "who": "narr",
@@ -1176,11 +1224,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Les parents arrivent à 0 h 30. Sacha aurait pu être rassuré sur place. C’est possible si la détresse dure, mais on commence par rassurer l’enfant sur place, dans un cadre sûr. Pour faire mieux : Rassurer près du lit de l’enfant, à deux adultes, sans l’isoler. Les règles de la nuit se décident avant la nuitée, avec toute l’équipe."
  },
+ "3a698978ddcc": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Le lendemain matin, Nour vous laisse une page de son carnet sur la nuitée."
+ },
  "149607e064ef": {
   "who": "nour",
   "mood": "",
   "kind": "carnet",
   "text": "La nuitée En accueil de loisirs, une nuitée est une activité accessoire : d’une à quatre nuits, prévue dans le projet pédagogique, avec des locaux de couchage déclarés. La nuit, les risques changent : fatigue, peur, intimité, isolement. On les anticipe : espaces séparés, adultes identifiés, jamais seul dans un lit ou une pièce fermée avec un enfant. Aucune photo ni vidéo des enfants au coucher, en pyjama ou à la toilette."
+ },
+ "63f7ad9dc119": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "La grosse journée du mercredi est terminée. Nour vous laisse une page de son carnet pour en garder l’essentiel."
  },
  "a669495c8d95": {
   "who": "nour",
@@ -1194,6 +1254,12 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Jeudi, jour 4 sur 5. La parole d’un enfant. Accueillir une révélation, protéger et alerter les bons relais à temps."
  },
+ "08a1f8bc5e4b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Jeudi, 16 h. La journée s’est déroulée sans histoire. Dans la cour, les enfants jouent en attendant leurs parents."
+ },
  "caf6a003df08": {
   "who": "narr",
   "mood": "",
@@ -1206,17 +1272,41 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La personne que Lou désigne doit venir le chercher dans une heure."
  },
+ "30ee63330fda": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vous emmenez Lou un peu à l’écart, dans la salle d’activités libre, pour l’écouter au calme, la porte ouverte."
+ },
+ "16dca3631796": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Lou a parlé. Vous l’avez écouté sans le questionner, et il est toujours à côté de vous."
+ },
  "0eb446a99338": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro."
  },
+ "85061d71868a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter."
+ },
  "28a7a150d384": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Triez les cartes Actions pour la situation de Lou."
+ },
+ "241b450c4047": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Tout s’est enchaîné très vite. Avec Nour, vous reprenez les dix premières minutes qui ont suivi la parole de Lou."
  },
  "ad9b3c52ae4d": {
   "who": "narr",
@@ -1236,11 +1326,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Des enfants vous appellent : le ballon est coincé sur le toit du préau."
  },
- "087ae2d50c95": {
+ "252ff74b7694": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Lou vous demande tout bas : Tu vas le dire à qui ?"
+  "text": "Lou vous demande tout bas : Tu vas… tu vas le dire à qui ?"
+ },
+ "2d714cc90757": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "17 h. Nour vous demande de tenir le portail pendant qu’elle reste avec Lou."
  },
  "d01844fd35aa": {
   "who": "narr",
@@ -1248,11 +1344,23 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Les gendarmes sont dans le bureau avec Nour et Lou. Au portail, les familles arrivent. Vérifiez chaque départ avec les fiches d’inscription de votre carnet."
  },
+ "ed9f2b772c3b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "17 h 20. Tous les enfants sont partis. Dans le bureau de la direction, vous écrivez ce que vous avez vu et entendu, pendant que c’est encore frais."
+ },
  "345da754562c": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Cochez ce qui doit figurer dans votre transmission."
+ },
+ "6eacf52b4d16": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Fin d’une journée difficile. Avant que vous partiez, Nour vous laisse une page de son carnet."
  },
  "67a27a459da7": {
   "who": "nour",
@@ -1271,6 +1379,18 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Vendredi, 8 h 30. Dernier briefing de la semaine : Nour veut que l’on tire les leçons de ce qui s’est passé."
+ },
+ "d137633241b7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous confie une mission pour la matinée : rendre la prévention visible à l’accueil, pour les enfants comme pour les adultes."
+ },
+ "0a5cdbe7843a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Devant le panneau d’affichage, Bastien vous rattrape : il a une idée."
  },
  "be20a8a13f22": {
   "who": "narr",
@@ -1295,6 +1415,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Les jeunes signent. Les pratiques des adultes, elles, ne changent pas. Faire porter l’engagement aux jeunes déplace la responsabilité : c’est d’abord l’organisation des adultes qui doit changer. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
+ },
+ "d49832d2e1c4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vendredi, 10 h. Dans le bureau de la direction, Nour vous montre un message arrivé ce matin."
  },
  "2e6f94c7ad06": {
   "who": "narr",
@@ -1344,11 +1470,11 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants. La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
  },
- "4ffee5acb03a": {
+ "5dba04d5d65b": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir te voir."
+  "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir vous voir."
  },
  "f845a209bc08": {
   "who": "narr",
@@ -1386,23 +1512,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "19aa40064fef": {
+ "d5f582516648": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Pour comprendre ce qui s’est passé au local, tu retrouves Sacha, qui participait au rangement hier, dans la salle des grands."
+  "text": "13 h 20. Pour comprendre ce qui s’est passé au local, vous retrouvez Sacha, qui participait au rangement hier, dans la salle des grands."
  },
- "429b7844d134": {
+ "e484cdc724d3": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Sacha, 11 ans, vient vous voir : J’ai vu un truc à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+  "text": "Sacha, 11 ans, vient vous voir : Euh… j’ai vu un truc, à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
- "43c2490d3607": {
+ "b93c9594f2e2": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "13 h 40. Tu as écouté Maëlys et Sacha. Il faut prévenir la direction : tu vas trouver Monsieur Garnier dans son bureau."
+  "text": "14 h. Maëlys attend à l’infirmerie, avec Nour. Vous allez la rejoindre."
  },
  "a84e2fa7d02c": {
   "who": "narr",
@@ -1416,17 +1542,35 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Que pouvez-vous lui dire ? Sélectionnez toutes les phrases justes."
  },
+ "313d3c336dc7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "La semaine touche à sa fin. Nour vous laisse la dernière page de son carnet."
+ },
  "b2fade9fef73": {
   "who": "nour",
   "mood": "",
   "kind": "carnet",
   "text": "Une prévention qui se voit Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable. Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables. Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe. L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement. Un contrôle d’honorabilité ne remplace jamais cette vigilance."
  },
+ "4a01778ac119": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vendredi, 17 h 30. Les enfants sont partis. Vous revenez dans la salle des animateurs, là où tout a commencé lundi. Les mêmes questions vous reviennent en tête."
+ },
  "abbe2c6b9de5": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
+ },
+ "c0e7f5a146bd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "18 h. Avant de quitter les Hautes Herbes, vous repensez aux moments forts de la semaine."
  },
  "ee09ad6f73ae": {
   "who": "narr",
@@ -1806,11 +1950,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "À retenir. Le fond était juste : respecter le refus et proposer une alternative. La forme compte aussi : une consigne se corrige entre adultes, à l’écart des enfants."
  },
- "61fd58a02d1d": {
+ "51c5540533b2": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Léna, à voix basse : Enzo a pris Clara en photo dans les vestiaires. Il dit qu’il va l’envoyer au groupe des grands."
+  "text": "Léna, à voix basse : Euh… Enzo, il a pris Clara en photo… dans les vestiaires. Et il dit qu’il va l’envoyer au groupe des grands."
  },
  "7097380438ae": {
   "who": "narr",
@@ -2106,23 +2250,23 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Juste : vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
  },
- "83a19b97e08a": {
+ "0060e05354d3": {
   "who": "sacha",
   "mood": "",
   "kind": "replique",
-  "text": "J’ai vu le monsieur de l’atelier bois fermer la porte de la régie. Maëlys était dedans."
+  "text": "Ben… j’ai vu le monsieur, euh… celui de l’atelier bois. Il a fermé la porte de la régie. Et Maëlys, elle était dedans."
  },
- "77ba03246df8": {
+ "b1bcf572a890": {
   "who": "sacha",
   "mood": "",
   "kind": "replique",
-  "text": "À la fin de l’atelier, quand on rangeait les outils."
+  "text": "C’était… à la fin de l’atelier. Quand on rangeait les outils, tout ça."
  },
- "bc6ebd514b68": {
+ "89ef79cb656f": {
   "who": "sacha",
   "mood": "",
   "kind": "replique",
-  "text": "Après, elle est sortie. Elle pleurait, et elle est partie aux toilettes."
+  "text": "Après… elle est sortie. Elle pleurait. Et elle est partie aux toilettes en courant."
  },
  "b0981ece06b5": {
   "who": "sacha",
@@ -2148,11 +2292,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "D’accord…"
  },
- "e2b2f5389229": {
+ "a2def1371cd0": {
   "who": "sacha",
   "mood": "",
   "kind": "replique",
-  "text": "D’accord. Maëlys, elle va bien ?"
+  "text": "D’accord. Et… Maëlys, elle va bien ?"
  },
  "8eeca0d22d4a": {
   "who": "narr",

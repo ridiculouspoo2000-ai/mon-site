@@ -2,7 +2,7 @@
 (() => {
   const L = window.VOIX_LIGNES, list = document.getElementById('v-list'), st = document.getElementById('v-status'), diag = document.getElementById('v-diag');
   fetch('/api/voix?a=test', { cache: 'no-store' }).then(r => r.json()).then(j => { diag.textContent = j.ok ? `Connexion à ElevenLabs réussie · offre ${j.offre} · caractères utilisés ${j.caracteres}` + (j.restants != null ? ` · il reste ${j.restants} caractères (régénérer toutes les voix en demande environ 2 300)` : '') + (j.renouvellement ? ` · crédits renouvelés le ${new Date(j.renouvellement * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}` : '') + '.' : 'Diagnostic : ' + j.detail; diag.dataset.kind = j.ok ? 'ok' : 'error'; }).catch(() => { diag.textContent = 'Diagnostic indisponible.'; });
-  const names = { nour: 'Nour', bastien: 'Bastien', ines: 'Inès', jade: 'Jade', kevin: 'Kévin', garnier: 'M. Garnier', lou: 'Lou', malo: 'Malo', maelys: 'Maëlys', narr: 'Narration', e_maman: 'Prélude · maman, voisine', e_papa: 'Prélude · papa, père', e_anim: 'Prélude · animateur, adulte', e_fille: 'Prélude · petite fille', e_animatrice: 'Prélude · animatrice', e_ado: 'Prélude · ado', e_ado_f: 'Prélude · adolescente', e_garcon: 'Prélude · petit garçon' };
+  const names = { nour: 'Nour', bastien: 'Bastien', ines: 'Inès', jade: 'Jade', kevin: 'Kévin', garnier: 'M. Garnier', lou: 'Lou', sacha: 'Sacha', malo: 'Malo', maelys: 'Maëlys', narr: 'Narration', e_maman: 'Prélude · maman, voisine', e_papa: 'Prélude · papa, père', e_anim: 'Prélude · animateur, adulte', e_fille: 'Prélude · petite fille', e_animatrice: 'Prélude · animatrice', e_ado: 'Prélude · ado', e_ado_f: 'Prélude · adolescente', e_garcon: 'Prélude · petit garçon' };
   const audio = new Audio();
   L.forEach((l, i) => {
     const li = document.createElement('li');
@@ -36,7 +36,51 @@
 
   /* ---------- Distribution : choisir une voix parisienne par personnage ---------- */
   const grid = document.getElementById('c-grid'), cst = document.getElementById('c-status'), out = document.getElementById('c-out');
-  const preview = new Audio(); let data = null;
+  const preview = new Audio(); let data = null; const enfants = [];
+  // Une carte de voix (cases à cocher, écoute, ajout au compte ElevenLabs si besoin)
+  function carte(who, p, v, wrap, f0) {
+    const lab = document.createElement('label'); lab.className = 'c-v';
+    lab.innerHTML = '<span class="row"><b></b><input type="radio"></span><small></small><span class="row"><button type="button" class="di-btn">Écouter</button><span class="c-actuelle"></span></span>';
+    lab.querySelector('b').textContent = v.nom;
+    const zone = f0 ? (f0 >= 250 ? 'hauteur d’une voix d’enfant' : f0 >= 200 ? 'voix de femme aiguë' : 'voix adulte') : '';
+    lab.querySelector('small').textContent = [f0 ? `≈ ${f0} Hz · ${zone}` : '', v.accent && (/paris/i.test(v.accent) ? 'accent parisien' : 'français standard'), v.langue && v.langue !== 'fr' ? 'voix étrangère vérifiée en français' : '', v.description].filter(Boolean).join(' · ');
+    const r = lab.querySelector('input'); r.name = 'c-' + who; r.value = v.id; r.dataset.nom = v.nom;
+    if (v.id === p.actuelle) { r.checked = true; lab.querySelector('.c-actuelle').textContent = 'voix actuelle'; }
+    lab.querySelector('button').addEventListener('click', e => { e.preventDefault(); preview.src = '/api/voix?a=apercu&u=' + encodeURIComponent(v.ecoute); preview.play().catch(() => {}); });
+    if (v.surLeCompte === false && v.proprio) {
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'di-btn'; add.textContent = 'Ajouter à mon compte ElevenLabs';
+      add.title = 'Nécessaire pour que le jeu puisse utiliser cette voix (une place de voix sur votre compte).';
+      add.addEventListener('click', async e => { e.preventDefault(); add.disabled = true; add.textContent = 'Ajout…';
+        try { const j = await fetch('/api/voix?a=ajouter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: v.id, proprio: v.proprio, nom: v.nom }) }).then(r => r.json());
+          add.textContent = j.ok ? 'Ajoutée à votre compte ✓' : 'Échec : ' + (j.detail || j.error || ''); if (!j.ok) add.disabled = false; } catch (_) { add.textContent = 'Échec'; add.disabled = false; } });
+      lab.lastElementChild.append(add);
+    } else if (v.surLeCompte) { const ok = document.createElement('span'); ok.className = 'c-actuelle'; ok.textContent = ' · déjà sur votre compte'; lab.lastElementChild.append(ok); }
+    wrap.append(lab);
+  }
+  // Hauteur de voix (fréquence fondamentale) mesurée dans le navigateur sur l’extrait gratuit de chaque voix
+  async function f0De(url) {
+    const r = await fetch('/api/voix?a=apercu&u=' + encodeURIComponent(url)); if (!r.ok) return 0;
+    const ac = new OfflineAudioContext(1, 16000, 16000); let b; try { b = await ac.decodeAudioData(await r.arrayBuffer()); } catch (_) { return 0; }
+    const sr = b.sampleRate, x = b.getChannelData(0), N = Math.floor(sr * .03), hop = Math.floor(sr * .04), mi = Math.floor(sr / 650), ma = Math.floor(sr / 70), F = [];
+    for (let s0 = 0; s0 < Math.min(x.length - N - ma, sr * 8); s0 += hop) {
+      let e = 0; for (let i = 0; i < N; i++) e += x[s0 + i] * x[s0 + i]; if (e / N < 1e-4) continue;
+      let best = 0, bl = 0; for (let L = mi; L <= ma; L++) { let c = 0, e2 = 0; for (let i = 0; i < N; i++) { c += x[s0 + i] * x[s0 + i + L]; e2 += x[s0 + i + L] * x[s0 + i + L]; } const q = c / Math.sqrt(e * e2 + 1e-12); if (q > best) { best = q; bl = L; } }
+      if (best > .75) F.push(sr / bl);
+    }
+    if (F.length < 8) return 0; F.sort((a, b) => a - b); return Math.round(F[F.length >> 1]);
+  }
+  async function hauteurs() {
+    if (!enfants.length) return;
+    const tous = new Map(); enfants.forEach(([p]) => p.voix.forEach(v => tous.set(v.id, v)));
+    const H = new Map(); let i = 0; const L = [...tous.values()];
+    enfants.forEach(([, wrap]) => { wrap.textContent = 'Mesure de la hauteur des voix…'; });
+    await Promise.all(Array.from({ length: 4 }, async () => { while (i < L.length) { const v = L[i++]; H.set(v.id, await f0De(v.ecoute).catch(() => 0)); } }));
+    for (const [p, wrap] of enfants) {
+      wrap.textContent = '';
+      const who = Object.keys(data.personnages).find(k => data.personnages[k] === p);
+      p.voix.slice().sort((a, b) => (H.get(b.id) || 0) - (H.get(a.id) || 0)).slice(0, 8).forEach(v => carte(who, p, v, wrap, H.get(v.id)));
+    }
+  }
   fetch('/api/voix?a=casting').then(r => r.json()).then(j => {
     data = j;
     const P = j.personnages || {};
@@ -47,20 +91,12 @@
       box.querySelector('h3').textContent = p.nom; box.querySelector('p').textContent = p.role;
       const wrap = box.querySelector('.c-voix');
       if (!p.voix.length) wrap.textContent = 'Aucune voix trouvée pour ce profil.';
-      p.voix.forEach((v, k) => {
-        n++;
-        const lab = document.createElement('label'); lab.className = 'c-v';
-        lab.innerHTML = '<span class="row"><b></b><input type="radio"></span><small></small><span class="row"><button type="button" class="di-btn">Écouter</button><span class="c-actuelle"></span></span>';
-        lab.querySelector('b').textContent = v.nom;
-        lab.querySelector('small').textContent = [v.accent && (/paris/i.test(v.accent) ? 'accent parisien' : 'français standard'), ({ young: 'jeune', middle_aged: 'âge moyen', old: 'âgée' })[v.age], v.description].filter(Boolean).join(' · ');
-        const r = lab.querySelector('input'); r.name = 'c-' + who; r.value = v.id; r.dataset.nom = v.nom;
-        if (v.id === p.actuelle) { r.checked = true; lab.querySelector('.c-actuelle').textContent = 'voix actuelle'; }
-        lab.querySelector('button').addEventListener('click', e => { e.preventDefault(); preview.src = '/api/voix?a=apercu&u=' + encodeURIComponent(v.ecoute); preview.play().catch(() => {}); });
-        wrap.append(lab);
-      });
+      if (p.enfant) { enfants.push([p, wrap, box]); box.classList.add('c-enfant'); box.querySelector('p').textContent += ' · Voix classées de la plus aiguë à la plus grave (mesurées sur leurs extraits).'; grid.append(box); return; }
+      p.voix.forEach((v) => { n++; carte(who, p, v, wrap, 0); });
       grid.append(box);
     });
     cst.textContent = n ? `${n} voix à l’accent parisien proposées. Les écoutes sont gratuites.` : 'Aucune voix trouvée.';
+    hauteurs();
     if (j.erreurs && j.erreurs.length) { cst.textContent += ' Détail : ' + j.erreurs[0]; cst.dataset.kind = 'error'; }
   }).catch(() => { cst.textContent = 'Impossible de charger la bibliothèque de voix.'; cst.dataset.kind = 'error'; });
   document.getElementById('c-copy').addEventListener('click', async () => {

@@ -715,7 +715,7 @@ const REPLAY = {
 // Ce que dit la narration en entrant dans une salle (pour toujours savoir où l'on est).
 const ROOM_SAY = {
   petits: "Vous entrez dans la salle des petits, celle des 3 à 6 ans.", grands: "Vous êtes dans la salle des grands.", direction: "Vous êtes à l’accueil, dans le bureau de la direction.",
-  equipe: "Vous êtes dans la salle des animateurs.", cuisine: "Vous entrez dans la cuisine pédagogique.", refectoire: "Vous êtes à la restauration scolaire.",
+  equipe: "Vous êtes dans la salle des animateurs.", cuisine: "Vous entrez dans la cuisine pédagogique.", refectoire: "Vous êtes à la restauration.",
   soins: "Vous êtes à l’infirmerie.", sanitaires: "Vous êtes aux sanitaires.", local: "Vous entrez dans la régie, le local du matériel.", radio: "Vous êtes à l’atelier radio.",
   libre: "Vous êtes dans la salle d’activités libre.", dortoir: "C’est la nuitée : la salle des petits est devenue un dortoir.",
 };

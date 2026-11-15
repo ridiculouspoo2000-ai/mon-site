@@ -1790,12 +1790,8 @@
     }
     // Les mots apparaissent au moment où on les entend (ou au rythme de lecture, sans voix).
     let raf = 0;
-    function reveal(f, getP) {
-      cancelAnimationFrame(raf);
-      const ws = f.querySelectorAll(".wd");
-      const tick = () => { const pr = Math.min(1, getP()); const k = Math.ceil(pr * ws.length * 1.06); for (let i = 0; i < Math.min(k, ws.length); i++) ws[i].classList.add("sp"); if (pr < 1 && alive) raf = requestAnimationFrame(tick); };
-      raf = requestAnimationFrame(tick);
-    }
+    // La phrase apparaît en entier, doucement (du flou au net), dès que la voix commence : plus de décalage mot à mot.
+    function reveal(f) { cancelAnimationFrame(raf); f.classList.add("lit"); }
     function outro() {
       if (!alive) return;
       field.classList.add("done"); end.hidden = false; outP.innerHTML = words(ECHOES.outro);
@@ -1819,6 +1815,7 @@
       audio.onended = () => { f.querySelectorAll(".wd").forEach((w) => w.classList.add("sp")); nextOnce(calm() ? 300 : 60); };
       audio.onerror = () => { byTime(); nextOnce(read); };
       audio.onplaying = () => reveal(f, () => audio.currentTime / audDur(audio, line.t));
+      setTimeout(() => { if (my === token && alive) reveal(f); }, 2200);   // si la voix tarde, la phrase apparaît quand même
       audio.src = u;
       const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { byTime(); nextOnce(read); });
       timer = setTimeout(() => nextOnce(0), Math.max(read, 9000));   // garde-fou si l’audio ne répond pas
@@ -2456,7 +2453,7 @@
       { skin: "brune", hair: "tresses", hc: "noir", top: "#2F8F8A", cut: "pull", eyes: "marron", nose: 1 },
       { skin: "claire", hair: "court", hc: "chatain", top: "#3C6FB8", cut: "sweat", eyes: "marron", nose: 1 },
       { skin: "doree", hair: "boucles", hc: "brun", top: "#5E8A4E", cut: "pull", glasses: "rondes", eyes: "marron", nose: 1 },
-      { skin: "ebene", hair: "rase", hc: "noir", top: "#E0A63A", cut: "pull", barbe: true, eyes: "marron", nose: 1 },
+      { skin: "ebene", hair: "rase", hc: "noir", top: "#E0A63A", cut: "pull", eyes: "marron", nose: 1 },
     ];
     let cacheKey = "", cache = null;
     const POSES = ["stand", "talk", "wave", "walk", "point", "sit"];
@@ -2547,7 +2544,21 @@
       hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { st = prev; st.settings = st.settings || { calm: false }; allOn(); begin(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
       hb.appendChild(btn("Nouvelle partie", () => { allOn(); begin(); restart(); }, "ghost light"));
     } else hb.appendChild(btn("Commencer", () => { allOn(); begin(); prelude(() => go(0)); }));
-    hb.appendChild(btn("Classement", openBoard, "ghost light rkb"));
+    // Le classement, toujours visible sur l’accueil (sans bouton à ouvrir)
+    const rk = el("aside", { class: "hrank", "aria-labelledby": "hr-h" });
+    rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Le podium</h2><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol><p class="hr-foot"></p>`;
+    // ordinateur : à droite, sur les herbes ; téléphone et tablette : juste sous le bouton « Commencer »
+    const mq = matchMedia("(max-width: 960px)"), place = () => { if (mq.matches) hb.after(rk); else n.appendChild(rk); };
+    place(); try { mq.addEventListener("change", place); } catch (e) { }
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
+      const list = rk.querySelector(".hr-list"), foot = rk.querySelector(".hr-foot");
+      if (!j || !j.ok) { list.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; return; }
+      const top = (j.top || []).slice(0, 5);
+      list.innerHTML = top.length ? top.map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`).join("")
+        : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`;
+      foot.innerHTML = j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} · <button type="button" class="hr-all">Voir le top 20</button>` : "Score sur 1 000, à la fin du vendredi.";
+      const all = foot.querySelector(".hr-all"); if (all) all.addEventListener("click", openBoard);
+    }).catch(() => { rk.querySelector(".hr-list").innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; });
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }

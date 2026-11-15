@@ -1598,7 +1598,74 @@
     const i = SCREENS.findIndex((s) => s.ch === ch && s.type === "chapter");
     go(i);
   }
-  function restart() { const keep = st.settings; st = fresh(); st.settings = keep; save(); Snd.click(); go(0); }
+  function restart() { const keep = st.settings; st = fresh(); st.settings = keep; save(); Snd.click(); prelude(() => go(0)); }
+
+  // Prélude d’une nouvelle partie : des phrases entendues tous les jours, dites par des voix différentes,
+  // qui s’accumulent puis s’estompent comme des échos. Une seule source audio, lancée pendant le clic
+  // (iPhone et Android n’autorisent le son qu’ainsi), puis réutilisée phrase après phrase.
+  function prelude(done) {
+    if (DC.el) DC.el.hidden = true;
+    hud(false); Voice.stop();
+    if (World.el) { World.el.classList.remove("on"); World.cur = null; }
+    document.body.classList.remove("athome", "live");
+    stage.innerHTML = "";
+    const n = el("section", { class: "screen echoes in", "aria-labelledby": "h-echoes" });
+    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i></div>
+      <h2 id="h-echoes" class="sr-only">Prélude : des phrases entendues tous les jours</h2>
+      <div class="ec-field"></div><div class="ec-end" hidden><p class="ec-out"></p></div>`;
+    const field = n.querySelector(".ec-field"), end = n.querySelector(".ec-end"), outP = n.querySelector(".ec-out");
+    let alive = true, timer = null, idx = 0, token = 0;
+    const L = ECHOES.lines, voiceOn = !!(Voice.ok && Voice.ready && st.settings.voice);
+    const audio = voiceOn ? new Audio() : null;
+    if (audio) audio.preload = "auto";
+    const finish = () => {
+      if (!alive) return; alive = false; clearTimeout(timer);
+      if (audio) { try { audio.pause(); } catch (e) { } audio.removeAttribute("src"); }
+      Voice.stop(); Snd.duck(false); Snd.click(); done();
+    };
+    const skip = btn("Passer l’introduction", finish, "ghost light"); skip.classList.add("ec-skip");
+    n.appendChild(skip);
+    stage.appendChild(n);
+    // positions éparpillées (en % de la zone), en alternance gauche / droite
+    // ordinateur : trois colonnes décalées (aucun chevauchement) ; téléphone : emplacements alternés, seules les 3 dernières restent visibles
+    const POS = innerWidth < 700
+      ? [[50, 18], [50, 45], [50, 72]]
+      : [[18, 14], [82, 14], [50, 27], [18, 40], [82, 40], [50, 53], [18, 66], [82, 66], [50, 79], [18, 91], [82, 91]];
+    function show(line, k) {
+      field.querySelectorAll(".ec.on").forEach((e, j, all) => { e.classList.add("past"); if (j < all.length - 2) e.classList.add("old"); });
+      const p = POS[k % POS.length];
+      const f = el("figure", { class: "ec", style: `--x:${p[0]}%;--y:${p[1]}%` }, `<blockquote>« ${esc(line.t)} »</blockquote><figcaption>${esc(line.label)}</figcaption>`);
+      field.appendChild(f); requestAnimationFrame(() => requestAnimationFrame(() => f.classList.add("on")));
+      say(line.label + " : " + line.t);
+    }
+    function outro() {
+      if (!alive) return;
+      field.classList.add("done"); end.hidden = false; outP.innerHTML = words(ECHOES.outro);
+      requestAnimationFrame(() => end.classList.add("on"));
+      say(ECHOES.outro);
+      skip.remove();
+      end.appendChild(btn("Entrer aux Hautes Herbes", finish));
+      if (voiceOn) { Snd.duck(false); setTimeout(() => { if (alive) Voice.say("narr", ECHOES.outro, outP); }, 500); }
+    }
+    function step() {
+      if (!alive) return;
+      clearTimeout(timer);
+      if (idx >= L.length) { timer = setTimeout(outro, 900); return; }
+      const line = L[idx], k = idx++, my = ++token;
+      show(line, k);
+      const read = Math.max(1900, 1000 + line.t.length * 55);   // rythme de lecture, sans voix
+      const nextOnce = (delay) => { if (my !== token || !alive) return; clearTimeout(timer); timer = setTimeout(step, delay); };
+      const u = audio && Voice.url(line.who, line.t);
+      if (!u) { nextOnce(read); return; }
+      audio.onended = () => nextOnce(calm() ? 450 : 180);
+      audio.onerror = () => nextOnce(read);
+      audio.src = u;
+      const pr = audio.play(); if (pr && pr.catch) pr.catch(() => nextOnce(read));
+      timer = setTimeout(() => nextOnce(0), Math.max(read, 9000));   // garde-fou si l’audio ne répond pas
+    }
+    Snd.duck(true);
+    step();   // première phrase lancée pendant le clic : le son est autorisé sur téléphone
+  }
 
   /* =============================================================================================
      Nouvelles mécaniques : téléphone, planning, appel d'urgence, portail des familles,
@@ -2093,7 +2160,7 @@
       const sc = SCREENS[prev.idx];
       hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { begin(); st = prev; st.settings = st.settings || { sound: true, calm: false }; applySettings(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
       hb.appendChild(btn("Nouvelle partie", () => { begin(); restart(); }, "ghost light"));
-    } else hb.appendChild(btn("Commencer", () => { begin(); go(0); }));
+    } else hb.appendChild(btn("Commencer", () => { begin(); prelude(() => go(0)); }));
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }

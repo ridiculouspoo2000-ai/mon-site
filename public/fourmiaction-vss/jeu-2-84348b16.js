@@ -31,6 +31,25 @@ const DQ = [
   { id: "D4", t: "On peut protéger et demander de l’aide sans savoir nommer exactement l’infraction.", truth: "Vrai", why: "On n’attend pas d’être certain du nom de l’infraction pour agir : la qualification appartient aux autorités compétentes." },
 ];
 
+// Prélude (nouvelle partie) : des phrases entendues tous les jours, qui résonnent avant d’entrer aux Hautes Herbes.
+// Elles paraissent anodines ; chacune touche aux violences sexistes et sexuelles (consentement, stéréotypes,
+// minimisation, culpabilisation de la victime, silence, secret, doute). Voix : e_* (voir voix.mjs).
+const ECHOES = {
+  lines: [
+    { who: "e_maman", label: "Une maman, au portail", t: "Allez, fais un bisou à tonton, ne fais pas ta timide." },
+    { who: "e_papa", label: "Un papa", t: "Arrête de pleurer, t’es un garçon." },
+    { who: "e_anim", label: "Un animateur", t: "Les filles, vous rangez. Les garçons, vous portez les tables." },
+    { who: "e_fille", label: "Une petite fille, 7 ans", t: "Il m’a soulevé ma jupe devant tout le monde…" },
+    { who: "e_animatrice", label: "Une animatrice", t: "Ce n’est rien, c’est parce qu’il t’aime bien." },
+    { who: "e_ado", label: "Un ado, 15 ans", t: "C’était pour rire. Elle sait pas rigoler." },
+    { who: "e_maman", label: "Une voisine", t: "Habillée comme ça, faut pas s’étonner." },
+    { who: "e_ado_f", label: "Une adolescente, 14 ans", t: "Il m’envoie des messages tous les soirs. J’ose pas en parler." },
+    { who: "e_papa", label: "Un père", t: "Ce qui se passe à la maison, ça ne regarde personne." },
+    { who: "e_garcon", label: "Un petit garçon, 8 ans", t: "Il m’a dit que c’était notre secret." },
+    { who: "e_anim", label: "Un adulte", t: "Elle invente. Elle veut juste se rendre intéressante." },
+  ],
+  outro: "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir.",
+};
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
   { id: "c1", ch: 1, type: "chapter" },

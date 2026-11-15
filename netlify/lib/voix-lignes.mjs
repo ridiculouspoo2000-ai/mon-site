@@ -1,5 +1,77 @@
 // Textes lus à voix haute dans « Les Hautes Herbes » (générés depuis le scénario).
 export const LIGNES = {
+ "b4224bb93fca": {
+  "who": "e_maman",
+  "mood": "",
+  "kind": "echo",
+  "text": "Allez, fais un bisou à tonton, ne fais pas ta timide."
+ },
+ "10c16c54d574": {
+  "who": "e_papa",
+  "mood": "",
+  "kind": "echo",
+  "text": "Arrête de pleurer, t’es un garçon."
+ },
+ "6c99d37229f4": {
+  "who": "e_anim",
+  "mood": "",
+  "kind": "echo",
+  "text": "Les filles, vous rangez. Les garçons, vous portez les tables."
+ },
+ "da1010bf2578": {
+  "who": "e_fille",
+  "mood": "",
+  "kind": "echo",
+  "text": "Il m’a soulevé ma jupe devant tout le monde…"
+ },
+ "552cca72502a": {
+  "who": "e_animatrice",
+  "mood": "",
+  "kind": "echo",
+  "text": "Ce n’est rien, c’est parce qu’il t’aime bien."
+ },
+ "6331514964a3": {
+  "who": "e_ado",
+  "mood": "",
+  "kind": "echo",
+  "text": "C’était pour rire. Elle sait pas rigoler."
+ },
+ "61898e4555a8": {
+  "who": "e_maman",
+  "mood": "",
+  "kind": "echo",
+  "text": "Habillée comme ça, faut pas s’étonner."
+ },
+ "dfdc933fe729": {
+  "who": "e_ado_f",
+  "mood": "",
+  "kind": "echo",
+  "text": "Il m’envoie des messages tous les soirs. J’ose pas en parler."
+ },
+ "ba8bbc3ac043": {
+  "who": "e_papa",
+  "mood": "",
+  "kind": "echo",
+  "text": "Ce qui se passe à la maison, ça ne regarde personne."
+ },
+ "42497b7036de": {
+  "who": "e_garcon",
+  "mood": "",
+  "kind": "echo",
+  "text": "Il m’a dit que c’était notre secret."
+ },
+ "645f9975c9e8": {
+  "who": "e_anim",
+  "mood": "",
+  "kind": "echo",
+  "text": "Elle invente. Elle veut juste se rendre intéressante."
+ },
+ "a47bbbb1746e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir."
+ },
  "20c879fbfeb6": {
   "who": "nour",
   "mood": "big",

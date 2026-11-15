@@ -34,6 +34,15 @@ const DEFAUT = {
   gendarme: "OOiDJrD1goukqfTpiySr", // Greg (au téléphone, la gendarmerie)
   operateur: "nVPCtAFzgyMX3FZKNzH0", // Anna (opératrice du 112)
   narr: "jUHQdLfy668sllNiNTSW",    // Clément · calme et neutre : récit, situations et retours du formateur
+  // Prélude (phrases du quotidien) : voix de la distribution, attribuées à des passants anonymes.
+  e_maman: "nVPCtAFzgyMX3FZKNzH0",       // Anna : une maman, une voisine
+  e_papa: "OOiDJrD1goukqfTpiySr",        // Greg : un papa, un père
+  e_anim: "h5FvD7dtq6DdnVBPv8Ii",        // Max : un animateur, un adulte
+  e_fille: "txtf1EDouKke753vN8SL",       // Jeanne : une petite fille
+  e_animatrice: "zPy2sgLU4pZ7Xrjh87uz",  // Justine : une animatrice
+  e_ado: "jfEwztGDkpbpy89xeku6",         // Steve : un ado
+  e_ado_f: "i6ke7jvmGEVUyV4zjSaT",       // Emilie : une adolescente
+  e_garcon: "mvhJVdVoTWVUtL4keT7W",      // Simon : un petit garçon
 };
 const REGLAGES = {
   // Eleven v4 : stabilité et ressemblance seulement (pas de style). Plus de stabilité = voix plus proche de l’original.
@@ -44,6 +53,10 @@ const REGLAGES = {
   garnier: { stability: 0.6, similarity_boost: 0.85 },
   narr: { stability: 0.55, similarity_boost: 0.8 },
   benali: { stability: 0.45, similarity_boost: 0.8 },
+  // prélude : interprétation plus libre, phrases dites « au passage »
+  e_maman: { stability: 0.38, similarity_boost: 0.8 }, e_papa: { stability: 0.4, similarity_boost: 0.8 }, e_anim: { stability: 0.4, similarity_boost: 0.8 },
+  e_fille: { stability: 0.35, similarity_boost: 0.8 }, e_animatrice: { stability: 0.38, similarity_boost: 0.8 }, e_ado: { stability: 0.35, similarity_boost: 0.8 },
+  e_ado_f: { stability: 0.35, similarity_boost: 0.8 }, e_garcon: { stability: 0.35, similarity_boost: 0.8 },
 };
 function voix() { let o = {}; try { o = JSON.parse(env("ELEVENLABS_VOIX") || "{}"); } catch {} return { ...DEFAUT, ...o }; }
 const modele = () => env("ELEVENLABS_MODELE", "eleven_v4");

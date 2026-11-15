@@ -50,6 +50,18 @@ const ECHOES = {
   ],
   outro: "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir.",
 };
+// Écran du rôle : phrase lue par le narrateur, puis le but du jeu expliqué simplement.
+const ROLE = {
+  voice: "Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes.",
+  goalTitle: "Le but du jeu",
+  goal: [
+    ["Cinq journées", "Du lundi au vendredi, vous vivez une semaine d’animation, avec 48 enfants de 6 à 17 ans."],
+    ["Des choix à faire", "À chaque situation, vous décidez quoi faire. Il n’y a pas toujours une seule bonne réponse, mais certaines protègent mieux les enfants."],
+    ["Quatre gestes à acquérir", "Repérer les faits, nommer le sexisme et les violences, protéger l’enfant et alerter les bonnes personnes, prévenir pour que cela ne se reproduise pas."],
+    ["Un bilan à la fin", "Ce que vous apprenez s’ajoute à votre carnet. Le vendredi, un bilan montre vos points forts et ce qu’il reste à travailler."],
+  ],
+  goalVoice: "Le but du jeu. Pendant cinq journées, vous décidez quoi faire à chaque situation. Votre objectif : repérer, protéger, alerter et prévenir. À la fin de la semaine, un bilan vous montre vos points forts.",
+};
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
   { id: "c1", ch: 1, type: "chapter" },
@@ -68,7 +80,7 @@ const SCREENS = [
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
     intro: "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine." },
   { id: "map", ch: 1, type: "hotspots", comp: "C1", title: "Le tour de l’accueil",
-    intro: "Nour vous fait visiter l’accueil. Six points méritent votre attention, cachés parmi des lieux sans problème. Vous avez deux minutes et deux indices : ouvrez l’œil.", timer: 120, hints: 2,
+    intro: "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous explique à quoi il sert et ce qui s’y passe. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices.", timer: 120, hints: 2,
     spots: [
       { x: 5.8, y: 31.1, w: 23.4, h: 38.2, key: "radio", label: "La salle d’activités", real: true, title: "À la salle d’activités : l’atelier radio", t: "Sur la porte de la salle, le planning de l’atelier : « Garçons à la console, filles aux textes ». Plusieurs filles ont demandé à apprendre le réglage des micros.", lesson: "La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger.", ref: "R01" },
       { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "Salle d’équipe", real: true, title: "Dans la salle d’équipe", t: "Au tableau, la répartition annoncée par le directeur : « Conflits : les hommes. Consoler les enfants : les femmes. »", lesson: "Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles.", ref: "R01" },
@@ -744,7 +756,7 @@ const STAGE = {
   c3: { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "walk"], ["malo", "c"], ["ines", "d", "wave"], ["you", "e"], ["sacha", "f", "walk"]] },
   c4: { at: "entree", cast: [["parent", "a", "talk"], ["lou", "b"], ["kevin", "d", "wave"], ["you", "e"], ["enzo", "c", "walk"]] },
   c5: { at: "entree", cast: [["parent", "a", "walk"], ["clara", "b", "walk"], ["nour", "d", "wave"], ["you", "e"], ["theo", "c"]] },
-  intro: { at: "entree", cast: [["nour", "a", "wave"], ["you", "b"], ["parent", "d", "walk"], ["theo", "c"], ["sacha", "f", "wave"]] },
+  intro: { at: "entree", cast: [["nour", "c", "wave"], ["you", "b"], ["parent", "e", "walk"], ["theo", "a"], ["sacha", "f", "wave"]] },
   dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
   radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["malo", "s1"], ["lena", "s2"], ["clara", "d"]] },
   brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["kevin", "d"], ["jade", "f"]] },

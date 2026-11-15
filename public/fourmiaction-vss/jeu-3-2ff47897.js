@@ -229,7 +229,7 @@
       };
       this._raf = requestAnimationFrame(f);
     },
-    _done() { World.talk(null); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q.length) setTimeout(() => { if (!this._cur && !this._q.length) document.dispatchEvent(new Event("voice-idle")); }, 60); },
+    _done() { World.talk(null); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
@@ -276,7 +276,7 @@
     $("#btn-phone").hidden = !(st.rev && st.rev.phone);
     $("#carnetcount").textContent = st.carnet.length;
     $("#btn-level .lbl").textContent = LV().name;
-    $("#hudav").innerHTML = A.avatars[st.av];
+    $("#hudav").innerHTML = youBust();
     rings(false);
   }
   const RING = { C1: "#2B6FD6", C2: "#8A4FD0", C3: "#E2702A", C4: "#1F9D63" };
@@ -548,7 +548,7 @@
       this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
     },
     actor(who, pose, pct, size, flip, from) {
-      const key = who === "you" ? "av" + st.av : who;
+      const key = who === "you" ? youKey() : who;
       const m = A.minis && A.minis[key]; if (!m) return null;
       const a = el("div", { class: "actor" + (flip ? " flip" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%;--br:${(Math.random() * 3).toFixed(2)}s` },
         `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64">${m[pose || "stand"] || m.stand}</svg>`);
@@ -606,6 +606,7 @@
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; a.style.zIndex = ((A.dio.standZ || {})[S.at] || (A.dio.standZ || {}).ensemble || {})[slot] || Math.round(p[1] * 10); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
+        { const first = (S.cast || []).find(([w]) => w !== "you"); if (first) setTimeout(() => this.gaze(first[0]), 60); }
       }
       // intérieur : on lève le toit du bâtiment, la salle est là, dans le plan, avec ses occupants
       if (S.room && S.room !== this.lastRoom && typeof ROOM_SAY !== "undefined") this.entered = S.room;
@@ -625,7 +626,7 @@
       const svg = w.querySelector("svg"), NS = "http://www.w3.org/2000/svg", L = [];
       (S.cast || []).forEach(([who, slot, pose], k) => {
         const P = IN.sp[slot] || IN.sp.a; if (!P) return;
-        const key = who === "you" ? "av" + st.av : who, m = A.minis[key]; if (!m) return;
+        const key = who === "you" ? youKey() : who, m = A.minis[key]; if (!m) return;
         const ps = P.sit ? "sit" : (pose || "stand");
         const g = document.createElementNS(NS, "g");
         g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${P.y})`);
@@ -680,8 +681,24 @@
       this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`).forEach((a) => { a.classList.remove("upset"); void a.getBoundingClientRect(); a.classList.add("upset"); setTimeout(() => a.classList.remove("upset"), 2600); });
       document.querySelectorAll(`.portrait.chip[data-who="${who}"]`).forEach((a) => { a.classList.add("upset"); setTimeout(() => a.classList.remove("upset"), 2600); });
     },
+    // Regard : chacun tourne les yeux et la tête vers la personne qui parle ; celle qui parle regarde le joueur.
+    gaze(who) {
+      if (!this.el || !who || who === "narr") return;
+      const all = [...this.el.querySelectorAll(".actor, .ractor")].filter((a) => a.offsetParent !== null || a.getBoundingClientRect().width);
+      const sp = all.filter((a) => a.dataset.who === who); if (!sp.length) return;
+      const cx = (a) => { const r = a.getBoundingClientRect(); return r.left + r.width / 2; };
+      const sx = cx(sp[0]), you = all.find((a) => a.dataset.who === "you");
+      const others = all.filter((a) => a.dataset.who !== who);
+      const tx = you ? cx(you) : (others.length ? others.reduce((t, a) => t + cx(a), 0) / others.length : sx);
+      all.forEach((a) => {
+        const d = a.dataset.who === who ? Math.sign(tx - sx) : Math.sign(sx - cx(a));
+        const flipped = a.classList.contains("flip") || !!a.querySelector(".rbody.flip");
+        a.style.setProperty("--lk", String(flipped ? -d : d)); a.classList.add("gaze");
+      });
+    },
     talk(who) {
       if (!this.el) return;
+      if (who && who !== "narr") this.gaze(who);
       const GC = ["g1", "g2", "g3", "g4", "g5", "g6"], MC = ["m1", "m2", "m3"];
       clearInterval(this._gi);
       this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking", ...GC, ...MC));
@@ -771,38 +788,107 @@
   /* ---------- rendus ---------- */
   const R = {};
 
-  // Écran du rôle : même nuit que l’accueil, personnage choisi en grand sous un halo, réglages en sélecteurs.
+  // Écran du rôle, en deux étapes sur la même nuit que l’accueil :
+  // 1. « Votre personnage » : on le crée sur mesure (visage, cheveux, tenue, accessoires) ;
+  // 2. « Le but du jeu » : l’objectif expliqué simplement, le format de l’accueil et le niveau.
   R.avatar = (sc, n) => {
     $("#hud").hidden = true;   // préparation : pas encore de barre d’outils
+    if (!st.look) st.look = { ...LOOK.PRESETS[st.av || 0] };
     n.classList.add("setup2");
-    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 16 : 30)}</div>
-      <div class="su"><div class="su-head"><p class="hk">Avant de commencer</p><h2 id="h-${sc.id}">Votre rôle</h2>
-      <p class="lead">Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Ce jeu porte sur la prévention des violences sexistes et sexuelles : les repérer, protéger les enfants et alerter.</p></div>
-      <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div></div><div class="su-form"></div></div></div>`;
-    const pick = n.querySelector(".su-pick"), big = n.querySelector(".su-big"), form = n.querySelector(".su-form");
-    const drawBig = () => { big.innerHTML = A.avatars[st.av]; big.classList.remove("pop"); void big.offsetWidth; big.classList.add("pop"); };
-    const grid = el("div", { class: "avs", role: "radiogroup", "aria-label": "Choisissez votre personnage" });
-    A.avatars.forEach((svg, i) => {
-      const b = el("button", { class: "av" + (i === st.av ? " sel" : ""), type: "button", role: "radio", "aria-checked": i === st.av ? "true" : "false", "aria-label": "Personnage " + (i + 1) }, svg);
-      b.addEventListener("click", () => { st.av = i; grid.querySelectorAll(".av").forEach((x, j) => { x.classList.toggle("sel", j === i); x.setAttribute("aria-checked", j === i); }); drawBig(); Snd.click(); });
-      grid.appendChild(b);
-    });
-    pick.appendChild(grid); drawBig();
-    const lab = el("label", { for: "pname", class: "flabel" }, "Votre prénom <span>(facultatif)</span>");
-    const inp = el("input", { id: "pname", type: "text", maxlength: "20", autocomplete: "off", placeholder: "Sam", value: st.name || "" });
-    const seg = (label, opts, cur, onPick, cls) => {
-      const g = el("div", { class: "seg " + (cls || ""), role: "radiogroup", "aria-label": label });
-      opts.forEach(([v, t, d]) => {
-        const b = el("button", { class: "segb" + (cur() === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(cur() === v) }, `<b>${t}</b><small>${d}</small>`);
-        b.addEventListener("click", () => { onPick(v); g.querySelectorAll(".segb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
-        g.appendChild(b);
-      });
-      return g;
+    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 16 : 30)}</div><div class="su"></div>`;
+    const su = n.querySelector(".su");
+    const opt = (label, v, cur, extra = "") => `<button type="button" class="ch${cur ? " sel" : ""}" data-v="${esc(String(v))}" aria-pressed="${cur}"${extra}>${label}</button>`;
+    const sw = (col, v, cur, name) => `<button type="button" class="sw${cur ? " sel" : ""}" data-v="${esc(String(v))}" aria-pressed="${cur}" aria-label="${esc(name)}" style="--c:${col}"></button>`;
+    const TOPS = [["#2F8F8A", "Turquoise"], ["#3C6FB8", "Bleu"], ["#0B4F84", "Bleu nuit"], ["#5E8A4E", "Vert"], ["#E0A63A", "Moutarde"], ["#E2702A", "Orange"], ["#C2453D", "Rouge"], ["#B04F8C", "Framboise"], ["#7E5BB8", "Violet"], ["#E9E4DA", "Écru"], ["#6B7480", "Gris"], ["#2F2F35", "Noir"]];
+    const ACC = [["#E2702A", "orange"], ["#C2453D", "rouge"], ["#3C6FB8", "bleu"], ["#2F8F8A", "turquoise"], ["#E8C35A", "jaune"], ["#F2EEE8", "blanc"]];
+    const HAIRS = [["court", "Court"], ["rase", "Rasé"], ["chauve", "Chauve"], ["herisse", "En pointes"], ["boucles", "Bouclé"], ["ondule", "Ondulé"], ["long", "Long"], ["carre", "Carré"], ["chignon", "Chignon"], ["tresses", "Tresses"], ["couettes", "Couettes"]];
+    const HCN = { noir: "Noir", brun: "Brun", chatain: "Châtain", roux: "Roux", blond: "Blond", platine: "Platine", gris: "Gris", poivre: "Poivre et sel", rose: "Rose", bleu: "Bleu", violet: "Violet" };
+    const SKN = { porcelaine: "Très claire", claire: "Claire", doree: "Dorée", olive: "Mate", cuivre: "Cuivrée", brune: "Brune", ebene: "Ébène" };
+    const EYN = { marron: "Marron", noisette: "Noisette", vert: "Verts", bleu: "Bleus", gris: "Gris" };
+    const TABS = {
+      visage: () => {
+        const L = st.look;
+        return `<p class="flabel">Peau</p><div class="sws">${Object.entries(LOOK.SKIN).map(([k, c]) => sw(c, k, L.skin === k, SKN[k])).join("")}</div>`
+          + `<p class="flabel">Yeux</p><div class="sws" data-k="eyes">${Object.entries(LOOK.EYES).map(([k, c]) => sw(c, k, (L.eyes || "marron") === k, EYN[k])).join("")}</div>`
+          + `<p class="flabel">Nez</p><div class="chs" data-k="nose">${[[.86, "Petit"], [1, "Moyen"], [1.14, "Grand"]].map(([v, t]) => opt(t, v, Number(L.nose || 1) === v)).join("")}</div>`
+          + `<p class="flabel">Expression</p><div class="chs" data-k="mood">${[["smile", "Sourire"], ["big", "Grand sourire"], ["calm", "Serein"]].map(([v, t]) => opt(t, v, (L.mood || "smile") === v)).join("")}</div>`;
+      },
+      cheveux: () => {
+        const L = st.look;
+        return `<p class="flabel">Coiffure</p><div class="chs" data-k="hair">${HAIRS.map(([v, t]) => opt(t, v, L.hair === v)).join("")}</div>`
+          + `<p class="flabel">Couleur</p><div class="sws" data-k="hc">${Object.entries(LOOK.HAIR).map(([k, c]) => sw(c, k, L.hc === k, HCN[k])).join("")}</div>`
+          + `<p class="flabel">Barbe et moustache</p><div class="chs" data-k="facial">${[["", "Aucune"], ["moustache", "Moustache"], ["barbe", "Barbe"]].map(([v, t]) => opt(t, v, (L.barbe ? "barbe" : L.moustache ? "moustache" : "") === v)).join("")}</div>`;
+      },
+      tenue: () => {
+        const L = st.look;
+        return `<p class="flabel">Haut</p><div class="chs" data-k="cut">${[["pull", "Pull"], ["sweat", "Sweat à capuche"], ["chemise", "Chemise"], ["cardigan", "Gilet"]].map(([v, t]) => opt(t, v, (L.cut || "pull") === v)).join("")}</div>`
+          + `<p class="flabel">Couleur</p><div class="sws" data-k="top">${TOPS.map(([c, t]) => sw(c, c, L.top === c, t)).join("")}</div>`;
+      },
+      accessoires: () => {
+        const L = st.look;
+        return `<p class="flabel">Lunettes</p><div class="chs" data-k="glasses">${[["", "Aucune"], ["rondes", "Rondes"], ["carree", "Carrées"], ["rouge", "Rouges"], ["doree", "Dorées"]].map(([v, t]) => opt(t, v, (L.glasses || "") === v)).join("")}</div>`
+          + `<p class="flabel">Boucles d’oreilles</p><div class="chs" data-k="earring">${[["", "Non"], ["1", "Oui"]].map(([v, t]) => opt(t, v, (L.earring ? "1" : "") === v)).join("")}</div>`
+          + `<p class="flabel">Bandeau</p><div class="sws" data-k="headband">${sw("transparent", "", !L.headband, "Aucun")}${ACC.map(([c, t]) => sw(c, c, L.headband === c, "Bandeau " + t)).join("")}</div>`
+          + `<p class="flabel">Nœud</p><div class="sws" data-k="bow">${sw("transparent", "", !L.bow, "Aucun")}${ACC.map(([c, t]) => sw(c, c, L.bow === c, "Nœud " + t)).join("")}</div>`;
+      },
     };
-    const fmt = seg("Format de l’accueil", [[false, "Sans hébergement", "ALSH · les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement", "ALAH · une nuit sur place le mercredi, un parcours en plus sur les risques de la nuit."]], () => !!st.nuitee, (v) => { st.nuitee = v; }, "two");
-    const lvl = seg("Niveau de difficulté", [[1, "Découverte", "Plus de temps, des indices."], [2, "Standard", "Le rythme du terrain."], [3, "Expert", "Tout est chronométré."]], () => st.level || 2, (v) => { st.level = v; }, "three");
-    const go2 = btn("Commencer la semaine", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); });
-    form.append(lab, inp, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl, go2);
+    let tab = "visage";
+    function stepLook() {
+      su.innerHTML = `<div class="su-head"><p class="hk">Étape 1 sur 2</p><h2 id="h-${sc.id}">Votre personnage</h2>
+        <p class="lead">${esc(ROLE.voice)} Créez le personnage qui vous ressemble : il vous suivra toute la semaine.</p></div>
+        <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div>
+          <p class="su-mlab">Partir d’un modèle</p><div class="avs" role="group" aria-label="Modèles de départ"></div></div>
+        <div class="su-form"><label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
+          <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="Sam" value="${esc(st.name || "")}">
+          <div class="tabs" role="tablist" aria-label="Personnaliser">${[["visage", "Visage"], ["cheveux", "Cheveux"], ["tenue", "Tenue"], ["accessoires", "Accessoires"]].map(([k, t]) => `<button type="button" role="tab" class="tab${k === tab ? " sel" : ""}" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("")}</div>
+          <div class="tabp" role="tabpanel"></div></div></div>`;
+      const big = su.querySelector(".su-big"), panel = su.querySelector(".tabp"), models = su.querySelector(".avs"), inp = su.querySelector("#pname");
+      const draw = (pop) => { big.innerHTML = youBust(); if (pop) { big.classList.remove("pop"); void big.offsetWidth; big.classList.add("pop"); } };
+      const fillTab = () => { panel.innerHTML = TABS[tab](); };
+      LOOK.PRESETS.forEach((p, i) => {
+        const b = el("button", { class: "av", type: "button", "aria-label": "Modèle " + (i + 1) }, LOOK.bust(p));
+        b.addEventListener("click", () => { st.look = { ...p }; st.av = i; fillTab(); draw(true); Snd.click(); });
+        models.appendChild(b);
+      });
+      su.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+        tab = t.dataset.t; su.querySelectorAll(".tab").forEach((x) => { x.classList.toggle("sel", x === t); x.setAttribute("aria-selected", x === t); }); fillTab(); Snd.click();
+      }));
+      panel.addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-v]"); if (!b) return;
+        const grp = b.parentElement, k = grp.dataset.k || "skin", v = b.dataset.v, L = st.look;
+        if (k === "facial") { L.barbe = v === "barbe"; L.moustache = v === "moustache"; }
+        else if (k === "nose") L.nose = Number(v);
+        else if (k === "earring") L.earring = !!v;
+        else if (v === "") delete L[k]; else L[k] = v;
+        grp.querySelectorAll("button").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-pressed", on); });
+        draw(k === "hair" || k === "mood"); Snd.click(); save();
+      });
+      fillTab(); draw(true);
+      su.querySelector(".su-form").appendChild(btn("Continuer", () => { st.name = (inp.value || "").trim().slice(0, 20); save(); stepGoal(); }));
+      if (!n.dataset.spoken) { n.dataset.spoken = "1"; setTimeout(() => { if (n.isConnected) Voice.say("narr", ROLE.voice); }, 450); }
+    }
+    function stepGoal() {
+      Voice.stop();
+      const seg = (label, opts, cur, onPick, cls) => {
+        const g = el("div", { class: "seg " + (cls || ""), role: "radiogroup", "aria-label": label });
+        opts.forEach(([v, t, d]) => {
+          const b = el("button", { class: "segb" + (cur() === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(cur() === v) }, `<b>${t}</b><small>${d}</small>`);
+          b.addEventListener("click", () => { onPick(v); g.querySelectorAll(".segb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
+          g.appendChild(b);
+        });
+        return g;
+      };
+      su.innerHTML = `<div class="su-head"><p class="hk">Étape 2 sur 2</p><h2 tabindex="-1">${esc(ROLE.goalTitle)}</h2></div>
+        <div class="su-grid goal"><ol class="goals">${ROLE.goal.map(([t, d], i) => `<li style="--i:${i}"><span>${i + 1}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></li>`).join("")}</ol><div class="su-form"></div></div>`;
+      const form = su.querySelector(".su-form");
+      const fmt = seg("Format de l’accueil", [[false, "Sans hébergement", "ALSH · les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement", "ALAH · une nuit sur place le mercredi, un parcours en plus sur les risques de la nuit."]], () => !!st.nuitee, (v) => { st.nuitee = v; }, "two");
+      const lvl = seg("Niveau de difficulté", [[1, "Découverte", "Plus de temps, des indices."], [2, "Standard", "Le rythme du terrain."], [3, "Expert", "Tout est chronométré."]], () => st.level || 2, (v) => { st.level = v; }, "three");
+      form.append(el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl,
+        btn("Commencer la semaine", () => { save(); next(); }), btn("Revenir à mon personnage", () => { Voice.stop(); stepLook(); }, "linkb"));
+      su.querySelector("h2").focus({ preventScroll: true }); n.scrollIntoView({ block: "start" });
+      setTimeout(() => { if (n.isConnected) Voice.say("narr", ROLE.goalVoice); }, 350);
+    }
+    stepLook();
   };
 
   // Chaque journée commence au portail : la nuit tombe sur la veille, le jour se lève, les familles arrivent.
@@ -817,7 +903,7 @@
       hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${ok} situation${ok > 1 ? "s" : ""} bien gérée${ok > 1 ? "s" : ""}${mid ? `, ${mid} à reprendre` : ""}.` : (prev.n === 1 ? "Une première journée pour prendre ses repères." : "Aucune situation évaluée hier.")}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
     }
     const plan = (c.plan || []).filter((p) => st.nuitee || !/nuitée/i.test(p[1])).map((p) => `<li><b>${p[0]}</b><span>${esc(p[1])}</span></li>`).join("");
-    n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${A.avatars[st.av]}</div></div>
+    n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${youBust()}</div></div>
       <p class="chapnum">Jour ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.day)}</h2><p class="daytitle">${esc(c.title)}</p>
       ${hier}<div class="dayplan"><p class="kicker">Aujourd’hui</p><ul>${plan}</ul></div><p class="lead"><b>Objectif du jour.</b> ${esc(c.goal)}</p></div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Commencer la journée", next));
@@ -940,7 +1026,7 @@
     wrap.append(mapbox, el("p", { class: "lx-swipe", "aria-hidden": "true" }, "Faites glisser le plan pour voir tout l’accueil."), bar);
     n.appendChild(wrap);
     requestAnimationFrame(() => { if (mapbox.scrollWidth > mapbox.clientWidth) mapbox.scrollLeft = (mapbox.scrollWidth - mapbox.clientWidth) / 2; });
-    coach(dio ? "Les points à risque ne sont pas signalés : touchez les bâtiments et les lieux de l’accueil pour les examiner. Chaque lieu sans problème vous coûte 5 secondes." : "Sélectionnez un lieu du plan (ou Tab puis Entrée).", wrap);
+    coach(dio ? "Vous faites la visite avec Nour : touchez un bâtiment ou un lieu, elle vous explique à quoi il sert et ce qui s’y passe. Les points à risque ne sont pas signalés, et chaque lieu sans problème vous coûte 5 secondes." : "Sélectionnez un lieu du plan (ou Tab puis Entrée) : Nour vous l’explique.", wrap);
     const clock = wrap.querySelector(".lx-clock");
     const tick = () => {
       if (over) return; left = Math.max(0, left - 1);
@@ -964,7 +1050,10 @@
       wrap.querySelector(".maphead").after(res);
       if (stars === 3) burst(res, "good");
       nb.disabled = false; hb.disabled = true;
-      Voice.say("narr", stars === 3 ? "Œil de lynx ! Tous les points repérés, sans perdre de temps." : nf < need ? "Le temps est écoulé. Regardez les points que vous avez manqués." : "Tous les points sont repérés.");
+      // l’annonce finale attend la fin de la description du dernier lieu (elle ne la coupe plus)
+      const endLine = stars === 3 ? "Œil de lynx ! Tous les points repérés, sans perdre de temps." : nf < need ? "Le temps est écoulé. Regardez les points que vous avez manqués." : "Tous les points sont repérés.";
+      const sayEnd = () => { if (wrap.isConnected) Voice.say("narr", endLine); };
+      if (!timeout && Voice.busy()) { document.addEventListener("voice-idle", sayEnd, { once: true }); } else sayEnd();
       say(res.textContent);
     }
     function open(s, i, b) {
@@ -1562,6 +1651,54 @@
     return `<section class="epi" aria-label="Épilogue"><p class="kicker">Épilogue</p><h3>Ce que votre semaine a changé</h3><div class="epi-g">${E.map(([c, who, t]) => `<div class="epi-c ${c}"><b>${who}</b><p>${t}</p></div>`).join("")}</div></section>`;
   }
 
+  /* ---------- Classement des joueurs ---------- */
+  // Score sur 1 000 : moyenne des réussites de toutes les situations évaluées, pondérée par le niveau ; + 50 si le défi est relevé.
+  function finalScore(defi) {
+    const v = SCREENS.filter((x) => x.comp && st.res[x.id] != null).map((x) => st.res[x.id]);
+    const m = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
+    return Math.min(1100, Math.round(m * 1000 * ({ 1: .85, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
+  }
+  const LVN = { 1: "Découverte", 2: "Standard", 3: "Expert" };
+  function boardList(top, me) {
+    if (!top || !top.length) return `<p class="rk-empty">Personne n’est encore classé : soyez le premier ou la première !</p>`;
+    return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><span class="rk-l">${LVN[e.niveau] || ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
+  }
+  function rankBox(defi) {
+    const score = finalScore(defi);
+    const box = el("section", { class: "rank", "aria-labelledby": "rk-h" });
+    box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>/ 1 000</small></h3>
+      <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2]}${defi ? ", défi relevé (+ 50)" : ""}. Entrez dans le classement des joueurs avec un pseudo : pas votre nom complet.</p></div></div>
+      <form class="rk-form"><label class="sr-only" for="rk-pseudo">Votre pseudo</label><input id="rk-pseudo" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" value="${esc((st.name || "").slice(0, 16))}"><button class="cta" type="submit">Entrer dans le classement</button></form>
+      <p class="rk-msg" role="status"></p><div class="rk-board"></div>`;
+    const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
+    if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { if (j && j.ok) board.innerHTML = boardList(j.top, st.ranked && st.ranked.rang) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const pseudo = box.querySelector("#rk-pseudo").value.trim(); const sb = form.querySelector("button");
+      sb.disabled = true; msg.textContent = "Envoi…";
+      fetch("/api/classement", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pseudo, score, niveau: st.level || 2, defi: !!defi, nuitee: !!st.nuitee }) })
+        .then((r) => r.json().catch(() => ({}))).then((j) => {
+          sb.disabled = false;
+          if (!j || !j.ok) { msg.textContent = (j && j.error) || "Le classement n’est pas disponible pour le moment."; return; }
+          st.ranked = { pseudo, rang: j.rang }; save(); form.hidden = true;
+          msg.textContent = j.ameliore === false ? `Votre meilleur score (${j.meilleur}) reste au classement : vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"}.` : `Bravo ! Vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"} sur ${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}.`;
+          board.innerHTML = boardList(j.top, j.rang); Snd.good(); if (j.rang <= 3) confetti(box);
+        }).catch(() => { sb.disabled = false; msg.textContent = "Le classement n’est pas disponible pour le moment."; });
+    });
+    return box;
+  }
+  function openBoard() {
+    const d = el("div", { class: "rk-pop", role: "dialog", "aria-modal": "true", "aria-labelledby": "rkp-h" });
+    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Score sur 1 000 à la fin de la semaine, selon vos décisions et le niveau choisi.</p></div>`;
+    const close = () => { d.remove(); document.removeEventListener("keydown", esc2); };
+    const esc2 = (e) => { if (e.key === "Escape") close(); };
+    d.addEventListener("click", (e) => { if (e.target === d || e.target.closest(".rk-x")) close(); });
+    document.addEventListener("keydown", esc2); document.body.appendChild(d); d.querySelector(".rk-x").focus();
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { d.querySelector(".rk-board").innerHTML = j && j.ok ? boardList(j.top) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
+      .catch(() => { d.querySelector(".rk-board").innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
+  }
+
   R.bilan = (sc, n) => {
     st.done = true; save();
     const by = { C1: [], C2: [], C3: [], C4: [] };
@@ -1572,7 +1709,7 @@
     const defi = rf.find((r) => r.id === "protect").ok && rf.find((r) => r.id === "alert").ok && !st.flags.secret;
     const name = st.name || "Vous";
     n.innerHTML = `<div class="bilan">
-      <div class="bhead"><div class="bav">${A.avatarsBig[st.av]}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
+      <div class="bhead"><div class="bav">${youBust(true)}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
       <p class="lead">${defi ? "Défi relevé : vous avez protégé d’abord et alerté les bons relais, sans promettre le secret." : "Vous avez beaucoup avancé. Un ou deux réflexes de protection restent à consolider : rejouez les journées indiquées."}</p></div></div>
       ${epilogue()}<h3>Votre cible</h3><div class="bring">${ringsSVG(150)}<div><p>Pendant la semaine, cette cible en haut de l’écran s’est remplie à chacune de vos décisions justes. Chaque anneau est une compétence.</p>${ringList()}
         ${(() => { const P = compProgress().sort((a, b) => a[1] - b[1]); const w = P.filter(([, v]) => v < 0.8).slice(0, 2); return w.length ? `<div class="toimprove"><p class="kicker">Pour progresser</p>${w.map(([c]) => `<p><i style="background:${RING[c]}"></i><b>${esc(COMPS[c])}.</b> ${esc(TIPS[c])}</p>`).join("")}</div>` : `<p class="toimprove good">Toutes vos compétences sont au vert. Bravo.</p>`; })()}</div></div>
@@ -1584,6 +1721,7 @@
     if (epiV.length) { n.dataset.novoice = "1"; setTimeout(() => Voice.seq([["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV)), 700); }
     const b = n.querySelector(".bilan");
     if (typeof SOURCES !== "undefined" && SOURCES.length) n.querySelector(".bilan").appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
+    b.appendChild(rankBox(defi));
     const row = el("div", { class: "row" });
     row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
     b.appendChild(row);
@@ -1606,7 +1744,7 @@
     const i = SCREENS.findIndex((s) => s.ch === ch && s.type === "chapter");
     go(i);
   }
-  function restart() { const keep = st.settings; st = fresh(); st.settings = keep; save(); Snd.click(); prelude(() => go(0)); }
+  function restart() { const keep = st.settings, look = st.look; st = fresh(); st.settings = keep; if (look) st.look = look; save(); Snd.click(); prelude(() => go(0)); }
 
   // Prélude d’une nouvelle partie : des phrases entendues tous les jours, dites par des voix différentes,
   // qui s’accumulent puis s’estompent comme des échos. Une seule source audio, lancée pendant le clic
@@ -1689,7 +1827,7 @@
      (inséré dans engine.js à la construction)
      ============================================================================================= */
   Object.assign(NAMES, { sacha: "Sacha", rey: "M. Rey", karim: "Karim", petit: "Mme Petit", zoe: "Zoé", theo: "Théo", clara: "Clara", enzo: "Enzo", lena: "Léna", intervenant: "L’intervenant", parent: "Un parent", you: "Vous" });
-  const face = (w, m) => (w === "you" ? A.avatars[st.av] : (A.chars[w] || A.chars.parent)[m || "smile"]);
+  const face = (w, m) => (w === "you" ? youBust() : (A.chars[w] || A.chars.parent)[m || "smile"]);
   const pop = (cls, html) => { const p = el("div", { class: "cr-pop " + cls, role: "dialog", "aria-live": "assertive" }, html); document.body.appendChild(p); return p; };
   const endRow = (host, label = "Continuer") => { const row = el("div", { class: "row" }); row.appendChild(btn(label, next)); host.appendChild(row); row.querySelector("button").focus({ preventScroll: true }); };
   function result(host, q, text) {
@@ -2113,6 +2251,221 @@
     requestAnimationFrame(() => { if (box.scrollWidth > box.clientWidth) box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; });
   };
 
+  /* ---------- Personnage du joueur, créé sur mesure ----------
+   Transposition fidèle de kit/clay.py (bust, mini) : mêmes formes, mêmes matières « pâte à modeler ».
+   Le personnage créé (st.look) remplace partout l’avatar prédéfini : portrait, figurine du décor, bilan. */
+  const LOOK = (() => {
+    const SKIN = { porcelaine: "#F3D2BD", claire: "#EDC3A4", doree: "#D9A27A", olive: "#C98E63", cuivre: "#B5784E", brune: "#8E5A3B", ebene: "#6B4129" };
+    const HAIR = { noir: "#2B211C", brun: "#4E3426", chatain: "#7A5234", roux: "#B5542A", blond: "#D9B064", gris: "#A9A7A3", poivre: "#6E6A66",
+      platine: "#E8DCC0", rose: "#D98AA6", bleu: "#4F78C4", violet: "#7E5BB8" };
+    const EYES = { marron: "#3B2618", noisette: "#6B4A22", vert: "#3F6B3A", bleu: "#3A5F8C", gris: "#5E6A72" };
+    // couleurs : même arithmétique que colorsys (HLS) en Python
+    const hx2 = (c) => { c = c.replace("#", ""); return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16) / 255); };
+    const out = (r, g, b) => "#" + [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v * 255))).toString(16).padStart(2, "0")).join("").toUpperCase();
+    function rgb2hls(r, g, b) {
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+      if (mx === mn) return [0, l, 0];
+      const d = mx - mn, s = l <= .5 ? d / (mx + mn) : d / (2 - mx - mn);
+      const rc = (mx - r) / d, gc = (mx - g) / d, bc = (mx - b) / d;
+      let h = r === mx ? bc - gc : g === mx ? 2 + rc - bc : 4 + gc - rc; h = ((h / 6) % 1 + 1) % 1;
+      return [h, l, s];
+    }
+    function hls2rgb(h, l, s) {
+      if (s === 0) return [l, l, l];
+      const m2 = l <= .5 ? l * (1 + s) : l + s - l * s, m1 = 2 * l - m2;
+      const v = (hue) => { hue = ((hue % 1) + 1) % 1; if (hue < 1 / 6) return m1 + (m2 - m1) * hue * 6; if (hue < .5) return m2; if (hue < 2 / 3) return m1 + (m2 - m1) * (2 / 3 - hue) * 6; return m1; };
+      return [v(h + 1 / 3), v(h), v(h - 1 / 3)];
+    }
+    const tone = (c, dl = 0, ds = 0) => { const [h, l, s] = rgb2hls(...hx2(c)); return out(...hls2rgb(h, Math.max(0, Math.min(1, l + dl)), Math.max(0, Math.min(1, s + ds)))); };
+    // dégradés « modelés » partagés (ajoutés une seule fois à la page)
+    let defsEl = null; const made = new Set();
+    function fill(c, kind = "r", hi = .16, lo = -.16) {
+      const k = `kc${kind}${c.slice(1)}${Math.round(hi * 100)}${Math.round(-lo * 100)}`;
+      if (!made.has(k)) {
+        made.add(k);
+        if (!defsEl) { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("width", "0"); s.setAttribute("height", "0"); s.setAttribute("aria-hidden", "true"); s.style.position = "absolute"; s.innerHTML = "<defs></defs>"; document.body.prepend(s); defsEl = s.firstChild; }
+        defsEl.insertAdjacentHTML("beforeend", kind === "r"
+          ? `<radialGradient id="${k}" cx="38%" cy="32%" r="78%"><stop offset="0" stop-color="${tone(c, hi * .9, .02)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${tone(c, lo, .04)}"/></radialGradient>`
+          : `<linearGradient id="${k}" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="${tone(c, hi * .7)}"/><stop offset=".5" stop-color="${c}"/><stop offset="1" stop-color="${tone(c, lo)}"/></linearGradient>`);
+      }
+      return `url(#${k})`;
+    }
+    const f1 = (n) => (Math.round(n * 10) / 10).toString();
+    const E = (cx, cy, rx, ry, f, x = "") => `<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx)}" ry="${f1(ry)}" fill="${f}"${x}/>`;
+    const P = (d, f, x = "") => `<path d="${d}" fill="${f}"${x}/>`;
+    const hairCol = (sp, k = "hc") => HAIR[sp[k]] || (String(sp[k] || "").startsWith("#") ? sp[k] : HAIR.brun);
+
+    function brows(hx, hy, col, mood, thick) {
+      const c = tone(col, -.02), shape = { smile: [-1, -2], big: [-3, -3.5], calm: [0, 0] }[mood] || [-1, -2];
+      let o = "";
+      for (const sg of [-1, 1]) {
+        const ex = hx + sg * 12.5, xo = ex + sg * 7, yo = hy - 14 + shape[0], xi = ex - sg * 6, yi = hy - 14 + shape[1];
+        const mx = (xo + xi) / 2, my = Math.min(yo, yi) - 2.2, d = `M${f1(xo)},${f1(yo)} Q${f1(mx)},${f1(my)} ${f1(xi)},${f1(yi)}`;
+        o += `<path d="${d}" fill="none" stroke="${tone(c, -.1)}" stroke-width="${f1(thick + 1)}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${f1(thick)}" stroke-linecap="round"/>`;
+      }
+      return o;
+    }
+    function eyes(hx, hy, skin, mood, glasses, iris) {
+      const rx = 6.0, ry = 6.6, lid = { smile: .3, big: .42, calm: .38 }[mood] ?? .3, low = { big: .3, smile: .15 }[mood] || 0;
+      let o = "";
+      for (const sg of [-1, 1]) {
+        const ex = hx + sg * 12, ey = hy - 4;
+        o += E(ex, ey + .8, rx + 1.2, ry + 1.0, tone(skin, -.06)) + E(ex, ey, rx, ry, "url(#keye)");
+        const px = ex - sg * .5;
+        o += E(px, ey + 1.0, rx * .58, ry * .62, iris) + E(px, ey + 1.1, rx * .32, ry * .34, "#0F0A07") + E(px - 1.5, ey - .8, 1.2, 1.2, "#fff", ' opacity=".95"');
+        if (lid) {
+          const top = ey - ry - 1.4, cut = ey - ry + 2 * ry * lid;
+          o += `<path d="M${f1(ex - rx - 1.6)},${f1(top)} L${f1(ex + rx + 1.6)},${f1(top)} L${f1(ex + rx + 1.6)},${f1(cut)} Q${f1(ex)},${f1(cut + 1.8)} ${f1(ex - rx - 1.6)},${f1(cut)}Z" fill="${tone(skin, .02)}"/>`
+            + `<path d="M${f1(ex - rx - .6)},${f1(cut)} Q${f1(ex)},${f1(cut + 1.8)} ${f1(ex + rx + .6)},${f1(cut)}" fill="none" stroke="${tone(skin, -.28)}" stroke-width="1.3" stroke-linecap="round"/>`;
+        }
+        if (low) o += `<path d="M${f1(ex - rx)},${f1(ey + ry - 1)} Q${f1(ex)},${f1(ey + ry * (1 - low) - 2)} ${f1(ex + rx)},${f1(ey + ry - 1)} L${f1(ex + rx)},${f1(ey + ry + 2)} L${f1(ex - rx)},${f1(ey + ry + 2)}Z" fill="${skin}"/>`;
+      }
+      if (glasses) {
+        const g = glasses === "rouge" ? "#B5402F" : glasses === "doree" ? "#B8913F" : "#2E2A28";
+        for (const sg of [-1, 1]) o += `<rect x="${f1(hx + sg * 12 - 10)}" y="${f1(hy - 13)}" width="20" height="17" rx="${glasses === "carree" ? 3 : 7}" fill="#fff" fill-opacity=".1" stroke="${g}" stroke-width="2"/>`;
+        o += `<path d="M${f1(hx - 2)},${f1(hy - 6)} Q${f1(hx)},${f1(hy - 8)} ${f1(hx + 2)},${f1(hy - 6)}" stroke="${g}" stroke-width="2" fill="none"/>`;
+      }
+      return o;
+    }
+    function nose(hx, hy, skin, big) {
+      const rx = 7.4 * big, ry = 8.6 * big, y = hy + 9;
+      return E(hx + .8, y + ry * .55, rx * 1.05, ry * .45, tone(skin, -.18), ' opacity=".55"') + E(hx, y, rx, ry, fill(skin, "r", .2, -.14))
+        + E(hx - 2.6, y + ry * .55, 1.6, 1.1, tone(skin, -.3)) + E(hx + 2.6, y + ry * .55, 1.6, 1.1, tone(skin, -.3)) + E(hx - rx * .35, y - ry * .35, rx * .3, ry * .22, "#fff", ' opacity=".35"');
+    }
+    function mouth(hx, hy, skin, mood) {
+      const y = hy + 21, lip = tone(skin, -.22, .06);
+      if (mood === "big") {
+        const d = `M${hx - 9},${y - 1.5} Q${hx},${y - .5} ${hx + 9},${y - 1.5} Q${hx + 7},${y + 8.5} ${hx},${y + 9} Q${hx - 7},${y + 8.5} ${hx - 9},${y - 1.5}Z`;
+        const teeth = `<path d="M${hx - 7.5},${y - .9} Q${hx},${y + .2} ${hx + 7.5},${y - .9} L${hx + 6.6},${y + 2} Q${hx},${y + 3} ${hx - 6.6},${y + 2}Z" fill="#F7F3EC"/>`;
+        return `<path d="${d}" fill="#5B2A22"/>` + E(hx, y + 6.5, 4.2, 2.2, "#C9645A") + teeth + `<path d="${d}" fill="none" stroke="${lip}" stroke-width="1.8" stroke-linejoin="round"/>`;
+      }
+      const d = mood === "calm" ? `M${hx - 5.5},${y + 1} Q${hx},${y + 3.6} ${hx + 5.5},${y + 1}` : `M${hx - 8},${y - .5} Q${hx},${y + 6.5} ${hx + 8},${y - .5}`;
+      const corners = mood !== "calm" ? `<path d="M${hx - 8.6},${y - 1.6} q.6,.9 .9,1.6 M${hx + 8.6},${y - 1.6} q-.6,.9 -.9,1.6" stroke="${tone(skin, -.18)}" stroke-width="1.1" fill="none" stroke-linecap="round"/>` : "";
+      return `<path d="${d}" fill="none" stroke="${tone(lip, -.12)}" stroke-width="3" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${lip}" stroke-width="1.8" stroke-linecap="round" transform="translate(0,-.3)"/>` + corners;
+    }
+    function hairBack(sp, hx, hy, R) {
+      const st0 = sp.hair || "court", f = fill(hairCol(sp), "r", .12, -.18);
+      if (st0 === "long" || st0 === "ondule") return P(`M${hx - R - 3},${hy - 6} C${hx - R - 10},${hy + 24} ${hx - R - 6},${hy + 44} ${hx - R + 6},${hy + 50} Q${hx},${hy + 40} ${hx + R - 6},${hy + 50} C${hx + R + 6},${hy + 44} ${hx + R + 10},${hy + 24} ${hx + R + 3},${hy - 6}Z`, f);
+      if (st0 === "carre") return P(`M${hx - R - 4},${hy - 8} Q${hx - R - 6},${hy + 24} ${hx - R + 1},${hy + 30} L${hx + R - 1},${hy + 30} Q${hx + R + 6},${hy + 24} ${hx + R + 4},${hy - 8}Z`, f);
+      if (st0 === "tresses") { let o = ""; for (const s of [-1, 1]) for (let i = 0; i < 5; i++) o += E(hx + s * (R + 3), hy + 14 + i * 9, 5.4, 6, f); return o; }
+      return "";
+    }
+    function hairFront(sp, hx, hy, R) {
+      const st0 = sp.hair || "court", c = hairCol(sp), f = fill(c, "r", .14, -.2), dk = tone(c, -.12), top = hy - R;
+      let o = "";
+      if (st0 === "chauve") { o += E(hx - R + 2, hy - 8, 6, 12, f) + E(hx + R - 2, hy - 8, 6, 12, f); for (const s of [-1, 1]) for (let i = 0; i < 3; i++) o += E(hx + s * (R - 4), hy - 18 + i * 5, 4, 3.4, f); return o; }
+      if (st0 === "chignon") o += E(hx, top - 6, 11, 10, f) + `<path d="M${hx - 8},${top - 4} Q${hx},${top - 12} ${hx + 8},${top - 4}" stroke="${dk}" stroke-width="1.2" fill="none"/>`;
+      o += P(`M${hx - R - 2},${hy - 2} Q${hx - R - 3},${top - 6} ${hx},${top - 7} Q${hx + R + 3},${top - 6} ${hx + R + 2},${hy - 2} Q${hx + R - 4},${top + 6} ${hx + 4},${top + 4} Q${hx - 10},${top + 9} ${hx - R - 2},${hy - 2}Z`, f);
+      if (["court", "chignon", "carre", "long"].includes(st0)) {
+        for (const [dx, rot] of [[-14, -20], [-4, -6], [7, 12], [16, 26]]) o += E(hx + dx, top + 3, 8, 4.4, f, ` transform="rotate(${rot},${hx + dx},${top + 3})"`);
+        o += `<path d="M${hx - 16},${top + 2} Q${hx - 6},${top - 4} ${hx + 2},${top + 3} M${hx + 3},${top + 1} Q${hx + 12},${top - 3} ${hx + 18},${top + 6}" stroke="${dk}" stroke-width="1.3" fill="none" opacity=".6"/>`;
+      }
+      if (st0 === "boucles") { for (let i = 0; i < 11; i++) { const a = (-170 + i * 16) * Math.PI / 180; o += E(hx + Math.cos(a) * (R + 1), hy - 4 + Math.sin(a) * (R + 3), 7.4, 7.4, f); } o += E(hx, top + 1, 14, 7, f); }
+      if (st0 === "herisse") for (let i = 0; i < 9; i++) { const ad = -165 + i * 19, a = ad * Math.PI / 180, x = hx + Math.cos(a) * (R - 2), y = hy - 6 + Math.sin(a) * (R + 1); o += E(x, y, 4.6, 9, f, ` transform="rotate(${ad + 90},${f1(x)},${f1(y)})"`); }
+      if (st0 === "tresses") o += `<path d="M${hx},${top - 6} L${hx},${top + 6}" stroke="${dk}" stroke-width="1.4"/>`;
+      if (st0 === "ondule") for (let i = 0; i < 5; i++) o += E(hx - 16 + i * 8, top + 2 + (i % 2) * 2, 7, 5, f);
+      if (st0 === "rase") o = P(`M${hx - R},${hy - 6} Q${hx - R},${top - 3} ${hx},${top - 4} Q${hx + R},${top - 3} ${hx + R},${hy - 6} Q${hx},${top + 3} ${hx - R},${hy - 6}Z`, f, ' opacity=".92"');
+      if (st0 === "couettes") o += E(hx - R - 6, hy - 6, 7, 9, f) + E(hx + R + 6, hy - 6, 7, 9, f);
+      return o;
+    }
+    function facial(sp, hx, hy) {
+      let o = ""; const hc = hairCol(sp);
+      if (sp.barbe) o += P(`M${hx - 23.5},${hy + 4} Q${hx - 22},${hy + 31} ${hx},${hy + 35} Q${hx + 22},${hy + 31} ${hx + 23.5},${hy + 4} Q${hx + 20},${hy + 18} ${hx + 12},${hy + 25} Q${hx},${hy + 31} ${hx - 12},${hy + 25} Q${hx - 20},${hy + 18} ${hx - 23.5},${hy + 4}Z`, fill(hc, "r", .12, -.16), ' opacity=".86"');
+      if (sp.moustache || sp.barbe) { const f = fill(hc, "r", .12, -.2), y = hy + 16.2; o += E(hx - 6, y, 7.5, 2.8, f, ` transform="rotate(-10,${hx - 6},${y})" opacity=".9"`) + E(hx + 6, y, 7.5, 2.8, f, ` transform="rotate(10,${hx + 6},${y})" opacity=".9"`); }
+      return o;
+    }
+    function bust(sp, mood) {
+      mood = mood || sp.mood || "smile";
+      const skin = SKIN[sp.skin] || SKIN.claire, top = sp.top || "#3C6FB8", hx = 60, hy = 58, R = 31, shY = 102, W = 52;
+      let s = E(60, 156, 46, 5, "#000", ' opacity=".10"') + hairBack(sp, hx, hy, R);
+      const body = `M${60 - W},160 C${60 - W - 3},${shY + 18} ${60 - W + 4},${shY + 2} ${60 - W + 22},${shY - 2} Q60,${shY - 8} ${60 + W - 22},${shY - 2} C${60 + W - 4},${shY + 2} ${60 + W + 3},${shY + 18} ${60 + W},160Z`;
+      s += P(body, fill(top, "r", .14, -.18)) + P(body, "url(#kknit)");
+      for (const sg of [-1, 1]) {
+        const x0 = 60 + sg * (W - 16);
+        s += `<path d="M${x0},${shY + 2} Q${x0 + sg * -4},${shY + 30} ${x0 + sg * -1},160" fill="none" stroke="${tone(top, -.2)}" stroke-width="1.6" opacity=".55"/><path d="M${x0 + sg * 2},${shY + 4} Q${x0 + sg * -2},${shY + 30} ${x0 + sg * 1.5},160" fill="none" stroke="${tone(top, .16)}" stroke-width="1" opacity=".5"/>`;
+      }
+      s += P(`M${hx - 12},${hy + 24} L${hx - 13},${shY + 2} Q${hx},${shY + 9} ${hx + 13},${shY + 2} L${hx + 12},${hy + 24}Z`, fill(tone(skin, -.08), "r", .04, -.14));
+      const cut = sp.cut || "pull";
+      if (cut === "pull") s += P(`M${hx - 14},${shY - 3} Q${hx},${shY + 11} ${hx + 14},${shY - 3} Q${hx},${shY + 5} ${hx - 14},${shY - 3}Z`, tone(top, -.12));
+      else if (cut === "chemise") s += P(`M${hx - 13},${shY - 4} L${hx},${shY + 12} L${hx - 4},${shY + 16} L${hx - 16},${shY + 2}Z`, tone(top, .12)) + P(`M${hx + 13},${shY - 4} L${hx},${shY + 12} L${hx + 4},${shY + 16} L${hx + 16},${shY + 2}Z`, tone(top, .12));
+      else if (cut === "cardigan") { s += P(`M${hx - 4},${shY + 4} L${hx - 2},160 L${hx + 2},160 L${hx + 4},${shY + 4}Z`, tone(top, -.2)) + P(`M${hx - 12},${shY - 3} Q${hx},${shY + 9} ${hx + 12},${shY - 3} Q${hx},${shY + 3} ${hx - 12},${shY - 3}Z`, "#F1ECE4"); for (let i = 0; i < 3; i++) s += E(hx + 6, shY + 18 + i * 12, 1.9, 1.9, tone(top, -.3)); }
+      else if (cut === "sweat") s += P(`M${hx - 20},${shY - 2} Q${hx},${shY + 16} ${hx + 20},${shY - 2} Q${hx + 14},${shY + 10} ${hx},${shY + 10} Q${hx - 14},${shY + 10} ${hx - 20},${shY - 2}Z`, tone(top, -.1)) + `<path d="M${hx - 5},${shY + 10} l-1,16 M${hx + 5},${shY + 10} l1,16" stroke="#F2EEE8" stroke-width="2" stroke-linecap="round"/>`;
+      // badge d’animateur (toujours : c’est votre rôle)
+      s += `<path d="M${hx - 15},${shY - 1} Q${hx - 8},${shY + 26} ${hx},${shY + 34} Q${hx + 8},${shY + 26} ${hx + 15},${shY - 1}" fill="none" stroke="#0B4F84" stroke-width="3" stroke-linecap="round"/>`
+        + `<g transform="rotate(-4,${hx},${shY + 44})"><rect x="${hx - 9}" y="${shY + 33}" width="18" height="23" rx="3" fill="${fill("#F7F7F5", "r", .04, -.1)}"/><rect x="${hx - 9}" y="${shY + 33}" width="18" height="6" rx="2" fill="#E2702A"/><rect x="${hx - 6}" y="${shY + 42}" width="12" height="2" rx="1" fill="#9AA3AB"/><rect x="${hx - 6}" y="${shY + 46}" width="8" height="2" rx="1" fill="#C3CAD0"/></g>`;
+      for (const sg of [-1, 1]) {
+        s += E(hx + sg * (R - 1), hy + 2, 5.4, 7.6, fill(skin, "r", .08, -.16)) + E(hx + sg * (R - 1.4), hy + 2.5, 2.2, 3.6, tone(skin, -.16));
+        if (sp.earring) s += E(hx + sg * (R - 1), hy + 10.5, 1.9, 1.9, "#E8C35A");
+      }
+      s += E(hx, hy + 1, R, R + 3, fill(skin, "r", .14, -.14));
+      s += E(hx - 15, hy + 12, 6, 3.6, "#E06A5A", ' opacity=".14"') + E(hx + 15, hy + 12, 6, 3.6, "#E06A5A", ' opacity=".14"');
+      s += facial(sp, hx, hy);
+      s += `<g class="cmouth">${mouth(hx, hy, skin, mood)}</g>`;
+      s += `<g class="ceyes">${eyes(hx, hy, skin, mood, sp.glasses, EYES[sp.eyes] || EYES.marron)}</g>`;
+      s += brows(hx, hy, sp.hair === "chauve" ? HAIR.gris : hairCol(sp), mood, 5.4);
+      s += nose(hx, hy, skin, sp.nose || 1);
+      s += hairFront(sp, hx, hy, R);
+      if (sp.bow) s += E(hx + R - 6, hy - R + 4, 6, 4, sp.bow, ` transform="rotate(-30,${hx + R - 6},${hy - R + 4})"`) + E(hx + R - 12, hy - R + 1, 6, 4, sp.bow, ` transform="rotate(30,${hx + R - 12},${hy - R + 1})"`);
+      if (sp.headband) s += `<path d="M${hx - R + 2},${hy - 12} Q${hx},${hy - R - 10} ${hx + R - 2},${hy - 12}" fill="none" stroke="${sp.headband}" stroke-width="4.4" stroke-linecap="round"/>`;
+      return `<svg class="char clay" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g filter="url(#kclay)">${s}</g></svg>`;
+    }
+    function mini(sp, pose) {
+      const k = 1, skin = SKIN[sp.skin] || SKIN.claire, top = sp.top || "#3C6FB8", legs = "#3E4A5C", hc = hairCol(sp);
+      let s = E(0, 0, 9, 2.6, "#000", ' opacity=".18"');
+      const lx = 3.2, sit = pose === "sit";
+      if (sit) {
+        const kx = -7.6, ky = 4.4;
+        [lx, -lx].forEach((h, j) => { const col = j === 0 ? tone(legs, -.12) : legs; s += `<path d="M${f1(h)},${f1(-12)} L${f1(h + kx)},${f1(-12 + ky)} L${f1(h + kx)},${f1(ky - .6)}" stroke="${col}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>` + E(h + kx - 1.4, ky - .2, 2.8, 1.5, "#2A2A2A"); });
+        s += `<g transform="translate(0,2)">`;
+      } else if (pose === "walk") s += `<path d="M${-lx},-16 L${-lx - 3},0 M${lx},-16 L${lx + 2.5},0" stroke="${legs}" stroke-width="4.6" stroke-linecap="round"/>`;
+      else s += `<path d="M${-lx},-16 L${-lx},0 M${lx},-16 L${lx},0" stroke="${legs}" stroke-width="4.6" stroke-linecap="round"/>`;
+      if (!sit) s += E(-lx - .6, -.6, 2.8, 1.6, "#2A2A2A") + E(lx + .6, -.6, 2.8, 1.6, "#2A2A2A");
+      s += P(`M-8,-14 Q-9,-30 0,-31 Q9,-30 8,-14Z`, fill(top, "r", .16, -.2));
+      let arm = { stand: [[-8, -27, -10, -15], [8, -27, 10, -15]], walk: [[-8, -27, -11, -16], [8, -27, 11, -17]], wave: [[-8, -27, -10, -15], [8, -27, 14, -38]], point: [[-8, -27, -10, -15], [8, -27, 17, -27]], talk: [[-8, -27, -12, -18], [8, -27, 13, -21]] }[pose] || [[-8, -27, -10, -15], [8, -27, 10, -15]];
+      if (sit) arm = [[-8, -27, -9, -17], [8, -27, 9, -17]];
+      arm.forEach(([x0, y0, x1, y1], j) => { s += `<g class="${j === 1 ? "marm" : "marml"}" style="transform-origin:${x0}px ${y0}px"><path d="M${x0},${y0} L${x1},${y1}" stroke="${tone(top, -.08)}" stroke-width="4.2" stroke-linecap="round"/>${E(x1, y1, 2.2, 2.2, skin)}</g>`; });
+      s += `<path d="M-4,-29 L0,-22 L4,-29" stroke="#0B4F84" stroke-width="1" fill="none"/><rect x="-1.6" y="-22.5" width="3.2" height="4" rx=".6" fill="#E2702A"/>`;
+      const hy = -38, R = 7.6;
+      s += `<g class="mhead" style="transform-origin:0px ${f1(hy + R)}px">`;
+      if (["long", "ondule", "tresses", "carre"].includes(sp.hair)) s += P(`M${-R - 1},${hy} Q${-R - 2},${hy + 12} ${-R + 1},${hy + 13} L${R - 1},${hy + 13} Q${R + 2},${hy + 12} ${R + 1},${hy}Z`, fill(hc));
+      s += E(0, hy, R, R * 1.06, fill(skin, "r", .16, -.14));
+      s += E(-2.6, hy - .4, 1.5, 1.7, "#fff") + E(2.6, hy - .4, 1.5, 1.7, "#fff") + E(-2.4, hy, .8, .9, "#1A120D") + E(2.8, hy, .8, .9, "#1A120D") + E(0, hy + 2.4, 1.6, 1.8, tone(skin, -.06));
+      s += `<g class="mbrow"><path d="M-3.9,${f1(hy - 2.9)} q1.4,-.9 2.8,-.2 M1.1,${f1(hy - 3.1)} q1.4,-.7 2.8,.2" stroke="${tone(hc, -.05)}" stroke-width=".75" stroke-linecap="round" fill="none"/></g>`;
+      if (sp.barbe) s += P(`M${f1(-R + .3)},${f1(hy + .6)} Q${f1(-R + .6)},${f1(hy + R + .6)} 0,${f1(hy + R * 1.08)} Q${f1(R - .6)},${f1(hy + R + .6)} ${f1(R - .3)},${f1(hy + .6)} Q${f1(R - 1.6)},${f1(hy + 4.4)} 2.6,${f1(hy + 4.6)} Q0,${f1(hy + 7.3)} -2.6,${f1(hy + 4.6)} Q${f1(-R + 1.6)},${f1(hy + 4.4)} ${f1(-R + .3)},${f1(hy + .6)}Z`, hc, ' opacity=".82"');
+      s += `<ellipse class="mmouth" cx="0" cy="${f1(hy + 5.2)}" rx="1.7" ry=".7" fill="#6A2E26" stroke="${tone(skin, .12)}" stroke-width=".25" style="transform-origin:0px ${f1(hy + 5.2)}px"/>`;
+      const st0 = sp.hair || "court";
+      if (st0 !== "chauve") {
+        s += P(`M${-R - .8},${hy - .5} Q${-R},${hy - R - 3} 0,${f1(hy - R - 2.4)} Q${R},${hy - R - 3} ${R + .8},${hy - .5} Q${R - 3},${hy - R + 2} 0,${f1(hy - R + 2.6)} Q${-R + 3},${hy - R + 2} ${-R - .8},${hy - .5}Z`, fill(hc));
+        if (st0 === "chignon") s += E(0, hy - R - 2.6, 3.6, 3.2, fill(hc));
+        if (st0 === "boucles") for (const [x, y] of [[-6, 1], [-3, -2], [1, -2.6], [5, -1], [7, 2]]) s += E(x, hy - R + y, 2.8, 2.8, fill(hc));
+        if (st0 === "herisse") for (const x of [-5, -2, 1, 4]) s += E(x, hy - R - 1, 1.6, 3, fill(hc));
+        if (st0 === "couettes") s += E(-R - 2, hy, 2.6, 3.4, fill(hc)) + E(R + 2, hy, 2.6, 3.4, fill(hc));
+      } else s += E(-R + .5, hy - 1, 2, 3.4, fill(HAIR.gris)) + E(R - .5, hy - 1, 2, 3.4, fill(HAIR.gris));
+      if (sp.glasses) s += `<path d="M-5,${f1(hy - .4)} h4 M1,${f1(hy - .4)} h4" stroke="#2E2A28" stroke-width=".9"/>`;
+      s += "</g>" + (sit ? "</g>" : "");
+      return `<g class="clayp"><g>${s}</g></g>`;
+    }
+    // Modèles de départ : les 4 personnages prédéfinis (mêmes réglages que kit/game_assets.py)
+    const PRESETS = [
+      { skin: "brune", hair: "tresses", hc: "noir", top: "#2F8F8A", cut: "pull", eyes: "marron", nose: 1 },
+      { skin: "claire", hair: "court", hc: "chatain", top: "#3C6FB8", cut: "sweat", eyes: "marron", nose: 1 },
+      { skin: "doree", hair: "boucles", hc: "brun", top: "#5E8A4E", cut: "pull", glasses: "rondes", eyes: "marron", nose: 1 },
+      { skin: "ebene", hair: "rase", hc: "noir", top: "#E0A63A", cut: "pull", barbe: true, eyes: "marron", nose: 1 },
+    ];
+    let cacheKey = "", cache = null;
+    const POSES = ["stand", "talk", "wave", "walk", "point", "sit"];
+    function you() {   // portrait + figurines du personnage du joueur (mis en cache tant que les réglages ne changent pas)
+      const sp = st.look; if (!sp) return null;
+      const key = JSON.stringify(sp);
+      if (key !== cacheKey) { cacheKey = key; cache = { bust: bust(sp), big: bust(sp, "big"), minis: Object.fromEntries(POSES.map((p) => [p, mini(sp, p)])) }; A.minis.avc = cache.minis; }
+      return cache;
+    }
+    return { SKIN, HAIR, EYES, PRESETS, bust, mini, you };
+  })();
+  // Portrait et figurine du joueur : le personnage créé s’il existe, sinon l’avatar prédéfini.
+  function youBust(big) { const y = LOOK.you(); return y ? (big ? y.big : y.bust) : (big ? A.avatarsBig : A.avatars)[st.av]; }
+  function youKey() { return LOOK.you() ? "avc" : "av" + st.av; }
+
   /* ---------- carnet ---------- */
   const dlg = $("#carnet");
   function openCarnet(focus) {
@@ -2168,6 +2521,7 @@
     const n = el("section", { class: "screen home in", "aria-labelledby": "h-home" });
     n.classList.add("home2");
     n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 26 : 46)}</div>
+      <a class="hback" href="../index.html"><span aria-hidden="true">←</span> Retour au site</a>
       <div class="hero"><div class="logo" role="img" aria-label="Fourmi’Action"></div>
       <p class="hk">Jeu sérieux · Formation BAFA · BAFD</p>
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
@@ -2175,25 +2529,19 @@
       <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 25 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
-      <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
 `;
     const hb = n.querySelector(".hbtns");
-    const opts = n.querySelectorAll(".hopt");
-    const drawOpts = () => opts.forEach((b) => {
-      const k = b.dataset.k, on = !!st.settings[k];
-      if (k === "voice") b.hidden = !(Voice.ok && Voice.ready);
-      b.setAttribute("aria-pressed", on ? "true" : "false");
-      b.textContent = k === "sound" ? (on ? "Musique et sons : activés" : "Musique et sons : coupés") : (on ? "Voix des personnages : activées" : "Voix des personnages : coupées");
-    });
-    opts.forEach((b) => b.addEventListener("click", () => { const k = b.dataset.k; st.settings[k] = !st.settings[k]; if (k === "voice" && !st.settings.voice) Voice.stop(); if (k === "sound") { Snd.init(); if (st.settings.sound) Snd.startAmb(); else Snd.stopAmb(); } save(); applySettings(); drawOpts(); }));
-    drawOpts(); Voice._onReady = drawOpts;
+    // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)
+    const allOn = () => { st.settings.sound = true; st.settings.voice = true; applySettings(); save(); };
+    st.settings.sound = true; st.settings.voice = true;
     if (canResume) {
       const sc = SCREENS[prev.idx];
-      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { begin(); st = prev; st.settings = st.settings || { sound: true, calm: false }; applySettings(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
-      hb.appendChild(btn("Nouvelle partie", () => { begin(); restart(); }, "ghost light"));
-    } else hb.appendChild(btn("Commencer", () => { begin(); prelude(() => go(0)); }));
+      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { st = prev; st.settings = st.settings || { calm: false }; allOn(); begin(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
+      hb.appendChild(btn("Nouvelle partie", () => { allOn(); begin(); restart(); }, "ghost light"));
+    } else hb.appendChild(btn("Commencer", () => { allOn(); begin(); prelude(() => go(0)); }));
+    hb.appendChild(btn("Classement", openBoard, "ghost light rkb"));
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }

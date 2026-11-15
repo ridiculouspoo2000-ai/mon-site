@@ -99,10 +99,14 @@ export const PROFILS = {
   garnier: { nom: "M. Garnier", role: "Directeur, la cinquantaine, grave et posé", gender: "male", ages: ["middle_aged", "old"] },
   roussel: { nom: "M. Roussel", role: "Père de Zoé, la quarantaine, inquiet mais courtois", gender: "male", ages: ["middle_aged"] },
   benali: { nom: "Mme Benali", role: "Mère de Malo, la trentaine, émue", gender: "female", ages: ["middle_aged", "young"] },
+  // Prélude : vraies voix d’enfant (recherche dédiée dans la bibliothèque, accent français sans exigence « parisien »)
+  e_fille: { nom: "Petite fille (prélude)", role: "Enfant de 7 ans : « Il m’a soulevé ma jupe devant tout le monde… »", gender: "female", ages: ["young"], enfant: ["enfant", "petite fille", "child", "kid", "girl"] },
+  e_garcon: { nom: "Petit garçon (prélude)", role: "Enfant de 8 ans : « Il m’a dit que c’était notre secret. »", gender: "male", ages: ["young"], enfant: ["enfant", "petit garçon", "child", "kid", "boy"] },
 };
 const PAS_PARIS = /qu[ée]b|canad|belg|suiss|swiss|afri|antill|marseill|sud|south|occitan|alsac|corse|nord|ch.ti/i;
-async function bibliotheque(gender, age, key) {
+async function bibliotheque(gender, age, key, search) {
   const q = new URLSearchParams({ page_size: "40", language: "fr", accent: "parisian", gender, age });
+  if (search) { q.delete("accent"); q.delete("age"); q.set("search", search); }
   const call = (k) => fetch("https://api.elevenlabs.io/v1/shared-voices?" + q, { headers: k ? { "xi-api-key": k } : {} });
   let r = await call(key);
   if (!r.ok && key) r = await call("");
@@ -121,18 +125,20 @@ async function casting() {
   const actuelles = voix(); const out = {};
   for (const [who, p] of Object.entries(PROFILS)) {
     const vus = new Set(); const liste = [];
-    for (const age of p.ages) for (const v of await get(p.gender, age)) {
+    const sources = p.enfant ? p.enfant.map((t) => bibliotheque(p.gender, "", key, t).catch((e) => { erreurs.push(String(e.message || e)); return []; })) : p.ages.map((age) => get(p.gender, age));
+    for (const lot of await Promise.all(sources)) for (const v of lot) {
       if (vus.has(v.voice_id)) continue; vus.add(v.voice_id);
       const fr = (v.verified_languages || []).find((l) => l.language === "fr" && (!l.model_id || l.model_id === modele())) || (v.verified_languages || []).find((l) => l.language === "fr");
       const accent = (fr?.accent || v.accent || "").toLowerCase();
       const texte = `${v.name} ${v.description || ""} ${accent} ${fr?.locale || v.locale || ""}`;
       if (PAS_PARIS.test(texte) || /fr-ca|fr-be|fr-ch/i.test(texte)) continue;
-      if (!/paris|standard|france|french|neutr/i.test(accent)) continue;
+      if (!p.enfant && !/paris|standard|france|french|neutr/i.test(accent)) continue;
       const ecoute = fr?.preview_url || v.preview_url;
       if (!ecoute) continue;
       liste.push({ id: v.voice_id, nom: v.name, age: v.age, accent: fr?.accent || v.accent, description: String(v.description || "").slice(0, 180), ecoute, popularite: v.cloned_by_count || 0 });
     }
-    liste.sort((a, b) => (/paris/i.test(b.accent) - /paris/i.test(a.accent)) || b.popularite - a.popularite);
+    const kid = (v) => /child|kid|enfant|girl|boy|fille|gar[çc]on|young child|little/i.test(v.nom + " " + v.description);
+    liste.sort((a, b) => (p.enfant ? kid(b) - kid(a) : 0) || (/paris/i.test(b.accent) - /paris/i.test(a.accent)) || b.popularite - a.popularite);
     out[who] = { ...p, actuelle: actuelles[who], voix: liste.slice(0, 8) };
   }
   return new Response(JSON.stringify({ ok: true, modele: modele(), personnages: out, erreurs: [...new Set(erreurs)] }), { headers: {

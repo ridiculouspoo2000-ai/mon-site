@@ -2,7 +2,7 @@
 (() => {
   const L = window.VOIX_LIGNES, list = document.getElementById('v-list'), st = document.getElementById('v-status'), diag = document.getElementById('v-diag');
   fetch('/api/voix?a=test', { cache: 'no-store' }).then(r => r.json()).then(j => { diag.textContent = j.ok ? `Connexion à ElevenLabs réussie · offre ${j.offre} · caractères utilisés ${j.caracteres}` + (j.restants != null ? ` · il reste ${j.restants} caractères (régénérer toutes les voix en demande environ 2 300)` : '') + (j.renouvellement ? ` · crédits renouvelés le ${new Date(j.renouvellement * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}` : '') + '.' : 'Diagnostic : ' + j.detail; diag.dataset.kind = j.ok ? 'ok' : 'error'; }).catch(() => { diag.textContent = 'Diagnostic indisponible.'; });
-  const names = { nour: 'Nour', bastien: 'Bastien', ines: 'Inès', jade: 'Jade', kevin: 'Kévin', garnier: 'M. Garnier', lou: 'Lou', malo: 'Malo', maelys: 'Maëlys', narr: 'Narration' };
+  const names = { nour: 'Nour', bastien: 'Bastien', ines: 'Inès', jade: 'Jade', kevin: 'Kévin', garnier: 'M. Garnier', lou: 'Lou', malo: 'Malo', maelys: 'Maëlys', narr: 'Narration', e_maman: 'Prélude · maman, voisine', e_papa: 'Prélude · papa, père', e_anim: 'Prélude · animateur, adulte', e_fille: 'Prélude · petite fille', e_animatrice: 'Prélude · animatrice', e_ado: 'Prélude · ado', e_ado_f: 'Prélude · adolescente', e_garcon: 'Prélude · petit garçon' };
   const audio = new Audio();
   L.forEach((l, i) => {
     const li = document.createElement('li');

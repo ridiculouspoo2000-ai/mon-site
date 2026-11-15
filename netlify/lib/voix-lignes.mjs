@@ -72,6 +72,18 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir."
  },
+ "ee775ea150fc": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes animateur ou animatrice, recruté pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes."
+ },
+ "be41a433064e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le but du jeu. Pendant cinq journées, vous décidez quoi faire à chaque situation. Votre objectif : repérer, protéger, alerter et prévenir. À la fin de la semaine, un bilan vous montre vos points forts."
+ },
  "20c879fbfeb6": {
   "who": "nour",
   "mood": "big",
@@ -684,11 +696,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine."
  },
- "216350aa85a5": {
+ "328e8bd93066": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous fait visiter l’accueil. Six points méritent votre attention, cachés parmi des lieux sans problème. Vous avez deux minutes et deux indices : ouvrez l’œil."
+  "text": "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous explique à quoi il sert et ce qui s’y passe. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices."
  },
  "59718481a1bf": {
   "who": "nour",

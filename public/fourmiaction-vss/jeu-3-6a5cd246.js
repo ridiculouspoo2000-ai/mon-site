@@ -771,30 +771,38 @@
   /* ---------- rendus ---------- */
   const R = {};
 
+  // Écran du rôle : même nuit que l’accueil, personnage choisi en grand sous un halo, réglages en sélecteurs.
   R.avatar = (sc, n) => {
-    n.innerHTML = `<div class="solo"><h2 id="h-${sc.id}">Votre rôle</h2><p class="lead">Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Ce jeu porte sur la prévention des violences sexistes et sexuelles : les repérer, protéger les enfants et alerter.</p></div>`;
-    const box = n.querySelector(".solo");
-    const lab = el("label", { for: "pname", class: "flabel" }, "Votre prénom (facultatif)");
-    const inp = el("input", { id: "pname", type: "text", maxlength: "20", autocomplete: "off", placeholder: "Sam", value: st.name || "" });
+    $("#hud").hidden = true;   // préparation : pas encore de barre d’outils
+    n.classList.add("setup2");
+    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 16 : 30)}</div>
+      <div class="su"><div class="su-head"><p class="hk">Avant de commencer</p><h2 id="h-${sc.id}">Votre rôle</h2>
+      <p class="lead">Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Ce jeu porte sur la prévention des violences sexistes et sexuelles : les repérer, protéger les enfants et alerter.</p></div>
+      <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div></div><div class="su-form"></div></div></div>`;
+    const pick = n.querySelector(".su-pick"), big = n.querySelector(".su-big"), form = n.querySelector(".su-form");
+    const drawBig = () => { big.innerHTML = A.avatars[st.av]; big.classList.remove("pop"); void big.offsetWidth; big.classList.add("pop"); };
     const grid = el("div", { class: "avs", role: "radiogroup", "aria-label": "Choisissez votre personnage" });
     A.avatars.forEach((svg, i) => {
       const b = el("button", { class: "av" + (i === st.av ? " sel" : ""), type: "button", role: "radio", "aria-checked": i === st.av ? "true" : "false", "aria-label": "Personnage " + (i + 1) }, svg);
-      b.addEventListener("click", () => { st.av = i; grid.querySelectorAll(".av").forEach((x, j) => { x.classList.toggle("sel", j === i); x.setAttribute("aria-checked", j === i); }); Snd.click(); });
+      b.addEventListener("click", () => { st.av = i; grid.querySelectorAll(".av").forEach((x, j) => { x.classList.toggle("sel", j === i); x.setAttribute("aria-checked", j === i); }); drawBig(); Snd.click(); });
       grid.appendChild(b);
     });
-    const fmt = el("div", { class: "fmt", role: "radiogroup", "aria-label": "Format de l’accueil" });
-    [[false, "Sans hébergement (ALSH)", "Accueil de loisirs : les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement (ALAH)", "Une nuit sur place le mercredi : un parcours en plus sur les risques de la nuit."]].forEach(([v, t, d]) => {
-      const b = el("button", { class: "fmtb" + (!!st.nuitee === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(!!st.nuitee === v) }, `<b>${t}</b><small>${d}</small>`);
-      b.addEventListener("click", () => { st.nuitee = v; fmt.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
-      fmt.appendChild(b);
-    });
-    const lvl = el("div", { class: "fmt lvl3", role: "radiogroup", "aria-label": "Niveau de difficulté" });
-    [[1, "Découverte", "Plus de temps, des indices, des situations plus lisibles."], [2, "Standard", "Le rythme du terrain."], [3, "Expert", "Chaque décision est chronométrée, peu d’indices."]].forEach(([v, t, d]) => {
-      const b = el("button", { class: "fmtb" + ((st.level || 2) === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String((st.level || 2) === v) }, `<b>${t}</b><small>${d}</small>`);
-      b.addEventListener("click", () => { st.level = v; lvl.querySelectorAll(".fmtb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
-      lvl.appendChild(b);
-    });
-    box.append(lab, inp, el("p", { class: "flabel" }, "Votre personnage"), grid, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau (modifiable à tout moment)"), lvl, btn("Commencer", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); }));
+    pick.appendChild(grid); drawBig();
+    const lab = el("label", { for: "pname", class: "flabel" }, "Votre prénom <span>(facultatif)</span>");
+    const inp = el("input", { id: "pname", type: "text", maxlength: "20", autocomplete: "off", placeholder: "Sam", value: st.name || "" });
+    const seg = (label, opts, cur, onPick, cls) => {
+      const g = el("div", { class: "seg " + (cls || ""), role: "radiogroup", "aria-label": label });
+      opts.forEach(([v, t, d]) => {
+        const b = el("button", { class: "segb" + (cur() === v ? " sel" : ""), type: "button", role: "radio", "aria-checked": String(cur() === v) }, `<b>${t}</b><small>${d}</small>`);
+        b.addEventListener("click", () => { onPick(v); g.querySelectorAll(".segb").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", String(on)); }); Snd.click(); });
+        g.appendChild(b);
+      });
+      return g;
+    };
+    const fmt = seg("Format de l’accueil", [[false, "Sans hébergement", "ALSH · les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement", "ALAH · une nuit sur place le mercredi, un parcours en plus sur les risques de la nuit."]], () => !!st.nuitee, (v) => { st.nuitee = v; }, "two");
+    const lvl = seg("Niveau de difficulté", [[1, "Découverte", "Plus de temps, des indices."], [2, "Standard", "Le rythme du terrain."], [3, "Expert", "Tout est chronométré."]], () => st.level || 2, (v) => { st.level = v; }, "three");
+    const go2 = btn("Commencer la semaine", () => { st.name = (inp.value || "").trim().slice(0, 20); next(); });
+    form.append(lab, inp, el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl, go2);
   };
 
   // Chaque journée commence au portail : la nuit tombe sur la veille, le jour se lève, les familles arrivent.
@@ -1619,12 +1627,10 @@
     const audio = voiceOn ? new Audio() : null;
     if (audio) audio.preload = "auto";
     const finish = () => {
-      if (!alive) return; alive = false; clearTimeout(timer);
+      if (!alive) return; alive = false; clearTimeout(timer); cancelAnimationFrame(raf);
       if (audio) { try { audio.pause(); } catch (e) { } audio.removeAttribute("src"); }
       Voice.stop(); Snd.duck(false); Snd.click(); done();
     };
-    const skip = btn("Passer l’introduction", finish, "ghost light"); skip.classList.add("ec-skip");
-    n.appendChild(skip);
     stage.appendChild(n);
     // positions éparpillées (en % de la zone), en alternance gauche / droite
     // ordinateur : trois colonnes décalées (aucun chevauchement) ; téléphone : emplacements alternés, seules les 3 dernières restent visibles
@@ -1634,33 +1640,43 @@
     function show(line, k) {
       field.querySelectorAll(".ec.on").forEach((e, j, all) => { e.classList.add("past"); if (j < all.length - 2) e.classList.add("old"); });
       const p = POS[k % POS.length];
-      const f = el("figure", { class: "ec", style: `--x:${p[0]}%;--y:${p[1]}%` }, `<blockquote>« ${esc(line.t)} »</blockquote><figcaption>${esc(line.label)}</figcaption>`);
+      const f = el("figure", { class: "ec", style: `--x:${p[0]}%;--y:${p[1]}%` }, `<blockquote><span class="q">«</span> ${words(line.t)} <span class="q">»</span></blockquote><figcaption>${esc(line.label)}</figcaption>`);
       field.appendChild(f); requestAnimationFrame(() => requestAnimationFrame(() => f.classList.add("on")));
       say(line.label + " : " + line.t);
+      return f;
+    }
+    // Les mots apparaissent au moment où on les entend (ou au rythme de lecture, sans voix).
+    let raf = 0;
+    function reveal(f, getP) {
+      cancelAnimationFrame(raf);
+      const ws = f.querySelectorAll(".wd");
+      const tick = () => { const pr = Math.min(1, getP()); const k = Math.ceil(pr * ws.length * 1.06); for (let i = 0; i < Math.min(k, ws.length); i++) ws[i].classList.add("sp"); if (pr < 1 && alive) raf = requestAnimationFrame(tick); };
+      raf = requestAnimationFrame(tick);
     }
     function outro() {
       if (!alive) return;
       field.classList.add("done"); end.hidden = false; outP.innerHTML = words(ECHOES.outro);
       requestAnimationFrame(() => end.classList.add("on"));
       say(ECHOES.outro);
-      skip.remove();
       end.appendChild(btn("Entrer aux Hautes Herbes", finish));
       if (voiceOn) { Snd.duck(false); setTimeout(() => { if (alive) Voice.say("narr", ECHOES.outro, outP); }, 500); }
     }
     function step() {
       if (!alive) return;
       clearTimeout(timer);
-      if (idx >= L.length) { timer = setTimeout(outro, 900); return; }
+      if (idx >= L.length) { timer = setTimeout(outro, 700); return; }
       const line = L[idx], k = idx++, my = ++token;
-      show(line, k);
-      const read = Math.max(1900, 1000 + line.t.length * 55);   // rythme de lecture, sans voix
+      const f = show(line, k);
+      const read = Math.max(1500, 700 + line.t.length * 46);   // rythme de lecture, sans voix
       const nextOnce = (delay) => { if (my !== token || !alive) return; clearTimeout(timer); timer = setTimeout(step, delay); };
+      const byTime = () => { const t0 = performance.now(), d = read * .72; reveal(f, () => (performance.now() - t0) / d); };
       const u = audio && Voice.url(line.who, line.t);
-      if (!u) { nextOnce(read); return; }
-      audio.onended = () => nextOnce(calm() ? 450 : 180);
-      audio.onerror = () => nextOnce(read);
+      if (!u) { byTime(); nextOnce(read); return; }
+      audio.onended = () => { f.querySelectorAll(".wd").forEach((w) => w.classList.add("sp")); nextOnce(calm() ? 300 : 60); };
+      audio.onerror = () => { byTime(); nextOnce(read); };
+      audio.onplaying = () => reveal(f, () => (audio.duration && isFinite(audio.duration) ? audio.currentTime / audio.duration : 0));
       audio.src = u;
-      const pr = audio.play(); if (pr && pr.catch) pr.catch(() => nextOnce(read));
+      const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { byTime(); nextOnce(read); });
       timer = setTimeout(() => nextOnce(0), Math.max(read, 9000));   // garde-fou si l’audio ne répond pas
     }
     Snd.duck(true);
@@ -2123,23 +2139,40 @@
 
   /* ---------- accueil ---------- */
   const HOME_STAGE = { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "wave"], ["nour", "d", "wave"], ["sacha", "c", "walk"], ["zoe", "e"], ["kevin", "f", "talk"]] };
+  // Hautes herbes de nuit (comme l’affiche du jeu) : brins lumineux qui ondulent, lucioles.
+  function nightGrass(N) {
+    let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const C = [["#2B6FD6", "#7FB0FF"], ["#8A4FD0", "#C59BFF"], ["#E2702A", "#FFB37A"]];
+    let defs = "", blades = "", flies = "";
+    C.forEach(([a, b], i) => { defs += `<linearGradient id="gb${i}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${a}" stop-opacity="0"/><stop offset=".45" stop-color="${a}" stop-opacity=".75"/><stop offset="1" stop-color="${b}" stop-opacity=".95"/></linearGradient>`; });
+    for (let i = 0; i < N; i++) {
+      const x = 40 + rnd() * 1360, h = 260 + rnd() * 560, lean = (rnd() - .45) * 220, w = 3 + rnd() * 9, c = (rnd() * 3) | 0;
+      const y0 = 920, y1 = y0 - h, cx = x + lean * .25, cy = y0 - h * .55;
+      blades += `<path class="bl" style="--d:${(5 + rnd() * 5).toFixed(2)}s;--dl:${(-rnd() * 6).toFixed(2)}s;--a:${(1.2 + rnd() * 2.2).toFixed(2)}deg;opacity:${(.35 + rnd() * .55).toFixed(2)}" d="M${x.toFixed(0)} ${y0} Q${cx.toFixed(0)} ${cy.toFixed(0)} ${(x + lean).toFixed(0)} ${y1.toFixed(0)}" stroke="url(#gb${c})" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none"/>`;
+    }
+    for (let i = 0; i < 14; i++) flies += `<circle class="fly" cx="${(80 + rnd() * 1280).toFixed(0)}" cy="${(260 + rnd() * 560).toFixed(0)}" r="${(1.6 + rnd() * 2.2).toFixed(1)}" style="--d:${(6 + rnd() * 6).toFixed(2)}s;--dl:${(-rnd() * 8).toFixed(2)}s;--fx:${((rnd() - .5) * 90).toFixed(0)}px;--fy:${(-30 - rnd() * 70).toFixed(0)}px"/>`;
+    return `<svg class="ngrass" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice"><defs>${defs}</defs><g class="blades">${blades}</g><g class="flies">${flies}</g></svg>`;
+  }
   function home() {
     if (DC.el) DC.el.hidden = true;
     // l'accueil de loisirs, en vrai, derrière le titre : le matin, les familles arrivent
+    // Accueil : la nuit sur les hautes herbes (plus de décor en 3D derrière le titre)
     World.init();
-    if (World.el && !calm()) { World.cur = null; World.show(HOME_STAGE, { id: "home", type: "chapter", kicker: "Lundi, 8 h 20" }); document.body.classList.remove("live"); document.body.classList.add("athome"); }
-    else if (World.el) { World.el.classList.remove("on"); document.body.classList.remove("live"); World.cur = null; }
+    if (World.el) { World.el.classList.remove("on"); World.cur = null; }
+    document.body.classList.remove("live", "athome");
     hud(false);
     Snd.setMood("home");
     stage.innerHTML = "";
     const prev = load();
     const canResume = prev && (prev.idx > 0 || prev.done);
     const n = el("section", { class: "screen home in", "aria-labelledby": "h-home" });
-    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i><svg class="rings" viewBox="0 0 800 800"><circle cx="400" cy="400" r="160"/><circle cx="400" cy="400" r="260"/><circle cx="400" cy="400" r="360"/></svg></div>
+    n.classList.add("home2");
+    n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 26 : 46)}</div>
       <div class="hero"><div class="logo" role="img" aria-label="Fourmi’Action"></div>
-      <p class="hk">Formation BAFA · BAFD · mise en situation</p>
+      <p class="hk">Jeu sérieux · Formation BAFA · BAFD</p>
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
-      <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles. Repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
+      <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
+      <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 25 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
       <div class="hbtns"></div>
       <div class="hopts" role="group" aria-label="Réglages"><button type="button" class="hopt" data-k="sound"></button><button type="button" class="hopt" data-k="voice"></button></div>

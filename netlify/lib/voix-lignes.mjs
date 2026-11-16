@@ -72,29 +72,29 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir."
  },
- "ee775ea150fc": {
+ "434ac094f566": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous êtes animateur ou animatrice, recruté pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes."
+  "text": "Vous êtes animateur ou animatrice pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, et vous êtes le binôme de Nour pour prévenir les violences sexistes et sexuelles."
  },
- "4dcd6d7d9434": {
+ "940880613dc6": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. À vous de choisir les bonnes réactions et de réussir les petites missions. Chaque bonne décision vous fait progresser, jusqu’au bilan du vendredi."
+  "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre."
  },
- "20c879fbfeb6": {
+ "b807fd8a8d81": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe, et la référente de l’équipe pour les violences sexistes et sexuelles."
+  "text": "Bienvenue aux Hautes Herbes ! Tu nous rejoins pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe et référente de l’équipe pour les violences sexistes et sexuelles. Cette semaine, tu es mon binôme sur ce sujet."
  },
- "22964a10f939": {
+ "47552d855541": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu es en renfort, et tu vas là où l’équipe a besoin de toi."
+  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où l’équipe a besoin de toi. Et comme tu es mon binôme sur ces questions, quand tu vois que quelque chose coince, tu interviens. Je te fais confiance."
  },
  "99811a9421b6": {
   "who": "nour",
@@ -108,11 +108,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse."
  },
- "6488739bb795": {
+ "944bef8f7b1b": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Et ton téléphone… Ton numéro personnel a circulé sur le groupe de l’équipe, et des jeunes l’ont récupéré. Ils vont t’écrire, souvent au mauvais moment. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer."
+  "text": "Et ton téléphone… Malheureusement, ton numéro a fuité sur le groupe WhatsApp, et je crois que certains ados l’ont récupéré. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer."
  },
  "e40c1efcfc26": {
   "who": "nour",
@@ -792,11 +792,23 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
  },
- "ac0e5cd41a17": {
+ "6f7a982b074b": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Bastien anime l’atelier : Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. Léna lui redemande d’apprendre à régler les micros."
+  "text": "Bastien anime l’atelier"
+ },
+ "bffa03a8d29d": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire."
+ },
+ "c4c5097e7eba": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Léna lui redemande d’apprendre à régler les micros."
  },
  "a075f229a39c": {
   "who": "narr",
@@ -852,11 +864,17 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin."
  },
- "887f70cccccd": {
+ "c1224627f998": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Depuis lundi, à chaque briefing, Bastien et Yanis lancent à Inès, responsable de l’atelier vélo, des remarques sur les filles qui se prennent pour des garçons ."
+  "text": "Depuis lundi, à chaque briefing, Bastien et Yanis lancent à Inès, responsable de l’atelier vélo, des remarques sur"
+ },
+ "ee090586da63": {
+  "who": "ines",
+  "mood": "",
+  "kind": "replique",
+  "text": "les filles qui se prennent pour des garçons"
  },
  "ff04370f819d": {
   "who": "narr",
@@ -912,17 +930,41 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Nour est informée deux jours plus tard. Entre-temps, Bastien pense que rien n’a été dit de grave. Informer la référente est utile, mais sans rien dire à Bastien, vous laissez la situation se prolonger. Pour faire mieux : Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée."
  },
- "e61fa1823e87": {
+ "e00f11403b00": {
   "who": "narr",
   "mood": "",
-  "kind": "situation",
-  "text": "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi."
+  "kind": "retour-moyen",
+  "text": "Des excuses ne suffisent pas : en refermant le sujet, vous laissez penser que l’intention efface l’effet."
  },
- "f5172baf70b3": {
+ "6c93e226a584": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous nommez le cœur du problème, la demande d’arrêt ignorée, et vous impliquez la référente."
+ },
+ "0ffee6827206": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le problème n’est pas le public : c’est ce que subit Inès. Vous légitimez les propos."
+ },
+ "776ba53d58a9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Informer la référente est utile, mais sans rien dire à Bastien, vous laissez la situation se prolonger."
+ },
+ "53e3ac84a2b7": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
+  "text": "13 h 30. Retour en salle des animateurs. Nour enfile sa veste : elle doit partir en réunion."
+ },
+ "f3da663accc5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour est appelée en réunion à la mairie jusqu’à 17 h. Avant de partir, elle vous confie le planning de l’après-midi : Tu connais les règles, je te fais confiance. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
  "b3fd78d06831": {
   "who": "narr",
@@ -930,11 +972,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "14 h, c’est le temps calme. Jade vous montre un dessin de Théo, 8 ans, et vous parle de lui."
  },
- "7ac353ef9e53": {
+ "75285db9168a": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique : Il a été agressé par quelqu’un de sa famille."
+  "text": "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique"
+ },
+ "8be76840928a": {
+  "who": "jade",
+  "mood": "",
+  "kind": "replique",
+  "text": "Il a été agressé par quelqu’un de sa famille."
  },
  "e2754dc5b24a": {
   "who": "narr",
@@ -977,6 +1025,30 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-faible",
   "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+ },
+ "1588021dd4b1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future."
+ },
+ "577310803f2e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Noter est juste, mais attendre n’est pas nécessaire : une inquiétude étayée se transmet sans délai."
+ },
+ "7a7a2080051e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue."
+ },
+ "d63e278639a7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions."
  },
  "d6e47ef5ed77": {
   "who": "narr",
@@ -1104,17 +1176,29 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mercredi, 16 h. Après ce que vous a dit Léna, Nour vous retrouve, son carnet à la main."
  },
- "ea3e60130230": {
+ "1177f9d2bb6e": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous tend une page : Depuis la loi du 6 novembre 2025, le Code pénal précise que le consentement est libre et éclairé, spécifique, préalable et révocable. Montre-moi que tu sais les reconnaître."
+  "text": "Nour vous tend une page"
+ },
+ "521512d3b133": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Depuis la loi du 6 novembre 2025, le Code pénal précise que le consentement est libre et éclairé, spécifique, préalable et révocable. Montre-moi que tu sais les reconnaître."
  },
  "7f7e63583260": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Quelle caractéristique du consentement manque dans chaque situation ?"
+ },
+ "e9a92929b8c8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
  },
  "a24db121e607": {
   "who": "narr",
@@ -1392,6 +1476,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Devant le panneau d’affichage, Bastien vous rattrape : il a une idée."
  },
+ "1d59af7b75a1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Et si on mettait juste une grande affiche Ici, on respecte tout le monde ? C’est réglé, non ?"
+ },
  "be20a8a13f22": {
   "who": "narr",
   "mood": "",
@@ -1416,6 +1506,30 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Les jeunes signent. Les pratiques des adultes, elles, ne changent pas. Faire porter l’engagement aux jeunes déplace la responsabilité : c’est d’abord l’organisation des adultes qui doit changer. Pour faire mieux : Garder l’affiche si elle est utile, mais l’accompagner d’un changement concret et d’un indicateur observable."
  },
+ "9a3bcb2ab0bb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Une prévention se vérifie : un changement concret, une personne responsable, un moment, un indicateur."
+ },
+ "82d968c7fa14": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Un engagement affiché sans changement concret ni vérification reste une intention."
+ },
+ "7df3fbcade66": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les sanctions sont utiles mais tardives : la prévention agit avant. Et une affiche a sa place si elle s’accompagne d’actes."
+ },
+ "1344a44d06f0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Faire porter l’engagement aux jeunes déplace la responsabilité : c’est d’abord l’organisation des adultes qui doit changer."
+ },
  "d49832d2e1c4": {
   "who": "narr",
   "mood": "",
@@ -1428,17 +1542,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Ce message fait écho à l’actualité : en avril 2026, Paris a adopté un plan pour sécuriser le périscolaire, et en octobre, un rapport du Sénat a dénoncé l’omerta et demandé des contrôles d’honorabilité chaque année."
  },
- "097a36cebceb": {
+ "c526bb8b6057": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Après les affaires du périscolaire parisien, plusieurs parents écrivent à l’accueil"
- },
- "70eeb223b35c": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Nour vous demande ce que l’accueil doit répondre."
+  "text": "Après les affaires du périscolaire parisien, plusieurs parents écrivent à l’accueil : Qui encadre nos enfants, et comment savoir qu’ils sont en sécurité ? Nour vous demande ce que l’accueil doit répondre."
  },
  "2c388c9a93bb": {
   "who": "narr",
@@ -1566,11 +1674,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
  },
- "c0e7f5a146bd": {
+ "189fd77e5a2c": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "18 h. Avant de quitter les Hautes Herbes, vous repensez aux moments forts de la semaine."
+  "text": "18 h. Avant de quitter les Hautes Herbes, Nour vous propose de revenir sur chacune de vos décisions de la semaine."
  },
  "ee09ad6f73ae": {
   "who": "narr",
@@ -1950,11 +2058,17 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "À retenir. Le fond était juste : respecter le refus et proposer une alternative. La forme compte aussi : une consigne se corrige entre adultes, à l’écart des enfants."
  },
- "51c5540533b2": {
+ "d0f1b1eff453": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Léna, à voix basse : Euh… Enzo, il a pris Clara en photo… dans les vestiaires. Et il dit qu’il va l’envoyer au groupe des grands."
+  "text": "Léna, à voix basse"
+ },
+ "d349d069b70c": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… Enzo, il a pris Clara en photo… dans les vestiaires. Et il dit qu’il va l’envoyer au groupe des grands."
  },
  "7097380438ae": {
   "who": "narr",

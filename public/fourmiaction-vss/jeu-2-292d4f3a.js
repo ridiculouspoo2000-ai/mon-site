@@ -52,15 +52,15 @@ const ECHOES = {
 };
 // Écran du rôle : phrase lue par le narrateur, puis le but du jeu expliqué simplement.
 const ROLE = {
-  voice: "Vous êtes animateur ou animatrice, recruté·e pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes.",
+  voice: "Vous êtes animateur ou animatrice pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, et vous êtes le binôme de Nour pour prévenir les violences sexistes et sexuelles.",
   goalTitle: "Comment on joue",
   goal: [
     ["Laissez-vous guider", "Nour, la directrice adjointe, vous accompagne toute la semaine. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
-    ["Choisissez la bonne réaction", "Quand une situation se présente, touchez la réponse qui vous semble la plus juste. Un retour vous explique tout de suite pourquoi elle protège l’enfant, ou pourquoi elle ne suffit pas."],
+    ["Réagissez, comme sur le terrain", "Quand une situation se présente, choisissez ce que vous faites. Personne ne vous dit sur le moment si c’était juste : votre décision est enregistrée, et la semaine continue."],
     ["Relevez des petites missions", "Faire le tour de l’accueil, organiser le planning, trouver un enfant qui vous cherche, composer un numéro d’urgence, vérifier les départs au portail : chaque mission entraîne un réflexe concret."],
-    ["Progressez jusqu’au vendredi", "Chaque bonne décision fait grandir vos quatre gestes, en haut de l’écran : repérer, nommer, protéger et alerter, prévenir. Le vendredi, vous découvrez votre bilan, votre score et votre place au classement."],
+    ["Le retour du vendredi", "En fin de semaine, vous revenez sur chacune de vos décisions : vous voyez ce qu’elle a produit chez les enfants et l’équipe, puis ce que dit le cadre. Ensuite viennent votre bilan, votre score et votre place au classement."],
   ],
-  goalVoice: "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. À vous de choisir les bonnes réactions et de réussir les petites missions. Chaque bonne décision vous fait progresser, jusqu’au bilan du vendredi.",
+  goalVoice: "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre.",
 };
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
@@ -68,13 +68,13 @@ const SCREENS = [
   { id: "intro", ch: 1, type: "story", scene: "welcome", kicker: "Lundi, 8 h 30",
     lines: [
       { who: null, t: "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter." },
-      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu es recruté pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe, et la référente de l’équipe pour les violences sexistes et sexuelles." },
-      { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu es en renfort, et tu vas là où l’équipe a besoin de toi." },
+      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu nous rejoins pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe et référente de l’équipe pour les violences sexistes et sexuelles. Cette semaine, tu es mon binôme sur ce sujet." },
+      { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où l’équipe a besoin de toi. Et comme tu es mon binôme sur ces questions, quand tu vois que quelque chose coince, tu interviens. Je te fais confiance." },
       { who: null, t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
       { who: null, t: "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles." },
       { who: "nour", mood: "smile", t: "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre." },
       { who: "nour", mood: "calm", reveal: "clock", t: "En haut à gauche, tu suis le jour, l’heure et la fatigue de l’équipe. Plus la semaine avance, plus on est fatigués : c’est souvent là que la vigilance baisse." },
-      { who: "nour", mood: "smile", reveal: "phone", t: "Et ton téléphone… Ton numéro personnel a circulé sur le groupe de l’équipe, et des jeunes l’ont récupéré. Ils vont t’écrire, souvent au mauvais moment. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer." },
+      { who: "nour", mood: "smile", reveal: "phone", t: "Et ton téléphone… Malheureusement, ton numéro a fuité sur le groupe WhatsApp, et je crois que certains ados l’ont récupéré. À toi de juger ce qui peut attendre, et ce qu’il faut recadrer." },
       { who: "nour", mood: "calm", t: "À chaque étape, je te laisse une page de mon carnet. Tu pourras l’ouvrir à tout moment, en haut de l’écran." },
     ] },
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
@@ -156,7 +156,7 @@ const SCREENS = [
     later: true,
     better: "Revenir aux faits : la répétition, le refus exprimé et l’effet sur la personne comptent plus que l’intention affichée." },
   { id: "planning", ch: 2, type: "planning", comp: "C4", kicker: "Mardi, 13 h 30 · avant les activités", title: "Organiser l’après-midi",
-    intro: "Nour vous confie le planning de l’après-midi. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet.",
+    intro: "Nour est appelée en réunion à la mairie jusqu’à 17 h. Avant de partir, elle vous confie le planning de l’après-midi : « Tu connais les règles, je te fais confiance. » Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet.",
     staff: [["jade", "Jade", "animatrice, référente des petits"], ["ines", "Inès", "animatrice"], ["kevin", "Kévin", "animateur"], ["bastien", "Bastien", "stagiaire BAFA"], ["you", "Vous", "animateur ou animatrice"]],
     posts: [
       { id: "atelier", t: "Atelier bois à la régie", d: "6 grands, avec l’intervenant extérieur", n: 1 },
@@ -739,7 +739,7 @@ const BRIDGE = {
   brief: "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin.",
   ines: "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe.",
   rire: "12 h 15, au réfectoire. Bastien s’assoit en face de vous. Il a vu Inès vous parler ce matin, et il revient sur les remarques faites au briefing.",
-  planning: "13 h 30. Retour en salle des animateurs : Nour prépare avec vous l’organisation de l’après-midi.",
+  planning: "13 h 30. Retour en salle des animateurs. Nour enfile sa veste : elle doit partir en réunion.",
   theo: "14 h, c’est le temps calme. Jade vous montre un dessin de Théo, 8 ans, et vous parle de lui.",
   parent1: "Les activités de l’après-midi se terminent : vous accompagnez les enfants jusqu’au portail.",
   chat: "18 h. Le papa de Zoé est reparti. Vous rejoignez la salle des animateurs pour le point du soir. En sortant votre téléphone, vous découvrez la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
@@ -774,7 +774,7 @@ const BRIDGE = {
   f3: "14 h. Maëlys attend à l’infirmerie, avec Nour. Vous allez la rejoindre.",
   k5: "La semaine touche à sa fin. Nour vous laisse la dernière page de son carnet.",
   dafter: "Vendredi, 17 h 30. Les enfants sont partis. Vous revenez dans la salle des animateurs, là où tout a commencé lundi. Les mêmes questions vous reviennent en tête.",
-  souvenirs: "18 h. Avant de quitter les Hautes Herbes, vous repensez aux moments forts de la semaine.",
+  souvenirs: "18 h. Avant de quitter les Hautes Herbes, Nour vous propose de revenir sur chacune de vos décisions de la semaine.",
 };
 SCREENS.forEach((sc) => {
   const b = BRIDGE[sc.id]; if (!b) return;
@@ -825,26 +825,37 @@ const STAGE = {
   dafter: { at: "equipe", room: "equipe", cast: [["you", "a"]] },
   bilan: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b", "wave"], ["bastien", "c", "wave"], ["ines", "d"], ["kevin", "e"], ["jade", "f", "wave"]] },
 };
+// Qui parle dans un texte du récit : les citations « … » sont dites par le personnage nommé juste avant (même phrase),
+// le reste par la narratrice ou le narrateur. On entend ainsi un maximum les personnages eux-mêmes.
+const SPEAKERS = [["M. Garnier", "garnier"], ["M. Roussel", "roussel"], ["Mme Benali", "benali"], ["Nour", "nour"], ["Bastien", "bastien"], ["Inès", "ines"], ["Jade", "jade"], ["Kévin", "kevin"],
+  ["Lou", "lou"], ["Malo", "malo"], ["Maëlys", "maelys"], ["Léna", "lena"], ["Sacha", "sacha"], ["Théo", "theo"], ["Zoé", "zoe"], ["Clara", "clara"], ["Enzo", "enzo"]];
 const VOICE_TXT = {
+  split(t, fb) {
+    t = String(t || ""); const q = [...t.matchAll(/«\s*([^»]+?)\s*»/g)]; if (!q.length) return t ? [["narr", t]] : [];
+    const out = []; let from = 0, pend = "";
+    const push = (w, x) => { x = x.trim(); if (!x) return; const L = out[out.length - 1]; if (L && L[0] === w && w === "narr") L[1] += " " + x; else out.push([w, x]); };
+    for (const m of q) {
+      const pre = t.slice(from, m.index), sent = (pend + pre).split(/[.!?…]\s/).pop();
+      let who = null, at = -1;
+      for (const [nm, w] of SPEAKERS) { const i = sent.lastIndexOf(nm); if (i > at) { at = i; who = w; } }
+      if (!who && fb && /[:,]\s*$/.test(pre) && !/parents|familles|message|écrivent/i.test(sent)) who = fb;   // un message écrit par des parents reste lu par le récit
+      if (who) { push("narr", pre.replace(/[\s:,]+$/, "")); push(who, m[1]); pend = ""; }
+      else { push("narr", pre + "« " + m[1] + " »"); pend = ""; }
+      from = m.index + m[0].length;
+    }
+    push("narr", t.slice(from).replace(/^[\s.,]+/, ""));
+    return out;
+  },
   // Contexte d'une situation : récit par la narratrice ou le narrateur, citations par le personnage présent.
   parts(sc) {
     const P = [];
     if (sc.type === "chapter") { const c = CHAPTERS[sc.ch - 1]; P.push(["narr", `${c.day}, jour ${c.n} sur ${CHAPTERS.length}. ${c.title}. ${c.goal}`]); return P; }
     if (sc.type === "explain" && sc.page) { if (sc.bridge) P.push(["narr", sc.bridge]); P.push(["nour", [sc.page.title, ...(sc.page.pts || [])].join(" ")]); return P; }
     if (sc.crisis) { if (sc.bridge) P.push(["narr", sc.bridge]); P.push(["narr", sc.crisis.intro]); return P; }
-    if (sc.bridge) P.push(["narr", sc.bridge]);
-    if (sc.fact) P.push(["narr", sc.fact]);
-    if (sc.intro) P.push(["narr", sc.intro]);
-    const t = sc.context;
-    if (t) {
-      const q = [...t.matchAll(/«\s*([^»]+?)\s*»/g)];
-      if (sc.npc && q.length) {
-        const a = t.slice(0, q[0].index).replace(/[\s:,]+$/, "").trim(), z = t.slice(q[q.length - 1].index + q[q.length - 1][0].length).replace(/^[\s.,]+/, "").trim();
-        if (a) P.push(["narr", a]);
-        P.push([sc.npc, q.map((m) => m[1]).join(" … ")]);
-        if (z) P.push(["narr", z]);
-      } else P.push(["narr", t]);
-    }
+    if (sc.bridge) P.push(...this.split(sc.bridge));
+    if (sc.fact) P.push(...this.split(sc.fact));
+    if (sc.intro) P.push(...this.split(sc.intro));
+    if (sc.context) P.push(...this.split(sc.context, sc.npc));
     if (sc.prompt) P.push(["narr", sc.prompt]);
     return P;
   },

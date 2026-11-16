@@ -19,14 +19,18 @@
   // d’après le texte, un peu courte pour que les mots s’affichent avec la voix, jamais après.
   const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali" };
+  const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Théo", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
   // Refonte : mise en scène corrigée. Devant la régie (« local »), les places extérieures tombent sur le toit
   // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
   // (la scène de Maëlys se joue désormais dans la cour : voir STAGE.maelys dans content.js)
   // Moments graves : le décor se fait discret (désaturé, assourdi) pour laisser toute la place à la parole de l'enfant.
   const GRAVE = new Set(["theo", "theo2", "lou", "numero", "acts", "ordre", "maelys", "f1", "temoin", "f3"]);
   // Première parole de l'enfant, montrée seule à l'écran, un instant, avant l'échange.
-  const MOMENT = { depart: "lou", maelys: "maelys" };   // la révélation de Lou se fait au départ des familles (écran « depart »)
+  const MOMENT = { depart: "lou", maelys: "maelys" };
+  // Décisions « sur le terrain » : pas de verdict pendant la semaine. Elles sont enregistrées, et le retour sur la semaine
+  // (vendredi soir) montre ce qu'elles ont produit, puis explique le cadre. Les exercices de repères (tri, ordre, numéro…) gardent leur correction.
+  const DEFER = new Set(["choice", "multi", "dialogue", "find"]);
+  const deferred = (sc) => DEFER.has(sc.type) && !(st && st.revealed);   // la révélation de Lou se fait au départ des familles (écran « depart »)
 
   /* ---------- état et sauvegarde ---------- */
   const fresh = () => ({ rev: {}, v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, later: {}, trust: {}, stars: {}, nuitee: false, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
@@ -312,7 +316,7 @@
   const RING = { C1: "#2B6FD6", C2: "#8A4FD0", C3: "#E2702A", C4: "#1F9D63" };
   function compProgress() {
     const tot = {}, got = {};
-    SCREENS.forEach((s) => { if (!s.comp) return; tot[s.comp] = (tot[s.comp] || 0) + 1; const r = st.res[s.id]; if (r != null) got[s.comp] = (got[s.comp] || 0) + r; });
+    SCREENS.forEach((s) => { if (!s.comp) return; tot[s.comp] = (tot[s.comp] || 0) + 1; const r = st.res[s.id]; if (r != null && !deferred(s)) got[s.comp] = (got[s.comp] || 0) + r; });
     return Object.keys(RING).map((c) => [c, tot[c] ? (got[c] || 0) / tot[c] : 0]);
   }
   function rings(pulse) {
@@ -820,7 +824,7 @@
   }
   function btn(label, onclick, cls = "cta") { return el("button", { class: cls, type: "button", onclick }, label); }
   function record(sc, q, extra) {
-    if (st.res[sc.id] == null) { st.res[sc.id] = q; if (sc.comp && q > 0) { rings(true); toast(sc.comp, q); } }
+    if (st.res[sc.id] == null) { st.res[sc.id] = q; if (sc.comp && q > 0 && !deferred(sc)) { rings(true); toast(sc.comp, q); } }
     if (extra && extra.flag) st.flags[extra.flag] = true;
     save();
   }
@@ -995,9 +999,9 @@
     let hier = "";
     if (prev) {
       const L = SCREENS.filter((x) => x.ch === prev.n && x.comp && st.res[x.id] != null);
-      const ok = L.filter((x) => st.res[x.id] >= 1).length, mid = L.length - ok;
-      const titres = L.slice(0, 4).map((x) => `<li class="${st.res[x.id] >= 1 ? "good" : "mid"}">${esc((x.kicker || x.title || "").replace(/^[^,·]*, ?/, ""))}</li>`).join("");
-      hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${ok} situation${ok > 1 ? "s" : ""} bien gérée${ok > 1 ? "s" : ""}${mid ? `, ${mid} à reprendre` : ""}.` : (prev.n === 1 ? "Une première journée pour prendre ses repères." : "Aucune situation évaluée hier.")}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
+      const ok = L.filter((x) => st.res[x.id] >= 1 && !deferred(x)).length, mid = L.filter((x) => !deferred(x)).length - ok, nD = L.filter(deferred).length;
+      const titres = L.slice(0, 4).map((x) => `<li class="${deferred(x) ? "" : st.res[x.id] >= 1 ? "good" : "mid"}">${esc((x.kicker || x.title || "").replace(/^[^,·]*, ?/, ""))}</li>`).join("");
+      hier = `<div class="dayrecap"><p class="kicker">Hier, ${prev.day.toLowerCase()}</p><p>${L.length ? `${L.length} situation${L.length > 1 ? "s" : ""} vécue${L.length > 1 ? "s" : ""}. Vos décisions sont enregistrées : vous verrez ce qu’elles ont produit vendredi soir.` : (prev.n === 1 ? "Une première journée pour prendre ses repères." : "Aucune situation évaluée hier.")}</p>${titres ? `<ul>${titres}</ul>` : ""}</div>`;
     }
     const plan = (c.plan || []).filter((p) => st.nuitee || !/nuitée/i.test(p[1])).map((p) => `<li><b>${p[0]}</b><span>${esc(p[1])}</span></li>`).join("");
     n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${youBust()}</div></div>
@@ -1036,7 +1040,7 @@
       if (L.reveal) { st.rev = st.rev || {}; st.rev[L.reveal] = 1; save(); hud(true); dayclock(sc); const t = L.reveal === "clock" ? DC.el : $("#btn-phone"); if (t) { t.classList.remove("revealed"); void t.offsetWidth; t.classList.add("revealed"); } }
       say((nm ? nm + " : " : "") + L.t);
       if (L.who && L.who !== "player") Voice.say(L.who, L.t, row);
-      else if (!L.who) Voice.say("narr", L.t, row);
+      else if (!L.who) { const S = VOICE_TXT.split(L.t); Voice.seq(S.map(([w, x]) => [w, x, S.length === 1 ? row : null])); }   // les citations sont dites par le personnage
     };
     function step() {
       Snd.click();
@@ -1263,11 +1267,11 @@
       record(sc, q, o);
       if (first) { st.later[sc.id] = { k, w: w ? sc.why.opts.indexOf(w) : -1 }; save(); }
       // réaction immédiate de la personne en face quand la réponse est mauvaise
-      if (!sc.later && q < 0.5 && sc.npc) { World.upset(sc.npc); setMood(n, sc.npc, "angry"); }
+      if (!sc.later && !deferred(sc) && q < 0.5 && sc.npc) { World.upset(sc.npc); setMood(n, sc.npc, "angry"); }
       // Conséquences cachées : le verdict n'apparaît qu'au débrief de fin de chapitre.
-      if (sc.later && first) {
+      if ((sc.later || deferred(sc)) && first) {
         b.classList.add("picked", "neutral");
-        fbz.innerHTML = `<div class="fb later"><p class="vt">Choix enregistré</p><p>Vous découvrirez plus tard, au débrief de Nour, ce que ce choix a produit.</p></div>`;
+        fbz.innerHTML = `<div class="fb later"><p class="vt">Choix enregistré</p><p>Vous découvrirez à la fin de la semaine ce que ce choix a produit, et ce que dit le cadre.</p></div>`;
         const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); fbz.appendChild(row);
         Snd.click(); Voice.say("narr", "Choix enregistré. Vous découvrirez plus tard ce qu’il a produit.");
         fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus({ preventScroll: false });
@@ -1299,6 +1303,7 @@
     return el("div", { class: "press" }, `<p class="press-k">Inspiré de faits réels</p>` + list.map((p) => `<a class="press-a" href="${esc(p.u)}" target="_blank" rel="noopener noreferrer"><span>${esc(p.t)}</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 4 12"/></svg></a>`).join(""));
   }
   function debrief(ch) {
+    if (DEFER.size) return null;   // les conséquences sont montrées au retour sur la semaine
     const list = SCREENS.filter((x) => x.ch === ch && x.type === "choice" && x.later && st.later && st.later[x.id] != null);
     if (!list.length) return null;
     const box = el("section", { class: "debrief", "aria-label": "Ce que vos choix ont produit" }, `<p class="kicker">Le débrief de Nour</p><h3>Ce que vos choix ont produit</h3>`);
@@ -1319,7 +1324,7 @@
     // Jauge de confiance : chaque réponse rapproche ou éloigne le personnage.
     let trust = 55;
     const tg = el("div", { class: "trust", role: "meter", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": "55", "aria-label": "Confiance de " + NAMES[sc.npc] }, `<span>Confiance de ${esc(NAMES[sc.npc])}</span><div class="tg"><i style="width:55%"></i></div><b class="td"></b>`);
-    side.appendChild(tg);
+    if (!deferred(sc)) side.appendChild(tg);   // pas de jauge pendant la semaine : on découvre l’effet de l’échange au retour
     const setTrust = (d) => {
       trust = Math.max(4, Math.min(100, trust + d));
       tg.querySelector("i").style.width = trust + "%"; tg.setAttribute("aria-valuenow", String(Math.round(trust)));
@@ -1369,9 +1374,10 @@
           opts.querySelectorAll("button").forEach((x) => (x.disabled = true));
           Snd.click(); qs.push(o.q); if (o.flag) flags[o.flag] = true; setTrust(Math.round((o.q - 0.5) * 44));
           log.appendChild(el("div", { class: "say me" }, `<b>${esc(st.name || "Vous")}</b><p>${esc(o.t)}</p>`));
-          if (o.note) { pend = o; if (o.q < 0.5) World.upset(sc.npc); }
+          if (deferred(sc)) { st.later = st.later || {}; st.later[sc.id] = st.later[sc.id] || { says: [] }; if (st.later[sc.id].says && st.res[sc.id] == null) st.later[sc.id].says.push(o.t); }
+          else if (o.note) { pend = o; if (o.q < 0.5) World.upset(sc.npc); }
           else if (o.q >= 1) burst(b, "good");
-          cheer(wrap, sc.npc, o.q);
+          if (!deferred(sc)) cheer(wrap, sc.npc, o.q);
           opts.innerHTML = "";
           setTimeout(() => show(o.to), st.settings.calm ? 0 : 380);
         });
@@ -1386,6 +1392,12 @@
       if (firstTry) Object.keys(flags).forEach((k) => (st.flags[k] = true));
       if (firstTry) { st.trust = st.trust || {}; st.trust[sc.npc] = Math.round(trust); }
       save();
+      if (deferred(sc)) {
+        if (firstTry) { st.later = st.later || {}; st.later[sc.id] = { ...(st.later[sc.id] || {}), end: cur }; save(); }
+        const box = el("div", { class: "fb later" }, `<p class="vt">Échange terminé</p><p>Vous découvrirez à la fin de la semaine ce que cet échange a produit.</p>`);
+        const row = el("div", { class: "row" }); row.append(btn("Continuer", next)); box.appendChild(row); opts.appendChild(box);
+        box.setAttribute("tabindex", "-1"); box.focus(); Snd.click(); return;
+      }
       const v = verdict(q >= 0.9 ? 1 : q >= 0.5 ? 0.5 : 0); v.s();
       if (q >= 0.9) setTimeout(() => burst(log.lastElementChild, "good"), 100);
       const box = el("div", { class: "fb " + v.cls }, `<p class="vt">${q >= 0.9 ? "Échange réussi" : q >= 0.5 ? "Échange rattrapé" : "Échange à retravailler"}</p><p><b>À retenir.</b> ${esc(nd.lesson)}</p>`);
@@ -1659,6 +1671,13 @@
       });
       const q = Math.max(0, (tp - fp) / nOk);
       record(sc, Math.round(q * 100) / 100);
+      if (deferred(sc)) {   // pas de correction maintenant : on garde ce qui a été coché
+        st.later = st.later || {}; if (st.later[sc.id] == null) { st.later[sc.id] = { sel: [...sel] }; save(); }
+        opts.querySelectorAll(".opt").forEach((b) => { b.classList.remove("isok", "isno", "miss"); b.querySelector(".why")?.remove(); });
+        fbz.innerHTML = `<div class="fb later"><p class="vt">Décision enregistrée</p><p>Vous découvrirez à la fin de la semaine ce qu’elle a produit.</p></div>`;
+        row.innerHTML = ""; row.appendChild(btn("Continuer", next)); Snd.click();
+        fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus(); return;
+      }
       const v = verdict(q >= 1 ? 1 : q >= 0.5 ? 0.5 : 0); v.s();
       if (q >= 1) setTimeout(() => burst(fbz.querySelector(".fb"), "good"), 50);
       if (sc.npc) cheer(wrap, sc.npc, q);
@@ -2278,34 +2297,63 @@
     }, 600);
   };
 
-  /* ---------- souvenirs : les conséquences rejouées ---------- */
+  /* ---------- retour sur la semaine : chaque décision, ce qu'elle a produit, puis le cadre ---------- */
   R.replay = (sc, n) => {
-    const ids = Object.keys(REPLAY).filter((k) => st.res[k] != null);
+    st.revealed = true; save(); rings(true);
+    // la scène d'un écran (« keep » = la même que l'écran d'avant)
+    const stageOf = (id) => { let i = SCREENS.findIndex((x) => x.id === id), S = STAGE[id]; while (S === "keep" && i > 0) S = STAGE[SCREENS[--i].id]; const s0 = SCREENS.find((x) => x.id === id); return S && S !== "keep" ? S : { at: LOC[id] || "ensemble", cast: s0 && s0.npc ? [[s0.npc, "a", "talk"], ["you", "b"]] : [] }; };
+    const ids = SCREENS.filter((x) => DEFER.has(x.type) && st.res[x.id] != null && (!x.nuitee || st.nuitee)).map((x) => x.id);
     const panel = el("div", { class: "panel replay" });
-    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">Pendant la semaine, certains choix ont été enregistrés sans verdict. Voici ce qu’ils ont produit.</p>`;
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2><p class="lead">Pendant la semaine, vos décisions ont été enregistrées sans verdict. Revenez sur chacune : ce qu’elle a produit, puis ce que dit le cadre.</p>`;
     const body = el("div", { class: "rp-body", "aria-live": "polite" });
     const row = el("div", { class: "row" });
     n.dataset.novoice = "1";
-    if (!ids.length) { body.innerHTML = `<p>Aucun choix à retardement cette fois-ci.</p>`; endRow(row, "Voir le bilan"); panel.append(body, row); n.appendChild(panel); return; }
+    if (!ids.length) { body.innerHTML = `<p>Aucune décision à revoir.</p>`; endRow(row, "Voir le bilan"); panel.append(body, row); n.appendChild(panel); return; }
     let i = 0;
     const tierOf = (id) => (st.res[id] >= 0.95 ? "excellent" : st.res[id] >= 0.45 ? "moyen" : "catastrophe");
-    const LBL = { excellent: ["Ce que votre choix a permis", "good"], moyen: ["Ce que votre choix a laissé passer", "mid"], catastrophe: ["Ce que votre choix a provoqué", "low"] };
-    const nb = btn("Souvenir suivant", () => { i++; if (i < ids.length) play(); else next(); });
+    const LBL = { excellent: ["Ce que votre décision a permis", "good"], moyen: ["Ce que votre décision a laissé passer", "mid"], catastrophe: ["Ce que votre décision a provoqué", "low"] };
+    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else next(); });
+    const li = (t, cls = "") => `<li class="${cls}">${esc(t)}</li>`;
     function play() {
-      const id = ids[i], R0 = REPLAY[id], t = tierOf(id), T = R0.tiers[t], S0 = SCREENS.find((s) => s.id === id), L = (st.later || {})[id];
-      World.show({ at: R0.at, room: R0.room, cast: T.cast }, { id: "souvenir-" + id, type: "story", ch: 6 });
-      body.innerHTML = `<p class="kicker">${i + 1} sur ${ids.length} · ${esc(R0.label)}</p>${L ? `<p class="rp-choice">Vous aviez répondu : « ${esc(S0.opts[L.k].t)} »</p>` : ""}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]}</p><div class="rp-lines"></div>`;
+      const id = ids[i], S0 = SCREENS.find((s) => s.id === id), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
+      if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t].cast }, { id: "retour-" + id, type: "story", ch: 6 });
+      else World.show(stageOf(id), { id: "retour-" + id, type: "story", ch: 6 });
+      let choix = "", effet = [], cadre = "", V = [];
+      if (S0.type === "choice") {
+        const o = S0.opts[L.k != null ? L.k : 0];
+        choix = `<p class="rp-choice">Vous aviez répondu : « ${esc(o.t)} »</p>`;
+        if (R0) R0.tiers[t].lines.forEach(([w, tx]) => effet.push([w, tx]));
+        else if (o.cons) effet.push(["narr", o.cons]);
+        cadre = `<p>${esc(o.fb)}</p>${o.q < 1 && S0.better ? `<p class="better"><b>Pour faire mieux.</b> ${esc(S0.better)}</p>` : ""}`;
+        if (!R0) V.push(VOICE_TXT.fb(S0, o)); else V.push(["narr", o.fb]);
+      } else if (S0.type === "multi") {
+        const sel = new Set(L.sel || []);
+        choix = `<p class="rp-choice">Vous aviez retenu :</p><ul class="rp-sel">${S0.opts.map((o, j) => sel.has(j) ? li(o.t) : "").join("") || li("aucune action")}</ul>`;
+        cadre = `<ul class="rp-why">${S0.opts.map((o, j) => li((o.ok ? "✓ " : "✕ ") + o.t + " : " + o.why, (o.ok ? "ok" : "no") + (sel.has(j) !== !!o.ok ? " miss" : ""))).join("")}</ul>${S0.after ? `<p class="better"><b>Et ensuite.</b> ${esc(S0.after)}</p>` : ""}`;
+      } else if (S0.type === "dialogue") {
+        const nd = S0.nodes[L.end] || Object.values(S0.nodes).find((x) => x.end) || {};
+        choix = (L.says || []).length ? `<p class="rp-choice">Ce que vous aviez dit :</p><ul class="rp-sel">${L.says.map((x) => li("« " + x + " »")).join("")}</ul>` : "";
+        if (nd.t) effet.push([S0.npc, nd.t]);
+        cadre = nd.lesson ? `<p><b>À retenir.</b> ${esc(nd.lesson)}</p>` : "";
+        if (nd.lesson) V.push(["narr", "À retenir. " + nd.lesson]);
+      } else if (S0.type === "find") {
+        const o = S0.opts[L.k != null ? L.k : 0];
+        choix = `<p class="rp-choice">Vous aviez répondu à Léna : ${esc(o.t)}</p>`;
+        cadre = `<p>${esc(o.fb)}</p>`; V.push(["narr", o.fb]);
+      }
+      body.innerHTML = `<p class="kicker">${i + 1} sur ${ids.length} · ${esc(S0.kicker || S0.title || "")}</p>${choix}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]} · ${v.t}</p><div class="rp-lines"></div><div class="rp-cadre"><p class="kicker">Le cadre</p>${cadre}</div>`;
       const box = body.querySelector(".rp-lines"), seq = [];
-      T.lines.forEach(([w, tx], j) => {
-        const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w]}</b><p>${words(tx)}</p>`);
+      effet.forEach(([w, tx], j) => {
+        const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w] || ""}</b><p>${words(tx)}</p>`);
         box.appendChild(r); seq.push([w, tx, r.querySelector("p")]);
       });
-      setTimeout(() => Voice.seq(seq), 1300);
-      nb.textContent = i < ids.length - 1 ? "Souvenir suivant" : "Voir le bilan";
+      setTimeout(() => Voice.seq(seq.concat(V)), 1300);
+      nb.textContent = i < ids.length - 1 ? "Décision suivante" : "Voir le bilan";
       Snd[t === "excellent" ? "good" : t === "moyen" ? "mid" : "low"]();
     }
     row.appendChild(nb); panel.append(body, row); n.appendChild(panel); play();
   };
+
 
   /* ---------- retrouver quelqu'un sur le plan ---------- */
   const isoPct = (x, y) => { const [OX, OY, C, S, v0, v1, vw, vh] = A.dio.proj; return [((OX + (x - y) * C - v0) / vw) * 100, ((OY + (x + y) * S - v1) / vh) * 100]; };
@@ -2341,11 +2389,11 @@
       const speed = late ? 0.4 : Math.max(0.5, Math.min(1, left / sc.timer + 0.35)) - misses * 0.08;
       const q0 = Math.max(0.3, Math.round(speed * 100) / 100);
       fbz.innerHTML = `<div class="say npc"><b>Léna</b><p>${words(sc.found)}</p></div>`;
-      Voice.say("narr", sc.found, fbz.querySelector("p"));
+      { const S = VOICE_TXT.split(sc.found); Voice.seq(S.map(([w, x]) => [w, x, S.length === 1 ? fbz.querySelector("p") : null])); }   // Léna parle avec sa propre voix
       const o = el("div", { class: "opts" });
       sc.opts.forEach((x, j) => {
         const bb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
-        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; record(sc, q); const r = el("div"); fbz.appendChild(r); result(r, q, `${late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler." : `Trouvée en ${sc.timer - left} s.`} ${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
+        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); const r = el("div"); fbz.appendChild(r); r.innerHTML = `<div class="fb later"><p class="vt">Réponse enregistrée</p><p>Vous découvrirez à la fin de la semaine ce qu’elle a produit.</p></div>`; endRow(r); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler." : `Trouvée en ${sc.timer - left} s.`} ${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
         o.appendChild(bb);
       });
       fbz.appendChild(o);

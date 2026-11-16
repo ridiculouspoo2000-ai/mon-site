@@ -22,7 +22,7 @@ const DEFAUT = {
   nour: "ucMmKRQbfDEYyb2IIGax",    // Aurore
   ines: "i6ke7jvmGEVUyV4zjSaT",    // Emilie · Pro
   jade: "mNu8EQcIlFZdOJs7yfhe",    // Julia · Warm French Narrator
-  maelys: "zPy2sgLU4pZ7Xrjh87uz",  // Justine · Serene French Woman
+  maelys: "1A1lOhlOFIlPyxQ8NgiG",  // Solène · jeune et aiguë : une adolescente de 14 ans (avant : Justine, voix de femme adulte)
   lou: "1A1lOhlOFIlPyxQ8NgiG",     // Solène · voix la plus aiguë de la bibliothèque française (≈ 270 Hz, hauteur d’une voix d’enfant)
   bastien: "1a3lMdKLUcfcMtvN772u", // Antoine · Audiobook Narrator
   kevin: "jfEwztGDkpbpy89xeku6",   // Steve · Soft and Calm
@@ -31,6 +31,7 @@ const DEFAUT = {
   roussel: "OOiDJrD1goukqfTpiySr", // Greg · Authentic French Voice (parent)
   benali: "nVPCtAFzgyMX3FZKNzH0",  // Anna · Natural and Conversational (parent)
   sacha: "Yx2a8qp2EqI9c5i8MzBo",   // Philippine · voix aiguë et vive (≈ 275 Hz)
+  lena: "Yx2a8qp2EqI9c5i8MzBo",    // Philippine : Léna, 13 ans (mercredi ; Sacha ne parle que vendredi)
   gendarme: "OOiDJrD1goukqfTpiySr", // Greg (au téléphone, la gendarmerie)
   operateur: "nVPCtAFzgyMX3FZKNzH0", // Anna (opératrice du 112)
   narr: "jUHQdLfy668sllNiNTSW",    // Clément · calme et neutre : récit, situations et retours du formateur
@@ -47,11 +48,11 @@ const DEFAUT = {
 // Voix d’enfants : la bibliothèque ElevenLabs interdit les voix d’enfants (ou imitant un enfant). On retient les voix
 // françaises les plus aiguës (mesurées sur leurs extraits), jouées « en enfant » grâce aux balises. Si une voix n’a pas
 // encore été ajoutée au compte ElevenLabs, la réplique est faite avec l’ancienne voix, en attendant (jamais de silence).
-const REPLI = { lou: "txtf1EDouKke753vN8SL", e_fille: "txtf1EDouKke753vN8SL", sacha: "mvhJVdVoTWVUtL4keT7W", e_garcon: "mvhJVdVoTWVUtL4keT7W" };
+const REPLI = { lou: "txtf1EDouKke753vN8SL", e_fille: "txtf1EDouKke753vN8SL", sacha: "mvhJVdVoTWVUtL4keT7W", e_garcon: "mvhJVdVoTWVUtL4keT7W", lena: "txtf1EDouKke753vN8SL", maelys: "zPy2sgLU4pZ7Xrjh87uz" };
 const REGLAGES = {
   // Eleven v4 : stabilité et ressemblance seulement (pas de style). Plus de stabilité = voix plus proche de l’original.
   defaut: { stability: 0.5, similarity_boost: 0.8 },
-  lou: { stability: 0.35, similarity_boost: 0.75 }, sacha: { stability: 0.35, similarity_boost: 0.75 },
+  lou: { stability: 0.35, similarity_boost: 0.75 }, sacha: { stability: 0.35, similarity_boost: 0.75 }, lena: { stability: 0.35, similarity_boost: 0.75 },
   maelys: { stability: 0.4, similarity_boost: 0.8 },
   ines: { stability: 0.45, similarity_boost: 0.8 },
   garnier: { stability: 0.6, similarity_boost: 0.85 },
@@ -105,7 +106,7 @@ export const PROFILS = {
   nour: { nom: "Nour", role: "Directrice adjointe et référente VSS, posée et chaleureuse", gender: "female", ages: ["middle_aged", "young"] },
   ines: { nom: "Inès", role: "Jeune animatrice", gender: "female", ages: ["young"] },
   jade: { nom: "Jade", role: "Animatrice dynamique, sûre d’elle", gender: "female", ages: ["young"] },
-  maelys: { nom: "Maëlys", role: "Adolescente", gender: "female", ages: ["young"] },
+  maelys: { nom: "Maëlys (14 ans)", role: "Adolescente de 14 ans, hésitante : « Je… je peux te parler ? »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
 
   bastien: { nom: "Bastien", role: "Jeune animateur, détendu", gender: "male", ages: ["young"] },
   kevin: { nom: "Kévin", role: "Animateur de 24 ans", gender: "male", ages: ["young"] },
@@ -116,6 +117,7 @@ export const PROFILS = {
   // (françaises, puis personnages « enfant » vérifiés en français) ; la page mesure leur hauteur et les classe.
   lou: { nom: "Lou (10 ans)", role: "Garçon de 10 ans, hésitant : « Je… je veux pas rentrer. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   sacha: { nom: "Sacha (11 ans)", role: "Garçon de 11 ans, témoin : « Ben… j’ai vu le monsieur, euh… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  lena: { nom: "Léna (13 ans)", role: "Fille de 13 ans, à voix basse : « Euh… Enzo, il a pris Clara en photo… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   e_fille: { nom: "Petite fille (prélude)", role: "Enfant de 7 ans : « Il… il m’a soulevé ma jupe… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   e_garcon: { nom: "Petit garçon (prélude)", role: "Enfant de 8 ans : « Il m’a dit que… que c’était notre secret. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
 };
@@ -164,7 +166,7 @@ async function casting() {
     }
     const kid = (v) => /child|kid|enfant|girl|boy|fille|gar[çc]on|young child|little/i.test(v.nom + " " + v.description);
     liste.sort((a, b) => (p.enfant ? kid(b) - kid(a) : 0) || (/paris/i.test(b.accent) - /paris/i.test(a.accent)) || b.popularite - a.popularite);
-    const choisies = new Set(["lou", "sacha", "e_fille", "e_garcon"].map((w) => actuelles[w]));
+    const choisies = new Set(["lou", "sacha", "lena", "maelys", "e_fille", "e_garcon"].map((w) => actuelles[w]));
     const garde = p.enfant ? [...new Set([...liste.filter(kid).slice(0, 16), ...liste.filter((v) => choisies.has(v.id)), ...liste.filter((v) => !kid(v) && v.langue === "fr").slice(0, 36)])] : liste.slice(0, 8);
     if (p.enfant && actuelles[who] && !garde.some((v) => v.id === actuelles[who])) { const a = liste.find((v) => v.id === actuelles[who]); if (a) garde.unshift(a); }
     garde.forEach((v) => autorisees.add(v.id + "|" + v.proprio));

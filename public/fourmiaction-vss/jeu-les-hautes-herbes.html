@@ -1287,8 +1287,8 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 #world.amb-night .wvig{background:linear-gradient(90deg,rgba(20,27,40,0) 52%,rgba(20,27,40,.5))}
 /* personnages */
 .actor{position:absolute;translate:-50% -94%;animation:actin .7s var(--ease) both}
-.actor svg{width:100%;display:block;overflow:visible}
-.actor.flip svg{transform:scaleX(-1)}
+.actor > svg{width:100%;display:block;overflow:visible}
+.actor.flip > svg{transform:scaleX(-1)}
 @keyframes actin{from{opacity:0;transform:translateY(14%) scale(.86)}to{opacity:1;transform:none}}
 .actor .abub{position:absolute;left:50%;bottom:96%;translate:-50% 0;display:flex;gap:3px;padding:.32em .5em;border-radius:1em;background:#fff;
   box-shadow:0 4px 12px rgba(0,0,0,.18);opacity:0;scale:.5;transition:opacity .25s,scale .35s var(--ease);font-size:clamp(6px,.9vw,11px)}
@@ -1296,8 +1296,8 @@ body.calm .art .motes,body.calm .eyes,body.calm .pchar svg .ant{animation:none}
 .actor .abub i:nth-child(2){animation-delay:.15s}.actor .abub i:nth-child(3){animation-delay:.3s}
 @keyframes dots{0%,100%{opacity:.25}50%{opacity:1}}
 .actor.talking .abub{opacity:1;scale:1}
-.actor.talking svg{animation:talkb .45s ease-in-out infinite alternate}
-.actor.flip.talking svg{animation-name:talkbf}
+.actor.talking > svg{animation:talkb .45s ease-in-out infinite alternate}
+.actor.flip.talking > svg{animation-name:talkbf}
 @keyframes talkb{from{translate:0 0}to{translate:0 -3%}}
 @keyframes talkbf{from{translate:0 0}to{translate:0 -3%}}
 .actor[data-who="you"]:after{content:"Vous";position:absolute;left:50%;top:100%;translate:-50% 2px;font:600 clamp(6px,.85vw,11px)/1 -apple-system,system-ui,sans-serif;
@@ -1331,7 +1331,7 @@ body.live .side .trust{flex:1 1 220px;margin:0}
   #world.amb-night .wvig{background:linear-gradient(180deg,rgba(20,27,40,0) 34%,rgba(245,245,247,.92) 52%)}
   #world .wname{top:calc(var(--fy) - 21vh)}
 }
-@media (prefers-reduced-motion:reduce){#world .wcam,#world .wroom{transition:none}.actor{animation:none}.actor.talking svg{animation:none}}
+@media (prefers-reduced-motion:reduce){#world .wcam,#world .wroom{transition:none}.actor{animation:none}.actor.talking > svg{animation:none}}
 #world.amb-night .wroom .dio-win{fill:#22304D}#world.amb-evening .wroom .dio-win{fill:#F2C892}
 /* calques animés du plan : déplacés par la carte graphique, le plan ne se redessine pas */
 .wanim{position:absolute;inset:0;pointer-events:none}
@@ -1357,20 +1357,20 @@ body.live .panel,body.live .solo,body.live .chap,body.live .page-note,body.live 
 /* vie des personnages : arrivée en marchant, respiration, regard */
 .actor.arriving{animation:walkin 1.5s cubic-bezier(.33,.0,.25,1) both}
 @keyframes walkin{from{transform:translate(var(--fx),var(--fy));opacity:0}12%{opacity:1}to{transform:none;opacity:1}}
-.actor.arriving svg{animation:steps .36s ease-in-out infinite alternate}
+.actor.arriving > svg{animation:steps .36s ease-in-out infinite alternate}
 @keyframes steps{from{translate:0 0;rotate:-2deg}to{translate:0 -4%;rotate:2deg}}
-.actor:not(.arriving):not(.talking) svg{animation:breathe 3.8s ease-in-out infinite;animation-delay:var(--br,0s);transform-origin:50% 100%}
-.actor.flip:not(.arriving):not(.talking) svg{animation-name:breathef}
+.actor:not(.arriving):not(.talking) > svg{animation:breathe 3.8s ease-in-out infinite;animation-delay:var(--br,0s);transform-origin:50% 100%}
+.actor.flip:not(.arriving):not(.talking) > svg{animation-name:breathef}
 @keyframes breathe{0%,100%{scale:1 1}50%{scale:1.008 1.018}}
 @keyframes breathef{0%,100%{scale:-1 1}50%{scale:-1.008 1.018}}
-.actor.flip svg{transform:none;scale:-1 1}
-.actor.flip.talking svg,.actor.flip.arriving svg{scale:-1 1}
+.actor.flip > svg{transform:none;scale:-1 1}
+.actor.flip.talking > svg,.actor.flip.arriving > svg{scale:-1 1}
 /* les bustes clignent des yeux */
 svg.char .ceyes{transform-box:fill-box;transform-origin:50% 55%;animation:blink 6.5s infinite}
 .portrait.chip:nth-child(2n) svg.char .ceyes{animation-delay:-2.3s}
 @keyframes blink{0%,95.5%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
 /* caméra : très légère respiration du plan, comme une prise de vue à l'épaule maîtrisée */
-@media (prefers-reduced-motion:reduce){.actor svg,svg.char .ceyes,#world .wext{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.actor > svg,svg.char .ceyes,#world .wext{animation:none!important}}
 .dio-img{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 #world.amb-evening .wcam>.dio-img{filter:sepia(.18) saturate(1.1) brightness(.93)}
 #world.amb-night .wcam>.dio-img{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
@@ -1421,12 +1421,12 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 @keyframes gE{from{transform:rotate(-48deg)}to{transform:rotate(-62deg)}}
 @keyframes gF{0%,100%{transform:rotate(0)}50%{transform:rotate(-20deg)}}
 @keyframes gFl{0%,100%{transform:rotate(0)}30%{transform:rotate(36deg)}60%{transform:rotate(18deg)}}
-.actor.talking svg,.actor.flip.talking svg{animation:none}
+.actor.talking > svg,.actor.flip.talking > svg{animation:none}
 .portrait.chip.talking .cmouth{transform-box:fill-box;transform-origin:50% 30%;animation:cmouth .2s ease-in-out infinite alternate}
 @keyframes cmouth{from{transform:scaleY(.75)}to{transform:scaleY(1.35)}}
 #world.busy-gate .dio-ov.dio-par,#world.busy-gate .dio-ov.dio-kid{display:none}
 /* réaction à une mauvaise réponse : la personne s'agite, la pastille tremble */
-.actor.upset svg,.ractor.upset .rbody{animation:upset .5s ease-in-out 4!important}
+.actor.upset > svg,.ractor.upset .rbody{animation:upset .5s ease-in-out 4!important}
 @keyframes upset{0%,100%{translate:0 0;rotate:0deg}25%{translate:-3% 0;rotate:-4deg}75%{translate:3% 0;rotate:4deg}}
 .actor.upset:before{content:"!";position:absolute;left:50%;bottom:102%;translate:-50% 0;font:800 9px/1 -apple-system,system-ui,sans-serif;color:#fff;background:#C62828;border-radius:50%;width:1.6em;height:1.6em;display:grid;place-items:center;animation:pop .3s var(--ease)}
 .portrait.chip.upset{animation:rxshake .5s 2;box-shadow:0 0 0 2px #C62828,0 10px 26px -16px rgba(19,40,59,.5)}
@@ -2003,7 +2003,7 @@ body.calm #world .wgrass .gl,body.calm .opts>.opt,body.calm .moment blockquote,b
 #hudmenu #btn-level{order:-1}
 /* mode « Animations réduites » : même mise en page, sans mouvement de caméra ni respiration des personnages */
 body.calm #world .wcam,body.calm #world .wroom,body.calm #world .wext,body.calm #world .wgrade,body.calm #world .wgrass{transition:none!important}
-body.calm .actor,body.calm .actor svg,body.calm .ractor .rmove,body.calm .ractor .rbody,body.calm .dio-ov,body.calm svg.char .ceyes{animation:none!important}
+body.calm .actor,body.calm .actor > svg,body.calm .ractor .rmove,body.calm .ractor .rbody,body.calm .dio-ov,body.calm svg.char .ceyes{animation:none!important}
 body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
 /* téléphone : l'horloge reste posée sur le plan et s'en va avec lui quand on fait défiler (elle ne flotte plus sur le texte) */
 @media (max-width:860px){ #dayclock{position:absolute} }
@@ -2142,6 +2142,171 @@ body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
 }
 @media (min-width:861px) and (max-width:1000px){ #hud #btn-carnet .lbl{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important} .hp-left #btn-home{display:none} }
 @media (min-width:861px) and (max-width:1000px){ .hp-left #hudav{border-left:0;padding-left:0} }
+/* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
+.rig{overflow:visible}
+.rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob,.rig .eyes{transform-box:view-box}
+.rig .m-open{opacity:0}
+/* clignement des yeux, pour tout le monde */
+.rig .eyes{animation:rg-blink 4.6s infinite;transform-origin:center}
+@keyframes rg-blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+/* respiration au repos */
+.rig .bob{animation:rg-breath 3.4s ease-in-out infinite}
+@keyframes rg-breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-.6px)}}
+
+/* marcher : jambes et bras en opposition, genoux qui plient, léger rebond */
+.p-walk .bob{animation:rg-bob .9s ease-in-out infinite}
+@keyframes rg-bob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-2.2px)}}
+.p-walk .lL{animation:rg-thigh .9s ease-in-out infinite}
+.p-walk .lR{animation:rg-thigh .9s ease-in-out -.45s infinite}
+.p-walk .lL .shin{animation:rg-knee .9s ease-in-out infinite}
+.p-walk .lR .shin{animation:rg-knee .9s ease-in-out -.45s infinite}
+@keyframes rg-thigh{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(18deg)}}
+@keyframes rg-knee{0%,100%{transform:rotate(6deg)}35%{transform:rotate(4deg)}60%{transform:rotate(16deg)}78%{transform:rotate(48deg)}90%{transform:rotate(22deg)}}
+.p-walk .aL{animation:rg-swing .9s ease-in-out infinite}
+.p-walk .aR{animation:rg-swing .9s ease-in-out -.45s infinite}
+.p-walk .fore{animation:rg-elbow .9s ease-in-out infinite}
+@keyframes rg-swing{0%,100%{transform:rotate(16deg)}50%{transform:rotate(-16deg)}}
+@keyframes rg-elbow{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-30deg)}}
+
+/* parler : la main accompagne la parole, la tête bouge un peu, la bouche s'ouvre */
+.p-talk .aL{animation:rg-gest 2.4s ease-in-out infinite}
+.p-talk .aL .fore{animation:rg-gestf 2.4s ease-in-out infinite}
+.p-talk .head{animation:rg-nod 2.4s ease-in-out infinite}
+.p-talk .m-open,.talking .m-open{animation:rg-mouth .32s steps(1) infinite}
+.p-talk .m-closed,.talking .m-closed{animation:rg-mouthc .32s steps(1) infinite}
+@keyframes rg-gest{0%,100%{transform:rotate(-12deg)}30%{transform:rotate(-30deg)}60%{transform:rotate(-20deg)}}
+@keyframes rg-gestf{0%,100%{transform:rotate(-55deg)}30%{transform:rotate(-85deg)}60%{transform:rotate(-60deg)}}
+@keyframes rg-nod{0%,100%{transform:rotate(0)}25%{transform:rotate(3deg)}65%{transform:rotate(-2deg)}}
+@keyframes rg-mouth{0%{opacity:1}50%{opacity:0}}
+@keyframes rg-mouthc{0%{opacity:0}50%{opacity:1}}
+
+/* saluer de la main */
+.p-wave .aL{transform:rotate(150deg)}
+.p-wave .aL .fore{animation:rg-wave .6s ease-in-out infinite alternate}
+@keyframes rg-wave{from{transform:rotate(28deg)}to{transform:rotate(-14deg)}}
+
+/* montrer du doigt (dispute, reproche) */
+.p-point .aL{animation:rg-point 1.6s ease-in-out infinite}
+.p-point .aL .fore{transform:rotate(-8deg)}
+.p-point .head{transform:rotate(-3deg)}
+@keyframes rg-point{0%,100%{transform:rotate(-78deg)}50%{transform:rotate(-70deg)}}
+
+/* écouter : tête penchée, mains jointes devant */
+.p-listen .head{animation:rg-tilt 5s ease-in-out infinite}
+.p-listen .aL{transform:rotate(-14deg)}.p-listen .aL .fore{transform:rotate(-62deg)}
+.p-listen .aR{transform:rotate(10deg)}.p-listen .aR .fore{transform:rotate(-58deg)}
+@keyframes rg-tilt{0%,100%{transform:rotate(4deg)}50%{transform:rotate(6deg)}}
+
+/* triste, inquiet : tête basse, bras serrés contre soi */
+.p-sad .head{transform:rotate(9deg) translateY(1px)}
+.p-sad .aL{transform:rotate(-6deg)}.p-sad .aL .fore{transform:rotate(-48deg)}
+.p-sad .aR{transform:rotate(4deg)}.p-sad .aR .fore{transform:rotate(-40deg)}
+.p-sad .bob{animation:rg-sob 2.8s ease-in-out infinite}
+@keyframes rg-sob{0%,100%{transform:translateY(0)}40%{transform:translateY(.8px)}}
+
+/* en colère : bras écartés, mouvement brusque */
+.p-angry .aL{animation:rg-ang 1.1s ease-in-out infinite}.p-angry .aL .fore{transform:rotate(-30deg)}
+.p-angry .aR{animation:rg-ang2 1.1s ease-in-out infinite}.p-angry .aR .fore{transform:rotate(-30deg)}
+.p-angry .head{animation:rg-shake .5s ease-in-out infinite}
+@keyframes rg-ang{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(-40deg)}}
+@keyframes rg-ang2{0%,100%{transform:rotate(20deg)}50%{transform:rotate(34deg)}}
+@keyframes rg-shake{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+
+@media (prefers-reduced-motion:reduce){.rig *{animation:none!important}}
+body.calm .rig *{animation:none!important}
+
+.rig .fig path[fill^="url"]{stroke:rgba(20,16,12,.22);stroke-width:.7}
+/* assis : cuisses à l'horizontale, genoux pliés, mains sur les genoux */
+.p-sit .lL,.p-sit .lR{transform:rotate(-82deg)}
+.p-sit .lL .shin,.p-sit .lR .shin{transform:rotate(84deg)}
+.p-sit .aL{transform:rotate(-22deg)}.p-sit .aL .fore{transform:rotate(-40deg)}
+.p-sit .aR{transform:rotate(-18deg)}.p-sit .aR .fore{transform:rotate(-36deg)}
+/* au repos : bras le long du corps, légèrement écartés */
+.p-idle .aL{transform:rotate(5deg)}.p-idle .aR{transform:rotate(-4deg)}
+.p-idle .aL .fore,.p-idle .aR .fore{transform:rotate(-6deg)}
+/* regard : les pupilles suivent l'interlocuteur */
+.gaze .rig .pupils{transform:translateX(calc(var(--lk,0) * 1.4px));transition:transform .4s ease}
+.rig-bust{overflow:hidden}
+
+/* la personne qui parle (voix en cours) : geste de la main, tête qui bouge, bouche */
+.talking .rig .aL{animation:rg-gest 2.4s ease-in-out infinite}
+.talking .rig .aL .fore{animation:rg-gestf 2.4s ease-in-out infinite}
+.talking .rig .head{animation:rg-nod 2.4s ease-in-out infinite}
+/* les visages (bustes articulés) dans les pastilles, bulles, carnet et barre du haut */
+svg.rig-bust{display:block}
+.portrait.chip .pchar svg.rig-bust{position:absolute;inset:0;width:100%;height:100%;left:0;top:0}
+.pchar svg.rig-bust{width:200px;height:200px}
+.mini svg.rig-bust,.t-story .line.said .mini svg.rig-bust{width:100%;height:100%;margin:0}
+.mini:has(svg.rig-bust){border-radius:50%;overflow:hidden;background:linear-gradient(#EEF3F8,#DDE6EF);aspect-ratio:1;height:auto}
+.coach .cav svg.rig-bust{width:46px;height:46px;border-radius:50%;background:linear-gradient(#EEF3F8,#DDE6EF)}
+.pn-ant svg.rig-bust{width:74px;height:74px;border-radius:50%;background:linear-gradient(#EEF3F8,#DDE6EF)}
+#hudav svg.rig-bust{width:100%;height:100%;border-radius:50%}
+@media (max-width:760px){.pchar svg.rig-bust{width:150px;height:150px}.pn-ant svg.rig-bust{width:56px;height:56px}}
+/* ================= Promenade libre ================= */
+.roamg .rm-hud{display:flex;align-items:center}
+.rm-clock{display:flex;flex-direction:column;align-items:flex-end;background:#fff;border-radius:16px;padding:8px 14px;box-shadow:0 6px 18px rgba(28,34,48,.1)}
+.rm-clock b{font-size:22px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rm-clock small{font-size:12px;color:#6B7380}
+.rm-place{position:absolute;translate:-50% -100%;border:0;background:none;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;z-index:900;font:inherit}
+.rm-pin{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #2B6FD6;box-shadow:0 3px 10px rgba(28,34,48,.25);display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;transition:transform .2s}
+.rm-lab{background:rgba(255,255,255,.92);border-radius:10px;padding:3px 8px;font-size:12px;font-weight:600;color:#1E2733;white-space:nowrap;box-shadow:0 2px 8px rgba(28,34,48,.14)}
+.rm-place:hover .rm-pin,.rm-place:focus-visible .rm-pin{transform:scale(1.18)}
+.rm-place.live .rm-pin{background:#E2702A;border-color:#fff;animation:rmpulse 1.6s ease-out infinite}
+.rm-place.guide .rm-pin{background:#2B6FD6;border-color:#fff;animation:rmpulse 1.6s ease-out infinite}
+.rm-place.guide .rm-lab{background:#2B6FD6;color:#fff}
+.rm-place.off{opacity:.38;cursor:default}
+.rm-place.off .rm-lab{box-shadow:none}
+@keyframes rmpulse{0%{box-shadow:0 0 0 0 rgba(226,112,42,.55)}100%{box-shadow:0 0 0 14px rgba(226,112,42,0)}}
+.rm-fig,.rm-you{position:absolute;translate:-50% -94%;pointer-events:none}
+.rm-fig svg,.rm-you svg{width:100%;display:block;overflow:visible}
+.rm-you{z-index:880}
+.rm-you.flip svg{scale:-1 1}
+.rm-you b{position:absolute;left:50%;translate:-50% 0;bottom:-16px;background:#1E4E8C;color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px}
+.rm-row{justify-content:flex-end}
+.roamscene .dlog{display:flex;flex-direction:column;gap:12px;margin:10px 0 14px}
+.roamscene .line.said{display:flex;gap:12px;align-items:flex-start}
+.roamscene .line.narr p{font-style:italic;color:#3A4350;margin:0}
+.roamscene .line .bub b{font-size:14px;font-weight:600}
+.roamscene .line .bub p{margin:3px 0 0;font-size:16px;line-height:1.45}
+.mini.rbust{flex:0 0 46px;width:46px;height:46px;border-radius:23px;overflow:hidden;background:linear-gradient(#EEF3F8,#DDE6EF)}
+.mini.rbust svg{width:100%;height:100%;display:block}
+.roamscene.calm .narr{font-size:17px;line-height:1.5}
+.roamscene .opt.neutral{outline:2px solid #2B6FD6}
+@media (prefers-reduced-motion:reduce){.rm-place .rm-pin{animation:none!important}.rm-you{transition:none!important}}
+body.calm .rm-place .rm-pin{animation:none}
+/* le plan occupe tout l'écran ; une carte flottante donne l'heure et la consigne */
+body.roaming #stage .screen.t-roam{position:fixed;inset:0;margin:0;padding:0;max-width:none;width:auto;transform:none;z-index:5}
+.t-roam .roamg{position:absolute;inset:0}
+.t-roam .rm-box{position:absolute;inset:0;margin:0;overflow:auto;scrollbar-width:none;background:radial-gradient(120% 90% at 50% 0%,#DCEBFA 0%,#EEF5FB 55%,#F7F9FC 100%);cursor:grab}
+.t-roam .rm-box::-webkit-scrollbar{display:none}
+.t-roam .rm-box .map.dio{width:max(104vw,1320px);max-width:none;border-radius:0;box-shadow:none;background:none}
+.rm-card{position:absolute;left:max(24px,calc((100vw - 1180px) / 2));top:96px;z-index:10;width:min(430px,calc(100vw - 48px));padding:18px 20px;border-radius:24px;
+  background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);border:1px solid rgba(255,255,255,.85);box-shadow:0 18px 44px rgba(28,34,48,.16)}
+.rm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.rm-card h2{font-size:22px;margin:2px 0 0}
+.rm-card .lead{font-size:15px;line-height:1.45;margin:10px 0 0;color:#3A4350}
+.rm-card .rm-row{margin-top:12px;justify-content:flex-end}
+.rm-card .coach{margin:0 0 12px}
+.rm-card .rm-clock{box-shadow:none;background:#F1F4F8;padding:6px 12px}
+@media (max-width:760px){
+  .rm-card{left:10px;right:10px;width:auto;top:auto;bottom:10px;padding:14px 16px;max-height:46vh;overflow:auto}
+  .rm-card h2{font-size:19px}.rm-card .lead{font-size:14px}
+  .t-roam .rm-box .map.dio{width:260vw}
+  .rm-lab{font-size:11px}
+}
+.t-roam .rm-box .map.dio{margin:84px 0 24px}
+@media (max-width:760px){.t-roam .rm-box .map.dio{margin:76px 0 48vh}}
+@media (max-width:760px){
+  .t-roam .rm-box .map.dio{width:210vw}
+  .rm-card{max-height:42vh}
+  .rm-card.coached .lead{display:none}
+  .rm-card .coach{padding:10px 12px;gap:10px}
+  .rm-card .coach p{font-size:14px;line-height:1.4}
+  .rm-card .coach .cav{width:40px;flex:0 0 40px}
+  .rm-card .coach .cav svg{width:40px;height:auto}
+  .rm-card .rm-clock b{font-size:18px}
+  body.roaming #dayclock{display:none!important}
+}
 </style></head>
 <body>
 <div id="app"><div class="ambient" aria-hidden="true"><i style="left:0%;animation-delay:-0.0s;width:5px;height:5px;background:#F4B63F"></i><i style="left:37%;animation-delay:-1.4s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:74%;animation-delay:-2.8s;width:9px;height:9px;background:#F2C48A"></i><i style="left:11%;animation-delay:-4.2s;width:5px;height:5px;background:#F4B63F"></i><i style="left:48%;animation-delay:-5.6s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:85%;animation-delay:-7.0s;width:9px;height:9px;background:#F2C48A"></i><i style="left:22%;animation-delay:-8.4s;width:5px;height:5px;background:#F4B63F"></i><i style="left:59%;animation-delay:-9.8s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:96%;animation-delay:-11.2s;width:9px;height:9px;background:#F2C48A"></i><i style="left:33%;animation-delay:-12.6s;width:5px;height:5px;background:#F4B63F"></i><i style="left:70%;animation-delay:-14.0s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:7%;animation-delay:-15.4s;width:9px;height:9px;background:#F2C48A"></i><i style="left:44%;animation-delay:-16.8s;width:5px;height:5px;background:#F4B63F"></i><i style="left:81%;animation-delay:-18.2s;width:7px;height:7px;background:#9CC9EA"></i><div class="grassline"><svg viewBox="0 0 1600 70" preserveAspectRatio="none"><path d="M0,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M11,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M22,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M33,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M44,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M55,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M66,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M77,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M88,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M99,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M110,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M121,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M132,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M143,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M154,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M165,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M176,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M187,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M198,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M209,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M220,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M231,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M242,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M253,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M264,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M275,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M286,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M297,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M308,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M319,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M330,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M341,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M352,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M363,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M374,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M385,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M396,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M407,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M418,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M429,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M440,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M451,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M462,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M473,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M484,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M495,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M506,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M517,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M528,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M539,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M550,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M561,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M572,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M583,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M594,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M605,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M616,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M627,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M638,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M649,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M660,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M671,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M682,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M693,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M704,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M715,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M726,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M737,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M748,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M759,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M770,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M781,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M792,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M803,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M814,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M825,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M836,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M847,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M858,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M869,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M880,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M891,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M902,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M913,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M924,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M935,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M946,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M957,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M968,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M979,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M990,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1001,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1012,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1023,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1034,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1045,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1056,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1067,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1078,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1089,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1100,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1111,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1122,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1133,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1144,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1155,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1166,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1177,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1188,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1199,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1210,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1221,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1232,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1243,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1254,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1265,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M1276,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M1287,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M1298,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M1309,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M1320,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1331,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1342,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1353,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1364,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1375,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1386,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1397,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1408,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1419,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1430,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1441,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1452,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1463,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1474,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1485,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1496,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1507,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1518,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1529,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1540,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1551,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1562,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1573,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1584,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1595,70 q4,-33 9,0" fill="#A5D3B3"/></svg></div></div>
@@ -2163,7 +2328,7 @@ body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-36604be9.js"></script>
-<script src="jeu-2-292d4f3a.js"></script>
-<script src="jeu-3-75067df6.js"></script>
+<script src="jeu-1-9a55d167.js"></script>
+<script src="jeu-2-9a8c5f29.js"></script>
+<script src="jeu-3-6a7283d2.js"></script>
 </body></html>

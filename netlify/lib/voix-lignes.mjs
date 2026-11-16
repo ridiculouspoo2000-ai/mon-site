@@ -720,11 +720,11 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "À la salle d’activités : l’atelier radio. Sur la porte de la salle, le planning de l’atelier : Garçons à la console, filles aux textes . Plusieurs filles ont demandé à apprendre le réglage des micros. La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger."
  },
- "1b00bfc930a4": {
+ "934c273d7d48": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Dans la salle d’équipe. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes. Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles."
+  "text": "Dans la salle des animateurs. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes. Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles."
  },
  "323e0af7aeb4": {
   "who": "nour",
@@ -786,6 +786,18 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité. Rien d’inquiétant : le départ des enfants est contrôlé."
  },
+ "b291965ee545": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe."
+ },
+ "ef7799b25e0a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Après le repas, Nour vous laisse circuler : vous êtes en volant, et son binôme pour repérer ce qui coince. Touchez un lieu pour vous y rendre. Chaque déplacement prend un quart d’heure."
+ },
  "5d24c034d9c5": {
   "who": "narr",
   "mood": "",
@@ -839,6 +851,114 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-faible",
   "text": "Léna retourne à ses textes. À la fin de la semaine, aucune fille n’a touché la console. Léna a pourtant demandé deux fois. Un choix orienté par une consigne de l’adulte n’est pas un choix libre. Pour faire mieux : Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation."
+ },
+ "75ba4785924b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous ouvrez l’accès, mais un jour trop tard, et le raisonnement de Bastien n’est pas travaillé : la même règle se reproduira ailleurs."
+ },
+ "2ed3763e7316": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous rouvrez l’accès sans humilier personne, et vous travaillez le raisonnement de l’adulte. C’est la réponse attendue."
+ },
+ "552f42957b9a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Léna accède à l’apprentissage, mais la règle de l’atelier et la posture de Bastien restent intactes, et vous fragilisez un collègue devant le groupe."
+ },
+ "2dcbce564d8f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Léna a pourtant demandé deux fois. Un choix orienté par une consigne de l’adulte n’est pas un choix libre."
+ },
+ "0f83f4146c35": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras. Non, t’es une fille ! Tu peux pas jouer au foot avec nous. Mais… moi je joue bien, euh… je joue tous les mercredis. Malo rigole. Zoé recule vers le banc."
+ },
+ "5faa34de9961": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Les équipes mélangées tournent tout l’après-midi. Zoé marque un but ; à la fin, Théo lui tape dans la main. Vous nommez la règle, sans exclusion selon le sexe, et vous agissez sur l’organisation du jeu. C’est la prévention au quotidien : on ne laisse pas un stéréotype devenir la règle du groupe."
+ },
+ "3ac035975a7f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Zoé joue à côté, mais le terrain de foot reste celui des garçons . Le lendemain, plus aucune fille ne s’en approche. Vous évitez à Zoé d’être mise à l’écart, mais en la séparant, vous validez le stéréotype : l’espace commun reste aux garçons. Pour faire mieux : Nommer la règle devant le groupe et réorganiser le jeu : équipes mélangées, rôles qui tournent."
+ },
+ "5e693d9f65c0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Zoé passe l’après-midi sur le banc. Le mercredi suivant, elle n’apporte plus son ballon. Laisser passer une exclusion fondée sur le sexe l’installe comme une règle. Les stéréotypes se construisent tôt, dans le jeu, et l’adulte qui se tait les cautionne. Pour faire mieux : Nommer la règle devant le groupe et réorganiser le jeu : équipes mélangées, rôles qui tournent."
+ },
+ "9360842ec6ea": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous nommez la règle, sans exclusion selon le sexe, et vous agissez sur l’organisation du jeu. C’est la prévention au quotidien : on ne laisse pas un stéréotype devenir la règle du groupe."
+ },
+ "378aba4baf2a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous évitez à Zoé d’être mise à l’écart, mais en la séparant, vous validez le stéréotype : l’espace commun reste aux garçons."
+ },
+ "cbfbf0b30634": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Laisser passer une exclusion fondée sur le sexe l’installe comme une règle. Les stéréotypes se construisent tôt, dans le jeu, et l’adulte qui se tait les cautionne."
+ },
+ "74c1c0b449c2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Devant les toilettes, Malo, 7 ans, se tient le ventre et n’ose pas entrer. Je veux pas y aller… Les grands, ils… ils regardent par-dessus la porte. Et après ils rigolent."
+ },
+ "1f57959aadb1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Dès le lendemain, l’équipe organise les passages des petits, en binôme, porte du bloc ouverte. Les grands qui regardaient par-dessus les portes sont recadrés. Vous protégez Malo tout de suite, puis vous transmettez : les sanitaires sont un lieu sensible, où l’intimité de chaque enfant doit être garantie. C’est l’organisation, et non l’enfant, qui doit changer."
+ },
+ "da40d1a0e097": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les grands s’en vont, mais rien ne change dans l’organisation. Le lendemain, ils sont revenus. Faire cesser, c’est bien ; mais sans organisation et sans transmission à la référente, la situation se reproduit, et Malo peut être exposé à des représailles. Pour faire mieux : Protéger l’enfant sur le moment, puis transmettre pour que l’organisation change : passages encadrés, binômes, porte du bloc ouverte."
+ },
+ "9e3267aaab3e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Malo se retient tout l’après-midi. Le soir, il dit à sa mère qu’il ne veut plus venir. Ce n’est pas rien : regarder un enfant aux toilettes porte atteinte à son intimité. Minimiser apprend à l’enfant que sa parole ne compte pas. Pour faire mieux : Protéger l’enfant sur le moment, puis transmettre pour que l’organisation change : passages encadrés, binômes, porte du bloc ouverte."
+ },
+ "a41bf3fcb68e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous protégez Malo tout de suite, puis vous transmettez : les sanitaires sont un lieu sensible, où l’intimité de chaque enfant doit être garantie. C’est l’organisation, et non l’enfant, qui doit changer."
+ },
+ "a30adfd4e55d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Faire cesser, c’est bien ; mais sans organisation et sans transmission à la référente, la situation se reproduit, et Malo peut être exposé à des représailles."
+ },
+ "1a988e2702f6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Ce n’est pas rien : regarder un enfant aux toilettes porte atteinte à son intimité. Minimiser apprend à l’enfant que sa parole ne compte pas."
  },
  "0ca0b3afcc7c": {
   "who": "narr",
@@ -2022,6 +2142,126 @@ export const LIGNES = {
   "kind": "recit",
   "text": "L’affiche est restée au mur, jaunie. Un mois plus tard, un nouvel incident a eu lieu aux sanitaires, exactement comme avant."
  },
+ "f614b24ed346": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, à l’aire de jeux. Les équipes se forment toutes seules, mélangées."
+ },
+ "f2ebdc58f20a": {
+  "who": "theo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Zoé, tu viens dans mon équipe ? T’es trop forte en goal !"
+ },
+ "bc34515f930d": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Oui ! Mais après, c’est moi qui tire les penaltys."
+ },
+ "72a7c6a0333c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, à l’aire de jeux. Les garçons jouent au foot ; les filles jouent à côté."
+ },
+ "4f54e522618a": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Le foot, c’est pour les garçons… C’est l’animateur qui l’a dit, enfin… presque."
+ },
+ "d3b58f49e7d0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi. Zoé est assise sur le banc, sans ballon."
+ },
+ "55208a17b338": {
+  "who": "theo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Les filles, vous pouvez pas jouer ! Même l’animateur, il a dit qu’on avait le droit de choisir."
+ },
+ "7a8c6107ba12": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Je… je ramènerai plus mon ballon."
+ },
+ "9a42fbed275f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, aux sanitaires. Kévin accompagne les petits, porte du bloc ouverte, comme toute l’équipe depuis mardi."
+ },
+ "5f7920ae1e09": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Maintenant, j’ai plus peur d’y aller. Y a toujours quelqu’un."
+ },
+ "a24153304849": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Jeudi, aux sanitaires. Les grands sont revenus, et Malo attend devant la porte."
+ },
+ "895bf7bb1294": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ils ont dit que j’avais cafté… Alors je dis plus rien."
+ },
+ "43993b10f41c": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "La maman de Malo a appelé. Il ne veut plus venir : il dit qu’aux toilettes, les grands le regardent. Tu étais au courant ?"
+ },
+ "5fab646d4454": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."
+ },
+ "4757bb9b070a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, à l’atelier radio. Léna est à la console ; Enzo écrit le texte de l’émission."
+ },
+ "3b4a63b25754": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu vois, là, je baisse le micro de Clara, sinon ça sature. C’est trop bien, la console !"
+ },
+ "b3c3ea5fd5b0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi. À la séance technique, quelques filles sont venues. Mais pendant l’atelier, Bastien répartit toujours de la même façon."
+ },
+ "2b93546de809": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Les garçons à la console, comme d’habitude ! Les filles, aux textes."
+ },
+ "462d2ca45516": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi. Aucune fille n’a touché la console de la semaine."
+ },
+ "a5416866c622": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "De toute façon, la technique, c’est pas pour nous… C’est ce qu’on nous a dit."
+ },
  "9c31ecbfe544": {
   "who": "narr",
   "mood": "",
@@ -2435,5 +2675,197 @@ export const LIGNES = {
   "mood": "",
   "kind": "carnet",
   "text": "À retenir. L’alerte va aux autorités judiciaires et, par l’organisateur, au SDJES. L’intervenant est écarté. Le reste de l’équipe sait seulement qu’une situation est prise en charge."
+ },
+ "921ad8ba1aa4": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Pour commencer, va voir à l’aire de jeux : j’ai entendu des éclats de voix du côté du foot. Ensuite, promène-toi : à toi de repérer. Et vers 14 h, passe à l’atelier radio."
+ },
+ "e6cbe476a26d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "17 h. Les familles commencent à arriver au portail : votre après-midi se termine."
+ },
+ "2ee57e619a35": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras."
+ },
+ "343514fd5093": {
+  "who": "theo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Non, t’es une fille ! Tu peux pas jouer au foot avec nous."
+ },
+ "db402b5cc950": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Mais… moi je joue bien, euh… je joue tous les mercredis."
+ },
+ "a86424586d7c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Malo rigole. Zoé recule vers le banc."
+ },
+ "410afd5afedb": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "C’est vrai ? Euh… je peux être goal ?"
+ },
+ "f13aaa7c45d3": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "D’accord…"
+ },
+ "ef404576a6a8": {
+  "who": "theo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu vois, l’animateur il dit rien !"
+ },
+ "7d4b7091fe11": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "À l’atelier radio, Bastien répartit les postes avec les 13-17 ans."
+ },
+ "60b1e6187d2d": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… moi j’aimerais bien apprendre à régler les micros… je peux ?"
+ },
+ "2572411aff4a": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Une autre fois, Léna. Les textes, c’est important aussi."
+ },
+ "1ae08a45c893": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu passes à l’atelier radio ? Bastien démarre avec les grands."
+ },
+ "2c120b7abded": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ah… d’accord. Demain, alors."
+ },
+ "6d408e79b72e": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Trop bien ! Je peux commencer ?"
+ },
+ "e69866f1ad95": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Bon… si tu veux le faire à ma place."
+ },
+ "a9867983bbce": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Bon… je retourne aux textes."
+ },
+ "366ecf29a921": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Devant les toilettes, Malo, 7 ans, se tient le ventre et n’ose pas entrer."
+ },
+ "cd779849b8bd": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Je veux pas y aller… Les grands, ils… ils regardent par-dessus la porte. Et après ils rigolent."
+ },
+ "7f4c92118eec": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu restes là, hein ? D’accord."
+ },
+ "09706a8049b0": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ils vont me dire que j’ai cafté…"
+ },
+ "153f96a05c20": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "…"
+ },
+ "d9bc8126958b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Au potager, Inès et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler."
+ },
+ "162f8e3f30d2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Au parc, le groupe de Jade fait un jeu de piste. Ça court, ça rit, chacun a sa place."
+ },
+ "01fb3cb66f09": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle de restauration est vide. Le goûter sera servi à 16 h 30."
+ },
+ "caaa74bb39ec": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "En salle des animateurs, Kévin prépare le matériel de demain. Il vous fait un signe de la main."
+ },
+ "25e58f56f882": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la cour, Nour discute avec un parent. Elle vous fait signe : tout va bien de son côté."
+ },
+ "a4b0d79c28d0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "À l’aire de jeux, ça court dans tous les sens."
+ },
+ "16a8eb5fdb56": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "L’atelier radio se poursuit. Léna est à sa table."
+ },
+ "e4c2d4cf4b87": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Bastien installe le matériel : l’atelier radio commence à 14 h."
+ },
+ "5ac48f36600a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Les sanitaires sont calmes."
+ },
+ "f6eedd8f6ad2": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Les sanitaires sont vides et propres. Rien à signaler pour l’instant."
  }
 };

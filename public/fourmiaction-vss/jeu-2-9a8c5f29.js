@@ -83,7 +83,7 @@ const SCREENS = [
     intro: "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous explique à quoi il sert et ce qui s’y passe. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices.", timer: 120, hints: 2,
     spots: [
       { x: 5.8, y: 31.1, w: 23.4, h: 38.2, key: "radio", label: "La salle d’activités", real: true, title: "À la salle d’activités : l’atelier radio", t: "Sur la porte de la salle, le planning de l’atelier : « Garçons à la console, filles aux textes ». Plusieurs filles ont demandé à apprendre le réglage des micros.", lesson: "La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger.", ref: "R01" },
-      { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "Salle d’équipe", real: true, title: "Dans la salle d’équipe", t: "Au tableau, la répartition annoncée par le directeur : « Conflits : les hommes. Consoler les enfants : les femmes. »", lesson: "Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles.", ref: "R01" },
+      { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "Salle des animateurs", real: true, title: "Dans la salle des animateurs", t: "Au tableau, la répartition annoncée par le directeur : « Conflits : les hommes. Consoler les enfants : les femmes. »", lesson: "Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles.", ref: "R01" },
       { x: 59, y: 36.8, w: 20, h: 32.5, key: "soins", label: "L’infirmerie", real: true, title: "À l’infirmerie", t: "Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité.", lesson: "Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps.", ref: "R10" },
       { x: 81.8, y: 43, w: 14.4, h: 33.4, key: "panneau", label: "Panneau d’affichage", real: true, title: "Au panneau d’affichage", t: "Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part.", lesson: "L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté.", ref: "R10" },
             { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, proposent des façons d’utiliser l’espace, et restent repérables." },
@@ -95,7 +95,63 @@ const SCREENS = [
       { x: 50, y: 45, w: 16, h: 22, key: "direction", label: "L’accueil et le bureau", real: false, title: "L’accueil et le bureau de direction", t: "Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé.", lesson: "Rien à signaler : les informations confidentielles sont protégées." },
             { x: 52, y: 62, w: 10, h: 10, key: "cour", label: "Le portail des familles", real: false, title: "Le portail des familles", t: "Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité.", lesson: "Rien d’inquiétant : le départ des enfants est contrôlé." },
     ] },
-  { id: "radio", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio",
+  // Lundi après-midi : promenade libre. On circule dans l'accueil, on tombe sur des scènes, on réagit, on repart.
+  { id: "lundi-libre", ch: 1, type: "roam", kicker: "Lundi, 13 h 30 · temps libre", bridge: "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe.", title: "Votre après-midi, en volant",
+    start: "13 h 30", end: "17 h", from: "cour", guided: "foot",
+    intro: "Après le repas, Nour vous laisse circuler : vous êtes en volant, et son binôme pour repérer ce qui coince. Touchez un lieu pour vous y rendre. Chaque déplacement prend un quart d’heure.",
+    guide: ["nour", "Pour commencer, va voir à l’aire de jeux : j’ai entendu des éclats de voix du côté du foot. Ensuite, promène-toi : à toi de repérer. Et vers 14 h, passe à l’atelier radio."],
+    places: ["jeux", "radio", "sanitaires", "potager", "parc", "refectoire", "equipe", "cour"],
+    events: [
+      { id: "foot", at: "jeux", from: "13 h 30", to: "15 h", comp: "C2", kicker: "Lundi après-midi · l’aire de jeux", title: "Le foot",
+        cast: [["theo", "a", "point"], ["zoe", "b", "sad"], ["malo", "c", "stand"], ["you", "f", "walk"]],
+        lines: [["narr", "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras."], ["theo", "Non, t’es une fille ! Tu peux pas jouer au foot avec nous."], ["zoe", "Mais… moi je joue bien, euh… je joue tous les mercredis."], ["narr", "Malo rigole. Zoé recule vers le banc."]],
+        prompt: "Que faites-vous ?",
+        opts: [
+          { t: "Je dis à tout le groupe : « Ici, tout le monde peut jouer. » Et je compose moi-même deux équipes mélangées.", q: 1, react: { zoe: "talk", theo: "stand" }, reply: ["zoe", "C’est vrai ? Euh… je peux être goal ?"],
+            cons: "Les équipes mélangées tournent tout l’après-midi. Zoé marque un but ; à la fin, Théo lui tape dans la main.",
+            fb: "Vous nommez la règle, sans exclusion selon le sexe, et vous agissez sur l’organisation du jeu. C’est la prévention au quotidien : on ne laisse pas un stéréotype devenir la règle du groupe." },
+          { t: "Je propose à Zoé un autre jeu, avec d’autres filles.", q: 0.5, react: { zoe: "stand", theo: "talk" }, reply: ["zoe", "D’accord…"],
+            cons: "Zoé joue à côté, mais le terrain de foot reste « celui des garçons ». Le lendemain, plus aucune fille ne s’en approche.",
+            fb: "Vous évitez à Zoé d’être mise à l’écart, mais en la séparant, vous validez le stéréotype : l’espace commun reste aux garçons." },
+          { t: "Je laisse faire : ils ont le droit de choisir avec qui ils jouent.", q: 0, react: { zoe: "sad", theo: "talk" }, reply: ["theo", "Tu vois, l’animateur il dit rien !"],
+            cons: "Zoé passe l’après-midi sur le banc. Le mercredi suivant, elle n’apporte plus son ballon.",
+            fb: "Laisser passer une exclusion fondée sur le sexe l’installe comme une règle. Les stéréotypes se construisent tôt, dans le jeu, et l’adulte qui se tait les cautionne." },
+        ],
+        better: "Nommer la règle devant le groupe et réorganiser le jeu : équipes mélangées, rôles qui tournent." },
+      { id: "radio", at: "radio", room: "radio", from: "14 h", to: "17 h", must: true, nudge: "14 h 15", nudgeLine: ["nour", "Tu passes à l’atelier radio ? Bastien démarre avec les grands."],
+        cast: [["you", "a"], ["bastien", "c", "talk"], ["enzo", "s1"], ["lena", "s2"], ["clara", "d"]],
+        lines: [["narr", "À l’atelier radio, Bastien répartit les postes avec les 13-17 ans."], ["bastien", "Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire."], ["lena", "Euh… moi j’aimerais bien apprendre à régler les micros… je peux ?"], ["bastien", "Une autre fois, Léna. Les textes, c’est important aussi."]],
+        reacts: [{ lena: "talk", bastien: "listen" }, { lena: "listen", bastien: "talk" }, { lena: "talk", bastien: "sad" }, { lena: "sad", bastien: "talk" }],
+        replies: [["lena", "Ah… d’accord. Demain, alors."], ["lena", "Trop bien ! Je peux commencer ?"], ["bastien", "Bon… si tu veux le faire à ma place."], ["lena", "Bon… je retourne aux textes."]] },
+      { id: "sanit", at: "sanitaires", room: "sanitaires", from: "14 h 30", to: "16 h 30", comp: "C3", kicker: "Lundi après-midi · les sanitaires", title: "Devant les toilettes",
+        cast: [["malo", "d", "sad"], ["you", "e", "walk"]],
+        lines: [["narr", "Devant les toilettes, Malo, 7 ans, se tient le ventre et n’ose pas entrer."], ["malo", "Je veux pas y aller… Les grands, ils… ils regardent par-dessus la porte. Et après ils rigolent."]],
+        prompt: "Que faites-vous ?",
+        opts: [
+          { t: "Je rassure Malo, je reste près de la porte pendant qu’il y va, puis je préviens Nour pour organiser des passages encadrés.", q: 1, react: { malo: "stand" }, reply: ["malo", "Tu restes là, hein ? D’accord."],
+            cons: "Dès le lendemain, l’équipe organise les passages des petits, en binôme, porte du bloc ouverte. Les grands qui regardaient par-dessus les portes sont recadrés.",
+            fb: "Vous protégez Malo tout de suite, puis vous transmettez : les sanitaires sont un lieu sensible, où l’intimité de chaque enfant doit être garantie. C’est l’organisation, et non l’enfant, qui doit changer." },
+          { t: "Je vais tout de suite crier sur les grands qui traînent là.", q: 0.5, react: { malo: "sad" }, reply: ["malo", "Ils vont me dire que j’ai cafté…"],
+            cons: "Les grands s’en vont, mais rien ne change dans l’organisation. Le lendemain, ils sont revenus.",
+            fb: "Faire cesser, c’est bien ; mais sans organisation et sans transmission à la référente, la situation se reproduit, et Malo peut être exposé à des représailles." },
+          { t: "Je lui dis d’y aller vite : ce n’est rien, ils jouent.", q: 0, react: { malo: "sad" }, reply: ["malo", "…"],
+            cons: "Malo se retient tout l’après-midi. Le soir, il dit à sa mère qu’il ne veut plus venir.",
+            fb: "Ce n’est pas « rien » : regarder un enfant aux toilettes porte atteinte à son intimité. Minimiser apprend à l’enfant que sa parole ne compte pas." },
+        ],
+        better: "Protéger l’enfant sur le moment, puis transmettre pour que l’organisation change : passages encadrés, binômes, porte du bloc ouverte." },
+    ],
+    calm: {
+      potager: { cast: [["ines", "a", "talk"], ["sacha", "b", "stand"], ["you", "f", "walk"]], t: "Au potager, Inès et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler." },
+      parc: { cast: [["jade", "a", "wave"], ["theo", "b", "walk"], ["you", "f", "walk"]], t: "Au parc, le groupe de Jade fait un jeu de piste. Ça court, ça rit, chacun a sa place." },
+      refectoire: { cast: [["you", "a", "walk"]], room: "refectoire", t: "La salle de restauration est vide. Le goûter sera servi à 16 h 30." },
+      equipe: { cast: [["kevin", "s1", "stand"], ["you", "b", "walk"]], room: "equipe", t: "En salle des animateurs, Kévin prépare le matériel de demain. Il vous fait un signe de la main." },
+      cour: { cast: [["nour", "a", "talk"], ["you", "b", "walk"]], t: "Dans la cour, Nour discute avec un parent. Elle vous fait signe : tout va bien de son côté." },
+      jeux: { cast: [["theo", "a", "walk"], ["zoe", "b", "walk"], ["malo", "c", "wave"], ["you", "f", "walk"]], t: "À l’aire de jeux, ça court dans tous les sens." },
+      radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["you", "a", "walk"]], room: "radio", before: "Bastien installe le matériel : l’atelier radio commence à 14 h.", t: "L’atelier radio se poursuit. Léna est à sa table." },
+      sanitaires: { cast: [["you", "d", "walk"]], room: "sanitaires", before: "Les sanitaires sont vides et propres. Rien à signaler pour l’instant.", t: "Les sanitaires sont calmes." },
+    },
+    end_t: "17 h. Les familles commencent à arriver au portail : votre après-midi se termine." },
+  { id: "radio", inRoam: "lundi-libre", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio",
     context: "Bastien anime l’atelier : « Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. » Léna lui redemande d’apprendre à régler les micros.",
     prompt: "Que faites-vous ?",
     opts: [
@@ -712,6 +768,21 @@ const REPLAY = {
       excellent: { cast: [["bastien", "a", "talk"], ["you", "b"]], lines: [["bastien", "Le binôme aux toilettes, on le vérifie chaque vendredi sur le tableau. Trois mois après, ça tient !"], ["narr", "Une mesure, une personne responsable, un indicateur : la règle est toujours appliquée."]] },
       moyen: { cast: [["nour", "a", "talk"], ["you", "b"]], lines: [["nour", "Les jeunes ont signé l’affiche. Mais dans l’organisation, rien n’a vraiment changé."], ["narr", "S’engager sur le papier ne suffit pas : sans mesure vérifiable, les habitudes reviennent."]] },
       catastrophe: { cast: [["you", "a"]], lines: [["narr", "L’affiche est restée au mur, jaunie. Un mois plus tard, un nouvel incident a eu lieu aux sanitaires, exactement comme avant."]] } } },
+  foot: { at: "jeux", room: null, label: "Le foot de l’aire de jeux",
+    tiers: {
+      excellent: { cast: [["zoe", "a", "wave"], ["theo", "b", "talk"], ["malo", "c", "walk"], ["you", "f"]], lines: [["narr", "Vendredi, à l’aire de jeux. Les équipes se forment toutes seules, mélangées."], ["theo", "Zoé, tu viens dans mon équipe ? T’es trop forte en goal !"], ["zoe", "Oui ! Mais après, c’est moi qui tire les penaltys."]] },
+      moyen: { cast: [["theo", "a", "talk"], ["malo", "c", "stand"], ["zoe", "e", "sad"], ["you", "f"]], lines: [["narr", "Vendredi, à l’aire de jeux. Les garçons jouent au foot ; les filles jouent à côté."], ["zoe", "Le foot, c’est pour les garçons… C’est l’animateur qui l’a dit, enfin… presque."]] },
+      catastrophe: { cast: [["theo", "a", "point"], ["malo", "c", "talk"], ["zoe", "e", "sad"], ["you", "f"]], lines: [["narr", "Vendredi. Zoé est assise sur le banc, sans ballon."], ["theo", "Les filles, vous pouvez pas jouer ! Même l’animateur, il a dit qu’on avait le droit de choisir."], ["zoe", "Je… je ramènerai plus mon ballon."]] } } },
+  sanit: { at: "sanitaires", room: "sanitaires", label: "Malo devant les toilettes",
+    tiers: {
+      excellent: { cast: [["malo", "d", "wave"], ["kevin", "a", "stand"], ["you", "e"]], lines: [["narr", "Vendredi, aux sanitaires. Kévin accompagne les petits, porte du bloc ouverte, comme toute l’équipe depuis mardi."], ["malo", "Maintenant, j’ai plus peur d’y aller. Y a toujours quelqu’un."]] },
+      moyen: { cast: [["malo", "d", "sad"], ["you", "e"]], lines: [["narr", "Jeudi, aux sanitaires. Les grands sont revenus, et Malo attend devant la porte."], ["malo", "Ils ont dit que j’avais cafté… Alors je dis plus rien."]] },
+      catastrophe: { cast: [["nour", "a", "talk"], ["you", "e"]], lines: [["nour", "La maman de Malo a appelé. Il ne veut plus venir : il dit qu’aux toilettes, les grands le regardent. Tu étais au courant ?"], ["narr", "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."]] } } },
+  radio: { at: "radio", room: "radio", label: "L’atelier radio",
+    tiers: {
+      excellent: { cast: [["lena", "c", "talk"], ["clara", "s2"], ["enzo", "s1"], ["you", "a"]], lines: [["narr", "Vendredi, à l’atelier radio. Léna est à la console ; Enzo écrit le texte de l’émission."], ["lena", "Tu vois, là, je baisse le micro de Clara, sinon ça sature. C’est trop bien, la console !"]] },
+      moyen: { cast: [["lena", "s2", "sit"], ["bastien", "c", "talk"], ["you", "a"]], lines: [["narr", "Vendredi. À la séance technique, quelques filles sont venues. Mais pendant l’atelier, Bastien répartit toujours de la même façon."], ["bastien", "Les garçons à la console, comme d’habitude ! Les filles, aux textes."]] },
+      catastrophe: { cast: [["lena", "s2", "sit"], ["clara", "d"], ["you", "a"]], lines: [["narr", "Vendredi. Aucune fille n’a touché la console de la semaine."], ["lena", "De toute façon, la technique, c’est pas pour nous… C’est ce qu’on nous a dit."]] } } },
 };
 
 // Ce que dit la narration en entrant dans une salle (pour toujours savoir où l'on est).
@@ -791,7 +862,7 @@ const STAGE = {
   c5: { at: "entree", cast: [["parent", "a", "walk"], ["clara", "b", "walk"], ["nour", "d", "wave"], ["you", "e"], ["theo", "c"]] },
   intro: { at: "entree", z: 3.2, cast: [["nour", "c", "wave"], ["you", "b"], ["parent", "e", "walk"], ["theo", "a"], ["sacha", "f", "wave"]] },
   dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
-  radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["malo", "s1"], ["lena", "s2"], ["clara", "d"]] },
+  radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["enzo", "s1"], ["lena", "s2"], ["clara", "d"]] },
   brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["kevin", "d"], ["jade", "f"]] },
   planning: { at: "equipe", room: "equipe", cast: [["nour", "board", "point"], ["you", "a"], ["jade", "c"], ["bastien", "d"], ["ines", "e"], ["kevin", "f"]] },
   ines: { at: "equipe", room: "equipe", cast: [["ines", "b", "talk"], ["you", "a"]] },
@@ -862,3 +933,15 @@ const VOICE_TXT = {
   spot(s) { return ["nour", `${s.title}. ${s.t} ${s.lesson}`]; },
   fb(sc, o) { return ["narr", [o.cons, o.fb, o.q < 1 && sc.better ? "Pour faire mieux : " + sc.better : ""].filter(Boolean).join(" ")]; },
 };
+
+// Promenade libre : chaque scène sur laquelle on peut tomber devient une décision de la semaine (revue vendredi),
+// rangée juste après sa promenade. Ces écrans ne s'affichent jamais seuls : on les vit pendant la promenade.
+SCREENS.filter((r) => r.type === "roam").forEach((r) => {
+  let at = SCREENS.indexOf(r) + 1;
+  while (SCREENS[at] && SCREENS[at].inRoam === r.id) at++;
+  r.events.forEach((ev) => {
+    if (SCREENS.some((x) => x.id === ev.id)) return;   // l'atelier radio existe déjà comme écran
+    SCREENS.splice(at++, 0, { id: ev.id, inRoam: r.id, ch: r.ch, type: "choice", comp: ev.comp, kicker: ev.kicker, title: ev.title, context: ev.lines.map(([w, t]) => (w === "narr" ? t : `${t}`)).join(" "), prompt: ev.prompt, opts: ev.opts, better: ev.better });
+    STAGE[ev.id] = { at: ev.at, room: ev.room, cast: ev.cast.map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]) };
+  });
+});

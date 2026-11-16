@@ -1375,7 +1375,7 @@ svg.char .ceyes{transform-box:fill-box;transform-origin:50% 55%;animation:blink 
 #world.amb-evening .wcam>.dio-img{filter:sepia(.18) saturate(1.1) brightness(.93)}
 #world.amb-night .wcam>.dio-img{filter:brightness(.52) saturate(.75) hue-rotate(8deg)}
 .sart svg.room{width:100%;height:auto;display:block}
-.wacts .actor[data-who="you"]:after{font-size:4.6px;padding:.25em .55em}
+.wacts .actor[data-who="you"]:after{font-size:9.2px;line-height:1.2;padding:.22em .6em .2em;scale:.5;transform-origin:50% 0}   /* écrit en grand puis réduit : texte bien centré dans la pastille, même très petit */
 .wacts .actor .abub{font-size:4.5px}
 #world.amb-night .int-sunp{display:none}
 #world.amb-evening .int-sunp{opacity:.55}
@@ -1772,6 +1772,364 @@ body.calm .home2 .hrank{animation:none}
 @media (max-width:520px){.rk-list li{grid-template-columns:28px 1fr 50px;padding:9px 11px}.rk-list .rk-l{display:none}.rank{padding:18px 16px 14px}}
 @media (prefers-reduced-motion:reduce){.rk-pop{animation:none}}
 .rk-form[hidden]{display:none}
+
+/* =================================================================================================
+   REFONTE — couche finale (chargée après world.css)
+   Une seule direction artistique : les hautes herbes du titre entrent dans le jeu, la lumière suit
+   l'heure, l'interface se fait matière (verre, retenue, trois niveaux de texte), les moments graves
+   laissent toute la place à la parole de l'enfant.
+   ================================================================================================= */
+:root{--rf-ink:#1d1d1f;--rf-muted:#535c66;--rf-kick:#B4520F;--rf-hair:rgba(0,0,0,.075);--rf-ease:cubic-bezier(.2,.8,.2,1);--rf-spring:cubic-bezier(.34,1.36,.5,1);
+  --rf-blue:#2B6FD6;--rf-panel:rgba(255,255,255,.93);--rf-shadow:0 0 0 .5px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.03),0 30px 60px -32px rgba(19,40,59,.42)}
+
+/* ---------- 1. Barre du haut : l'essentiel visible, les réglages rangés ---------- */
+#hud{gap:8px;padding:7px 8px 7px 16px;border-radius:24px;background:rgba(255,255,255,.74);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.75),0 14px 34px -20px rgba(19,40,59,.5)}
+#hud .hbtn{height:38px;padding:0 14px;font-size:13.5px;letter-spacing:-.005em}
+#hud .hbtn svg{width:17px;height:17px}
+#btn-more[aria-expanded=true]{background:#fff;box-shadow:inset 0 0 0 1.5px var(--rf-blue)}
+#hudmenu{position:absolute;right:8px;top:calc(100% + 8px);z-index:90;width:262px;padding:8px;border-radius:22px;display:flex;flex-direction:column;gap:2px;
+  background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.08),0 24px 50px -20px rgba(19,40,59,.5);transform-origin:calc(100% - 30px) -10px;animation:rf-menu .32s var(--rf-spring)}
+#hudmenu[hidden]{display:none}
+@keyframes rf-menu{from{opacity:0;transform:scale(.92) translateY(-6px)}to{opacity:1;transform:none}}
+#hudmenu .hm-k{margin:6px 10px 6px;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--rf-muted)}
+#hudmenu .hbtn{display:flex;width:100%;height:auto;min-height:44px;justify-content:flex-start;gap:10px;padding:10px 12px;border-radius:14px;background:transparent;box-shadow:none;color:var(--rf-ink);font-size:14.5px;transform:none!important}
+#hudmenu .hbtn:hover,#hudmenu .hbtn:focus-visible{background:rgba(0,0,0,.05)}
+#hudmenu .hbtn[hidden]{display:none}
+#hudmenu .hbtn .lbl{position:static!important;width:auto!important;height:auto!important;clip:auto!important;overflow:visible!important;display:inline!important;color:inherit}
+#hudmenu .hbtn[aria-pressed=false]{color:var(--rf-ink);background:transparent}
+#hudmenu #btn-level .lbl::before{content:"Niveau : ";color:var(--rf-muted)}
+#hudmenu .hbtn[aria-pressed]::after{content:"";margin-left:auto;flex:0 0 38px;height:22px;border-radius:99px;transition:background .25s;
+  background:radial-gradient(circle at 11px 50%,#fff 8px,transparent 8.6px),#C9CDD3;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.06)}
+#hudmenu .hbtn[aria-pressed=true]::after{background:radial-gradient(circle at 27px 50%,#fff 8px,transparent 8.6px),#30A46C}
+#hudmenu .hbtn:focus-visible,#btn-more:focus-visible{outline:3px solid var(--rf-blue);outline-offset:2px}
+@media (max-width:980px){#btn-more .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}#hud .hbtn{padding:0 11px}}
+@media (max-width:760px){#hud{padding:6px 6px 6px 8px;gap:4px;border-radius:20px}#hud .hbtn{height:36px;min-width:36px;padding:0 9px}#hudmenu{right:4px;width:min(272px,calc(100vw - 24px))}}
+
+/* ---------- 2. L'horloge : une pastille compacte (jour, heure, semaine, fatigue) ---------- */
+#dayclock{width:auto!important;display:grid;grid-template-columns:46px auto;grid-template-areas:"f t" "f w" "x x";column-gap:12px;row-gap:3px;align-items:center;
+  padding:9px 16px 11px 9px!important;border-radius:22px;text-align:left;top:84px;
+  background:rgba(255,255,255,.82);box-shadow:0 0 0 .5px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.8),0 14px 30px -20px rgba(19,40,59,.5)}
+#dayclock[hidden]{display:none}
+#dayclock .dc-face{grid-area:f;width:46px!important;height:46px!important;margin:0!important;float:none}
+#dayclock .dc-face .n,#dayclock .dc-face .dg{display:none}
+#dayclock .dc-face .f{stroke-width:1.6}
+#dayclock .dc-top{grid-area:t;display:flex;justify-content:flex-start!important;align-items:baseline;gap:8px}
+#dayclock .dc-top b{font-size:15.5px;letter-spacing:-.01em}
+#dayclock .dc-top span{display:inline!important;font-size:13px;font-weight:500;color:var(--rf-muted)}
+#dayclock .dc-week{grid-area:w;display:flex;gap:3px;margin:0!important}
+#dayclock .dc-week i{flex:0 0 17px;width:17px;height:15px;line-height:15px;font-size:9.5px;border-radius:5px}
+#dayclock .dc-f{grid-area:x;display:flex;align-items:center;gap:8px;margin-top:6px}
+#dayclock .dc-f small{margin:0;white-space:nowrap;font-size:10.5px;color:var(--rf-muted)}
+#dayclock .dc-f span{flex:1;min-width:46px;height:4px}
+@media (max-width:860px){
+  #dayclock{width:auto!important;top:60px;left:8px;grid-template-columns:32px auto;grid-template-areas:"f t" "f x";column-gap:8px;row-gap:2px;padding:6px 12px 7px 6px!important;border-radius:16px}
+  #dayclock .dc-face{width:32px!important;height:32px!important}
+  #dayclock .dc-week{display:none}
+  #dayclock .dc-top b{font-size:13px!important}#dayclock .dc-top span{font-size:12px}
+  #dayclock .dc-f{margin-top:2px;gap:6px}#dayclock .dc-f small{font-size:9.5px}#dayclock .dc-f span{min-width:38px}
+}
+
+/* ---------- 3. Les panneaux : une matière claire, posée sur le monde ---------- */
+body.live .panel,body.live .solo,body.live .page-note,body.live .mapwrap,body.live .chap,body.live .t-chapter .chap{background:var(--rf-panel);box-shadow:var(--rf-shadow);border-radius:28px}
+@media (min-width:861px) and (pointer:fine){
+  body.live:not(.calm) .panel,body.live:not(.calm) .solo,body.live:not(.calm) .page-note,body.live:not(.calm) .chap,body.live:not(.calm) .t-chapter .chap{
+    background:rgba(255,255,255,.84);-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%)}
+}
+body.live .solo,body.live .panel{padding:30px 32px}
+body.live .side{margin-bottom:14px}
+body.live #stage .screen{transition:opacity .6s var(--rf-ease),transform .8s var(--rf-ease)}
+
+/* ---------- 4. Trois niveaux de texte : titre, corps, légende ---------- */
+.kicker{color:var(--rf-kick);font-size:11.5px;font-weight:600;letter-spacing:.1em}
+.bridge{background:none!important;border:0!important;border-left:2px solid rgba(19,40,59,.16)!important;border-radius:0!important;padding:1px 0 1px 14px!important;margin:0 0 14px!important;
+  color:#4b5560;font-size:15px;line-height:1.55}
+.panel .prompt,.solo .prompt,.panel h2.dtitle,body.live .page-note h2,body.live .solo>h2,body.live .panel>h2:not(.sr-only){font-size:clamp(21px,1.75vw,25px);line-height:1.2;letter-spacing:-.022em;font-weight:600;color:var(--rf-ink)}
+.panel .lead,.solo .lead,.panel .ctx,.panel .lines p,.log .narr{color:var(--rf-muted)}
+.panel .ctx{font-size:16px;line-height:1.55;color:#2c3540}
+.log .narr{font-size:15px}
+
+/* ---------- 5. Les choix : nets, vivants, et qui s'effacent une fois la décision prise ---------- */
+.opt{border-radius:16px;background:rgba(255,255,255,.94);box-shadow:inset 0 0 0 1px var(--rf-hair),0 1px 2px rgba(0,0,0,.04);
+  transition:transform .35s var(--rf-spring),box-shadow .25s ease,background .25s ease,opacity .45s ease,filter .45s ease}
+.opt:hover:not([disabled]){transform:translateY(-2px);background:#fff;box-shadow:inset 0 0 0 1.5px var(--rf-blue),0 16px 30px -22px rgba(43,111,214,.65)}
+.opt .ol{width:26px;height:26px;flex-basis:26px;font-size:12.5px;border-radius:50%;background:#EFF1F4;color:#3a4350;font-weight:600;transition:background .25s,color .25s}
+.opt:hover:not([disabled]) .ol{background:var(--rf-blue);color:#fff}
+.opt:focus-visible{outline:3px solid var(--rf-blue);outline-offset:2px}
+.opts:has(.picked)>.opt:not(.picked):not(.tried),.opts:has(.chosen)>.opt:not(.chosen):not(.picked):not(.tried){opacity:.42;filter:saturate(.5)}
+.opt.picked,.opt.chosen{opacity:1;filter:none}
+.fb{border-left:0!important;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+.fb .vt{letter-spacing:-.015em}
+.opts>.opt{animation:rf-optin .55s var(--rf-ease) both;animation-delay:calc(var(--k,0) * 60ms + 140ms)}
+@keyframes rf-optin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* le buste de la personne qui vous parle : plus présent */
+.portrait.chip{padding:5px 18px 5px 5px;background:rgba(255,255,255,.9);box-shadow:0 0 0 .5px rgba(0,0,0,.07),0 12px 26px -18px rgba(19,40,59,.55)}
+.portrait.chip .pchar{width:66px;height:66px}
+.portrait.chip .pname{font-size:15.5px;letter-spacing:-.01em}
+@media (max-width:760px){.portrait.chip .pchar{width:54px;height:54px}}
+
+/* ---------- 6. Le monde : ciel, lumière de l'heure, profondeur, herbes ---------- */
+#world{background:linear-gradient(180deg,#E7EEF6 0%,#F3F1EC 100%);transition:opacity .9s var(--ease),background 1.2s ease}
+#world.amb-morning{background:linear-gradient(180deg,#E3EAF7 0%,#F8ECE3 100%)}
+#world.amb-day{background:linear-gradient(180deg,#E3EEF8 0%,#F2F5F2 100%)}
+#world.amb-golden{background:linear-gradient(180deg,#F5E2CE 0%,#F4E8DA 100%)}
+#world.amb-evening{background:linear-gradient(180deg,#43407A 0%,#C88C98 100%)}
+/* la brume blanche est remplacée par un voile très léger, teinté par l'heure, derrière le panneau */
+#world .wvig{background:linear-gradient(90deg,rgba(236,241,247,0) 54%,rgba(236,241,247,.34) 80%,rgba(236,241,247,.5))}
+#world.amb-golden .wvig{background:linear-gradient(90deg,rgba(246,232,216,0) 54%,rgba(246,232,216,.36) 80%,rgba(246,232,216,.5))}
+#world.amb-morning .wvig{background:linear-gradient(90deg,rgba(242,236,236,0) 54%,rgba(242,236,236,.34) 80%,rgba(242,236,236,.5))}
+#world.amb-evening .wvig{background:linear-gradient(90deg,rgba(60,50,100,0) 54%,rgba(60,50,100,.3))}
+#world.amb-night .wvig{background:linear-gradient(90deg,rgba(20,27,40,0) 52%,rgba(20,27,40,.5))}
+#world .wvig::after{content:"";position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;background:radial-gradient(ellipse 85% 80% at 34% 50%,transparent 38%,rgba(16,22,34,.42) 100%)}
+/* étalonnage : la lumière change avec l'heure. Le plan (image fixe) reçoit un filtre calculé une seule fois ;
+   par-dessus, un voile de lumière très léger en fondu normal (le mode « soft-light » coûtait un quart de la fluidité). */
+#world .wgrade{position:absolute;inset:0;pointer-events:none;opacity:1;transition:opacity 1.4s ease,background 1.4s ease}
+#world .wgrade::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 120% 105% at 36% 48%,transparent 58%,rgba(19,30,50,.14) 100%)}
+#world.amb-morning .wgrade{background:linear-gradient(165deg,rgba(255,214,186,.2) 0%,rgba(255,236,220,0) 45%,rgba(170,195,240,.12) 100%)}
+#world.amb-day .wgrade{background:radial-gradient(110% 90% at 28% 26%,rgba(255,252,236,.16),transparent 62%)}
+#world.amb-golden .wgrade{background:linear-gradient(205deg,rgba(255,170,90,.24) 0%,rgba(255,200,140,.08) 48%,rgba(130,96,170,.08) 100%)}
+#world.amb-evening .wgrade{background:linear-gradient(180deg,rgba(110,80,200,.14),rgba(255,150,120,.12))}
+#world.amb-night .wgrade{background:linear-gradient(180deg,rgba(40,60,150,.16),rgba(10,20,50,.14))}
+#world.amb-morning .wcam>.dio-img,#world.amb-morning .wlid,#world.amb-morning .inroom-w,#world.amb-morning .dio-occ{filter:sepia(.07) saturate(1.04) brightness(1.02)}
+#world.amb-golden .wcam>.dio-img,#world.amb-golden .wlid,#world.amb-golden .inroom-w,#world.amb-golden .dio-occ{filter:sepia(.2) saturate(1.14) brightness(.99)}
+/* profondeur : un voile d'air lointain en haut de l'image (perspective atmosphérique), teinté par l'heure.
+   Un dégradé simple plutôt qu'un flou : le flou plein écran divisait par deux la fluidité sur les petites machines. */
+#world .wdof{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(226,236,248,.55) 0%,rgba(226,236,248,.22) 12%,rgba(226,236,248,0) 26%)}
+#world.amb-morning .wdof{background:linear-gradient(180deg,rgba(244,226,222,.55) 0%,rgba(244,226,222,.2) 12%,transparent 26%)}
+#world.amb-golden .wdof{background:linear-gradient(180deg,rgba(250,214,170,.55) 0%,rgba(250,214,170,.22) 12%,transparent 26%)}
+#world.amb-evening .wdof{background:linear-gradient(180deg,rgba(90,70,140,.5) 0%,rgba(90,70,140,.18) 12%,transparent 26%)}
+#world.amb-night .wdof{background:linear-gradient(180deg,rgba(14,22,44,.55) 0%,rgba(14,22,44,.2) 12%,transparent 26%)}
+/* les hautes herbes au premier plan */
+#world .wgrass{position:absolute;left:0;right:0;bottom:0;height:min(17vh,160px);pointer-events:none;transition:opacity 1.4s ease}
+#world .wgrass .gl{position:absolute;inset:0;transform-origin:50% 100%;animation:rf-sway var(--d,7s) ease-in-out infinite alternate;will-change:transform}
+#world .wgrass .gl svg{width:100%;height:100%;display:block;overflow:visible}
+#world .wgrass .gl0{--d:8.5s;--a:.5deg;opacity:.75}
+#world .wgrass .gl1{--d:6.5s;--a:.8deg;animation-delay:-2s;opacity:.9}
+#world .wgrass .gl2{--d:5.2s;--a:1.1deg;animation-delay:-3.5s}
+@keyframes rf-sway{from{transform:skewX(calc(var(--a,1deg) * -1))}to{transform:skewX(var(--a,1deg))}}
+#fga .s0{stop-color:#2F5E3B}#fga .s1{stop-color:#4F8E58}#fga .s2{stop-color:#9ACB84;stop-opacity:.55}
+#fgb .s0{stop-color:#3E6E47}#fgb .s1{stop-color:#71AB6C}#fgb .s2{stop-color:#BFE0A2;stop-opacity:.5}
+#fgw .s0{stop-color:#6E6436}#fgw .s1{stop-color:#C4A158}#fgw .s2{stop-color:#F0D894;stop-opacity:.55}
+#world.amb-golden #fga .s2,#world.amb-golden #fgb .s2{stop-color:#F2C47E}
+#world.amb-golden #fgw .s1{stop-color:#D99A4E}
+#world.amb-evening #fga .s0,#world.amb-evening #fgb .s0,#world.amb-evening #fgw .s0{stop-color:#2A2A4E}
+#world.amb-evening #fga .s1,#world.amb-evening #fgb .s1{stop-color:#5A5A86}#world.amb-evening #fgw .s1{stop-color:#9A6E7E}
+#world.amb-evening #fga .s2,#world.amb-evening #fgb .s2,#world.amb-evening #fgw .s2{stop-color:#E8A898}
+#world.amb-night #fga .s0,#world.amb-night #fgb .s0,#world.amb-night #fgw .s0{stop-color:#0C1626}
+#world.amb-night #fga .s1,#world.amb-night #fgb .s1,#world.amb-night #fgw .s1{stop-color:#1F3452}
+#world.amb-night #fga .s2,#world.amb-night #fgb .s2,#world.amb-night #fgw .s2{stop-color:#5878A8}
+body.athome #world .wgrass,body.athome #world .wgrade,body.athome #world .wdof{display:none}
+
+/* ---------- 7. Les moments graves : le monde se tait ---------- */
+#world .wext{transition:opacity .8s var(--ease),filter 1.4s ease}
+body.grave #world .wext{filter:saturate(.4) brightness(.94) contrast(.96)}
+body.grave #world .wgrade{opacity:.15}
+body.grave #world .wvig::after{opacity:1}
+body.grave #world .wgrass{opacity:.3}
+body.grave .qtimer i{background:#7D8794!important}
+body.grave .qtimer{background:rgba(0,0,0,.05)}
+.moment{position:fixed;inset:0;z-index:220;display:grid;place-items:center;padding:24px;cursor:pointer;
+  background:radial-gradient(120% 90% at 50% 45%,#1C2738 0%,#0B111B 100%);opacity:0;transition:opacity .9s ease}
+.moment.in{opacity:1}
+.moment.out{opacity:0;transition:opacity .8s ease}
+.moment figure{margin:0;text-align:center;max-width:90vw}
+.moment blockquote{margin:0;font:400 clamp(28px,4.4vw,54px)/1.18 'Inter Display','Inter',-apple-system,system-ui,sans-serif;letter-spacing:-.025em;color:#F2F4F7;max-width:16ch;margin:0 auto;
+  animation:rf-focus 2s var(--rf-ease) .2s both}
+.moment figcaption{margin-top:22px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(242,244,247,.62);animation:rf-focus 1.6s var(--rf-ease) .9s both}
+@keyframes rf-focus{from{opacity:0;filter:blur(8px);transform:translateY(8px)}to{opacity:1;filter:none;transform:none}}
+
+/* ---------- 8. Notifications du téléphone : sur le plan, plus sur le panneau ---------- */
+@media (min-width:1200px){
+  .ph-ban{right:auto;left:calc(max(16px,(100vw - 1180px) / 2) + 222px);top:86px;width:360px}
+}
+@media (min-width:861px) and (max-width:1199.98px){.ph-ban{top:auto;right:auto;left:16px;bottom:18px}}
+.ph-ban{border-radius:20px}
+
+/* ---------- 9. Étiquette « Vous » dans les salles : toujours lisible ---------- */
+.rlab-top{animation:rf-fade .5s ease 1.25s both;pointer-events:none}
+@keyframes rf-fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- 10. Le bilan : les anneaux se remplissent ---------- */
+.t-bilan .ringsbig circle[stroke-dashoffset]{animation:rf-ring 2s var(--rf-ease) .5s both}
+@keyframes rf-ring{from{stroke-dashoffset:100}}
+.t-bilan .bilan h2{letter-spacing:-.03em}
+.t-bilan .bilan>h3{margin-top:34px;letter-spacing:-.02em}
+
+/* ---------- 11. Téléphone : le panneau devient une feuille posée sur le plan ---------- */
+@media (max-width:860px){
+  #world .wvig{background:linear-gradient(180deg,rgba(238,241,245,0) 36%,rgba(238,241,245,.94) 54%)}
+  #world.amb-night .wvig{background:linear-gradient(180deg,rgba(20,27,40,0) 36%,rgba(238,241,245,.94) 54%)}
+  body.live .panel,body.live .solo,body.live .page-note,body.live .chap{border-radius:26px}
+  body.live .solo,body.live .panel{padding:22px 20px}
+  .moment blockquote{font-size:clamp(26px,8vw,36px)}
+}
+
+/* ---------- 12. Animations réduites ---------- */
+body.calm #world .wgrass .gl,body.calm .opts>.opt,body.calm .moment blockquote,body.calm .moment figcaption,body.calm .t-bilan .ringsbig circle,body.calm #hudmenu,body.calm .rlab-top{animation:none!important}
+@media (prefers-reduced-motion:reduce){#world .wgrass .gl,.opts>.opt,.moment blockquote,.moment figcaption,.t-bilan .ringsbig circle,#hudmenu,.rlab-top{animation:none!important}}
+
+/* ---------- 13. Netteté : la caméra ne fige plus le plan à l'échelle 1 ----------
+   « will-change: transform » faisait rastériser le plan et les personnages une fois pour toutes à leur taille
+   d'origine : agrandis par la caméra (×2 à ×3,6), ils devenaient flous. Sans lui, le navigateur redessine net
+   à la fin de chaque mouvement de caméra. */
+#world .wcam,.actor,.dio-ov{will-change:auto}
+.moment blockquote{background:none!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;font-weight:400!important}
+
+/* ---------- 14. Bandeaux « Réflexe acquis » et messages : sur le plan, jamais sur les boutons du panneau ---------- */
+@media (min-width:861px){
+  body.live .gain{left:calc((100vw - 540px - max(20px,(100vw - 1180px) / 2)) / 2);max-width:min(440px,calc(100vw - 600px - max(20px,(100vw - 1180px) / 2)))}
+}
+@media (max-width:860px){
+  body.live .gain{top:58px;bottom:auto}
+  body.live .gain:not(.on):not(.msg){transform:translate(-50%,-12px) scale(.96)}
+}
+/* menu Réglages : même ordre et même titre sur téléphone (world.css renvoyait « Niveau » en dernier) */
+#hudmenu .hm-k{display:block!important;order:-2}
+#hudmenu #btn-level{order:-1}
+/* mode « Animations réduites » : même mise en page, sans mouvement de caméra ni respiration des personnages */
+body.calm #world .wcam,body.calm #world .wroom,body.calm #world .wext,body.calm #world .wgrade,body.calm #world .wgrass{transition:none!important}
+body.calm .actor,body.calm .actor svg,body.calm .ractor .rmove,body.calm .ractor .rbody,body.calm .dio-ov,body.calm svg.char .ceyes{animation:none!important}
+body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
+/* téléphone : l'horloge reste posée sur le plan et s'en va avec lui quand on fait défiler (elle ne flotte plus sur le texte) */
+@media (max-width:860px){ #dayclock{position:absolute} }
+/* rangées de boutons : jamais un libellé coupé sur trois lignes ; si ça ne tient pas, chaque bouton prend sa ligne */
+.row{flex-wrap:wrap}
+@media (max-width:640px){ .row>.cta,.row>.ghost{flex:1 1 auto;white-space:nowrap} }
+/* « Œil de lynx » sur téléphone : la fiche d'un lieu tient dans le plan (largeur pleine, défilement interne) et s'ouvre par son titre */
+@media (max-width:640px){
+  .lynx .spotcard{left:8px;right:8px;top:8px;width:auto;max-height:calc(100% - 16px);overflow:auto;overscroll-behavior:contain;border-radius:20px}
+}
+
+/* ================= Étape 1 : le plan redessiné (palette de la maquette) ================= */
+/* ciels de la maquette : matin frais, plein jour neutre, soir doré, crépuscule mauve */
+#world.amb-morning{background:linear-gradient(180deg,#E4EDF8 0%,#F6F2EA 100%)}
+#world.amb-day{background:linear-gradient(180deg,#EDF2F7 0%,#F8F5EF 100%)}
+#world.amb-golden{background:linear-gradient(180deg,#F6D9BF 0%,#FBECDD 100%)}
+#world.amb-evening{background:linear-gradient(180deg,#8F95C2 0%,#D1B8C2 100%)}
+/* le plan est déjà doux : on retire les filtres d'étalonnage du matin, on garde un soir doré léger */
+#world.amb-morning .wcam>.dio-img,#world.amb-morning .wlid,#world.amb-morning .inroom-w,#world.amb-morning .dio-occ{filter:none}
+#world.amb-golden .wcam>.dio-img,#world.amb-golden .wlid,#world.amb-golden .inroom-w,#world.amb-golden .dio-occ{filter:sepia(.14) saturate(1.06)}
+#world.amb-morning .wgrade{background:linear-gradient(165deg,rgba(201,217,242,.18) 0%,rgba(255,245,222,.1) 60%,transparent 100%)}
+#world.amb-golden .wgrade{background:linear-gradient(205deg,rgba(255,174,114,.26) 0%,rgba(255,209,154,.12) 55%,rgba(255,174,114,.06) 100%)}
+#world.amb-evening .wgrade{background:linear-gradient(180deg,rgba(59,71,138,.28),rgba(59,71,138,.18))}
+/* lampadaires : un halo chaud le soir et la nuit */
+.dio-lampglow{transition:opacity 1s ease}
+#world.amb-golden .dio-lampglow{opacity:.6}
+#world.amb-evening .dio-lampglow,#world.amb-night .dio-lampglow{opacity:1;filter:drop-shadow(0 0 4px #FFD27A) drop-shadow(0 0 10px rgba(255,200,120,.8))}
+
+/* ================= Étape 3 : la barre du haut en pastilles (maquette) ================= */
+@media (min-width:861px){
+  #hud{background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;border:0;padding:0;gap:10px;margin:20px auto 0;top:20px;width:min(1180px,calc(100% - 48px));align-items:center}
+  .hpill,#hud #dayclock,#hud .rings,#hud .hbtn:not(#btn-carnet){height:52px;border-radius:22px;background:rgba(255,255,255,.66);
+    -webkit-backdrop-filter:blur(22px) saturate(1.6);backdrop-filter:blur(22px) saturate(1.6);border:1px solid rgba(255,255,255,.8);
+    box-shadow:0 12px 32px rgba(28,34,48,.12),inset 0 1px 0 rgba(255,255,255,.9);box-sizing:border-box}
+  .hp-left{display:flex;align-items:center;gap:14px;padding:0 18px 0 20px;min-width:0;flex:0 1 auto}
+  .hp-left #hudav{border-left:1px solid rgba(28,34,48,.12);padding-left:14px;width:34px;flex:0 0 auto;height:40px}
+  .hp-left .chapbox{flex:0 1 auto;min-width:0}
+  .hp-left #chaptitle{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+  .hspace{flex:1 1 auto}
+  /* l'horloge, pastille de la barre : cadran, heure | anneau de fatigue */
+  #hud #dayclock{position:static!important;display:flex!important;align-items:center;gap:12px;padding:0 16px!important;width:auto!important;top:auto;left:auto;grid-template-columns:none;grid-template-areas:none}
+  #hud #dayclock[hidden]{display:none!important}
+  #hud #dayclock .dc-face{width:30px!important;height:30px!important}
+  #hud #dayclock .dc-top{gap:0}#hud #dayclock .dc-top b,#hud #dayclock .dc-week{display:none!important}
+  #hud #dayclock .dc-top span{font-size:15px;font-weight:600;color:#1C2230}
+  #hud #dayclock .dc-f{margin:0;padding-left:12px;border-left:1px solid rgba(28,34,48,.12);display:grid;grid-template-columns:24px auto;grid-template-rows:auto auto;column-gap:10px;align-items:center}
+  #hud #dayclock .dc-ring{grid-row:1/3;width:24px;height:24px}
+  #hud #dayclock .dc-f small{font-size:12px;color:#525B6C;line-height:1.15}
+  #hud #dayclock .dc-fp{font-size:13px;line-height:1.15}
+  #hud #dayclock .dc-f span{display:none}
+  /* le lieu */
+  #wplace{display:flex;align-items:center;gap:10px;padding:0 16px 0 11px;font-size:14px;font-weight:600;color:#1C2230;white-space:nowrap}
+  #wplace[hidden]{display:none}
+  #wplace svg{width:30px;height:30px;padding:7px;box-sizing:border-box;border-radius:10px;background:#FDE7D6;color:#B4521A}
+  /* les outils : cible, téléphone, carnet (pastille sombre), réglages */
+  #hud .rings{width:52px;flex:0 0 52px;padding:10px}
+  #hud #btn-phone,#hud #btn-more{width:52px;padding:0;justify-content:center;position:relative}
+  #hud #btn-phone .lbl,#hud #btn-more .lbl{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important}
+  #hud #btn-phone .cc{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:9px;font-size:11px;display:grid;place-items:center;padding:0 5px;background:#F28A3B;color:#fff}
+  #hud #btn-phone svg,#hud #btn-more svg{width:20px;height:20px}
+  #hud #btn-carnet{height:52px;padding:0 20px 0 18px;border-radius:22px;border:0;background:rgba(28,34,48,.88);color:#fff;font-size:15px;font-weight:600;gap:10px;
+    -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 12px 28px rgba(28,34,48,.22)}
+  #hud #btn-carnet .lbl{position:static!important;width:auto!important;height:auto!important;clip:auto!important}
+  #hud #btn-carnet .cc{min-width:22px;height:22px;border-radius:11px;background:#F28A3B;display:grid;place-items:center;font-size:12px;padding:0 6px;box-sizing:border-box}
+  #hud .hbtn:hover:not(#btn-carnet){background:rgba(255,255,255,.88)}
+  #hud #btn-carnet:hover{background:#1C2230}
+  #hudmenu{right:0;top:calc(100% + 10px)}
+  #world.amb-night~* #hud .hpill{background:rgba(255,255,255,.78)}
+}
+.dc-ring .t{fill:none;stroke:rgba(28,34,48,.1);stroke-width:3.2}
+.dc-ring .v{fill:none;stroke:#F28A3B;stroke-width:3.2;stroke-linecap:round;transition:stroke-dasharray 1.2s var(--rf-ease)}
+#dayclock.tired .dc-ring .v{stroke:#D9480F}
+#dayclock .dc-fp{display:none}
+@media (min-width:861px){ #hud #dayclock .dc-fp{display:block} }
+@media (max-width:860px){
+  .hpill{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto}
+  #wplace,.hspace,.dc-ring{display:none!important}
+  .hp-left #btn-home{display:none}
+}
+
+/* ================= Étape 3 : les moments de récit en carte posée sur le plan ================= */
+@media (min-width:861px){
+  body.live.scene{--fx:58%;--fy:46%}
+  #world .wcam{transition:transform 2.4s cubic-bezier(.65,0,.25,1),left 1.6s var(--rf-ease),top 1.6s var(--rf-ease)}
+  body.live.scene #world .wvig{opacity:0}
+  body.live.scene #stage .screen.t-story{position:fixed;left:max(24px,calc((100vw - 1180px) / 2));bottom:24px;top:auto;margin:0;width:min(470px,calc(100vw - 48px));max-width:none;padding:0;z-index:20}
+  body.live.scene .t-story .duo{display:block}
+  body.live.scene .t-story .panel{padding:20px 22px 20px;border-radius:24px;max-height:calc(100vh - 150px);overflow:auto;
+    background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);border:1px solid rgba(255,255,255,.8);
+    box-shadow:0 18px 44px rgba(28,34,48,.16),inset 0 1px 0 rgba(255,255,255,.9)}
+  body.live.scene .t-story .panel>.cta{margin-top:14px}
+}
+/* une réplique à la fois, comme des sous-titres ; le contexte d'ouverture s'efface dès la deuxième */
+.t-story .lines .line:not(:last-child){display:none}
+.t-story .panel:has(.lines .line:nth-child(2)) .bridge{display:none}
+.t-story .line.said{display:flex;gap:14px;align-items:flex-start}
+.t-story .line.said .mini{flex:0 0 44px;width:44px;height:44px;border-radius:22px;overflow:hidden;background:#EEF2F6}
+.t-story .line.said .mini svg{width:150%;height:auto;margin:-12% 0 0 -25%}
+.t-story .line.said .bub{background:none;padding:0;box-shadow:none;border:0}
+.t-story .line.said .bub b{font-size:14px;font-weight:600}
+.t-story .line p{font-size:16px;line-height:1.5;margin:4px 0 0}
+.t-story .line.narr p{font-style:italic;color:#3A4350}
+/* correctifs de la barre en pastilles */
+#hud #dayclock .dc-top span{white-space:nowrap}
+@media (min-width:861px){ .hp-left #chaptitle{max-width:280px} #hud #btn-phone:not(.has) .cc{display:none} }
+@media (max-width:860px){
+  .hp-left{flex:0 1 auto;gap:6px}
+  #chapdots{gap:3px}.dot{width:12px}.dot.cur{width:20px}
+  #hud{flex-wrap:nowrap}
+  #hud #btn-more{display:flex!important;flex:0 0 auto}
+}
+@media (min-width:861px){
+  .hp-left{flex:0 0 auto}.hp-left #chaptitle{max-width:none}
+  #wplace{min-width:0;flex:0 1 auto;overflow:hidden}#wplace span{overflow:hidden;text-overflow:ellipsis}
+}
+@media (min-width:861px) and (max-width:1180px){ #wplace{display:none} .hp-left .chapbox #chaptitle{max-width:200px;overflow:hidden;text-overflow:ellipsis} }
+/* moments de récit : la carte occupe le bas à gauche ; notifications et bandeaux montent en haut, côté droit / centre */
+@media (min-width:861px){
+  body.live.scene .ph-ban{top:84px;bottom:auto;left:auto;right:max(16px,calc((100vw - 1180px) / 2))}
+  body.live.scene .gain{top:86px;bottom:auto;left:50%}
+  body.live.scene .gain:not(.on){transform:translate(-50%,-12px) scale(.96)}
+}
+/* boutons ronds de la barre : jamais écrasés quand la place manque (le nom du lieu se raccourcit à leur place) */
+@media (min-width:861px){ #hud #btn-phone,#hud #btn-more,#hud .rings,#hud #btn-carnet{flex:0 0 auto;min-width:52px} #hud #dayclock,.hp-left{flex-shrink:0} }
+/* barre sur toute la largeur, comme la maquette (24 px de marge) : le nom du lieu tient en entier */
+@media (min-width:861px){ #hud{width:calc(100% - 48px);max-width:1392px} }
+/* écrans moyens (tablette en paysage, petit portable) : barre compacte, tout tient sur une ligne */
+@media (min-width:861px) and (max-width:1180px){
+  #hud{gap:8px;width:calc(100% - 32px)}
+  .hp-left{flex:0 1 auto;min-width:0;gap:10px;padding:0 14px 0 16px}
+  .hp-left .chapbox{min-width:0}
+  #hud #dayclock{padding:0 12px!important;gap:10px}
+  #hud #dayclock .dc-f small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #hud #dayclock .dc-f{grid-template-rows:auto}
+  #hud #btn-carnet{padding:0 14px}
+}
+@media (min-width:861px) and (max-width:1000px){ #hud #btn-carnet .lbl{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important} .hp-left #btn-home{display:none} }
+@media (min-width:861px) and (max-width:1000px){ .hp-left #hudav{border-left:0;padding-left:0} }
 </style></head>
 <body>
 <div id="app"><div class="ambient" aria-hidden="true"><i style="left:0%;animation-delay:-0.0s;width:5px;height:5px;background:#F4B63F"></i><i style="left:37%;animation-delay:-1.4s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:74%;animation-delay:-2.8s;width:9px;height:9px;background:#F2C48A"></i><i style="left:11%;animation-delay:-4.2s;width:5px;height:5px;background:#F4B63F"></i><i style="left:48%;animation-delay:-5.6s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:85%;animation-delay:-7.0s;width:9px;height:9px;background:#F2C48A"></i><i style="left:22%;animation-delay:-8.4s;width:5px;height:5px;background:#F4B63F"></i><i style="left:59%;animation-delay:-9.8s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:96%;animation-delay:-11.2s;width:9px;height:9px;background:#F2C48A"></i><i style="left:33%;animation-delay:-12.6s;width:5px;height:5px;background:#F4B63F"></i><i style="left:70%;animation-delay:-14.0s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:7%;animation-delay:-15.4s;width:9px;height:9px;background:#F2C48A"></i><i style="left:44%;animation-delay:-16.8s;width:5px;height:5px;background:#F4B63F"></i><i style="left:81%;animation-delay:-18.2s;width:7px;height:7px;background:#9CC9EA"></i><div class="grassline"><svg viewBox="0 0 1600 70" preserveAspectRatio="none"><path d="M0,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M11,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M22,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M33,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M44,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M55,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M66,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M77,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M88,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M99,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M110,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M121,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M132,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M143,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M154,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M165,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M176,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M187,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M198,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M209,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M220,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M231,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M242,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M253,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M264,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M275,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M286,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M297,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M308,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M319,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M330,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M341,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M352,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M363,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M374,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M385,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M396,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M407,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M418,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M429,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M440,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M451,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M462,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M473,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M484,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M495,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M506,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M517,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M528,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M539,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M550,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M561,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M572,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M583,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M594,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M605,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M616,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M627,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M638,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M649,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M660,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M671,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M682,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M693,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M704,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M715,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M726,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M737,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M748,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M759,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M770,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M781,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M792,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M803,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M814,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M825,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M836,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M847,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M858,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M869,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M880,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M891,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M902,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M913,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M924,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M935,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M946,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M957,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M968,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M979,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M990,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1001,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1012,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1023,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1034,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1045,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1056,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1067,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1078,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1089,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1100,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1111,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1122,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1133,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1144,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1155,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1166,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1177,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1188,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1199,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1210,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1221,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1232,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1243,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1254,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1265,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M1276,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M1287,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M1298,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M1309,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M1320,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1331,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1342,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1353,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1364,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1375,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1386,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1397,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1408,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1419,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1430,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1441,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1452,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1463,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1474,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1485,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1496,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1507,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1518,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1529,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1540,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1551,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1562,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1573,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1584,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1595,70 q4,-33 9,0" fill="#A5D3B3"/></svg></div></div>
@@ -1793,7 +2151,7 @@ body.calm .home2 .hrank{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-b818f037.js"></script>
-<script src="jeu-2-23f30b9f.js"></script>
-<script src="jeu-3-238bf81c.js"></script>
+<script src="jeu-1-be1b3b3a.js"></script>
+<script src="jeu-2-3d665846.js"></script>
+<script src="jeu-3-17d4af24.js"></script>
 </body></html>

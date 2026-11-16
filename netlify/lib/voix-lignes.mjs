@@ -1176,11 +1176,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Mercredi, 20 h 30. Ce soir, douze enfants de 8 à 11 ans dorment à l’accueil : c’est la nuitée prévue dans le projet de la semaine."
  },
- "c5e04db191b8": {
+ "d03cdf066937": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle polyvalente est devenue un dortoir. Bastien a apporté sa guitare, Jade distribue les lampes de poche."
+  "text": "Pour la nuit, la salle des petits est devenue un dortoir. Bastien a apporté sa guitare, Jade distribue les lampes de poche."
  },
  "3befb4c4975a": {
   "who": "narr",
@@ -1194,11 +1194,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "La soirée s’est bien passée et tout le monde est couché. Vous êtes de veille avec Bastien, près du dortoir."
  },
- "a1fff73096f8": {
+ "05e016ec64dc": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Sacha, 8 ans, pleure : il a fait un cauchemar. Bastien vous chuchote"
+  "text": "Sacha, 11 ans, pleure : il a fait un cauchemar. Bastien vous chuchote"
  },
  "2bdd67e02d6c": {
   "who": "narr",
@@ -1302,11 +1302,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Triez les cartes Actions pour la situation de Lou."
  },
- "241b450c4047": {
+ "ce0cb94ede41": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Tout s’est enchaîné très vite. Avec Nour, vous reprenez les dix premières minutes qui ont suivi la parole de Lou."
+  "text": "Tout s’est enchaîné très vite. Revivez maintenant ces dix premières minutes en temps réel, comme si vous y étiez : chaque seconde compte."
  },
  "ad9b3c52ae4d": {
   "who": "narr",
@@ -1470,11 +1470,11 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Le projet est abandonné : filmer les sanitaires porterait atteinte à l’intimité des enfants. La surveillance vidéo des espaces d’intimité n’est pas une réponse : elle expose les enfants au lieu de les protéger. Pour faire mieux : Des règles simples et vérifiables : jamais seul hors de la vue des autres, lieux sensibles réaménagés, contrôle d’honorabilité, un adulte référent connu des enfants et des familles."
  },
- "5dba04d5d65b": {
+ "babc27c60b76": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Maëlys, 14 ans, attend que les autres soient partis pour venir vous voir."
+  "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Dans la cour, Maëlys, 14 ans, attend que les autres soient partis pour venir vous voir."
  },
  "f845a209bc08": {
   "who": "narr",
@@ -1518,11 +1518,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 20. Pour comprendre ce qui s’est passé au local, vous retrouvez Sacha, qui participait au rangement hier, dans la salle des grands."
  },
- "e484cdc724d3": {
+ "efd611539ccf": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Sacha, 11 ans, vient vous voir : Euh… j’ai vu un truc, à la régie. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+  "text": "Sacha, 11 ans, vient vous voir, l’air embêté. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
  "b93c9594f2e2": {
   "who": "narr",
@@ -1656,11 +1656,11 @@ export const LIGNES = {
   "kind": "epilogue",
   "text": "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion."
  },
- "7950a144bc22": {
+ "3b96e3799f08": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous entrez dans la salle des petits, celle des 3 à 6 ans."
+  "text": "Vous entrez dans la salle des petits, celle des 6-8 ans."
  },
  "a74f77962058": {
   "who": "narr",
@@ -1686,11 +1686,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Vous entrez dans la cuisine pédagogique."
  },
- "f563196f337c": {
+ "ec279613dc40": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous êtes à la restauration scolaire."
+  "text": "Vous êtes à la restauration."
  },
  "82f0670d8792": {
   "who": "narr",
@@ -1722,11 +1722,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Vous êtes dans la salle d’activités libre."
  },
- "b87542395fe4": {
+ "a7675dc69a7d": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "C’est la nuitée : la salle des petits est devenue un dortoir."
+  "text": "C’est la nuitée : vous entrez dans le dortoir."
  },
  "2b72e8002e8e": {
   "who": "narr",
@@ -2249,6 +2249,18 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Juste : vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
+ },
+ "2e04a089b50e": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… j’ai vu un truc, à la régie… mais je sais pas si je dois le dire."
+ },
+ "f51e85ebc65c": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… je veux plus en parler. Laisse tomber."
  },
  "0060e05354d3": {
   "who": "sacha",

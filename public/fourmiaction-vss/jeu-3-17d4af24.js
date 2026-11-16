@@ -20,6 +20,13 @@
   const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const NAMES = { nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali" };
+  // Refonte : mise en scène corrigée. Devant la régie (« local »), les places extérieures tombent sur le toit
+  // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
+  // (la scène de Maëlys se joue désormais dans la cour : voir STAGE.maelys dans content.js)
+  // Moments graves : le décor se fait discret (désaturé, assourdi) pour laisser toute la place à la parole de l'enfant.
+  const GRAVE = new Set(["theo", "theo2", "lou", "numero", "acts", "ordre", "maelys", "f1", "temoin", "f3"]);
+  // Première parole de l'enfant, montrée seule à l'écran, un instant, avant l'échange.
+  const MOMENT = { depart: "lou", maelys: "maelys" };   // la révélation de Lou se fait au départ des familles (écran « depart »)
 
   /* ---------- état et sauvegarde ---------- */
   const fresh = () => ({ rev: {}, v: 1, idx: 0, name: "", av: 0, res: {}, flags: {}, dB: {}, dA: {}, carnet: [], build: null, later: {}, trust: {}, stars: {}, nuitee: false, done: false, settings: st ? st.settings : { sound: true, calm: false, voice: true }, tut: {} });
@@ -265,6 +272,25 @@
     toastMsg(`Niveau ${LV().name} : ${["", "plus de temps et des indices.", "le rythme du terrain.", "tout est chronométré, peu d’indices."][st.level]} Il s’applique dès le prochain écran.`);
   });
   $("#btn-home").addEventListener("click", () => { Snd.click(); home(); });
+  // Refonte : les réglages (niveau, son, voix, animations) quittent la barre et se rangent dans un menu « Réglages ».
+  // Les boutons d'origine sont déplacés tels quels (mêmes identifiants, mêmes actions, mêmes libellés d'état).
+  {
+    const H = $("#hud"), more = el("button", { class: "hbtn", id: "btn-more", type: "button", "aria-haspopup": "true", "aria-expanded": "false", "aria-controls": "hudmenu", "aria-label": "Réglages : niveau, son, voix, animations" },
+      `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Réglages</span>`);
+    const menu = el("div", { id: "hudmenu", role: "group", "aria-label": "Réglages", hidden: true }, `<p class="hm-k">Réglages</p>`);
+    ["#btn-level", "#btn-sound", "#btn-voice", "#btn-motion"].forEach((s) => { const b = $(s); if (b) menu.appendChild(b); });
+    H.appendChild(more); H.appendChild(menu);
+    // pastilles séparées (maquette) : marque + avatar + journée à gauche, puis l'horloge et le lieu, puis les outils
+    const left = el("div", { class: "hpill hp-left" }); H.insertBefore(left, H.firstChild);
+    ["#btn-home", "#hudav", ".chapbox"].forEach((q) => { const n = H.querySelector(q); if (n) left.appendChild(n); });
+    const place = el("div", { id: "wplace", class: "hpill", "aria-live": "polite", hidden: true }, `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><span></span>`);
+    left.after(place);
+    const spacer = el("i", { class: "hspace", "aria-hidden": "true" }); place.after(spacer);
+    const close = (focus) => { if (menu.hidden) return; menu.hidden = true; more.setAttribute("aria-expanded", "false"); if (focus) more.focus(); };
+    more.addEventListener("click", (e) => { e.stopPropagation(); const open = menu.hidden; menu.hidden = !open; more.setAttribute("aria-expanded", String(open)); if (open) { const f = menu.querySelector("button:not([hidden])"); if (f) f.focus(); } });
+    document.addEventListener("click", (e) => { if (!menu.contains(e.target) && e.target !== more) close(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { e.stopPropagation(); close(true); } });
+  }
 
   function hud(show) {
     $("#hud").hidden = !show;
@@ -295,7 +321,7 @@
       b = el("button", { id: "rings", class: "rings", type: "button" });
       b.addEventListener("click", () => ringInfo());
       b.innerHTML = `<svg viewBox="0 0 44 44" aria-hidden="true">${Object.keys(RING).map((c, i) => { const r = 19 - i * 4.6; return `<circle class="rt" cx="22" cy="22" r="${r}" stroke="${RING[c]}"/><circle class="rf" data-c="${c}" cx="22" cy="22" r="${r}" stroke="${RING[c]}" pathLength="100"/>`; }).join("")}</svg>`;
-      $(".chapbox").after(b);
+      { const ph = $("#btn-phone"); if (ph) ph.before(b); else $(".chapbox").after(b); }   // refonte : la cible rejoint les outils, à droite
     }
     const P = compProgress();
     P.forEach(([c, p]) => { const f = b.querySelector(`.rf[data-c="${c}"]`); f.style.strokeDashoffset = (100 - Math.max(p * 100, p > 0 ? 3 : 0)).toFixed(1); });
@@ -406,7 +432,12 @@
   const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"], CHDAY = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4 }, TIRED = [12, 30, 55, 68, 82];
   const DC = { d: -1, t: "8 h 30", el: null };
   function dayclock(sc) {
-    if (!DC.el) { DC.el = el("div", { id: "dayclock", "aria-live": "polite" }); document.body.appendChild(DC.el); }
+    if (!DC.el) {
+      DC.el = el("div", { id: "dayclock", "aria-live": "polite" }); document.body.appendChild(DC.el);
+      // refonte : sur ordinateur, l'horloge devient une pastille de la barre du haut, à côté de la journée
+      const placeClock = () => { const L = $(".hp-left"); if (innerWidth > 860 && L) { if (DC.el.parentNode !== L.parentNode) L.after(DC.el); } else if (DC.el.parentNode !== document.body) document.body.appendChild(DC.el); };
+      placeClock(); addEventListener("resize", placeClock);
+    }
     const show = !["home", "avatar", "find", "hotspots"].includes(sc.type) && !!(st.rev && st.rev.clock);
     DC.el.hidden = !show; if (!show) { DC.d = null; return; }
     let d = CHDAY[sc.ch] != null ? CHDAY[sc.ch] : 0;
@@ -423,7 +454,7 @@
     DC.el.innerHTML = `<svg class="dc-face" viewBox="-20 -20 40 40" aria-hidden="true"><circle r="18.5" class="f"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-15.5" x2="0" y2="${i % 3 ? -13.8 : -12.6}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="2" x2="0" y2="-8.5" transform="rotate(${(hh % 12) * 30 + mm / 2})"/>${[["12", 0, -10.4], ["3", 11.2, 1.4], ["6", 0, 13.2], ["9", -11.2, 1.4]].map(([t, x, y]) => `<text x="${x}" y="${y}" class="n">${t}</text>`).join("")}<text class="dg" x="0" y="7.6">${hh}:${String(mm).padStart(2, "0")}</text><line class="mh" x1="0" y1="2.5" x2="0" y2="-13" transform="rotate(${mm * 6})"/><circle r="1.3" class="c"/></svg>
       <div class="dc-top"><b>${DAYS[d]}</b><span>${DC.t}</span></div>
       <div class="dc-week">${DAYS.map((x, i) => `<i class="${i < d ? "past" : i === d ? "now" : ""}" title="${x}">${x[0]}</i>`).join("")}</div>
-      <div class="dc-f"><small>Fatigue de l’équipe</small><span><i style="width:${f}%"></i></span></div>`;
+      <div class="dc-f"><svg class="dc-ring" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="9" class="t"/><circle r="9" class="v" pathLength="100" stroke-dasharray="${f} 100" transform="rotate(-90)"/></svg><small>Fatigue de l’équipe</small><b class="dc-fp">${f} %</b><span><i style="width:${f}%"></i></span></div>`;
     DC.el.classList.toggle("tired", f >= 55);
     // l'heure défile jusqu'à la nouvelle heure
     const toMin = (x) => { const m = /(\d+) h (\d+)/.exec(x || ""); return m ? +m[1] * 60 + +m[2] : null; };
@@ -449,6 +480,8 @@
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
     Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
+    document.body.classList.toggle("grave", GRAVE.has(sc.id));
+    document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     camera(sc);
     document.querySelectorAll(".cr-pop").forEach((x) => x.remove());
     unlockDocs(sc); Phone.check(sc); dayclock(sc);
@@ -486,13 +519,32 @@
     if (!A.dio) return "";
     if (A.dio.css && !document.getElementById("dio-css")) document.head.appendChild(el("style", { id: "dio-css" }, A.dio.css));
     // le plan est affiché comme une image (rastérisée une fois par le navigateur) : bien plus léger qu'un SVG vivant
-    if (!dioHTML.url) { try { dioHTML.url = URL.createObjectURL(new Blob([A.dio.img || A.dio.svg], { type: "image/svg+xml" })); } catch (e) { dioHTML.url = ""; } }
+    if (!dioHTML.url) dioHTML.url = litURL(0);
     const base = dioHTML.url ? `<img class="dio-img" src="${dioHTML.url}" alt="" draggable="false" decoding="async">` : A.dio.svg;
     // matières du plan (pour les calques en SVG vivant), une seule fois dans la page
     const defs = A.dio.defs && !document.getElementById("dio-defs") ? `<svg id="dio-defs" width="0" height="0" style="position:absolute" aria-hidden="true">${A.dio.defs}</svg>` : "";
     // ce qui est devant (préau, portail, clôture, lampadaires…) est recopié au-dessus, rangé par profondeur avec les personnages
     const occ = (A.dio.occ || []).map((x) => `<div class="dio-occ ${x.c || ""}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r};z-index:${x.z}">${x.svg}</div>`).join("");
     return base + defs + `<div class="wlids"></div><div class="wanim">${(A.dio.anims || []).map((x) => `<div class="dio-ov ${x.cls}" style="left:${x.l}%;top:${x.t}%;width:${x.w}%;aspect-ratio:${x.r};z-index:${x.z || 1}">${x.svg}</div>`).join("")}${occ}</div>`;
+  }
+  // Refonte : fenêtres éclairées en fin de journée. Le plan est une image : on en fait trois versions (éteinte, en train de
+  // s'allumer, allumée) en ajoutant une règle de style au dessin, une seule fois chacune.
+  const LIT_CSS = ["", ".dio-win{fill:#F3D7A2}", ".dio-win{fill:#FFD98A}"];
+  function litStyle(svg, lvl) { return lvl ? svg.replace("</style>", LIT_CSS[lvl] + "</style>") : svg; }
+  function litURL(lvl) {
+    litURL.c = litURL.c || {};
+    if (litURL.c[lvl] == null) { try { litURL.c[lvl] = URL.createObjectURL(new Blob([litStyle(A.dio.img || A.dio.svg, lvl)], { type: "image/svg+xml" })); } catch (e) { litURL.c[lvl] = ""; } }
+    return litURL.c[lvl];
+  }
+  const LIT = { golden: 1, evening: 2, night: 2 };
+  // Nom du lieu affiché dans la barre : celui de la salle (dessins du jeu) ou, dehors, l'étiquette validée de la visite « Œil de lynx »
+  function placeName(S) {
+    if (!S || !S.at || S.at === "ensemble") return "";
+    if (S.room && A.rooms && A.rooms[S.room]) return A.rooms[S.room].name;
+    if (S.at === "cour") return "La cour";   // la cour (ronde, départs) n’est pas le portail
+    const at = S.at === "entree" ? "cour" : S.at;
+    for (const sc of SCREENS) for (const sp of (sc.spots || [])) if (sp.key === at) return sp.label;
+    return "";
   }
   const LOC = { intro: "entree", radio: "radio", k1: "equipe", brief: "equipe", ines: "equipe", rire: "parc", parent1: "cour", parent2: "cour", chat: "equipe", chatact: "equipe", theo: "cour", theo2: "cour", k2: "equipe",
     ronde: "sanitaires", consent: "jeux", silence: "jeux", kevin: "equipe", nuit1: "refectoire", nuit2: "refectoire", nuit3: "refectoire", kn: "equipe", k3: "equipe",
@@ -508,12 +560,13 @@
     url: {},
     of(at) { const L = A.dio.lids || {}; for (const G in L) if (L[G].rooms.includes(at)) return G; return null; },
     src(G, mode, hl) {
-      const k = G + "|" + mode + "|" + (hl || ""); if (this.url[k]) return this.url[k];
+      const lvl = World.lit || 0;
+      const k = G + "|" + mode + "|" + (hl || "") + "|" + lvl; if (this.url[k]) return this.url[k];
       const L = A.dio.lids[G], all = [G, ...(L.also || [])], q = (a) => all.map((g) => `[${a}="${g}"]`).join(",");
       const nx = hl && A.dio.inner && A.dio.inner[hl] ? A.dio.inner[hl].next : null;
       const st = mode === "open" ? `${q("data-open")}{display:inline}${q("data-lid")},${q("data-shut")}{display:none}${nx ? `[data-wl="${nx}"],[data-wld="${nx}"]{display:none}[data-wlo="${nx}"]{display:inline}` : ""}`
         : `*{visibility:hidden}${all.map((g) => `[data-lid="${g}"],[data-lid="${g}"] *`).join(",")}{visibility:visible}`;
-      const svg = (A.dio.img || A.dio.svg).replace(/viewBox="[^"]*"/, `viewBox="${L.vb}"`).replace("</style>", st + "</style>");
+      const svg = litStyle(A.dio.img || A.dio.svg, lvl).replace(/viewBox="[^"]*"/, `viewBox="${L.vb}"`).replace("</style>", st + "</style>");
       try { this.url[k] = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); } catch (e) { this.url[k] = ""; }
       return this.url[k];
     },
@@ -542,12 +595,31 @@
     let raf = 0;
     document.addEventListener("pointermove", (e) => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; document.body.classList.toggle("over-aff", free(e.target) && !!affAt(e.clientX, e.clientY)); }); }, { passive: true });
   }
+  // Refonte : les hautes herbes du titre entrent dans le jeu. Un rideau d'herbes au premier plan, flou de profondeur
+  // compris, qui ondule doucement ; ses couleurs suivent l'heure de la journée (voir refonte.css).
+  function fieldGrass() {
+    // Trois nappes d'herbes (fond, milieu, devant), chacune un dessin fixe que la carte graphique fait onduler en bloc :
+    // aucun redessin pendant l'animation (les brins animés un à un coûtaient trop cher sur les petites machines).
+    let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    if (innerWidth < 760) return "";
+    const grad = (id) => `<linearGradient id="${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" class="s0"/><stop offset=".55" class="s1"/><stop offset="1" class="s2"/></linearGradient>`;
+    const layer = (k, n, hMin, hVar, wMin, wVar, lean) => {
+      let paths = "";
+      for (let i = 0; i < n; i++) {
+        const x = rnd() * 1440, h = hMin + rnd() * hVar, l = (rnd() - .5) * lean, w = wMin + rnd() * wVar, y0 = 204;
+        const c = rnd() < .16 ? "fgw" : rnd() < .5 ? "fga" : "fgb";
+        paths += `<path d="M${x.toFixed(0)} ${y0} Q${(x + l * .3).toFixed(0)} ${(y0 - h * .6).toFixed(0)} ${(x + l).toFixed(0)} ${(y0 - h).toFixed(0)}" stroke="url(#${c})" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none"/>`;
+      }
+      return `<div class="gl gl${k}"><svg viewBox="0 0 1440 200" preserveAspectRatio="xMidYMax slice">${k === 0 ? `<defs>${grad("fga")}${grad("fgb")}${grad("fgw")}</defs>` : ""}${paths}</svg></div>`;
+    };
+    return `<div class="wgrass" aria-hidden="true">${layer(0, 22, 40, 60, 2.2, 2.6, 40)}${layer(1, 18, 60, 80, 3, 3, 56)}${layer(2, 14, 80, 110, 4, 5, 70)}</div>`;
+  }
   const World = {
     el: null, ext: null, cam: null, wint: null, room: null, cur: null,
     init() {
       if (this.el || !A.dio) return;
       this.el = el("div", { id: "world", "aria-hidden": "true" },
-        `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i>`);
+        `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i><i class="wgrade"></i><i class="wdof"></i>${fieldGrass()}`);
       document.body.insertBefore(this.el, document.body.firstChild);
       this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
     },
@@ -573,9 +645,9 @@
     stage(sc) {
       this.init(); if (!this.el) return;
       const hide = !sc || ["hotspots", "avatar", "home", "find"].includes(sc.type);
-      document.body.classList.toggle("live", !hide && !calm());
+      document.body.classList.toggle("live", !hide);   // refonte : même mise en page en mode « Animations réduites » (seul le mouvement est retiré)
       this.el.classList.toggle("on", !hide);
-      if (hide) return;
+      if (hide) { const wp = $("#wplace"); if (wp) wp.hidden = true; this.cur = null; return; }   // refonte : pas de lieu affiché sur les cartes des mini-jeux
       let S = STAGE[sc.id];
       if (S === "keep" || (!S && ["explain", "multi"].includes(sc.type) && this.cur)) S = this.cur;
       if (!S) S = { at: LOC[sc.id] || "ensemble", cast: sc.npc ? [[sc.npc, "a", "talk"], ["you", "b"]] : [] };
@@ -583,19 +655,21 @@
     },
     show(S, sc) {
       this.init(); if (!this.el) return;
-      this.el.classList.add("on"); document.body.classList.toggle("live", !calm());
+      this.el.classList.add("on"); document.body.classList.add("live");
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
       const gateOpen = sc && (sc.type === "chapter" || ["intro", "parent1", "parent2", "portail"].includes(sc.id));
+      { const lv = LIT[amb] || 0; if (lv !== this.lit) { this.lit = lv; const im = this.el.querySelector(".wcam>.dio-img"); if (im) im.src = litURL(lv); } }
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "");
+      { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
       // caméra extérieure
-      let p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = S.at && S.at !== "ensemble" ? 2.1 : 1.08;
+      let p = A.dio.lieux[S.at] || A.dio.lieux.ensemble, z = (innerWidth >= 760 && S.z) || (S.at && S.at !== "ensemble" ? 2.1 : 1.08);   // S.z : cadrage plus serré pour une scène précise (arrivée : face à Nour)
       const IN = S.room && A.dio.inner && A.dio.inner[S.room];
       if (IN) {   // on cadre la salle elle-même, assez près pour voir les visages
         const hp = IN.w * A.dio.ratio / IN.r, camW = this.cam.offsetWidth || 1500;
         const want = innerWidth < 760 ? innerWidth * .98 : Math.min(innerWidth * .52, 940);
-        z = Math.max(1.6, Math.min(5, want / (IN.w / 100 * camW)));
+        z = Math.max(1.6, Math.min(3.6, want / (IN.w / 100 * camW)));   // refonte : plafond 3,6 (au-delà, la petite régie était cadrée deux fois plus près que les autres salles)
         p = { x: (IN.l + IN.w / 2) / 100, y: (IN.t + hp * .52) / 100 };
       }
       this.cam.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
@@ -628,17 +702,21 @@
       const old = host.querySelector(".inroom-w"); if (old) old.remove();
       const w = el("div", { class: "inroom-w", style: `left:${IN.l}%;top:${IN.t}%;width:${IN.w}%;aspect-ratio:${IN.r};z-index:${IN.z}` }, IN.svg);
       const svg = w.querySelector("svg"), NS = "http://www.w3.org/2000/svg", L = [];
+      let youLab = null;
       (S.cast || []).forEach(([who, slot, pose], k) => {
         const P = IN.sp[slot] || IN.sp.a; if (!P) return;
         const key = who === "you" ? youKey() : who, m = A.minis[key]; if (!m) return;
         const ps = P.sit ? "sit" : (pose || "stand");
         const g = document.createElementNS(NS, "g");
         g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${P.y})`);
-        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(.84)">${m[ps] || m.stand}</g></g>${who === "you" ? `<text class="rlab" y="8" text-anchor="middle">Vous</text>` : ""}</g>`;
+        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(.84)">${m[ps] || m.stand}</g></g></g>`;
+        if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
         L.push([g, [P.x, 0], P]);
       });
+      // l'étiquette « Vous » est posée au-dessus de tout le décor de la salle : un meuble devant les pieds ne la coupe plus
+      if (youLab) { const t = document.createElementNS(NS, "text"); t.setAttribute("class", "rlab rlab-top"); t.setAttribute("x", youLab[0]); t.setAttribute("y", youLab[1] + 8); t.setAttribute("text-anchor", "middle"); t.textContent = "Vous"; svg.appendChild(t); }
       if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P]) => g.querySelector(".rbody").classList.toggle("flip", P && P.sit ? !!P.fx : p[0] > cx + 2)); }
       else L.forEach(([g, , P]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", !!P.fx));
       w.addEventListener("click", (e) => { const g = e.target.closest && e.target.closest(".aff"); if (g) Aff.open(g.dataset.aff); });
@@ -758,6 +836,20 @@
     const x = btn("Compris", () => { c.remove(); }, "ghost small");
     c.appendChild(x);
     host.prepend(c);
+  }
+
+  // Un moment grave : la première phrase de l'enfant, seule, sur fond sombre, puis l'écran revient.
+  // Ne bloque rien (un clic ou une touche le referme), jamais en mode « Animations réduites », une seule fois par partie.
+  function moment(sc, who, text) {
+    if (calm() || reduce() || !text) return;
+    st.tut = st.tut || {}; const key = "moment-" + sc.id; if (st.tut[key]) return; st.tut[key] = 1; save();
+    const first = (String(text).match(/^[^?!.]*[?!.]/) || [text])[0];
+    const m = el("div", { class: "moment", "aria-hidden": "true" }, `<figure><blockquote>${esc(first)}</blockquote><figcaption>${esc(NAMES[who] || "")}</figcaption></figure>`);
+    document.body.appendChild(m);
+    requestAnimationFrame(() => requestAnimationFrame(() => m.classList.add("in")));
+    const off = () => { m.classList.remove("in"); m.classList.add("out"); setTimeout(() => m.remove(), 900); removeEventListener("keydown", off, true); m.removeEventListener("click", off); };
+    m.addEventListener("click", off); addEventListener("keydown", off, true);
+    setTimeout(off, 3400);
   }
 
   /* ---------- effets animés ---------- */
@@ -940,6 +1032,7 @@
       if (L.who) row.innerHTML = `<div class="mini">${A.chars[L.who][L.mood || "smile"]}</div><div class="bub"><b>${esc(nm)}</b><p>${words(L.t)}</p></div>`;
       else row.innerHTML = `<p>${words(L.t)}</p>`;
       lines.appendChild(row);
+      if (MOMENT[sc.id] && L.who === MOMENT[sc.id]) moment(sc, L.who, L.t);
       if (L.reveal) { st.rev = st.rev || {}; st.rev[L.reveal] = 1; save(); hud(true); dayclock(sc); const t = L.reveal === "clock" ? DC.el : $("#btn-phone"); if (t) { t.classList.remove("revealed"); void t.offsetWidth; t.classList.add("revealed"); } }
       say((nm ? nm + " : " : "") + L.t);
       if (L.who && L.who !== "player") Voice.say(L.who, L.t, row);
@@ -1018,6 +1111,10 @@
     const mapbox = el("div", { class: "mapbox" });
     mapbox.append(map, card);
     pannable(mapbox, map);
+    // refonte : la fiche d'un lieu se referme d'un clic sur le plan (hors lieux) ou avec Échap, pour dégager les lieux qu'elle recouvre
+    mapbox.addEventListener("click", (e) => { if (!card.hidden && !e.target.closest(".spot, .spotcard")) card.hidden = true; });
+    const escCard = (e) => { if (!wrap.isConnected) return document.removeEventListener("keydown", escCard); if (e.key === "Escape" && !card.hidden) { card.hidden = true; } };
+    document.addEventListener("keydown", escCard);
     const bar = el("div", { class: "row" });
     const hb = btn(`Un indice (${maxHints})`, () => {
       if (hints >= maxHints) return;
@@ -1074,7 +1171,7 @@
       card.className = "spotcard " + (s.real ? "real" : "decoy");
       card.innerHTML = `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`;
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
-      card.appendChild(c); c.focus();
+      card.appendChild(c); c.focus({ preventScroll: true }); card.scrollTop = 0;   // refonte : la fiche s'ouvre par son titre
       if (s.real) { Snd.good(); burst(b, "good"); const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); } else Snd.mid();
       if (found.size >= need && !over) finish(false);
     }
@@ -1240,6 +1337,7 @@
     const qs = []; let flags = {}, pend = null;
     let cur = sc.start;
     if (sc.intro) { log.appendChild(el("p", { class: "narr" }, words(sc.intro))); n.dataset.novoice = "1"; }
+    if (MOMENT[sc.id] === sc.npc) moment(sc, sc.npc, sc.nodes[sc.start].t);
     show(sc.start);
     function show(id) {
       cur = id;
@@ -1758,7 +1856,7 @@
     if (DC.el) DC.el.hidden = true;
     hud(false); Voice.stop();
     if (World.el) { World.el.classList.remove("on"); World.cur = null; }
-    document.body.classList.remove("athome", "live");
+    document.body.classList.remove("athome", "live", "grave", "scene");
     stage.innerHTML = "";
     const n = el("section", { class: "screen echoes in", "aria-labelledby": "h-echoes" });
     n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i></div>
@@ -2159,7 +2257,7 @@
         if (q.fact) q.fact.forEach((f) => { got.add(f); notes.querySelector(`[data-f="${f}"]`).classList.add("on"); });
         if (q.fact || q.taint) notes.querySelector("ul").appendChild(el("li", { class: q.taint ? "tainted" : "" }, `« ${esc(q.a)} »${q.taint ? " <em>réponse influencée par la question</em>" : ""}`));
         if (q.fb) { errs.push(q.kind); fbz.innerHTML = `<div class="fb mid"><p><b>Attention, question ${esc(q.kind)}.</b> ${esc(q.fb)}</p></div>`; Snd.low(); } else { fbz.innerHTML = ""; Snd.click(); }
-        if (trust < 25) { say(sc.npc, "Je veux plus en parler. Laisse tomber."); finish(false); }
+        if (trust < 25) { const t = sc.quit || "Euh… je veux plus en parler. Laisse tomber."; const b = say(sc.npc, t); Voice.say(sc.npc, t, b.querySelector("p")); finish(false); }
       }, 650);
     }
     function finish(ok) {
@@ -2172,7 +2270,12 @@
     }
     panel.append(log, el("p", { class: "flabel" }, "Que lui dites-vous ?"), qbox, notes, fbz);
     wrap.appendChild(panel); n.appendChild(wrap);
-    setTimeout(() => say(sc.npc, "J’ai vu un truc à la régie… mais je sais pas si je dois le dire."), 600);
+    setTimeout(() => {
+      const t = sc.open || "Euh… j’ai vu un truc, à la régie… mais je sais pas si je dois le dire."; const b = say(sc.npc, t);
+      // Sacha parle après la narration de l’écran (sans la couper)
+      const go = () => { if (b.isConnected) Voice.say(sc.npc, t, b.querySelector("p")); };
+      if (Voice.busy && Voice.busy()) document.addEventListener("voice-idle", go, { once: true }); else go();
+    }, 600);
   };
 
   /* ---------- souvenirs : les conséquences rejouées ---------- */
@@ -2313,9 +2416,9 @@
       let o = "";
       for (const sg of [-1, 1]) {
         const ex = hx + sg * 12, ey = hy - 4;
-        o += E(ex, ey + .8, rx + 1.2, ry + 1.0, tone(skin, -.06)) + E(ex, ey, rx, ry, "url(#keye)");
+        // refonte : œil sombre et net (teinté par la couleur des yeux choisie), petit reflet, sans blanc d'œil
         const px = ex - sg * .5;
-        o += E(px, ey + 1.0, rx * .58, ry * .62, iris) + E(px, ey + 1.1, rx * .32, ry * .34, "#0F0A07") + E(px - 1.5, ey - .8, 1.2, 1.2, "#fff", ' opacity=".95"');
+        o += E(px, ey + .6, rx * .62, ry * .72, tone(iris, -.22)) + E(px - 1.6, ey - 1.4, 1.5, 1.5, "#fff", ' opacity=".95"');
         if (lid) {
           const top = ey - ry - 1.4, cut = ey - ry + 2 * ry * lid;
           o += `<path d="M${f1(ex - rx - 1.6)},${f1(top)} L${f1(ex + rx + 1.6)},${f1(top)} L${f1(ex + rx + 1.6)},${f1(cut)} Q${f1(ex)},${f1(cut + 1.8)} ${f1(ex - rx - 1.6)},${f1(cut)}Z" fill="${tone(skin, .02)}"/>`
@@ -2332,8 +2435,7 @@
     }
     function nose(hx, hy, skin, big) {
       const rx = 7.4 * big, ry = 8.6 * big, y = hy + 9;
-      return E(hx + .8, y + ry * .55, rx * 1.05, ry * .45, tone(skin, -.18), ' opacity=".55"') + E(hx, y, rx, ry, fill(skin, "r", .2, -.14))
-        + E(hx - 2.6, y + ry * .55, 1.6, 1.1, tone(skin, -.3)) + E(hx + 2.6, y + ry * .55, 1.6, 1.1, tone(skin, -.3)) + E(hx - rx * .35, y - ry * .35, rx * .3, ry * .22, "#fff", ' opacity=".35"');
+      return E(hx + .6, y + ry * .2, rx * .5, ry * .36, tone(skin, -.14), ' opacity=".55"');   // refonte : nez discret
     }
     function mouth(hx, hy, skin, mood) {
       const y = hy + 21, lip = tone(skin, -.22, .06);
@@ -2382,7 +2484,7 @@
       const skin = SKIN[sp.skin] || SKIN.claire, top = sp.top || "#3C6FB8", hx = 60, hy = 58, R = 31, shY = 102, W = 52;
       let s = E(60, 156, 46, 5, "#000", ' opacity=".10"') + hairBack(sp, hx, hy, R);
       const body = `M${60 - W},160 C${60 - W - 3},${shY + 18} ${60 - W + 4},${shY + 2} ${60 - W + 22},${shY - 2} Q60,${shY - 8} ${60 + W - 22},${shY - 2} C${60 + W - 4},${shY + 2} ${60 + W + 3},${shY + 18} ${60 + W},160Z`;
-      s += P(body, fill(top, "r", .14, -.18)) + P(body, "url(#kknit)");
+      s += P(body, fill(top, "r", .14, -.18));   // refonte : matière lisse
       for (const sg of [-1, 1]) {
         const x0 = 60 + sg * (W - 16);
         s += `<path d="M${x0},${shY + 2} Q${x0 + sg * -4},${shY + 30} ${x0 + sg * -1},160" fill="none" stroke="${tone(top, -.2)}" stroke-width="1.6" opacity=".55"/><path d="M${x0 + sg * 2},${shY + 4} Q${x0 + sg * -2},${shY + 30} ${x0 + sg * 1.5},160" fill="none" stroke="${tone(top, .16)}" stroke-width="1" opacity=".5"/>`;
@@ -2401,7 +2503,7 @@
         if (sp.earring) s += E(hx + sg * (R - 1), hy + 10.5, 1.9, 1.9, "#E8C35A");
       }
       s += E(hx, hy + 1, R, R + 3, fill(skin, "r", .14, -.14));
-      s += E(hx - 15, hy + 12, 6, 3.6, "#E06A5A", ' opacity=".14"') + E(hx + 15, hy + 12, 6, 3.6, "#E06A5A", ' opacity=".14"');
+      s += E(hx - 16, hy + 12, 7, 4, "#F07F74", ' opacity=".26"') + E(hx + 16, hy + 12, 7, 4, "#F07F74", ' opacity=".26"');
       s += facial(sp, hx, hy);
       s += `<g class="cmouth">${mouth(hx, hy, skin, mood)}</g>`;
       s += `<g class="ceyes">${eyes(hx, hy, skin, mood, sp.glasses, EYES[sp.eyes] || EYES.marron)}</g>`;
@@ -2410,7 +2512,7 @@
       s += hairFront(sp, hx, hy, R);
       if (sp.bow) s += E(hx + R - 6, hy - R + 4, 6, 4, sp.bow, ` transform="rotate(-30,${hx + R - 6},${hy - R + 4})"`) + E(hx + R - 12, hy - R + 1, 6, 4, sp.bow, ` transform="rotate(30,${hx + R - 12},${hy - R + 1})"`);
       if (sp.headband) s += `<path d="M${hx - R + 2},${hy - 12} Q${hx},${hy - R - 10} ${hx + R - 2},${hy - 12}" fill="none" stroke="${sp.headband}" stroke-width="4.4" stroke-linecap="round"/>`;
-      return `<svg class="char clay" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g filter="url(#kclay)">${s}</g></svg>`;
+      return `<svg class="char clay" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g>${s}</g></svg>`;
     }
     function mini(sp, pose) {
       const k = 1, skin = SKIN[sp.skin] || SKIN.claire, top = sp.top || "#3C6FB8", legs = "#3E4A5C", hc = hairCol(sp);
@@ -2429,10 +2531,13 @@
       arm.forEach(([x0, y0, x1, y1], j) => { s += `<g class="${j === 1 ? "marm" : "marml"}" style="transform-origin:${x0}px ${y0}px"><path d="M${x0},${y0} L${x1},${y1}" stroke="${tone(top, -.08)}" stroke-width="4.2" stroke-linecap="round"/>${E(x1, y1, 2.2, 2.2, skin)}</g>`; });
       s += `<path d="M-4,-29 L0,-22 L4,-29" stroke="#0B4F84" stroke-width="1" fill="none"/><rect x="-1.6" y="-22.5" width="3.2" height="4" rx=".6" fill="#E2702A"/>`;
       const hy = -38, R = 7.6;
+      s += `<rect x="-2" y="${f1(hy + R - 1.5)}" width="4" height="3.4" rx="1.2" fill="${tone(skin, -.1)}"/>`;   // cou
       s += `<g class="mhead" style="transform-origin:0px ${f1(hy + R)}px">`;
+      s += E(-R + .2, hy + .6, 1.6, 2, tone(skin, -.04)) + E(R - .2, hy + .6, 1.6, 2, tone(skin, -.04));   // oreilles
       if (["long", "ondule", "tresses", "carre"].includes(sp.hair)) s += P(`M${-R - 1},${hy} Q${-R - 2},${hy + 12} ${-R + 1},${hy + 13} L${R - 1},${hy + 13} Q${R + 2},${hy + 12} ${R + 1},${hy}Z`, fill(hc));
       s += E(0, hy, R, R * 1.06, fill(skin, "r", .16, -.14));
-      s += E(-2.6, hy - .4, 1.5, 1.7, "#fff") + E(2.6, hy - .4, 1.5, 1.7, "#fff") + E(-2.4, hy, .8, .9, "#1A120D") + E(2.8, hy, .8, .9, "#1A120D") + E(0, hy + 2.4, 1.6, 1.8, tone(skin, -.06));
+      s += E(-2.6, hy - .2, 1.05, 1.25, "#1A120D") + E(2.6, hy - .2, 1.05, 1.25, "#1A120D") + E(-2.9, hy - .7, .34, .34, "#fff") + E(2.3, hy - .7, .34, .34, "#fff")
+        + E(-4.6, hy + 2.6, 1.5, .85, "#F07F74", ' opacity=".35"') + E(4.6, hy + 2.6, 1.5, .85, "#F07F74", ' opacity=".35"') + E(.2, hy + 2.2, .9, .7, tone(skin, -.12), ' opacity=".5"');
       s += `<g class="mbrow"><path d="M-3.9,${f1(hy - 2.9)} q1.4,-.9 2.8,-.2 M1.1,${f1(hy - 3.1)} q1.4,-.7 2.8,.2" stroke="${tone(hc, -.05)}" stroke-width=".75" stroke-linecap="round" fill="none"/></g>`;
       if (sp.barbe) s += P(`M${f1(-R + .3)},${f1(hy + .6)} Q${f1(-R + .6)},${f1(hy + R + .6)} 0,${f1(hy + R * 1.08)} Q${f1(R - .6)},${f1(hy + R + .6)} ${f1(R - .3)},${f1(hy + .6)} Q${f1(R - 1.6)},${f1(hy + 4.4)} 2.6,${f1(hy + 4.6)} Q0,${f1(hy + 7.3)} -2.6,${f1(hy + 4.6)} Q${f1(-R + 1.6)},${f1(hy + 4.4)} ${f1(-R + .3)},${f1(hy + .6)}Z`, hc, ' opacity=".82"');
       s += `<ellipse class="mmouth" cx="0" cy="${f1(hy + 5.2)}" rx="1.7" ry=".7" fill="#6A2E26" stroke="${tone(skin, .12)}" stroke-width=".25" style="transform-origin:0px ${f1(hy + 5.2)}px"/>`;
@@ -2515,7 +2620,7 @@
     // Accueil : la nuit sur les hautes herbes (plus de décor en 3D derrière le titre)
     World.init();
     if (World.el) { World.el.classList.remove("on"); World.cur = null; }
-    document.body.classList.remove("live", "athome");
+    document.body.classList.remove("live", "athome", "grave", "scene");
     hud(false);
     Snd.setMood("home");
     stage.innerHTML = "";

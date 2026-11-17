@@ -44,67 +44,82 @@
   const legs = [...ant.querySelectorAll(".fm-leg")].map((g) => ({ g, s: +g.dataset.s, i: +g.dataset.i, base: g.getAttribute("transform") }));
   const head = ant.querySelector(".fm-head");
 
-  // --- où elle se trouve : près de la photo au début, puis dans la marge de droite, en flânant ---
-  let x = 0, y = 0, ang = Math.PI, phase = 0, born = 0, lastScroll = scrollY, inited = false, still = 0;
+  // --- où elle se trouve : cachée derrière la photo, puis elle se promène sous la page, et finit près de « Une question… » ---
+  let x = 0, y = 0, ang = Math.PI, phase = 0, lastScroll = scrollY, inited = false, still = 0, vis = 0, out = false;
   const S = () => (innerWidth < 760 ? 0.5 : 0.62);   // taille
-  function anchor() {   // la sortie : en bas à gauche de la photo
-    const r = photo.getBoundingClientRect();
-    return { x: r.left - 26 * S(), y: r.bottom - 70 };
+  const help = [...document.querySelectorAll(".help h2")].find((h) => /envie d.agir/.test(h.textContent));
+  function anchor() { const r = photo.getBoundingClientRect(); return { x: r.left - 22 * S(), y: r.bottom - 64 }; }   // juste sortie, au coin de la photo
+  function hidden() { const r = photo.getBoundingClientRect(); return { x: r.left + 80, y: r.bottom - 90 }; }      // cachée derrière la photo
+  function follow() {   // elle traverse la page en flânant : sous les images, les cartes, les textes
+    const wide = innerWidth >= 760, amp = innerWidth * (wide ? .43 : .4), sx = Math.sin(scrollY / 520) * .8 + Math.sin(scrollY / 233) * .2;
+    return { x: innerWidth / 2 + amp * sx, y: innerHeight * (wide ? .62 : .66) + 26 * Math.sin(scrollY / 380) };
   }
-  function hidden() { const r = photo.getBoundingClientRect(); return { x: r.left + 70, y: r.bottom - 90 }; }
-  function follow(t) {   // la marge de droite, avec une petite promenade de gauche à droite
-    const wide = innerWidth >= 760, base = wide ? Math.max(innerWidth - 70, (innerWidth + Math.min(1180, innerWidth - 64)) / 2 + 30) : innerWidth - 26;
-    // elle traverse la page en flânant : elle passe sous les images, les cartes et les textes, puis ressort
-    const half = innerWidth / 2, amp = innerWidth * (wide ? .43 : .4), sx = Math.sin(scrollY / 520) * .8 + Math.sin(scrollY / 233) * .2;
-    void base; return { x: half + amp * sx, y: innerHeight * (wide ? .62 : .66) + 26 * Math.sin(scrollY / 380) };
+  function finale() {   // à la fin : à côté de « Une question, un projet, une envie d'agir ? »
+    if (!help) return null;
+    const r = help.getBoundingClientRect(); if (r.top > innerHeight * .92) return null;   // une fois la question dépassée, elle reste à côté (on la quitte des yeux)
+    // la dernière ligne réelle du texte (« une envie d'agir ? ») : la fourmi s'arrête juste après le point d'interrogation
+    const rg = document.createRange(); rg.selectNodeContents(help); const ls = [...rg.getClientRects()].filter((q) => q.width > 4), L = ls[ls.length - 1] || r;
+    // le texte est posé sur une carte : la fourmi s'arrête juste à côté de la carte, à hauteur de la question (sinon elle serait dessous)
+    const C = (help.closest("section") || help).getBoundingClientRect(), room = innerWidth - C.right > 46;
+    const yy = L.bottom < 0 ? L.top + L.height * .5 : Math.max(110, L.top + L.height * .5);
+    return room ? { x: C.right + Math.min(40, (innerWidth - C.right) / 2), y: yy, k: Math.min(1, Math.max(0, (innerHeight * .92 - r.top) / (innerHeight * .35))) }
+      : { x: Math.min(innerWidth - 30, L.right), y: C.bottom < 0 ? C.top - 26 : Math.max(96, C.top - 26), k: Math.min(1, Math.max(0, (innerHeight * .92 - r.top) / (innerHeight * .35))) };
   }
-  // la photo de l'accueil s'ouvre en cercle au défilement : la fourmi sort quand elle est bien visible
+  // sous quelque chose ? (texte, image, carte, bouton, bande de couleur…) : alors on ne la voit pas du tout
+  const LAYOUT = new Set(["HTML", "BODY", "MAIN"]);
+  function covered(px, py) {
+    const pts = [[0, 0], [-10, -12], [10, 12], [0, -20], [0, 20]];
+    return pts.some(([dx, dy]) => {
+      let e = document.elementFromPoint(px + dx, py + dy); if (!e || LAYOUT.has(e.tagName)) return false;
+      if (e.closest(".fbal")) return false;
+      // un simple conteneur transparent de mise en page ne la cache pas ; tout le reste, si
+      const cs = getComputedStyle(e), bg = cs.backgroundColor, m = /rgba?\(([^)]+)\)/.exec(bg), al = m ? (m[1].split(",")[3] == null ? 1 : +m[1].split(",")[3]) : 0;
+      const isText = [...e.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim());
+      const r = e.getBoundingClientRect(), wrapper = r.width >= innerWidth * .7 && r.height >= innerHeight * .5;
+      return isText || e.tagName === "IMG" || e.tagName === "svg" || e.tagName === "VIDEO" || al > .05 || (cs.backgroundImage !== "none" && !wrapper) || (!wrapper && e.children.length === 0);
+    });
+  }
   const revealed = () => { const c = getComputedStyle(photo).clipPath || "none"; const m = /circle\(([\d.]+)%/.exec(c); return c === "none" || !m || +m[1] >= 62; };
   let start = 0;
-  const EMERGE = reduce ? 0 : 500;
   function frame(now) {
     const dt = Math.min(.05, (now - (frame.t || now)) / 1000); frame.t = now;
     const sy = scrollY, ds = sy - lastScroll; lastScroll = sy;
-    const docH = document.documentElement.scrollHeight - innerHeight, atEnd = sy >= docH - 4;
     if (!start) { if (revealed()) start = now; else { ant.style.opacity = "0"; requestAnimationFrame(frame); return; } }
-    ant.style.opacity = "";
-    const pr = photo.getBoundingClientRect(), p = Math.min(1, Math.max(0, (innerHeight * .8 - pr.bottom) / (innerHeight * .5)));   // de la photo vers la marge
-    const A = anchor(), F = follow();
-    let tx = A.x + (F.x - A.x) * p, ty = A.y + (F.y - A.y) * p;
-    const t = now - start;
-    if (t < EMERGE) { const H = hidden(); tx = H.x; ty = H.y; ant.classList.add("behind"); }
-    else if (t < EMERGE + 1500) { const k = (t - EMERGE) / 1500, e = 1 - Math.pow(1 - k, 3), H = hidden(); tx = H.x + (A.x - H.x) * e; ty = H.y + (A.y - H.y) * e; if (x < photo.getBoundingClientRect().left - 6) ant.classList.remove("behind"); }
-    else ant.classList.remove("behind");
-    if (!inited) { x = tx; y = ty; inited = true; }
-    // elle marche vers sa cible ; sur la page, descendre vous fait avancer avec elle
+    if (!inited) { const h0 = hidden(); x = h0.x; y = h0.y; }
+    const pr = photo.getBoundingClientRect(), p = Math.min(1, Math.max(0, (innerHeight * .8 - pr.bottom) / (innerHeight * .5)));
+    const t = now - start, H = hidden(), A = anchor(), F = follow(), E = finale();
+    let tx, ty;
+    if (p <= .02) {
+      // en haut de la page : la première fois elle sort au coin de la photo ; quand on remonte, elle retourne s'y cacher
+      if (!out && t > 700) out = true;
+      const back = out && frame.left;
+      const T = back ? H : (t < 700 ? H : A); tx = T.x; ty = T.y;
+    } else {
+      frame.left = true;
+      tx = A.x + (F.x - A.x) * p; ty = A.y + (F.y - A.y) * p;
+      if (E) { tx += (E.x - tx) * E.k; ty += (E.y - ty) * E.k; }
+    }
+    if (!inited) { x = H.x; y = H.y; inited = true; }
     const k = reduce ? 1 : 1 - Math.pow(.0015, dt);
     const nx = x + (tx - x) * k, ny = y + (ty - y) * k;
     const vx = (nx - x) / Math.max(dt, .001), vy = (ny - y + ds) / Math.max(dt, .001), sp = Math.hypot(vx, vy);
     x = nx; y = ny;
     if (sp > 25) { const target = Math.atan2(vy, vx) + Math.PI / 2; let d = target - ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ang += d * Math.min(1, dt * 7); still = 0; }
-    else { still += dt; if (still > .8) { let d = (atEnd ? 0 : (p < .5 ? 0 : Math.PI)) - ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ang += d * Math.min(1, dt * 2.5); } }
-    // les pattes : marche en trépied (trois pattes en même temps), au rythme de la vitesse
+    else { still += dt; if (still > .8) { const want = E && E.k > .9 ? -Math.PI / 2 : (p < .5 ? 0 : Math.PI); let d = want - ang; d = Math.atan2(Math.sin(d), Math.cos(d)); ang += d * Math.min(1, dt * 2.5); } }
     phase += Math.min(sp, 900) * dt * .045;
     legs.forEach((L) => { const tri = (L.i === 1) === (L.s > 0) ? 0 : Math.PI, sw = sp > 25 ? Math.sin(phase + tri) * 13 : 0; L.g.setAttribute("transform", L.base + ` rotate(${(sw * L.s).toFixed(1)})`); });
     head.setAttribute("transform", sp > 25 ? `rotate(${(Math.sin(phase * .5) * 3).toFixed(1)})` : "");
     ant.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%) rotate(${ang.toFixed(3)}rad) scale(${S()})`;
-    ant.classList.toggle("idle", sp <= 25); ant.classList.toggle("end", atEnd);
-    // sous les objets (images, cartes, textes) ; mais au-dessus des grandes bandes pleine largeur, pour ne pas disparaître
-    if (!frame.zc || now - frame.zc > 250) { frame.zc = now; ant.classList.toggle("over", bigBand(x, y)); }
-    if (atEnd && !frame.waved) { frame.waved = true; hop(); }
-    if (!atEnd) frame.waved = false;
+    // jamais visible quand elle passe sous quelque chose : elle s'efface dessous, réapparaît de l'autre côté
+    // derrière la photo (ou la photo refermée en haut de page) : invisible aussi
+    const hd = hidden(), behindPhoto = !revealed() || (p <= .02 && Math.hypot(x - hd.x, y - hd.y) < 60 && frame.left);
+    if (!frame.cc || now - frame.cc > 90) { frame.cc = now; frame.hid = covered(x, y); }
+    if (behindPhoto) frame.hid = true;
+    vis += ((frame.hid ? 0 : 1) - vis) * Math.min(1, dt * 14);
+    ant.style.opacity = vis.toFixed(2);
+    ant.classList.toggle("idle", sp <= 25);
     requestAnimationFrame(frame);
   }
-  function bigBand(px, py) {
-    let e = document.elementFromPoint(px, py);
-    while (e && e !== document.body && e !== document.documentElement) {
-      const cs = getComputedStyle(e), bg = cs.backgroundColor, m = /rgba?\(([^)]+)\)/.exec(bg), a = m ? (m[1].split(",")[3] == null ? 1 : +m[1].split(",")[3]) : 0;
-      if ((a > .5 || (cs.backgroundImage && cs.backgroundImage !== "none")) && e.getBoundingClientRect().width >= innerWidth * .85) return true;
-      e = e.parentElement;
-    }
-    return false;
-  }
   function hop() { ant.classList.remove("hop"); void ant.offsetWidth; ant.classList.add("hop"); }
-  ant.addEventListener("click", hop);
   requestAnimationFrame(frame);
 })();

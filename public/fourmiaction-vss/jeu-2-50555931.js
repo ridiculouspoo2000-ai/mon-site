@@ -487,6 +487,108 @@ const SCREENS = [
       "Dans les gestes ordinaires : proposer des alternatives sans contact, laisser un refus possible sans humiliation.",
     ], refs: ["R06", "R07", "Code pénal 222-22", "Code pénal 227-27"] } },
   { id: "c4", ch: 4, type: "chapter" },
+  // Jeudi après-midi : deuxième promenade libre. Trois situations nouvelles, dont deux formats de mini-jeu inédits :
+  // « J'interviens » (agir au bon moment, pendant que la scène se déroule) et « Le panneau » (épingler les bonnes affiches).
+  { id: "jeudi-libre", ch: 4, type: "roam", startNode: "f13", kicker: "Jeudi, 13 h 30 · temps libre", title: "Jeudi, en volante",
+    bridge: "Jeudi, 13 h 30. Après le repas, Nour vous laisse à nouveau circuler dans l’accueil jusqu’à 16 h.",
+    start: "13 h 30", end: "16 h", from: "cour",
+    intro: "Jeudi après-midi. Vous circulez librement : avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30.",
+    life: [
+      { who: "jade", at: [9.6, 22.4], gest: ["explain", "calm", "present", "beckon"] },
+      { who: "k3", loop: [[8.6, 24.7], [9.9, 25.9], [9.7, 23.7]], speed: 3, pose: "run", pause: 400 },
+      { who: "k6", loop: [[9.9, 25.9], [9.7, 23.7], [8.6, 24.7]], speed: 2.6, pose: "run", pause: 600, gest: ["raise", "laugh"] },
+      { who: "ines", at: [15.3, 28.7], gest: ["explain", "present", "nod"] },
+      { who: "k4", at: [16.6, 26.9], gest: ["laugh", "scratch", "raise"] },
+      { who: "t1", at: [17.3, 23.7], gest: ["explain", "laugh", "shrug"], face: [18.2, 24.3] },
+      { who: "t2", at: [18.2, 24.4], gest: ["laugh", "explain2", "cross"], back: true },
+      { who: "k1", loop: [[16.4, 22.3], [10.6, 22.5]], speed: 3.2, pose: "run", pause: 1500 },
+      { who: "bastien", at: [26.0, 22.9], gest: ["explain", "nod", "calm"] },
+    ],
+    events: [
+      { id: "verite", kind: "vigil", at: "parc", from: "13 h 30", to: "15 h 30", comp: "C2", kicker: "Jeudi après-midi · le parc", title: "Action ou vérité",
+        spots: [["sacha", 13.4, 6.6, "talk", ["explain", "laugh", "point"]], ["zoe", 14.8, 7.0, "stand", ["fidget", "downcast"]], ["k5", 13.9, 5.6, "stand", ["laugh", "raise"]], ["k2", 15.1, 5.9, "stand", ["laugh"]]],
+        cast: [["sacha", "a", "talk"], ["zoe", "b", "sad"], ["you", "f", "walk"]],
+        intro: "Au parc, un petit groupe joue à l’écart des animateurs. Observez. Intervenez au moment où il le faut : ni trop tôt pour rien, ni trop tard.",
+        beats: [
+          ["sacha", "Allez, on joue à action ou vérité ! Zoé, action ou vérité ?", 0],
+          ["zoe", "Euh… action ?", 0],
+          ["sacha", "Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée !", 1],
+          ["zoe", "J’ai pas envie… Je veux pas.", 1],
+          ["narr", "Les autres se mettent à crier « Bisou ! Bisou ! » et poussent Zoé vers Malo.", 1],
+          ["sacha", "Vas-y, t’as pas le choix, c’est la règle du jeu !", 2],
+        ],
+        words: [
+          { t: "« Stop. Ici, personne n’est obligé d’embrasser qui que ce soit. Zoé a dit non : on arrête ce gage. »", q: 1 },
+          { t: "« Allez, on arrête ce jeu de bébés, tout le monde va jouer ailleurs. »", q: 0.5 },
+        ],
+        opts: [
+          { t: "Je suis intervenue dès que le gage a été imposé, et j’ai nommé la règle : personne n’est obligé.", q: 1,
+            cons: "Zoé a pu dire non, et ce non a été respecté devant tout le groupe. Le lendemain, quand un gage gênant revient, c’est Sacha lui-même qui dit : « Si elle veut pas, c’est non. »",
+            fb: "Un « gage » de bisou imposé par le groupe est une contrainte : le consentement doit être libre, et la pression du groupe l’empêche. L’adulte intervient dès que la contrainte apparaît, et nomme la règle plutôt que de simplement interrompre le jeu." },
+          { t: "Je suis intervenue, mais trop tard, ou sans dire pourquoi.", q: 0.5,
+            cons: "Le jeu s’est arrêté, mais personne n’a compris pourquoi. Le gage est revenu le lendemain, ailleurs, loin des adultes.",
+            fb: "Faire cesser est indispensable ; mais sans nommer la règle (le consentement, le droit de dire non), les enfants n’apprennent rien, et la pression se déplace." },
+          { t: "Je ne suis pas intervenue.", q: 0,
+            cons: "Zoé a été poussée jusqu’à Malo devant tout le groupe. Le soir, elle a dit à son père qu’elle ne voulait plus jouer au parc.",
+            fb: "Laisser faire un gage imposé apprend aux enfants que le « non » ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir." },
+        ],
+        better: "Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non." },
+      { id: "sieste", at: "petits", room: "petits", from: "13 h 45", to: "15 h 45", comp: "C3", kicker: "Jeudi après-midi · la salle des petits", title: "La porte fermée",
+        cast: [["kevin", "s1", "sit"], ["malo", "s2"], ["you", "a", "walk"]],
+        lines: [["narr", "C’est l’heure de la sieste des petits. La porte de la salle est fermée, les rideaux tirés. À l’intérieur, Kévin est seul avec Malo, réveillé, assis tout contre lui."], ["kevin", "Ah, c’est toi ! Il arrivait pas à dormir, je le rassure. Ferme bien derrière toi, ça fait du courant d’air."]],
+        prompt: "Que faites-vous ?",
+        opts: [
+          { t: "Je laisse la porte ouverte, je propose à Malo de venir s’allonger sur un tapis près de moi, et je rappelle la règle à Kévin, puis j’en parle à Nour.", q: 1, react: { kevin: "stand", malo: "stand" }, reply: ["kevin", "Ah… oui, t’as raison. Je fais pas attention."],
+            cons: "Depuis jeudi, la porte de la sieste reste ouverte et un deuxième adulte passe régulièrement. Kévin l’a dit lui-même en réunion : « On se protège aussi, comme ça. »",
+            fb: "Être seul avec un enfant, porte fermée, avec un contact physique prolongé, c’est une situation à risque, même avec de bonnes intentions : pour l’enfant comme pour l’adulte. On rétablit la règle (jamais seul hors de vue, pas d’enfant sur les genoux pendant la sieste), sans accuser, et on transmet à la direction." },
+          { t: "Je ferme la porte derrière moi pour ne pas réveiller les autres et je ressors sans rien dire : il s’occupe bien de lui.", q: 0, react: { kevin: "talk" }, reply: ["kevin", "Merci !"],
+            cons: "Rien ne change : la porte de la sieste reste fermée tous les après-midi, avec un seul adulte.",
+            fb: "Refermer la porte, c’est valider une situation à risque. Les règles de prudence ne supposent pas que l’adulte est mal intentionné : elles protègent tout le monde." },
+          { t: "Je dis à Kévin devant Malo que ce qu’il fait est interdit et je vais tout de suite chercher Nour.", q: 0.5, react: { kevin: "sad", malo: "sad" }, reply: ["malo", "J’ai fait une bêtise ?"],
+            cons: "La règle est rétablie, mais Malo a cru qu’il avait fait quelque chose de mal, et Kévin s’est senti accusé devant un enfant.",
+            fb: "Rétablir la règle et transmettre, c’est juste. Mais on évite de mettre l’enfant au milieu : on agit calmement sur la situation, puis on en parle entre adultes." },
+        ],
+        better: "Rouvrir la porte, éloigner calmement l’enfant de la situation, rappeler la règle sans accuser, puis transmettre à la direction." },
+      { id: "panneau", kind: "board", must: true, r: 2.2, at: "panneau", from: "13 h 30", to: "16 h", comp: "C4", kicker: "Jeudi après-midi · le panneau d’affichage", title: "Le panneau des familles",
+        nudge: "15 h", nudgeLine: ["nour", "Tu passes au panneau d’affichage ? Il me manque des affiches pour l’inspection de demain."],
+        spots: [["nour", 25.9, 27.3, "talk", ["explain", "present", "point"]]],
+        cast: [["nour", "a", "talk"], ["you", "f", "walk"]],
+        lines: [["nour", "Demain, il y a une visite d’inspection. Sur ce panneau, il manque ce qui doit obligatoirement être affiché pour les familles et pour les jeunes. Tu choisis les trois affiches qu’il faut épingler ?"]],
+        posters: [
+          { t: "Allô 119 · Enfance en danger", s: "Numéro national, gratuit, 24 h sur 24", ok: 1 },
+          { t: "Nos règles de vie et le projet pédagogique", s: "Ce qu’on fait ici, et comment on se respecte", ok: 1 },
+          { t: "À qui parler ?", s: "Nom et photo de la référente, numéros d’urgence", ok: 1 },
+          { t: "Menu de la semaine", s: "Lundi : lasagnes…", ok: 0 },
+          { t: "Photo de l’équipe en soirée", s: "Le pot de début de saison", ok: 0 },
+          { t: "Sortie au zoo", s: "Inscriptions jusqu’à vendredi", ok: 0 },
+        ],
+        opts: [
+          { t: "J’ai épinglé les trois affiches essentielles : le 119, les règles de vie et « À qui parler ? ».", q: 1,
+            cons: "À l’inspection, le panneau est cité en exemple. Et mardi suivant, une jeune a appelé le 119 depuis le numéro vu sur le panneau, pour une situation à la maison.",
+            fb: "L’affichage du numéro national de l’enfance en danger (119) est obligatoire dans les accueils collectifs de mineurs. Les règles de vie et un nom à qui parler rendent la prévention visible et la parole possible." },
+          { t: "J’ai épinglé deux des trois affiches essentielles.", q: 0.5,
+            cons: "Le panneau est presque complet. L’inspection relève un manque, que Nour corrige le soir même.",
+            fb: "Le 119 doit être affiché, de façon visible ; et les enfants comme les familles doivent savoir à qui parler, et quelles sont les règles." },
+          { t: "J’ai épinglé surtout des affiches pratiques.", q: 0,
+            cons: "L’inspection relève l’absence d’affichage obligatoire. Personne, cette semaine, ne savait vers qui se tourner.",
+            fb: "L’affichage obligatoire n’est pas décoratif : il donne aux enfants et aux familles les moyens de parler et d’alerter." },
+        ],
+        better: "Afficher le 119, les règles de vie et le projet, et le nom de la personne à qui parler." },
+    ],
+    calm: {
+      jeux: { t: "À l’aire de jeux, Jade surveille une partie de chat. Tout le monde court, tout va bien." },
+      potager: { t: "Au potager, Inès et les enfants récoltent les premières courgettes." },
+      preau: { t: "Sous le préau, deux grands révisent une chorégraphie pour la fête de vendredi." },
+      cour: { t: "Dans la cour, Bastien prépare les ballons pour le temps libre." },
+      grands: { cast: [["ines", "a", "talk"], ["you", "b"], ["sacha", "s1"]], room: "grands", t: "La salle des grands est vide : tout le monde est dehors." },
+      petits: { cast: [["jade", "a", "talk"], ["you", "b"], ["malo", "s2"]], room: "petits", before: "La sieste n’a pas encore commencé : Jade installe les tapis.", t: "La sieste est finie. Jade range les tapis ; la porte est grande ouverte." },
+      equipe: { cast: [["you", "b"]], room: "equipe", t: "La salle des animateurs est calme. Sur la table, le cahier de liaison est ouvert." },
+      direction: { cast: [["garnier", "a", "talk"], ["you", "b"]], room: "direction", t: "Monsieur Garnier prépare la visite d’inspection de demain, le nez dans les dossiers." },
+      refectoire: { cast: [["you", "a"]], room: "refectoire", t: "La salle de restauration est vide. Les tables sont déjà dressées pour demain midi." },
+      radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["clara", "s1", "sit"], ["you", "a"]], room: "radio", t: "À l’atelier radio, Léna et Clara sont à la console. Elles enregistrent la météo de la semaine." },
+      sanitaires: { cast: [["you", "b"]], room: "sanitaires", t: "Aux sanitaires, la porte du bloc est ouverte, et un planning de passages est affiché." },
+    },
+    end_t: "16 h. Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents." },
   { id: "depart", ch: 4, type: "story", scene: "S13", kicker: "Jeudi, 16 h · les familles arrivent à 17 h",
     lines: [
       { who: null, t: "Les familles arrivent dans une heure. Lou, 10 ans, s’approche, son sac à la main." },
@@ -555,7 +657,7 @@ const SCREENS = [
       { t: "A10 · Informer toute l’équipe", cat: "eca", why: "Seules les personnes qui doivent agir reçoivent les informations nécessaires." },
       { t: "A08 · Organiser le suivi", cat: "dur", why: "Vérifier les mesures de protection, les relais, l’absence de représailles." },
     ] },
-  { id: "ordre", crisis: {"secs": 75, "start": "16 h 06", "intro": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver.", "events": [{"at": 9, "t": "Le téléphone de l’accueil sonne : une maman demande si sa fille peut partir plus tôt.", "opts": [{"t": "Je décroche et je règle ça", "ok": false, "no": "Vous quittez Lou des yeux pendant de longues minutes."}, {"t": "Je demande à Jade de répondre", "ok": true}]}, {"at": 24, "t": "Des enfants vous appellent : le ballon est coincé sur le toit du préau.", "opts": [{"t": "Je reste avec Lou et je demande à Bastien de s’en occuper", "ok": true}, {"t": "J’y vais vite, Lou m’attend ici", "ok": false, "no": "Lou se retrouve seul, à quelques mètres du portail."}]}, {"at": 42, "t": "Lou vous demande tout bas : « Tu vas… tu vas le dire à qui ? »", "opts": [{"t": "« À personne, promis. Ne t’inquiète pas. »", "ok": false, "no": "Promettre le secret est impossible : vous devez alerter, et Lou se sentirait trahi."}, {"t": "« À des personnes dont le métier est de te protéger. Tu as bien fait de parler. »", "ok": true}]}]}, ch: 4, type: "order", comp: "C3", kicker: "Les dix premières minutes",
+  { id: "ordre", crisis: {"secs": 75, "start": "16 h 06", "intro": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver.", "events": [{"at": 9, "who": "phone", "t": "Le téléphone de l’accueil sonne : une maman demande si sa fille peut partir plus tôt.", "opts": [{"t": "Je décroche et je règle ça", "ok": false, "no": "Vous quittez Lou des yeux pendant de longues minutes."}, {"t": "Je demande à Jade de répondre", "ok": true}]}, {"at": 24, "who": "k1", "t": "Des enfants vous appellent : le ballon est coincé sur le toit du préau.", "opts": [{"t": "Je reste avec Lou et je demande à Bastien de s’en occuper", "ok": true}, {"t": "J’y vais vite, Lou m’attend ici", "ok": false, "no": "Lou se retrouve seul, à quelques mètres du portail."}]}, {"at": 42, "who": "lou", "t": "Lou vous demande tout bas : « Tu vas… tu vas le dire à qui ? »", "opts": [{"t": "« À personne, promis. Ne t’inquiète pas. »", "ok": false, "no": "Promettre le secret est impossible : vous devez alerter, et Lou se sentirait trahi."}, {"t": "« À des personnes dont le métier est de te protéger. Tu as bien fait de parler. »", "ok": true}]}]}, ch: 4, type: "order", comp: "C3", kicker: "Les dix premières minutes",
     prompt: "Remettez ces actions dans un ordre pertinent à l’aide des flèches.",
     items: [
       { t: "Rester avec Lou, à l’écart du portail des familles", g: 1, why: "Protéger d’abord : Lou n’est jamais laissé seul." },
@@ -838,6 +940,21 @@ const REPLAY = {
       excellent: { cast: [["malo", "d", "wave"], ["kevin", "a", "stand"], ["you", "e"]], lines: [["narr", "Vendredi, aux sanitaires. Kévin accompagne les petits, porte du bloc ouverte, comme toute l’équipe depuis mardi."], ["malo", "Maintenant, j’ai plus peur d’y aller. Y a toujours quelqu’un."]] },
       moyen: { cast: [["malo", "d", "sad"], ["you", "e"]], lines: [["narr", "Jeudi, aux sanitaires. Les grands sont revenus, et Malo attend devant la porte."], ["malo", "Ils ont dit que j’avais cafté… Alors je dis plus rien."]] },
       catastrophe: { cast: [["nour", "a", "talk"], ["you", "e"]], lines: [["nour", "La maman de Malo a appelé. Il ne veut plus venir : il dit qu’aux toilettes, les grands le regardent. Tu étais au courant ?"], ["narr", "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."]] } } },
+  verite: { at: "parc", room: null, label: "Action ou vérité, au parc",
+    tiers: {
+      excellent: { cast: [["sacha", "a", "talk"], ["zoe", "b", "stand"], ["you", "f"]], lines: [["narr", "Vendredi, au parc. Un nouveau gage fuse dans le groupe."], ["sacha", "Non, pas ce gage-là ! Si elle veut pas, c’est non. Trouve autre chose."], ["zoe", "Merci, Sacha."]] },
+      moyen: { cast: [["zoe", "a", "sad"], ["you", "f"]], lines: [["narr", "Vendredi. Le jeu a repris, derrière les arbres, loin des adultes."], ["zoe", "Ils ont recommencé… mais là où personne voit."]] },
+      catastrophe: { cast: [["zoe", "a", "sad"], ["you", "f"]], lines: [["narr", "Jeudi soir, au portail, Zoé ne lâche plus la main de son père."], ["zoe", "Je veux plus aller au parc. Ils m’ont poussée, et personne a rien dit."]] } } },
+  sieste: { at: "petits", room: "petits", label: "La porte de la sieste",
+    tiers: {
+      excellent: { cast: [["kevin", "a", "talk"], ["you", "b"]], lines: [["kevin", "Depuis jeudi, la porte reste ouverte pendant la sieste, et Jade passe toutes les vingt minutes. Franchement, je me sens plus tranquille aussi."]] },
+      moyen: { cast: [["kevin", "a", "sad"], ["you", "b"]], lines: [["kevin", "Ok, la règle, je l’ai comprise… mais me faire reprendre devant le petit, ça m’a vexé. Et Malo croit qu’il a fait une bêtise."]] },
+      catastrophe: { cast: [["jade", "a", "talk"], ["you", "b"]], lines: [["narr", "Vendredi, à la réunion d’équipe."], ["jade", "La sieste, c’est toujours porte fermée, un seul adulte. Personne n’a rien dit, donc c’est devenu normal."]] } } },
+  panneau: { at: "panneau", room: null, label: "Le panneau des familles",
+    tiers: {
+      excellent: { cast: [["nour", "a", "talk"], ["you", "f"]], lines: [["nour", "L’inspecteur a pris le panneau en photo pour le montrer à d’autres accueils. Et une jeune a appelé le 119 grâce à l’affiche : ça, ça compte vraiment."]] },
+      moyen: { cast: [["nour", "a", "talk"], ["you", "f"]], lines: [["nour", "L’inspection a relevé qu’il manquait une affiche. On l’a ajoutée le soir même ; la prochaine fois, on vérifie ensemble."]] },
+      catastrophe: { cast: [["nour", "a", "sad"], ["you", "f"]], lines: [["nour", "L’inspection a noté l’absence du 119. C’est une obligation : les enfants doivent pouvoir trouver ce numéro sans avoir à le demander."]] } } },
   photo: { at: "preau", room: null, label: "La photo sous le préau",
     tiers: {
       excellent: { cast: [["enzo", "a", "talk"], ["clara", "b", "stand"], ["you", "f"]], lines: [["narr", "Vendredi, sous le préau. Un jeune sort son téléphone pour filmer un copain qui chute."], ["enzo", "Hé, tu lui demandes d’abord ! Et tu le postes pas sans son accord, c’est la règle."], ["clara", "Il a raison."]] },
@@ -892,7 +1009,7 @@ const BRIDGE = {
   kn: "Le lendemain matin, Nour vous laisse une page de son carnet sur la nuitée.",
   k3: "La grosse journée du mercredi est terminée. Nour vous laisse une page de son carnet pour en garder l’essentiel.",
   // Jeudi
-  depart: "Jeudi, 16 h. La journée s’est déroulée sans histoire. Dans la cour, les enfants jouent en attendant leurs parents.",
+  depart: "Jeudi, 16 h. Dans la cour, les enfants jouent en attendant leurs parents.",
   lou: "Vous emmenez Lou un peu à l’écart, dans la salle d’activités libre, pour l’écouter au calme, la porte ouverte.",
   numero: "Lou a parlé. Vous l’avez écouté sans le questionner, et il est toujours à côté de vous.",
   acts: "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter.",
@@ -1006,13 +1123,14 @@ SCREENS.filter((r) => r.type === "roam").forEach((r) => {
   while (SCREENS[at] && SCREENS[at].inRoam === r.id) at++;
   r.events.forEach((ev) => {
     if (SCREENS.some((x) => x.id === ev.id)) return;   // l'atelier radio existe déjà comme écran
-    SCREENS.splice(at++, 0, { id: ev.id, inRoam: r.id, ch: r.ch, type: "choice", comp: ev.comp, kicker: ev.kicker, title: ev.title, context: ev.lines.map(([w, t]) => (w === "narr" ? t : `${t}`)).join(" "), prompt: ev.prompt, opts: ev.opts, better: ev.better });
+    SCREENS.splice(at++, 0, { id: ev.id, inRoam: r.id, ch: r.ch, type: "choice", comp: ev.comp, kicker: ev.kicker, title: ev.title, context: (ev.lines || ev.beats || []).map(([w, t]) => t).join(" "), prompt: ev.prompt || ev.title, opts: ev.opts, better: ev.better });
     STAGE[ev.id] = { at: ev.at, room: ev.room, cast: ev.cast.map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]) };
   });
 });
 
 // Niveau « Moyen » et au-delà : des réponses formulées de façon plus nuancée, moins évidentes (même action, même retour)
 const HARD = {
+ "sieste": {"0": "Je laisse la porte ouverte, je propose à Malo un tapis près de moi, et j’en reparle à Kévin, puis à Nour.", "1": "Je referme doucement pour ne pas réveiller les autres : il a l’air de bien s’occuper de lui, je repasserai.", "2": "Je dis tout de suite à Kévin que ce n’est pas autorisé et je vais chercher Nour."},
  "photo": {"0": "Je demande à Enzo de supprimer la photo devant moi, puis j’en parle à Bastien et à Nour.", "1": "Je garde le téléphone d’Enzo jusqu’au soir : ça calmera tout le monde.", "2": "Je calme le jeu : c’est entre jeunes, je leur demande de se respecter et je passe à autre chose."},
  "foot": {
   "0": "Je rappelle la règle à tout le groupe et je mélange les équipes moi-même, quitte à faire râler.",

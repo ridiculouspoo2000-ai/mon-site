@@ -1008,11 +1008,11 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Ce n’est pas rien : regarder un enfant aux toilettes porte atteinte à son intimité. Minimiser apprend à l’enfant que sa parole ne compte pas."
  },
- "0ca0b3afcc7c": {
+ "62e555633f39": {
   "who": "narr",
   "mood": "",
   "kind": "carnet",
-  "text": "17 h 30. Les enfants sont repartis avec leurs familles : votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet."
+  "text": "17 h 30. Votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet."
  },
  "493011b45f06": {
   "who": "nour",
@@ -1506,11 +1506,161 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Jeudi, jour 4 sur 5. La parole d’un enfant. Accueillir une révélation, protéger et alerter les bons relais à temps."
  },
- "08a1f8bc5e4b": {
+ "a5eb54a82946": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Jeudi, 13 h 30. Après le repas, Nour vous laisse à nouveau circuler dans l’accueil jusqu’à 16 h."
+ },
+ "0fec55965999": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Jeudi après-midi. Vous circulez librement : avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30."
+ },
+ "d3abe6dc647e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Allez, on joue à action ou vérité ! Zoé, action ou vérité ? Euh… action ? Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée ! J’ai pas envie… Je veux pas. Les autres se mettent à crier Bisou ! Bisou ! et poussent Zoé vers Malo. Vas-y, t’as pas le choix, c’est la règle du jeu !"
+ },
+ "cdf9435bd38e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Action ou vérité"
+ },
+ "8a935545848b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Zoé a pu dire non, et ce non a été respecté devant tout le groupe. Le lendemain, quand un gage gênant revient, c’est Sacha lui-même qui dit : Si elle veut pas, c’est non. Un gage de bisou imposé par le groupe est une contrainte : le consentement doit être libre, et la pression du groupe l’empêche. L’adulte intervient dès que la contrainte apparaît, et nomme la règle plutôt que de simplement interrompre le jeu."
+ },
+ "e8b4d0788e45": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le jeu s’est arrêté, mais personne n’a compris pourquoi. Le gage est revenu le lendemain, ailleurs, loin des adultes. Faire cesser est indispensable ; mais sans nommer la règle (le consentement, le droit de dire non), les enfants n’apprennent rien, et la pression se déplace. Pour faire mieux : Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non."
+ },
+ "a18923d66a98": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Zoé a été poussée jusqu’à Malo devant tout le groupe. Le soir, elle a dit à son père qu’elle ne voulait plus jouer au parc. Laisser faire un gage imposé apprend aux enfants que le non ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir. Pour faire mieux : Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non."
+ },
+ "709c9e7b39ba": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Un gage de bisou imposé par le groupe est une contrainte : le consentement doit être libre, et la pression du groupe l’empêche. L’adulte intervient dès que la contrainte apparaît, et nomme la règle plutôt que de simplement interrompre le jeu."
+ },
+ "6fda4a198abb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Faire cesser est indispensable ; mais sans nommer la règle (le consentement, le droit de dire non), les enfants n’apprennent rien, et la pression se déplace."
+ },
+ "b66d08c6383b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Laisser faire un gage imposé apprend aux enfants que le non ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir."
+ },
+ "4341f47aa561": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "C’est l’heure de la sieste des petits. La porte de la salle est fermée, les rideaux tirés. À l’intérieur, Kévin est seul avec Malo, réveillé, assis tout contre lui. Ah, c’est toi ! Il arrivait pas à dormir, je le rassure. Ferme bien derrière toi, ça fait du courant d’air."
+ },
+ "db6b61618464": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Depuis jeudi, la porte de la sieste reste ouverte et un deuxième adulte passe régulièrement. Kévin l’a dit lui-même en réunion : On se protège aussi, comme ça. Être seul avec un enfant, porte fermée, avec un contact physique prolongé, c’est une situation à risque, même avec de bonnes intentions : pour l’enfant comme pour l’adulte. On rétablit la règle (jamais seul hors de vue, pas d’enfant sur les genoux pendant la sieste), sans accuser, et on transmet à la direction."
+ },
+ "8c719361e4d1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Rien ne change : la porte de la sieste reste fermée tous les après-midi, avec un seul adulte. Refermer la porte, c’est valider une situation à risque. Les règles de prudence ne supposent pas que l’adulte est mal intentionné : elles protègent tout le monde. Pour faire mieux : Rouvrir la porte, éloigner calmement l’enfant de la situation, rappeler la règle sans accuser, puis transmettre à la direction."
+ },
+ "9c56294a8dad": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "La règle est rétablie, mais Malo a cru qu’il avait fait quelque chose de mal, et Kévin s’est senti accusé devant un enfant. Rétablir la règle et transmettre, c’est juste. Mais on évite de mettre l’enfant au milieu : on agit calmement sur la situation, puis on en parle entre adultes. Pour faire mieux : Rouvrir la porte, éloigner calmement l’enfant de la situation, rappeler la règle sans accuser, puis transmettre à la direction."
+ },
+ "1c11f2e64844": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Être seul avec un enfant, porte fermée, avec un contact physique prolongé, c’est une situation à risque, même avec de bonnes intentions : pour l’enfant comme pour l’adulte. On rétablit la règle (jamais seul hors de vue, pas d’enfant sur les genoux pendant la sieste), sans accuser, et on transmet à la direction."
+ },
+ "d2533f51b149": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Refermer la porte, c’est valider une situation à risque. Les règles de prudence ne supposent pas que l’adulte est mal intentionné : elles protègent tout le monde."
+ },
+ "4ffee990206f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Rétablir la règle et transmettre, c’est juste. Mais on évite de mettre l’enfant au milieu : on agit calmement sur la situation, puis on en parle entre adultes."
+ },
+ "3c6dabf97553": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Demain, il y a une visite d’inspection. Sur ce panneau, il manque ce qui doit obligatoirement être affiché pour les familles et pour les jeunes. Tu choisis les trois affiches qu’il faut épingler ?"
+ },
+ "64b01aa1b46e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Le panneau des familles"
+ },
+ "0baaf0481585": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "À l’inspection, le panneau est cité en exemple. Et mardi suivant, une jeune a appelé le 119 depuis le numéro vu sur le panneau, pour une situation à la maison. L’affichage du numéro national de l’enfance en danger (119) est obligatoire dans les accueils collectifs de mineurs. Les règles de vie et un nom à qui parler rendent la prévention visible et la parole possible."
+ },
+ "74a8c9ab4ed4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le panneau est presque complet. L’inspection relève un manque, que Nour corrige le soir même. Le 119 doit être affiché, de façon visible ; et les enfants comme les familles doivent savoir à qui parler, et quelles sont les règles. Pour faire mieux : Afficher le 119, les règles de vie et le projet, et le nom de la personne à qui parler."
+ },
+ "9b5664b7e795": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "L’inspection relève l’absence d’affichage obligatoire. Personne, cette semaine, ne savait vers qui se tourner. L’affichage obligatoire n’est pas décoratif : il donne aux enfants et aux familles les moyens de parler et d’alerter. Pour faire mieux : Afficher le 119, les règles de vie et le projet, et le nom de la personne à qui parler."
+ },
+ "b9ec7f876f4e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "L’affichage du numéro national de l’enfance en danger (119) est obligatoire dans les accueils collectifs de mineurs. Les règles de vie et un nom à qui parler rendent la prévention visible et la parole possible."
+ },
+ "67544a844ff4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le 119 doit être affiché, de façon visible ; et les enfants comme les familles doivent savoir à qui parler, et quelles sont les règles."
+ },
+ "a8aed9d25f0d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "L’affichage obligatoire n’est pas décoratif : il donne aux enfants et aux familles les moyens de parler et d’alerter."
+ },
+ "14c5c124cde5": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Jeudi, 16 h. La journée s’est déroulée sans histoire. Dans la cour, les enfants jouent en attendant leurs parents."
+  "text": "Jeudi, 16 h. Dans la cour, les enfants jouent en attendant leurs parents."
  },
  "caf6a003df08": {
   "who": "narr",
@@ -2273,6 +2423,90 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."
+ },
+ "558bfbc12975": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, au parc. Un nouveau gage fuse dans le groupe."
+ },
+ "4cb773fd5e65": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Non, pas ce gage-là ! Si elle veut pas, c’est non. Trouve autre chose."
+ },
+ "57d9350b24d7": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Merci, Sacha."
+ },
+ "fee952524c49": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi. Le jeu a repris, derrière les arbres, loin des adultes."
+ },
+ "9e5a762f47ad": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ils ont recommencé… mais là où personne voit."
+ },
+ "b2f1e889423e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Jeudi soir, au portail, Zoé ne lâche plus la main de son père."
+ },
+ "c26df565674f": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Je veux plus aller au parc. Ils m’ont poussée, et personne a rien dit."
+ },
+ "c8f8e4f04e0d": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Depuis jeudi, la porte reste ouverte pendant la sieste, et Jade passe toutes les vingt minutes. Franchement, je me sens plus tranquille aussi."
+ },
+ "2ca0362d2dd6": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ok, la règle, je l’ai comprise… mais me faire reprendre devant le petit, ça m’a vexé. Et Malo croit qu’il a fait une bêtise."
+ },
+ "6684c36e1a38": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, à la réunion d’équipe."
+ },
+ "3358b6a842da": {
+  "who": "jade",
+  "mood": "",
+  "kind": "replique",
+  "text": "La sieste, c’est toujours porte fermée, un seul adulte. Personne n’a rien dit, donc c’est devenu normal."
+ },
+ "2464bc56ec5f": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "L’inspecteur a pris le panneau en photo pour le montrer à d’autres accueils. Et une jeune a appelé le 119 grâce à l’affiche : ça, ça compte vraiment."
+ },
+ "65342861ce6f": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "L’inspection a relevé qu’il manquait une affiche. On l’a ajoutée le soir même ; la prochaine fois, on vérifie ensemble."
+ },
+ "ae7615042783": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "L’inspection a noté l’absence du 119. C’est une obligation : les enfants doivent pouvoir trouver ce numéro sans avoir à le demander."
  },
  "f8e09fa785bf": {
   "who": "narr",
@@ -3042,6 +3276,174 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Les sanitaires sont vides et propres. Rien à signaler pour l’instant."
  },
+ "6030d41add2b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "16 h. Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents."
+ },
+ "0a5ee632827e": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Allez, on joue à action ou vérité ! Zoé, action ou vérité ?"
+ },
+ "f1e94963fdaa": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Euh… action ?"
+ },
+ "4e8c4b3750f5": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée !"
+ },
+ "52b4fe306303": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "J’ai pas envie… Je veux pas."
+ },
+ "3252e7a8bc96": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Les autres se mettent à crier Bisou ! Bisou ! et poussent Zoé vers Malo."
+ },
+ "9c563ba3b5b8": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Vas-y, t’as pas le choix, c’est la règle du jeu !"
+ },
+ "0e5d6dde7561": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Au parc, un petit groupe joue à l’écart des animateurs. Observez. Intervenez au moment où il le faut : ni trop tôt pour rien, ni trop tard."
+ },
+ "da5d49844ae5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "C’est l’heure de la sieste des petits. La porte de la salle est fermée, les rideaux tirés. À l’intérieur, Kévin est seul avec Malo, réveillé, assis tout contre lui."
+ },
+ "10375966491b": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ah, c’est toi ! Il arrivait pas à dormir, je le rassure. Ferme bien derrière toi, ça fait du courant d’air."
+ },
+ "9545dc7d3202": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ah… oui, t’as raison. Je fais pas attention."
+ },
+ "b097b1d7abbf": {
+  "who": "kevin",
+  "mood": "",
+  "kind": "replique",
+  "text": "Merci !"
+ },
+ "b1e40d721d69": {
+  "who": "malo",
+  "mood": "",
+  "kind": "replique",
+  "text": "J’ai fait une bêtise ?"
+ },
+ "f861cd82a18e": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Demain, il y a une visite d’inspection. Sur ce panneau, il manque ce qui doit obligatoirement être affiché pour les familles et pour les jeunes. Tu choisis les trois affiches qu’il faut épingler ?"
+ },
+ "f0044609c348": {
+  "who": "nour",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu passes au panneau d’affichage ? Il me manque des affiches pour l’inspection de demain."
+ },
+ "4306284bc5b0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "À l’aire de jeux, Jade surveille une partie de chat. Tout le monde court, tout va bien."
+ },
+ "382aac288d6c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Au potager, Inès et les enfants récoltent les premières courgettes."
+ },
+ "87711951758e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Sous le préau, deux grands révisent une chorégraphie pour la fête de vendredi."
+ },
+ "e06aa66cd343": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la cour, Bastien prépare les ballons pour le temps libre."
+ },
+ "888c20e9eb7d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle des grands est vide : tout le monde est dehors."
+ },
+ "0ea0c219b540": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle des animateurs est calme. Sur la table, le cahier de liaison est ouvert."
+ },
+ "8712a95c9d19": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Monsieur Garnier prépare la visite d’inspection de demain, le nez dans les dossiers."
+ },
+ "1dc3e2e7a142": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle de restauration est vide. Les tables sont déjà dressées pour demain midi."
+ },
+ "1cae752d1d57": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "À l’atelier radio, Léna et Clara sont à la console. Elles enregistrent la météo de la semaine."
+ },
+ "417ebd4e7507": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Aux sanitaires, la porte du bloc est ouverte, et un planning de passages est affiché."
+ },
+ "488d5c1474fb": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Clara vous tire par la manche"
+ },
+ "a47a4cf6a4df": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu viens arbitrer le match ? Ils trichent !"
+ },
+ "4ca866d90e02": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Lou vous demande tout bas"
+ },
  "88a9861a68b6": {
   "who": "narr",
   "mood": "",
@@ -3078,11 +3480,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "À retenir. Le consentement est libre et réversible : un enfant peut dire non, même à un adulte. Un adulte ne force jamais un contact, même affectueux : ni bisou, ni câlin imposés. Jamais seul avec un enfant, hors de la vue des autres."
  },
- "82ce6f883b8e": {
+ "cf6e235c30b5": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "17 h 20. La journée a été lourde. Les familles repartent ; vous repensez à ce que Lou vous a confié."
+  "text": "17 h 50. Tous les enfants sont partis, la cour est vide. La journée a été lourde ; vous repensez à ce que Lou vous a confié."
  },
  "a16dd93ea4b1": {
   "who": "narr",

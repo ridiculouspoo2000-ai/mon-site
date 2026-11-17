@@ -152,6 +152,9 @@
         <ellipse cx="${-ex - R * .05}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/><ellipse cx="${ex + R * .15}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/>
         <g class="mouth"><path class="m-closed" d="${MOUTH[mood] || MOUTH.smile}" stroke="${tone(sk, -.45)}" stroke-width="${(R * .065).toFixed(2)}" fill="none" stroke-linecap="round"/>
           <ellipse class="m-open" cx="${look + R * .02}" cy="${ey + R * .63}" rx="${R * .15}" ry="${R * .1}" fill="#7A3B33"/></g>
+        ${mood === "angry" ? `<ellipse class="flush" cx="${look}" cy="${ey + R * .32}" rx="${R * .82}" ry="${R * .5}" fill="#E0442B" opacity=".26"/><path d="M${-ex - R * .28},${ey - R * .5} l${R * .16},${R * .1} M${ex + R * .28},${ey - R * .5} l${-R * .16},${R * .1}" stroke="${tone(sk, -.4)}" stroke-width="${(R * .04).toFixed(2)}"/>` : ""}
+        ${mood === "sad" ? `<path class="tear" d="M${-ex + look},${ey + R * .2} q${-R * .08},${R * .2} 0,${R * .26} q${R * .08},${-R * .06} 0,${-R * .26} Z" fill="#7EC8F2" opacity=".9"/>` : ""}
+        ${mood === "o" ? `<ellipse cx="${-ex + look}" cy="${ey}" rx="${R * .2}" ry="${R * .24}" fill="none" stroke="#fff" stroke-width="${(R * .03).toFixed(2)}" opacity=".6"/>` : ""}
         ${spec.glasses ? `<g fill="none" stroke="${spec.glasses}" stroke-width="${(R * .06).toFixed(2)}"><circle cx="${-ex + look}" cy="${ey}" r="${R * .25}"/><circle cx="${ex + look}" cy="${ey}" r="${R * .25}"/><path d="M${-ex + look + R * .25},${ey} h${ex * 2 - R * .5}"/></g>` : ""}
         ${spec.moustache ? `<path d="M${look - R * .32},${ey + R * .5} q${R * .32},${-R * .18} ${R * .64},0 q${-R * .32},${R * .1} ${-R * .64},0 Z" fill="${grey ? "#B9B3AC" : hcD}"/>` : ""}
         ${spec.beard ? `<path d="M${-R * .82},${headY + R * .25} C${-R * .7},${headY + R * 1.15} ${R * .7},${headY + R * 1.15} ${R * .82},${headY + R * .25} C${R * .55},${headY + R * .85} ${-R * .55},${headY + R * .85} ${-R * .82},${headY + R * .25} Z" fill="${grey ? "#B9B3AC" : hc}" opacity=".85"/>` : ""}
@@ -170,7 +173,7 @@
     if (!c) return null;
     const age = AGE[who] || (c.child ? 10 : 35);
     return { age, sex: FEM.has(who) ? "f" : "m", skin: SKIN[c.skin] || c.skin || "doree", hair: c.hc || "brun", hairStyle: HS[c.hair] || "short", top: c.top || "#3F7CC0",
-      bottom: BOT[who] || "#33405C", sleeves: c.child && age < 12 ? "short" : "long", glasses: c.glasses ? "#3B3B3B" : null, beard: !!c.barbe, moustache: !!c.moustache,
+      bottom: BOT[who] || "#33405C", sleeves: c.child && age < 12 ? "short" : "long", glasses: c.glasses ? "#3B3B3B" : null, beard: false, moustache: false,   // plus de barbe ni de moustache sur les personnages du jeu
       badge: !!c.staff, skirt: who === "zoe" ? "#6B4E9A" : null, socks: who === "zoe" ? "#fff" : null };
   }
   // Votre personnage (personnalisation) traduit en personnage articulé
@@ -233,6 +236,8 @@
   // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
   // (la scène de Maëlys se joue désormais dans la cour : voir STAGE.maelys dans content.js)
   // Moments graves : le décor se fait discret (désaturé, assourdi) pour laisser toute la place à la parole de l'enfant.
+  // moments de tension (chrono, urgence) : la musique accélère
+  const TENSE = new Set(["numero", "ordre", "acts", "f1", "chercher", "portail"]);
   const GRAVE = new Set(["theo", "theo2", "lou", "numero", "acts", "ordre", "maelys", "f1", "temoin", "f3"]);
   // Première parole de l'enfant, montrée seule à l'écran, un instant, avant l'échange.
   const MOMENT = { depart: "lou", maelys: "maelys" };
@@ -261,6 +266,10 @@
     4:     { bpm: 56, chords: [[50, 53, 57], [46, 50, 53], [48, 51, 55], [45, 48, 52]], arp: 0.08, oct: 0, wave: "sine", cut: 800, nature: "wind", pulse: true },
     5:     { bpm: 70, chords: [[53, 57, 60, 64], [48, 52, 55, 59], [50, 53, 57, 60], [46, 50, 53, 57]], arp: 0.36, oct: 12, wave: "triangle", cut: 1600, nature: "room" },
     6:     { bpm: 60, chords: [[52, 55, 59, 62], [48, 52, 55, 59], [45, 48, 52, 55], [47, 50, 54, 57]], arp: 0.22, oct: 12, wave: "sine", cut: 1200, nature: "crickets" },
+    // tension : tempo rapide, accords mineurs graves, pulsation cardiaque et ostinato (moments d'urgence, scènes difficiles)
+    stress: { bpm: 104, chords: [[45, 48, 52], [45, 48, 53], [44, 47, 52], [43, 46, 50]], arp: 0.05, oct: 0, wave: "sawtooth", cut: 700, nature: "wind", pulse: true, heart: true, ost: true },
+    // gravité : lent, sombre, très peu de notes (une parole d'enfant, une révélation)
+    grave: { bpm: 52, chords: [[45, 48, 52], [41, 45, 48], [43, 47, 50], [40, 43, 47]], arp: 0.04, oct: 0, wave: "sine", cut: 650, nature: "wind", pulse: true },
     end:   { bpm: 66, chords: [[53, 57, 60, 65], [48, 52, 55, 60], [50, 53, 57, 62], [46, 50, 53, 58]], arp: 0.5, oct: 12, wave: "triangle", cut: 2000, nature: "birds" },
   };
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -349,6 +358,9 @@
       ch.forEach((n, i) => { this.voice(mtof(n), t0, barDur + 1.2, { wave: m.wave, gain: 0.011, attack: 1.1, release: 1.4, cut: m.cut, detune: -6 }); this.voice(mtof(n), t0, barDur + 1.2, { wave: "sine", gain: 0.008, attack: 1.3, release: 1.4, cut: m.cut, detune: 7 }); });
       this.voice(mtof(ch[0] - 12), t0, barDur * 0.9, { wave: "sine", gain: 0.022, attack: 0.08, release: 0.8, cut: 400 });
       if (m.pulse) for (let k = 0; k < 4; k += 2) { this.voice(mtof(ch[0] - 24), t0 + k * beat, 0.35, { wave: "sine", gain: 0.03, attack: 0.01, release: 0.3, cut: 200 }); }
+      // battement de cœur (deux coups rapprochés) et ostinato de croches : l'adrénaline monte
+      if (m.heart) for (let k = 0; k < 4; k++) { this.voice(52, t0 + k * beat, 0.18, { wave: "sine", gain: 0.05, attack: 0.005, release: 0.16, cut: 160 }); this.voice(48, t0 + k * beat + 0.16, 0.16, { wave: "sine", gain: 0.035, attack: 0.005, release: 0.14, cut: 150 }); }
+      if (m.ost) for (let k = 0; k < 8; k++) this.voice(mtof(ch[(k % 2) ? 2 : 0] + 12), t0 + k * beat / 2, 0.16, { wave: "triangle", gain: 0.009 + (k % 4 === 0 ? 0.004 : 0), attack: 0.004, release: 0.12, cut: 1800 });
       const scale = ch.map((n) => n + m.oct).concat(ch.map((n) => n + m.oct + 12));
       for (let k = 0; k < 8; k++) if (Math.random() < m.arp) {
         const n = scale[Math.floor(Math.random() * scale.length)];
@@ -703,7 +715,7 @@
     Voice.stop();
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
-    Snd.setMood(sc.type === "bilan" ? "end" : sc.ch);
+    Snd.setMood(sc.type === "bilan" ? "end" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     camera(sc);
@@ -734,7 +746,7 @@
     if (/nuit/.test(k)) return "night";
     if (/soir/.test(k)) return "evening";
     if (/matin/.test(k)) return "morning";
-    const h = k.match(/(\d{1,2})\s*h/); if (h) { const n = +h[1]; return n < 11 ? "morning" : n < 16 ? "day" : n < 19 ? "golden" : "evening"; }
+    const h = k.match(/(\d{1,2})\s*h/); if (h) { const n = +h[1]; return n < 11 ? "morning" : n < 16 ? "day" : n < 18 ? "golden" : "evening"; }   // après la réunion du soir (18 h), la nuit tombe
     return { 1: "morning", 2: "morning", 3: "day", 4: "golden", 5: "morning", 6: "evening" }[sc && sc.ch] || "day";
   }
   // Le monde : le diorama de l'accueil, derrière les écrans. La caméra voyage vers le lieu de chaque scène.
@@ -853,7 +865,43 @@
     return who === "you" ? youBust() : (A.chars[who] || A.chars.parent)[mood || "smile"];
   }
   // opts : { back: vu de dos, chair: assis sur une chaise }
-  const rigMini = (who, pose, opts = {}) => { const sp = rigSpec(who); return sp ? RIG.inMini(opts.back ? { ...sp, back: true } : sp, pose, opts) : null; };
+  const rigMini = (who, pose, opts = {}) => { const sp = rigSpec(who); return sp ? RIG.inMini({ ...sp, ...(opts.back ? { back: true } : {}), ...(opts.mood ? { mood: opts.mood } : {}) }, pose, opts) : null; };
+  // Émotions visibles : le visage change (sourcils, bouche, rougeur, larme), un signe apparaît au-dessus de la tête,
+  // le corps suit (geste, tremblement). emo : angry, sad, o (surpris), big (joie), concern (inquiet), null (retour au calme)
+  const EMO_SIGN = { angry: `<svg viewBox="-10 -10 20 20"><path d="M-6,-2 q3,1 4,-4 M2,-6 q1,3 4,4 M6,2 q-3,-1 -4,4 M-2,6 q-1,-3 -4,-4" stroke="#E0442B" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>`,
+    sad: `<svg viewBox="-10 -10 20 20"><path d="M-7,-4 q2,-5 4,0 M3,-4 q2,-5 4,0" stroke="#5B8FD6" stroke-width="1.8" fill="none"/><path d="M0,1 q-3,5 0,7 q3,-2 0,-7 Z" fill="#7EC8F2"/></svg>`,
+    o: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 l2,5 M0,-8 v6 M6,-6 l-2,5" stroke="#F2B33D" stroke-width="2.4" stroke-linecap="round"/></svg>`,
+    big: `<svg viewBox="-10 -10 20 20"><path d="M-6,-4 l1.2,2.4 2.4,1.2 -2.4,1.2 -1.2,2.4 -1.2,-2.4 -2.4,-1.2 2.4,-1.2 Z M5,-7 l.9,1.8 1.8,.9 -1.8,.9 -.9,1.8 -.9,-1.8 -1.8,-.9 1.8,-.9 Z" fill="#F2B33D"/></svg>`,
+    concern: `<svg viewBox="-10 -10 20 20"><path d="M2,-7 q4,4 0,7 q-3,-3 0,-7 Z" fill="#9CD3F0"/></svg>` };
+  function emote(who, emo) {
+    if (!World.el) return;
+    World.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`).forEach((a) => {
+      const r = a.querySelector(".rig"); if (!r) return;
+      const pose = (r.getAttribute("class").match(/p-\w+/) || ["p-idle"])[0], key = Object.keys(RIG.POSE).find((k) => RIG.POSE[k] === pose) || "stand";
+      const gs = [...r.classList].filter((c) => c.startsWith("g-")), back = !!a.classList.contains("isback");
+      const html = rigMini(who, key, { back, mood: emo || undefined, chair: !!r.querySelector(".chair") });
+      if (!html) return;
+      const tmp = document.createElementNS("http://www.w3.org/2000/svg", "g"); tmp.innerHTML = html;
+      const nr = tmp.querySelector(".rig"); if (!nr) return; gs.forEach((g) => nr.classList.add(g)); r.replaceWith(nr);
+      a.classList.toggle("emo-angry", emo === "angry"); a.classList.toggle("emo-sad", emo === "sad");
+      // le signe au-dessus de la tête (dehors : un élément HTML ; dans une salle : dans le dessin)
+      a.querySelectorAll(".emo-sign").forEach((x) => x.remove());
+      if (emo && EMO_SIGN[emo]) {
+        if (a.tagName === "DIV") a.appendChild(el("span", { class: "emo-sign emo-" + emo }, EMO_SIGN[emo]));
+        else { const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "emo-sign emo-" + emo); g.setAttribute("transform", "translate(9,-62) scale(.9)"); g.innerHTML = EMO_SIGN[emo].replace(/^<svg[^>]*>|<\/svg>$/g, ""); a.appendChild(g); }
+      }
+    });
+  }
+  // l'émotion d'une réplique, d'après ce qui est dit
+  function emoOf(who, t) {
+    const low = (t || "").toLowerCase();
+    if (/(arrête|efface|dégage|t’as pas le droit|laisse-moi|tais-toi|c’est pas juste|ils trichent|n’importe quoi|ça suffit)/.test(low) || (/!.*!/.test(t) && /(non|pas)/.test(low))) return "angry";
+    if (/(peur|veux pas|pleur|personne veut|j’ose pas|n’ose|tout le monde l’a vue|laisse tomber)/.test(low) || (KIDS.has(who) && /…/.test(t) && /(euh|je sais pas|j’sais pas|d’accord…)/.test(low))) return "sad";
+    if (/\?!|quoi \?|sérieux \?|comment ça/.test(low)) return "o";
+    if (/(trop bien|super|génial|youpi|merci|bravo|t’es trop forte|c’est vrai \?)/.test(low)) return "big";
+    if (/(inquiet|inquiète|bizarre|pas normal|démissionné|gêné)/.test(low)) return "concern";
+    return null;
+  }
   // Projection du plan : coordonnées au sol (mètres) <-> position en % du plan, et profondeur (qui passe devant qui)
   const PJ = (A.dio && A.dio.proj) || [640, 80, 19.05, 11, 28.4, -43, 1375.6, 944.6];
   const w2f = (x, y) => [((PJ[0] + (x - y) * PJ[2]) - PJ[4]) / PJ[6] * 100, ((PJ[1] + (x + y) * PJ[3]) - PJ[5]) / PJ[7] * 100];
@@ -906,7 +954,7 @@
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
       const gateOpen = sc && (sc.type === "chapter" || ["intro", "parent1", "parent2", "portail"].includes(sc.id));
-      this.lights(LIT[amb] || 0);
+      this.lights(LIT[amb] || 0); this.glows();
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "");
       { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
@@ -948,13 +996,29 @@
         this._t2 = setTimeout(() => { if (gen === this._gen) this.roof(S.room, S); }, reduce() ? 0 : (sameB ? 0 : 700));
       } else this.roof(null);
     },
+    // le soir : la lumière des fenêtres et des lampadaires se projette au sol, vers l'extérieur
+    glows() {
+      if (this._glows || !this.cam) return; this._glows = true;
+      const host = this.cam.querySelector(".wanim"); if (!host) return;
+      const add = (x, y, w, h, cls) => { const f = w2f(x, y); host.appendChild(el("i", { class: "wglow " + cls, style: `left:${f[0]}%;top:${f[1]}%;width:${w}%;height:${h}%;z-index:${zOf(x, y) - 30}` })); };
+      [[3.6, 21.7], [11.6, 21.7], [19.6, 21.7], [29.4, 19.0], [31.0, 25.2]].forEach(([x, y]) => add(x + .3, y - .3, 4.6, 3.2, "lamp"));
+      [4.35, 6.75, 9.35, 11.75, 13.8, 18.6, 22.5, 25.3].forEach((x) => add(x + .35, 19.7, 3.4, 2.1, "win"));
+      [20.95, 24.75].forEach((x) => add(x + .3, 9.1, 3, 1.8, "win"));
+      [0, 1, 2, 3].forEach((i) => add(32.05 + i * 1.45 + .3, 16.0, 2.8, 1.8, "win"));
+    },
     // fenêtres éclairées : on passe par le niveau intermédiaire (les lumières s'allument une à une)
     lights(lv) {
       if (lv === this.lit) return;
       const im = this.el.querySelector(".wcam>.dio-img"), from = this.lit || 0; this.lit = lv; if (!im) return;
       clearTimeout(this._lt);
-      if (lv === 2 && from === 0 && !reduce()) { im.src = litURL(1); this._lt = setTimeout(() => { if (this.lit === 2) im.src = litURL(2); }, 900); }
-      else im.src = litURL(lv);
+      const fade = (src) => {
+        if (reduce()) { im.src = src; return; }
+        const ov = im.cloneNode(); ov.classList.add("lit-ov"); ov.src = src; ov.style.opacity = "0";
+        im.after(ov); requestAnimationFrame(() => requestAnimationFrame(() => (ov.style.opacity = "1")));
+        setTimeout(() => { im.src = src; setTimeout(() => ov.remove(), 120); }, 1700);
+      };
+      if (lv === 2 && from === 0 && !reduce()) { fade(litURL(1)); this._lt = setTimeout(() => { if (this.lit === 2) fade(litURL(2)); }, 1900); }
+      else fade(litURL(lv));
     },
     // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
     // point visé (zoom) au lieu de faire glisser le plan. ms = 0 : tout de suite.
@@ -1015,7 +1079,9 @@
       }
       if (cur) {   // on referme : la salle se vide, le toit redescend
         const r = host.querySelector(".inroom-w"); if (r) { r.classList.remove("in"); setTimeout(() => r.remove(), 300); }
-        cur.t.classList.remove("open"); setTimeout(() => { cur.h.remove(); cur.t.remove(); }, reduce() ? 0 : 1300);
+        // le toit redescend pendant que les murs remontent : la façade se fond progressivement, rien n'apparaît d'un coup
+        cur.t.classList.remove("open"); cur.h.classList.add("closing"); cur.h.classList.remove("ready");
+        setTimeout(() => { cur.h.remove(); cur.t.remove(); }, reduce() ? 0 : 1700);
         this.lid = null;
       }
       if (!G) return;
@@ -1066,7 +1132,10 @@
       if (!who || who === "narr") return;
       const els = [...this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`)];
       els.forEach((a) => a.classList.add("talking"));
-      const pool = gestPool(who, text || ""), others = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== who);
+      const emo = emoOf(who, text || ""); emote(who, emo);
+      if (emo === "angry") els.forEach((a) => gesture(a, Math.random() < .5 ? "fist" : "stomp"));
+      if (emo && emo !== "concern") { clearTimeout(this._emoT); this._emoT = setTimeout(() => emote(who, null), 6500); }
+      const pool = emo === "angry" ? ["fist", "point", "stomp", "hips", "fist"] : emo === "sad" ? ["downcast", "cover", "hug", "fidget", "lookaway"] : emo === "big" ? ["raise", "laugh", "thumb", "open"] : emo === "o" ? ["stepback", "raise", "open"] : gestPool(who, text || ""), others = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== who);
       let last = "", n = 0;
       const step = () => {
         if (!els.some((a) => a.classList.contains("talking"))) return;
@@ -1867,10 +1936,10 @@
       if (left <= 0) finish();
     };
     function raise(ev, j) {
-      pending = j; Snd.mid(); Voice.say("narr", ev.t);
+      pending = j; Snd.mid(); const LI = liveInterrupt(ev.who, ev.t); if (!ev.who) Voice.say("narr", ev.t);
       const card = el("div", { class: "cr-pop", role: "alertdialog", "aria-label": "Nouvelle demande" }, `<p class="kicker">Interruption</p><p class="cr-q">${esc(ev.t)}</p>`);
       const row = el("div", { class: "cr-opts" });
-      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Bien vu : vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
+      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { LI.leave(); evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Bien vu : vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
       card.appendChild(row); evz.appendChild(card); row.querySelector(".opt").focus({ preventScroll: true });
     }
     readyGate(wrap, () => { tId = setInterval(tick, 1000); });
@@ -2085,9 +2154,14 @@
     return Math.min(1100, Math.round(m * 1000 * ({ 1: .85, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
   }
   const LVN = { 1: "Découverte", 2: "Standard", 3: "Expert" };
+  // Parties test (scores de référence de l'équipe Fourmi'Action) : affichées comme telles, pour donner un score à battre
+  const SEED = [["Marie", 874], ["jojo45", 812], ["Arthur", 768], ["VSSKILLER", 731], ["Moumou", 689], ["Safia", 655]].map(([pseudo, score]) => ({ pseudo, score, niveau: 2, test: true }));
+  function withSeed(top) { return (top || []).filter((e) => !e.test).concat(SEED).sort((a, b) => b.score - a.score).slice(0, 20).map((e, i) => ({ ...e, rang: i + 1 })); }
+  const testTag = (e) => (e.test ? ' <small class="rk-test" title="Partie test de l’équipe Fourmi’Action">test</small>' : "");
   function boardList(top, me) {
+    top = withSeed(top); if (me && st.ranked) { const m = top.find((e) => !e.test && e.pseudo === st.ranked.pseudo); me = m ? m.rang : null; }
     if (!top || !top.length) return `<p class="rk-empty">Personne n’est encore classé : soyez le premier ou la première !</p>`;
-    return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><span class="rk-l">${LVN[e.niveau] || ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
+    return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${testTag(e)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><span class="rk-l">${LVN[e.niveau] || ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
   }
   function rankBox(defi) {
     const score = finalScore(defi);
@@ -2431,11 +2505,11 @@
       }, 1000);
       if (sc.interrupt && !calm()) setTimeout(() => {
         if (over || !n.isConnected) return;
-        const p = pop("dint", `<p class="kicker">Interruption</p><p class="cr-q">${esc(sc.interrupt.t)}</p>`);
+        const p = pop("dint", `<p class="kicker">Interruption</p><p class="cr-q">${esc(sc.interrupt.t)}</p>`), LI = liveInterrupt(sc.interrupt.who, sc.interrupt.t);
         const o = el("div", { class: "cr-opts" });
         [["« Pas maintenant. Va voir Inès, elle va arbitrer. »", 1], ["Y aller deux minutes, puis revenir appeler.", 0]].forEach(([t, ok]) => {
           const b = el("button", { class: "opt", type: "button" }, t);
-          b.addEventListener("click", () => { p.remove(); if (!ok) { left = Math.max(3, left - 12); toastMsg("Deux minutes perdues… et Lou est resté seul."); } else Snd.click(); });
+          b.addEventListener("click", () => { p.remove(); LI.leave(); if (!ok) { left = Math.max(3, left - 12); toastMsg("Deux minutes perdues… et Lou est resté seul."); } else Snd.click(); });
           o.appendChild(b);
         });
         p.appendChild(o);
@@ -2791,7 +2865,9 @@
     t1: { age: 15, sex: "f", skin: "mate", hair: "noir", hairStyle: "long", top: "#3B3F48", bottom: "#2E3A4E" },
     t2: { age: 16, sex: "m", skin: "doree", hair: "brun", hairStyle: "spiky", top: "#1F8A5B", bottom: "#33405C" },
     pa1: { age: 42, sex: "f", skin: "claire", hair: "chatain", hairStyle: "bob", top: "#C2412A", bottom: "#2E3A4E" },
-    pa2: { age: 38, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#4B6F8E", bottom: "#2F3540", beard: true },
+    pa2: { age: 38, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#4B6F8E", bottom: "#2F3540" },
+    pa3: { age: 45, sex: "f", skin: "doree", hair: "noir", hairStyle: "bun", top: "#2E9C8A", bottom: "#33405C", glasses: "#3B3B3B" },
+    pa4: { age: 50, sex: "m", skin: "claire", hair: "poivre", hairStyle: "short", top: "#7A5234", bottom: "#2F3540" },
   };
   Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
 
@@ -2821,7 +2897,7 @@
     clear() { this.walkers = []; this.agents.forEach((g) => { clearTimeout(g.t); if (g.clear) g.clear(); }); this.agents = []; cancelAnimationFrame(this.raf); this.raf = 0; },
     wake() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.tick(t)); } },
     tick(now) {
-      const dt = Math.min(.08, (now - this.last) / 1000); this.last = now; let moving = false;
+      const dt = Math.min(.25, (now - this.last) / 1000); this.last = now; let moving = false;   // appareil lent : on rattrape le temps perdu
       this.walkers.forEach((W) => {
         if (!W.path) return;
         moving = true;
@@ -2866,7 +2942,7 @@
     const S = st.roam[sc.id] = st.roam[sc.id] || { t: toMin(sc.start), x: null, y: null, done: {}, nudged: {}, guided: !sc.guided, seen: {} };
     S.seen = S.seen || {};
     const END = toMin(sc.end), MAX = innerWidth < 760 ? 7 : 8.5, PER_M = .5;   // au plus 8 m par pas ; une minute pour deux mètres
-    if (S.x == null) [S.x, S.y] = NODES.q2;   // on démarre dans la cour, juste derrière le portail
+    if (S.x == null) [S.x, S.y] = NODES[sc.startNode || "q2"];   // on démarre dans la cour, juste derrière le portail
     n.dataset.novoice = "1";
     const evLive = (e) => !S.done[e.id] && S.t >= toMin(e.from) - 5 && S.t <= toMin(e.to);
     const mustLeft = () => sc.events.filter((e) => e.must && !S.done[e.id]);
@@ -2877,6 +2953,7 @@
     /* -- le plan vivant -- */
     function free(first) {
       Life.clear(); busy = false;
+      Snd.setMood(sc.ch);
       document.body.classList.remove("scene"); document.body.classList.add("roaming");
       World.show({ at: "ensemble", cast: [], free: true }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
       dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
@@ -2906,7 +2983,7 @@
       drawCard(first);
       Life.wake();
       // les voix des scènes encore à vivre sont préparées à l'avance (générées sur le serveur si besoin)
-      sc.events.filter((e) => !S.done[e.id]).forEach((e) => Voice.prefetch(e.lines.concat((e.opts || []).filter((o) => o.reply).map((o) => o.reply), e.replies || [])));
+      sc.events.filter((e) => !S.done[e.id]).forEach((e) => Voice.prefetch((e.lines || e.beats.map(([w, t]) => [w, t])).concat((e.opts || []).filter((o) => o.reply).map((o) => o.reply), e.replies || [])));
     }
     const camZ = () => (wide() ? 1.6 : 1.45);
     // cadre la caméra pour que le point (x, y) du sol apparaisse à (sx, sy) de l'écran (fractions de la fenêtre)
@@ -2970,7 +3047,7 @@
     function nudgeRing() { ring.classList.remove("nope"); void ring.offsetWidth; ring.classList.add("nope"); }
     // en chemin, on tombe sur une scène : on s'arrête
     function checkSpots() {
-      const ev = sc.events.find((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided) && dist([you.x, you.y], SPOTS[e.at]) < 3.6);
+      const ev = sc.events.find((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided) && dist([you.x, you.y], SPOTS[e.at]) < (e.r || 3.6));
       if (!ev) return false;
       you.stop(); you.onDone = null; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save();
       setTimeout(() => scene(ev), 200); return true;
@@ -3015,6 +3092,7 @@
       document.body.classList.remove("roaming");
       n.innerHTML = "";
       busy = true; if (you) you.onStep = null;   // on ne retombe pas sur la scène en s'en approchant
+      Snd.setMood(ev.tense ? "stress" : "grave");   // la musique se tend pendant la scène
       if (ev.room) {
         Life.clear();
         STAGE["roam-" + ev.id] = { at: ev.at, room: ev.room, cast: ev.cast, z: 3.1 };
@@ -3033,18 +3111,71 @@
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
       const log = el("div", { class: "dlog" }); panel.appendChild(log);
+      const fbz = el("div", { class: "fbzone", "aria-live": "polite" }); let opts = null;
+      if (ev.kind === "vigil") return vigil();
+      if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
       setTimeout(() => Voice.seq(seq), ev.room ? 2000 : 1200);
-      const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")), opts = el("div", { class: "opts" }), fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+      // son coupé : les personnes jouent quand même leurs répliques (gestes, visage, émotion)
+      if (!(Voice.ok && Voice.ready && st.settings.voice)) { const L0 = seq.filter(([w]) => w !== "narr"); L0.forEach(([w, t], i) => setTimeout(() => n.isConnected && World.talk(w, t), (ev.room ? 2600 : 1800) + i * 3000)); setTimeout(() => World.talk(null), (ev.room ? 2600 : 1800) + L0.length * 3000); }
+      const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
       E.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11)).forEach((k, pos) => {
         const o = E.opts[k], b = el("button", { class: "opt", type: "button", style: `--k:${pos}` }, `<span class="ol">${String.fromCharCode(65 + pos)}</span><span>${esc(o.t)}</span>`);
         b.addEventListener("click", () => choose(o, k, b)); opts.appendChild(b);
       });
       panel.append(q, opts, fbz); wrap.appendChild(panel); n.appendChild(wrap);
+      // « J'interviens » : la scène se déroule sous vos yeux ; c'est à vous de choisir le moment d'agir
+      function vigil() {
+        const voiced = Voice.ok && Voice.ready && st.settings.voice;
+        panel.insertBefore(el("p", { class: "narr vg-intro" }, words(ev.intro)), log);
+        const go = el("button", { class: "cta vg-btn", type: "button" }, "J’interviens"); const bar = el("div", { class: "vg-bar" }, "<i></i>");
+        panel.append(go, bar, fbz); wrap.appendChild(panel); n.appendChild(wrap);
+        Snd.setMood("stress");
+        let i = 0, level = 0, over = false, tm = 0;
+        const step = () => {
+          if (over || !n.isConnected) return;
+          if (i >= ev.beats.length) { tm = setTimeout(() => !over && finishV(-1), 4500); return; }
+          const [w, t, lv] = ev.beats[i++]; level = lv;
+          const r = line(w, t); log.appendChild(r); r.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          if (w !== "narr") World.talk(w, t);
+          if (voiced) Voice.say(w, t, r);
+          bar.querySelector("i").style.width = (i / ev.beats.length * 100) + "%";
+          tm = setTimeout(step, Math.max(2600, 900 + t.length * 52));
+        };
+        setTimeout(step, 1400);
+        go.addEventListener("click", () => finishV(level));
+        function finishV(lv) {
+          if (over) return; over = true; clearTimeout(tm); Voice.stop(); World.talk(null); go.remove(); bar.remove();
+          if (lv < 0) return choose(E.opts[2], 2, null);
+          const timing = lv === 1 ? 1 : 0.5;
+          const q = el("p", { class: "prompt" }, lv === 0 ? "Vous coupez le jeu tout de suite. Que dites-vous ?" : "Vous vous approchez. Que dites-vous ?"), ws = el("div", { class: "opts" });
+          ev.words.forEach((W, k) => { const b = el("button", { class: "opt", type: "button", style: `--k:${k}` }, `<span class="ol">${String.fromCharCode(65 + k)}</span><span>${esc(W.t)}</span>`);
+            b.addEventListener("click", () => { ws.querySelectorAll("button").forEach((x) => (x.disabled = true)); b.classList.add("picked", "neutral"); const qq = Math.min(timing, W.q); choose(E.opts[qq >= 1 ? 0 : 1], qq >= 1 ? 0 : 1, null); }); ws.appendChild(b); });
+          panel.insertBefore(q, fbz); panel.insertBefore(ws, fbz);
+        }
+      }
+      // « Le panneau » : épingler les trois bonnes affiches
+      function board() {
+        const voiced = Voice.ok && Voice.ready && st.settings.voice;
+        ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); if (w !== "narr") setTimeout(() => World.talk(w, t), 900); if (voiced) setTimeout(() => Voice.say(w, t, r), 900); });
+        const grid = el("div", { class: "bd-grid" }), sel = new Set();
+        const seed = [...ev.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
+        ev.posters.map((p, k) => k).sort((x, y) => ((x * 29 + seed) % 13) - ((y * 29 + seed) % 13)).forEach((k) => {
+          const P = ev.posters[k], c = el("button", { class: "bd-card", type: "button", "aria-pressed": "false" }, `<i class="bd-pin"></i><b>${esc(P.t)}</b><span>${esc(P.s)}</span>`);
+          c.addEventListener("click", () => { if (sel.has(k)) sel.delete(k); else if (sel.size < 3) sel.add(k); else return; c.setAttribute("aria-pressed", sel.has(k)); c.classList.toggle("on", sel.has(k)); pin.disabled = sel.size !== 3; Snd.click(); });
+          grid.appendChild(c);
+        });
+        const pin = btn("Épingler ces trois affiches", () => {
+          pin.remove(); grid.querySelectorAll("button").forEach((x) => (x.disabled = true));
+          const good = [...sel].filter((k) => ev.posters[k].ok).length, k = good >= 3 ? 0 : good === 2 ? 1 : 2;
+          grid.classList.add("pinned"); choose(E.opts[k], k, null);
+        }); pin.disabled = true;
+        panel.append(el("p", { class: "prompt" }, "Choisissez trois affiches."), grid, pin, fbz); wrap.appendChild(panel); n.appendChild(wrap);
+      }
       function choose(o, k, b) {
-        opts.querySelectorAll("button").forEach((x) => (x.disabled = true)); b.classList.add("picked", "neutral");
+        if (opts) { opts.querySelectorAll("button").forEach((x) => (x.disabled = true)); if (b) b.classList.add("picked", "neutral"); }
         const firstTime = st.res[ev.id] == null;
         record(E, o.q);
         if (firstTime) { st.later = st.later || {}; st.later[ev.id] = { k }; }
@@ -3123,6 +3254,8 @@
     const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9];
     World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
     const host = Life.add(Walker(staff, 27.6, 22.6, "stand")); acts.appendChild(host.el); host.face(GATE);
+    // sur le parvis, des parents s'arrêtent devant le panneau d'affichage pour lire les informations
+    [["pa3", 31.3, 20.2], ["pa4", 31.7, 21.3]].forEach(([w, x, y]) => { const R0 = Life.idle(w, x, y, ["chin", "nod", "point", "weight"], { back: true }); acts.appendChild(R0.el); });
     const timers = [];
     FAMS.slice(0, 3).forEach(([pa, kid], i) => timers.push(setTimeout(() => {
       if (!World.el.classList.contains("on")) return;
@@ -3198,6 +3331,31 @@
     n.dataset.novoice = "1";
     setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."], ["narr", "À retenir. " + B.learn.join(" ")]]); }, 900);
   };
+
+  // Une interruption qu'on voit vraiment : la personne arrive en marchant jusqu'à vous, vous fait signe ou vous tire par
+  // la manche, et parle avec sa voix ; le téléphone, lui, sonne et vibre. Elle repart quand vous avez répondu.
+  function liveInterrupt(who, text, fb) {
+    if (calm() || !who) return { leave() { } };
+    if (who === "phone") {
+      const ph = el("div", { class: "intr intr-phone", "aria-hidden": "true" }, `<div class="ip-body"><i class="ip-screen"><b>Appel entrant</b><span>Accueil · ligne fixe</span></i></div>`);
+      document.body.appendChild(ph); requestAnimationFrame(() => ph.classList.add("in")); Snd.mid && Snd.mid();
+      if (navigator.vibrate) try { navigator.vibrate([180, 120, 180]); } catch (e) { }
+      return { leave() { ph.classList.add("out"); setTimeout(() => ph.remove(), 700); } };
+    }
+    const sp = rigSpec(who); if (!sp) return { leave() { } };
+    const box = el("div", { class: "intr", "data-who": who, "aria-hidden": "true" }, `<div class="intr-fig">${RIG.figure(sp).replace('<svg class="rig"', '<svg class="rig p-walk"')}</div>`);
+    document.body.appendChild(box);
+    requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add("in")));
+    const parts = VOICE_TXT.split(text, fb || who), mine = parts.find(([w]) => w === who), emo = emoOf(who, mine ? mine[1] : text);
+    setTimeout(() => {
+      const r = box.querySelector(".rig"); if (r) r.setAttribute("class", "rig p-idle");
+      gesture(box, emo === "angry" ? "fist" : "beckon");
+      if (emo) { box.classList.add("emo-" + emo); if (EMO_SIGN[emo]) box.appendChild(el("span", { class: "emo-sign emo-" + emo }, EMO_SIGN[emo])); }
+      Voice.seq(parts);
+      setTimeout(() => gesture(box, "beckon"), 2900);
+    }, 1050);
+    return { leave() { const r = box.querySelector(".rig"); if (r) r.setAttribute("class", "rig p-walk"); box.classList.add("out"); setTimeout(() => box.remove(), 1000); } };
+  }
 
   /* ---------- Personnage du joueur, créé sur mesure ----------
    Transposition fidèle de kit/clay.py (bust, mini) : mêmes formes, mêmes matières « pâte à modeler ».
@@ -3477,7 +3635,8 @@
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
       <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
       <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
-      <div class="meta"><span>Environ 25 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
+      <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
+      <p class="hsound" aria-hidden="false"><span class="hs-ic" aria-hidden="true"><i></i><i></i><i></i></span><span><b>Activez le son</b> : voix, musique et ambiances font partie du jeu. Un casque ou des écouteurs, c’est encore mieux.</span></p>
       <div class="hbtns"></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
@@ -3499,13 +3658,13 @@
     place(); try { mq.addEventListener("change", place); } catch (e) { }
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       const list = rk.querySelector(".hr-list"), foot = rk.querySelector(".hr-foot");
-      if (!j || !j.ok) { list.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; return; }
-      const top = (j.top || []).slice(0, 5);
-      list.innerHTML = top.length ? top.map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`).join("")
+      if (!j || !j.ok) j = { ok: true, top: [], total: 0 };
+      const top = withSeed(j.top).slice(0, 6);
+      list.innerHTML = top.length ? top.map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${testTag(e)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`).join("")
         : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`;
-      foot.innerHTML = j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} · <button type="button" class="hr-all">Voir le top 20</button>` : "Score sur 1 000, à la fin du vendredi.";
+      foot.innerHTML = `${j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} · ` : ""}« test » : parties de référence de l’équipe · <button type="button" class="hr-all">Voir le top 20</button>`;
       const all = foot.querySelector(".hr-all"); if (all) all.addEventListener("click", openBoard);
-    }).catch(() => { rk.querySelector(".hr-list").innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; });
+    }).catch(() => { rk.querySelector(".hr-list").innerHTML = withSeed([]).slice(0, 6).map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${testTag(e)}</span><b class="hr-s">${e.score}</b></li>`).join(""); });
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }

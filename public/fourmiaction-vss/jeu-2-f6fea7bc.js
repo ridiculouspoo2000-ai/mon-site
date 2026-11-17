@@ -17,6 +17,18 @@ const CHAPTERS = [
     plan: [["8 h 30", "Réunion d’équipe"], ["10 h", "Message des familles"], ["13 h", "Fin de l’atelier bois"], ["17 h", "Fin de la semaine"]] },
 ];
 
+// Bilan de fin de journée : ce qu'il faut retenir (lu à voix haute)
+const DAYEND = {
+  1: { t: "17 h 15", lead: "17 h 15. Les familles repartent les unes après les autres. Avant de partir, vous repensez à votre premier jour.",
+    learn: ["L’organisation fait partie de la prévention : qui va où, avec qui, et à quel moment, surtout aux sanitaires.", "Les stéréotypes s’installent dans le jeu et dans la répartition des rôles : c’est à l’adulte de garantir à chacun le même accès.", "Repérer, c’est d’abord observer et noter des faits, sans juger."] },
+  2: { t: "18 h 15", fam: false, lead: "18 h 15. Le point du soir est terminé, les derniers enfants sont partis. Vous repensez à cette journée.",
+    learn: ["Distinguez ce que vous avez vu, ce qu’on vous a rapporté et ce que vous supposez.", "Le sexisme et le harcèlement se nomment : une remarque qui se répète n’est pas une blague.", "Une parole recueillie se transmet à la direction, le jour même."] },
+  3: { t: "17 h 40", lead: "17 h 40. La grosse journée se termine au portail. Vous repensez à ce que vous avez vu.",
+    learn: ["Le consentement est libre et réversible : un enfant peut dire non, même à un adulte.", "Un adulte ne force jamais un contact, même affectueux : ni bisou, ni câlin imposés.", "Jamais seul avec un enfant, hors de la vue des autres."] },
+  4: { t: "17 h 50", fam: false, lead: "17 h 50. Tous les enfants sont partis, la cour est vide. La journée a été lourde ; vous repensez à ce que Lou vous a confié.",
+    learn: ["Quand un enfant se confie : l’écouter, le croire, ne pas l’interroger pour enquêter, et ne pas promettre de garder le secret.", "Protéger d’abord, puis alerter le jour même : la direction et, selon la situation, le 119 ou le procureur.", "Noter ses mots exacts, la date et l’heure, sans interprétation."] },
+};
+
 const COMPS = {
   C1: "Repérer des faits et distinguer ce qui est observé, rapporté ou supposé",
   C2: "Utiliser des repères sur le sexisme, le consentement et les violences",
@@ -52,10 +64,10 @@ const ECHOES = {
 };
 // Écran du rôle : phrase lue par le narrateur, puis le but du jeu expliqué simplement.
 const ROLE = {
-  voice: "Vous êtes animateur ou animatrice pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, et vous êtes le binôme de Nour pour prévenir les violences sexistes et sexuelles.",
+  voice: "Vous êtes recrutée comme animatrice volante pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : être vigilante, et agir.",
   goalTitle: "Comment on joue",
   goal: [
-    ["Laissez-vous guider", "Nour, la directrice adjointe, vous accompagne toute la semaine. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
+    ["Laissez-vous guider", "Nour, la directrice adjointe, vous a recrutée et vous fait confiance. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
     ["Réagissez, comme sur le terrain", "Quand une situation se présente, choisissez ce que vous faites. Personne ne vous dit sur le moment si c’était juste : votre décision est enregistrée, et la semaine continue."],
     ["Relevez des petites missions", "Faire le tour de l’accueil, organiser le planning, trouver un enfant qui vous cherche, composer un numéro d’urgence, vérifier les départs au portail : chaque mission entraîne un réflexe concret."],
     ["Le retour du vendredi", "En fin de semaine, vous revenez sur chacune de vos décisions : vous voyez ce qu’elle a produit chez les enfants et l’équipe, puis ce que dit le cadre. Ensuite viennent votre bilan, votre score et votre place au classement."],
@@ -67,9 +79,10 @@ const SCREENS = [
   { id: "c1", ch: 1, type: "chapter" },
   { id: "intro", ch: 1, type: "story", scene: "welcome", kicker: "Lundi, 8 h 30",
     lines: [
-      { who: null, t: "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter." },
-      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Tu nous rejoins pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe et référente de l’équipe pour les violences sexistes et sexuelles. Cette semaine, tu es mon binôme sur ce sujet." },
-      { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où l’équipe a besoin de toi. Et comme tu es mon binôme sur ces questions, quand tu vois que quelque chose coince, tu interviens. Je te fais confiance." },
+      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille." },
+      { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu passes de l’un à l’autre, là où on a besoin de toi." },
+      { who: "nour", mood: "calm", t: "Bon. Ce que j’attends de toi, c’est que tu ailles dans le centre et que tu aides l’équipe à réagir, ou à prendre des décisions. L’équipe, je la connais à peu près… mais elle n’est pas au top sur les violences sexistes et sexuelles, et moi, je n’ai pas le temps de tout gérer." },
+      { who: "nour", mood: "big", t: "J’ai lu ton CV, et je pense que tu vas beaucoup leur apporter. J’ai confiance en toi." },
       { who: null, t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
       { who: null, t: "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles." },
       { who: "nour", mood: "smile", t: "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre." },
@@ -98,11 +111,29 @@ const SCREENS = [
   // Lundi après-midi : promenade libre. On circule dans l'accueil, on tombe sur des scènes, on réagit, on repart.
   { id: "lundi-libre", ch: 1, type: "roam", kicker: "Lundi, 13 h 30 · temps libre", bridge: "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe.", title: "Votre après-midi, en volant",
     start: "13 h 30", end: "17 h", from: "cour", guided: "foot",
-    intro: "Après le repas, Nour vous laisse circuler : vous êtes en volant, et son binôme pour repérer ce qui coince. Touchez un lieu pour vous y rendre. Chaque déplacement prend un quart d’heure.",
+    intro: "Après le repas, vous circulez dans l’accueil, en volante. Avancez sur les chemins, entrez dans les salles, et restez attentive à ce qui se passe autour de vous.",
+    life: [
+      { who: "jade", at: [13.3, 8.2], gest: ["explain", "calm", "present", "beckon", "count"] },
+      { who: "k1", loop: [[12.4, 6.3], [15.9, 6.5], [15.7, 8.6], [12.6, 8.8]], speed: 3, pose: "run", pause: 300 },
+      { who: "k2", loop: [[15.9, 6.5], [15.7, 8.6], [12.6, 8.8], [12.4, 6.3]], speed: 2.8, pose: "run", pause: 500, gest: ["laugh", "raise"] },
+      { who: "k4", loop: [[12.6, 8.8], [12.4, 6.3], [15.9, 6.5]], speed: 2.9, pose: "run", pause: 700 },
+      { who: "ines", at: [15.3, 28.7], gest: ["explain", "present", "nod", "thumb"] },
+      { who: "k3", at: [16.6, 26.9], gest: ["fidget", "laugh", "scratch", "raise"] },
+      { who: "k6", at: [20.6, 28.0], gest: ["wave", "laugh", "fidget"] },
+      { who: "t1", at: [17.3, 23.7], gest: ["explain", "laugh", "shrug", "lookaway"], face: [18.2, 24.3] },
+      { who: "t2", at: [18.2, 24.4], gest: ["laugh", "explain2", "cross"], face: [17.3, 23.7], back: true },
+      { who: "nour", at: [25.3, 22.3], gest: ["explain", "calm", "nod", "present"], to: "15 h 30" },
+      { who: "pa1", at: [26.0, 23.3], gest: ["nod", "explain", "shrug"], back: true, to: "15 h 30" },
+      { who: "k5", loop: [[16.4, 22.3], [10.6, 22.5]], speed: 3.2, pose: "run", pause: 1500 },
+      { who: "theo", loop: [[8.6, 24.7], [9.9, 25.9], [9.7, 23.7]], speed: 3, pose: "run", pause: 400, after: "foot" },
+      { who: "zoe", loop: [[9.9, 25.9], [9.7, 23.7], [8.6, 24.7]], speed: 2.8, pose: "run", pause: 600, after: "foot", gest: ["raise", "laugh"] },
+      { who: "malo", loop: [[9.7, 23.7], [8.6, 24.7], [9.9, 25.9]], speed: 2.6, pose: "run", pause: 900, after: "foot" },
+    ],
     guide: ["nour", "Pour commencer, va voir à l’aire de jeux : j’ai entendu des éclats de voix du côté du foot. Ensuite, promène-toi : à toi de repérer. Et vers 14 h, passe à l’atelier radio."],
     places: ["jeux", "radio", "sanitaires", "potager", "parc", "refectoire", "equipe", "cour"],
     events: [
-      { id: "foot", at: "jeux", from: "13 h 30", to: "15 h", comp: "C2", kicker: "Lundi après-midi · l’aire de jeux", title: "Le foot",
+      { id: "foot", at: "jeux", from: "13 h 30", to: "15 h", comp: "C2",
+        spots: [["theo", 8.9, 24.9, "point", ["point", "stomp", "hips", "laugh"]], ["zoe", 10.0, 24.1, "sad", ["downcast", "fidget", "hug"]], ["malo", 8.2, 24.4, "stand", ["laugh", "point"]]], kicker: "Lundi après-midi · l’aire de jeux", title: "Le foot",
         cast: [["theo", "a", "point"], ["zoe", "b", "sad"], ["malo", "c", "stand"], ["you", "f", "walk"]],
         lines: [["narr", "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras."], ["theo", "Non, t’es une fille ! Tu peux pas jouer au foot avec nous."], ["zoe", "Mais… moi je joue bien, euh… je joue tous les mercredis."], ["narr", "Malo rigole. Zoé recule vers le banc."]],
         prompt: "Que faites-vous ?",
@@ -123,6 +154,23 @@ const SCREENS = [
         lines: [["narr", "À l’atelier radio, Bastien répartit les postes avec les 13-17 ans."], ["bastien", "Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire."], ["lena", "Euh… moi j’aimerais bien apprendre à régler les micros… je peux ?"], ["bastien", "Une autre fois, Léna. Les textes, c’est important aussi."]],
         reacts: [{ lena: "talk", bastien: "listen" }, { lena: "listen", bastien: "talk" }, { lena: "talk", bastien: "sad" }, { lena: "sad", bastien: "talk" }],
         replies: [["lena", "Ah… d’accord. Demain, alors."], ["lena", "Trop bien ! Je peux commencer ?"], ["bastien", "Bon… si tu veux le faire à ma place."], ["lena", "Bon… je retourne aux textes."]] },
+      { id: "photo", at: "preau", from: "14 h 40", to: "16 h 30", comp: "C2", kicker: "Lundi après-midi · le préau", title: "La photo",
+        spots: [["enzo", 15.3, 23.5, "point", ["point", "laugh", "shrug"]], ["clara", 14.1, 24.5, "sad", ["cover", "stop", "hug"]]],
+        cast: [["enzo", "a", "point"], ["clara", "b", "sad"], ["you", "f", "walk"]],
+        lines: [["narr", "Sous le préau, Enzo, 14 ans, tend son téléphone vers Clara, 17 ans, qui se cache le visage. Deux autres jeunes rigolent."], ["clara", "Arrête, Enzo ! Efface ça tout de suite, je t’ai dit non !"], ["enzo", "Ça va, c’est pour rigoler… Je la mets juste sur le groupe, personne verra."]],
+        prompt: "Que faites-vous ?",
+        opts: [
+          { t: "Je m’interpose calmement, je demande à Enzo de supprimer la photo devant moi, et j’en parle à Bastien et à Nour.", q: 1, react: { enzo: "sad", clara: "listen" }, reply: ["enzo", "Bon… c’est bon, je l’efface. Regarde."],
+            cons: "La photo est supprimée devant vous. Nour reprend le droit à l’image avec le groupe des grands : le lendemain, c’est Enzo qui rappelle la règle à un autre jeune.",
+            fb: "Photographier quelqu’un qui refuse, et surtout diffuser son image sans accord, porte atteinte à sa vie privée ; la diffusion peut constituer une infraction. Vous faites cesser, vous vérifiez la suppression et vous transmettez : c’est complet." },
+          { t: "Je confisque le téléphone d’Enzo jusqu’au soir, sans plus de discussion.", q: 0.5, react: { enzo: "angry", clara: "stand" }, reply: ["enzo", "T’as pas le droit ! C’est mon téléphone !"],
+            cons: "Enzo récupère son téléphone le soir… et la photo, jamais supprimée, circule le lendemain sur le groupe.",
+            fb: "Confisquer fait cesser sur le moment, mais sans vérifier la suppression ni transmettre, la photo peut encore circuler. Et personne n’a expliqué pourquoi c’est grave." },
+          { t: "Je dis à Clara de ne pas en faire une histoire : ce n’est qu’une photo entre jeunes.", q: 0, react: { enzo: "talk", clara: "sad" }, reply: ["clara", "Ok… laisse tomber."],
+            cons: "La photo circule le soir même, avec des commentaires. Clara ne revient pas le mercredi.",
+            fb: "Minimiser renvoie la responsabilité sur la victime. Une image prise et diffusée sans accord est une atteinte grave ; entre jeunes, elle nourrit vite le harcèlement." },
+        ],
+        better: "Faire cesser, faire supprimer devant soi, transmettre à l’équipe, puis reprendre le droit à l’image avec le groupe." },
       { id: "sanit", at: "sanitaires", room: "sanitaires", from: "14 h 30", to: "16 h 30", comp: "C3", kicker: "Lundi après-midi · les sanitaires", title: "Devant les toilettes",
         cast: [["malo", "d", "sad"], ["you", "e", "walk"]],
         lines: [["narr", "Devant les toilettes, Malo, 7 ans, se tient le ventre et n’ose pas entrer."], ["malo", "Je veux pas y aller… Les grands, ils… ils regardent par-dessus la porte. Et après ils rigolent."]],
@@ -141,9 +189,17 @@ const SCREENS = [
         better: "Protéger l’enfant sur le moment, puis transmettre pour que l’organisation change : passages encadrés, binômes, porte du bloc ouverte." },
     ],
     calm: {
+      petits: { cast: [["jade", "a", "talk"], ["you", "b"], ["zoe", "s1"], ["malo", "s2"]], room: "petits", t: "Dans la salle des petits, Jade termine une histoire. Les enfants sont assis, captivés. Le goûter, ici, se prend tous ensemble à 16 h 30." },
+      grands: { cast: [["ines", "a", "talk"], ["you", "b"], ["sacha", "s1"]], room: "grands", t: "Dans la salle des grands, Inès aide Sacha à finir une maquette. Tout est calme." },
+      direction: { cast: [["garnier", "a", "talk"], ["you", "b"]], room: "direction", t: "Monsieur Garnier, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé." },
+      soins: { cast: [["you", "a"]], room: "soins", t: "L’infirmerie est vide. Le registre des soins est rangé à sa place, dans l’armoire." },
+      cuisine: { cast: [["you", "a"]], room: "cuisine", t: "La cuisine pédagogique est rangée : l’atelier pâtisserie, c’est mercredi." },
+      libre: { cast: [["you", "a"]], room: "libre", t: "La salle d’activités est libre cet après-midi. Les tapis sont empilés dans un coin." },
+      local: { cast: [["you", "a"]], room: "local", t: "La régie est fermée à clé, comme il se doit. Rien à signaler." },
+      preau: { t: "Sous le préau, quelques grands discutent à l’ombre." },
       potager: { cast: [["ines", "a", "talk"], ["sacha", "b", "stand"], ["you", "f", "walk"]], t: "Au potager, Inès et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler." },
       parc: { cast: [["jade", "a", "wave"], ["theo", "b", "walk"], ["you", "f", "walk"]], t: "Au parc, le groupe de Jade fait un jeu de piste. Ça court, ça rit, chacun a sa place." },
-      refectoire: { cast: [["you", "a", "walk"]], room: "refectoire", t: "La salle de restauration est vide. Le goûter sera servi à 16 h 30." },
+      refectoire: { cast: [["you", "a", "walk"]], room: "refectoire", t: "La salle de restauration est vide : elle ne sert qu’au repas de midi. Le goûter, chaque animateur le prend avec son groupe, dans sa salle." },
       equipe: { cast: [["kevin", "s1", "stand"], ["you", "b", "walk"]], room: "equipe", t: "En salle des animateurs, Kévin prépare le matériel de demain. Il vous fait un signe de la main." },
       cour: { cast: [["nour", "a", "talk"], ["you", "b", "walk"]], t: "Dans la cour, Nour discute avec un parent. Elle vous fait signe : tout va bien de son côté." },
       jeux: { cast: [["theo", "a", "walk"], ["zoe", "b", "walk"], ["malo", "c", "wave"], ["you", "f", "walk"]], t: "À l’aire de jeux, ça court dans tous les sens." },
@@ -151,7 +207,7 @@ const SCREENS = [
       sanitaires: { cast: [["you", "d", "walk"]], room: "sanitaires", before: "Les sanitaires sont vides et propres. Rien à signaler pour l’instant.", t: "Les sanitaires sont calmes." },
     },
     end_t: "17 h. Les familles commencent à arriver au portail : votre après-midi se termine." },
-  { id: "radio", inRoam: "lundi-libre", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio",
+  { id: "radio", inRoam: "lundi-libre", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio", title: "Qui touche à la console ?",
     context: "Bastien anime l’atelier : « Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. » Léna lui redemande d’apprendre à régler les micros.",
     prompt: "Que faites-vous ?",
     opts: [
@@ -162,6 +218,7 @@ const SCREENS = [
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce que répartir selon le sexe ferme l’accès à un apprentissage.", "ok": true}, {"t": "Parce que la parité impose autant de filles que de garçons à chaque poste.", "ok": false, "no": "Il ne s’agit pas de quotas, mais d’accès : chacun doit pouvoir choisir et apprendre."}, {"t": "Parce que ces propos sont une infraction pénale qu’il faut faire cesser.", "ok": false, "no": "Ce n’est pas une infraction en soi : c’est une inégalité à corriger, par l’organisation et le dialogue."}]},
     better: "Rouvrir le choix des rôles, faire tourner les responsabilités et reprendre le raisonnement de l’adulte, sans humiliation." },
+  { id: "fin1", ch: 1, type: "dayend" },
   { id: "k1", ch: 1, type: "explain", page: { title: "Sexisme ou discrimination ?",
     pts: [
       "Un stéréotype attribue des aptitudes ou des rôles à tout un groupe. Il devient un levier d’inégalité quand il guide les décisions.",
@@ -305,6 +362,7 @@ const SCREENS = [
       { t: "Je transfère la conversation à toute l’équipe pour que chacun voie.", ok: false, why: "Diffuser à nouveau, c’est prolonger l’exposition d’Inès." },
       { t: "J’attends de voir si ça recommence.", ok: false, why: "La répétition est déjà là, et Inès a demandé d’arrêter." },
     ] },
+  { id: "fin2", ch: 2, type: "dayend" },
   { id: "k2", ch: 2, type: "explain", page: { title: "Harcèlement, faits et hypothèses",
     pts: [
       "Le harcèlement sexuel peut résulter de propos ou comportements sexuels ou sexistes répétés, même sans proposition sexuelle.",
@@ -404,6 +462,7 @@ const SCREENS = [
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’un consentement se donne librement : il ne se déduit pas d’un silence.", "ok": true}, {"t": "Parce que tout contact physique entre jeunes est interdit en accueil collectif de mineurs.", "ok": false, "no": "Ce n’est pas la règle : la question est celle de l’accord, pas d’une interdiction générale."}, {"t": "Parce qu’un mineur ne peut jamais consentir à rien, quel que soit son âge.", "ok": false, "no": "C’est inexact dit ainsi : la loi protège spécialement les moins de 15 ans, mais la question posée ici est celle du silence."}]},
     better: "Le silence, l’absence de réaction, un rire ou une relation antérieure ne prouvent jamais le consentement." },
+  { id: "fin3", ch: 3, type: "dayend" },
   { id: "kevin", ch: 3, type: "multi", comp: "C2", npc: "kevin", mood: "smile", kicker: "Mercredi, 18 h · après le départ des enfants",
     context: "Kévin, animateur de 24 ans, vous confie : « Clara a 17 ans, elle est d’accord. Notre relation est autorisée, non ? » Clara fait partie du groupe qu’il encadre.",
     prompt: "Quels arguments lui opposer ? Sélectionnez tous ceux qui sont justes.",
@@ -524,6 +583,7 @@ const SCREENS = [
       { t: "Lou avait l’air de dramatiser.", ok: false, why: "Une interprétation, qui n’a pas sa place dans les faits." },
       { t: "Le père est sûrement violent.", ok: false, why: "Une supposition sur une personne : on ne colle pas d’étiquette." },
     ] },
+  { id: "fin4", ch: 4, type: "dayend" },
   { id: "k4", ch: 4, type: "explain", page: { title: "Agir face à une révélation",
     pts: [
       "Protéger et écouter : faire cesser l’exposition, écouter sans suggérer, ne pas promettre le secret.",
@@ -778,6 +838,11 @@ const REPLAY = {
       excellent: { cast: [["malo", "d", "wave"], ["kevin", "a", "stand"], ["you", "e"]], lines: [["narr", "Vendredi, aux sanitaires. Kévin accompagne les petits, porte du bloc ouverte, comme toute l’équipe depuis mardi."], ["malo", "Maintenant, j’ai plus peur d’y aller. Y a toujours quelqu’un."]] },
       moyen: { cast: [["malo", "d", "sad"], ["you", "e"]], lines: [["narr", "Jeudi, aux sanitaires. Les grands sont revenus, et Malo attend devant la porte."], ["malo", "Ils ont dit que j’avais cafté… Alors je dis plus rien."]] },
       catastrophe: { cast: [["nour", "a", "talk"], ["you", "e"]], lines: [["nour", "La maman de Malo a appelé. Il ne veut plus venir : il dit qu’aux toilettes, les grands le regardent. Tu étais au courant ?"], ["narr", "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."]] } } },
+  photo: { at: "preau", room: null, label: "La photo sous le préau",
+    tiers: {
+      excellent: { cast: [["enzo", "a", "talk"], ["clara", "b", "stand"], ["you", "f"]], lines: [["narr", "Vendredi, sous le préau. Un jeune sort son téléphone pour filmer un copain qui chute."], ["enzo", "Hé, tu lui demandes d’abord ! Et tu le postes pas sans son accord, c’est la règle."], ["clara", "Il a raison."]] },
+      moyen: { cast: [["clara", "a", "sad"], ["you", "f"]], lines: [["narr", "Mardi matin, la photo de Clara a circulé sur le groupe des grands."], ["clara", "Tout le monde l’a vue… Le téléphone, vous l’avez rendu, mais personne lui a demandé de l’effacer."]] },
+      catastrophe: { cast: [["enzo", "a", "laugh"], ["you", "f"]], lines: [["narr", "Mercredi. Clara n’est pas revenue. Sa photo, avec des commentaires moqueurs, a fait le tour du groupe."], ["enzo", "Ben quoi ? L’animatrice a dit que c’était rien."]] } } },
   radio: { at: "radio", room: "radio", label: "L’atelier radio",
     tiers: {
       excellent: { cast: [["lena", "c", "talk"], ["clara", "s2"], ["enzo", "s1"], ["you", "a"]], lines: [["narr", "Vendredi, à l’atelier radio. Léna est à la console ; Enzo écrit le texte de l’émission."], ["lena", "Tu vois, là, je baisse le micro de Clara, sinon ça sature. C’est trop bien, la console !"]] },
@@ -802,10 +867,10 @@ const SOURCES = [{"t": "Franceinfo · Périscolaire à Paris : 132 animateurs su
 // Transitions : une phrase qui dit où l'on est et ce qui vient de se passer, lue en premier.
 const BRIDGE = {
   // Lundi
-  dbefore: "Une fois que Nour vous a donné ces informations, elle vous accompagne à la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme un instant, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui.",
+  dbefore: "Nour vous laisse seule un moment dans la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui.",
   map: "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs.",
   radio: "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans.",
-  k1: "17 h 30. Les enfants sont repartis avec leurs familles : votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet.",
+  k1: "17 h 30. Votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet.",
   // Mardi
   brief: "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin.",
   ines: "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe.",
@@ -861,7 +926,7 @@ const STAGE = {
   c4: { at: "entree", cast: [["parent", "a", "talk"], ["lou", "b"], ["kevin", "d", "wave"], ["you", "e"], ["enzo", "c", "walk"]] },
   c5: { at: "entree", cast: [["parent", "a", "walk"], ["clara", "b", "walk"], ["nour", "d", "wave"], ["you", "e"], ["theo", "c"]] },
   intro: { at: "entree", z: 3.2, cast: [["nour", "c", "wave"], ["you", "b"], ["parent", "e", "walk"], ["theo", "a"], ["sacha", "f", "wave"]] },
-  dbefore: { at: "equipe", room: "equipe", cast: [["you", "a"], ["nour", "b", "talk"]] },
+  dbefore: { at: "equipe", room: "equipe", cast: [["you", "s1"]] },
   radio: { at: "radio", room: "radio", cast: [["you", "a"], ["bastien", "c", "talk"], ["enzo", "s1"], ["lena", "s2"], ["clara", "d"]] },
   brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["kevin", "d"], ["jade", "f"]] },
   planning: { at: "equipe", room: "equipe", cast: [["nour", "board", "point"], ["you", "a"], ["jade", "c"], ["bastien", "d"], ["ines", "e"], ["kevin", "f"]] },
@@ -945,3 +1010,38 @@ SCREENS.filter((r) => r.type === "roam").forEach((r) => {
     STAGE[ev.id] = { at: ev.at, room: ev.room, cast: ev.cast.map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]) };
   });
 });
+
+// Niveau « Moyen » et au-delà : des réponses formulées de façon plus nuancée, moins évidentes (même action, même retour)
+const HARD = {
+ "photo": {"0": "Je demande à Enzo de supprimer la photo devant moi, puis j’en parle à Bastien et à Nour.", "1": "Je garde le téléphone d’Enzo jusqu’au soir : ça calmera tout le monde.", "2": "Je calme le jeu : c’est entre jeunes, je leur demande de se respecter et je passe à autre chose."},
+ "foot": {
+  "0": "Je rappelle la règle à tout le groupe et je mélange les équipes moi-même, quitte à faire râler.",
+  "1": "Pour éviter le conflit, j’organise vite un autre match à côté, avec Zoé et les filles qui veulent jouer.",
+  "2": "Je laisse les enfants régler ça entre eux : à cet âge, c’est en se disputant qu’on apprend à jouer ensemble."
+ },
+ "sanit": {
+  "0": "Je reste avec Malo le temps qu’il y aille, puis j’en parle à Nour pour qu’on revoie l’organisation des passages.",
+  "1": "Je vais voir les grands tout de suite et je les sermonne fermement devant les autres, pour que ça ne recommence pas.",
+  "2": "Je le rassure : ce sont des jeux de grands, ils ne lui veulent pas de mal. Je l’encourage à y aller."
+ },
+ "radio": {
+  "1": "Je propose qu’on tourne sur les postes dès aujourd’hui, et je reviens vers Bastien après l’atelier.",
+  "3": "Je n’interviens pas devant les jeunes pour ne pas désavouer Bastien : chacun reste là où il se sent à l’aise."
+ },
+ "rire": {
+  "2": "Entre collègues, l’humour fait partie de l’ambiance ; je vous demande juste d’être plus discrets devant les enfants."
+ },
+ "sousef": {
+  "1": "D’accord pour ce matin : je garde un œil sur les deux groupes, et on fera le point avec l’organisateur ce soir."
+ },
+ "silence": {
+  "0": "Oui, s’ils se connaissaient bien : il pouvait dire non à tout moment, et il ne l’a pas fait."
+ },
+ "nuit3": {
+  "0": "Je propose un compromis : cinq minutes seulement, il reste habillé et la porte reste ouverte.",
+  "2": "Je propose de l’installer un moment dans la salle des adultes, au calme, pour ne pas réveiller les autres."
+ },
+ "familles": {
+  "3": "Proposer des caméras à l’entrée des sanitaires et dans les couloirs, pour rassurer les familles par la transparence."
+ }
+};

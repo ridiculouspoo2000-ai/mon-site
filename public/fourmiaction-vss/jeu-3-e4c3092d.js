@@ -79,7 +79,11 @@
       <path d="M${-hw},${waist - 2} C${-hw},${waist + 5} ${hw},${waist + 5} ${hw},${waist - 2} L${hw * 1.02},${hipY + 9} C${hw},${hipY + 13} ${-hw},${hipY + 13} ${-hw * 1.02},${hipY + 9} Z" fill="${spec.skirt ? spec.skirt : `url(#${u}b)`}"/>
       ${spec.skirt ? `<path d="M${-hw * 1.02},${hipY + 6} L${-hw * 1.55},${hipY + B.H * .14} Q0,${hipY + B.H * .16} ${hw * 1.55},${hipY + B.H * .14} L${hw * 1.02},${hipY + 6} Z" fill="${spec.skirt}"/>` : ""}
       <path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="1.6" opacity=".6"/>
-      ${spec.badge ? `<path d="M${-sw * .32},${shY - 2} L-1,${shY + B.H * .12} M${sw * .32},${shY - 2} L1,${shY + B.H * .12}" stroke="#2F6DB5" stroke-width="1.2" fill="none"/><rect x="-4" y="${(shY + B.H * .115).toFixed(1)}" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="${(shY + B.H * .115 + 2).toFixed(1)}" width="5.2" height="1.6" fill="#E07E12"/>` : ""}
+      ${!spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .55},${shY - 3.5} C${-sw * .62},${shY + 3} ${sw * .62},${shY + 3} ${sw * .55},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="3.2" opacity=".75"/><path d="M-2,${shY + 1} v${B.H * .07} M2,${shY + 1} v${B.H * .065}" stroke="${tone(top, .45)}" stroke-width=".9"/><path d="M${-hw * .7},${hipY - 10} h${hw * 1.4}" stroke="${topD}" stroke-width="1.2" opacity=".5"/>` : ""}
+      ${!spec.back && spec.cut === "chemise" ? `<path d="M${-sw * .36},${shY - 3.6} L0,${shY + 4} L${sw * .36},${shY - 3.6} L${sw * .14},${shY + 2.5} L0,${shY + 4} L${-sw * .14},${shY + 2.5} Z" fill="${tone(top, .5)}"/>${[0, 1, 2, 3].map((i) => `<circle cx="0" cy="${(shY + 7 + i * (B.H * .05)).toFixed(1)}" r=".75" fill="${tone(top, .55)}"/>`).join("")}` : ""}
+      ${!spec.back && spec.cut === "cardigan" ? `<path d="M${-sw * .3},${shY - 3.6} L${-2.2},${waist + 2} L${2.2},${waist + 2} L${sw * .3},${shY - 3.6} Q0,${shY + 2} ${-sw * .3},${shY - 3.6} Z" fill="#F1EDE6"/><path d="M${-sw * .3},${shY - 3.6} L-2.2,${waist + 2} M${sw * .3},${shY - 3.6} L2.2,${waist + 2}" stroke="${topD}" stroke-width="1"/>` : ""}
+      ${spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .5},${shY - 3} C${-sw * .55},${shY + 9} ${sw * .55},${shY + 9} ${sw * .5},${shY - 3} Z" fill="${topD}" opacity=".85"/>` : ""}
+      ${spec.badge && !spec.back ? `<path d="M${-sw * .32},${shY - 2} L-1,${shY + B.H * .12} M${sw * .32},${shY - 2} L1,${shY + B.H * .12}" stroke="#2F6DB5" stroke-width="1.2" fill="none"/><rect x="-4" y="${(shY + B.H * .115).toFixed(1)}" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="${(shY + B.H * .115 + 2).toFixed(1)}" width="5.2" height="1.6" fill="#E07E12"/>` : ""}
       <path d="M${sw * .55},${shY + 2} C${sw * .9},${(shY + waist) / 2} ${hw * .9},${waist - 6} ${hw * .8},${waist}" stroke="${topD}" stroke-width="2" fill="none" opacity=".35"/>`;
     // tête : cou, oreilles, visage, cheveux, traits
     const ex = R * .36, ey = headY + R * .05, look = R * .08;
@@ -111,19 +115,40 @@
       calm: `M${-R * .17 + mx},${my + R * .02} q${R * .17},${R * .05} ${R * .34},0`, concern: `M${-R * .17 + mx},${my + R * .06} q${R * .17},${-R * .09} ${R * .34},0`, sad: `M${-R * .19 + mx},${my + R * .08} q${R * .19},${-R * .14} ${R * .38},0`,
       o: `M${mx - R * .07},${my + R * .04} a${R * .08},${R * .1} 0 1 0 ${R * .14},0 a${R * .08},${R * .1} 0 1 0 ${-R * .14},0`, angry: `M${-R * .18 + mx},${my + R * .06} q${R * .18},${-R * .06} ${R * .36},0` };
     const grey = spec.age >= 55 || spec.hair === "gris" || spec.hair === "poivre";
-    const head = `<g class="head" style="transform-origin:0px ${neckY.toFixed(1)}px">
+    // accessoires : bandeau, nœud, boucles d'oreilles
+    const acc = (spec.headband ? `<path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="${spec.headband}" stroke-width="${(R * .2).toFixed(2)}" stroke-linecap="round"/><path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="${(R * .05).toFixed(2)}" transform="translate(0,${(-R * .05).toFixed(2)})"/>` : "")
+      + (spec.bow ? `<g transform="translate(${(spec.back ? -R * .5 : R * .55).toFixed(1)},${(headY - R * .86).toFixed(1)}) rotate(${spec.back ? -18 : 18})"><path d="M0,0 L${-R * .42},${-R * .26} L${-R * .42},${R * .26} Z M0,0 L${R * .42},${-R * .26} L${R * .42},${R * .26} Z" fill="${spec.bow}"/><circle r="${(R * .12).toFixed(2)}" fill="${tone(spec.bow, -.25)}"/></g>` : "")
+      + (spec.earring ? `<circle cx="${-R * .98}" cy="${headY + R * .4}" r="${(R * .08).toFixed(2)}" fill="#E5B94E"/><circle cx="${R * .98}" cy="${headY + R * .4}" r="${(R * .08).toFixed(2)}" fill="#E5B94E"/>` : "");
+    const cap = (y2) => `<path d="M${-R * 1.01},${headY + R * y2} C${-R * 1.12},${headY - R * 1.3} ${R * 1.12},${headY - R * 1.3} ${R * 1.01},${headY + R * y2} C${R * .6},${headY + R * (y2 + .18)} ${-R * .6},${headY + R * (y2 + .18)} ${-R * 1.01},${headY + R * y2} Z" fill="url(#${u}h)"/>`;
+    const backHair = {
+      short: cap(.42), buzz: cap(.3).replace("/>", ' opacity=".92"/>'), spiky: cap(.38), curly: cap(.4) + `<g fill="url(#${u}h)">${[-.8, -.4, 0, .4, .8].map((k, i) => `<circle cx="${R * k}" cy="${headY - R * (.6 + (i % 2) * .15)}" r="${R * .42}"/>`).join("")}</g>`,
+      bald: `<path d="M${-R * 1.0},${headY + R * .05} C${-R * .9},${headY + R * .55} ${R * .9},${headY + R * .55} ${R * 1.0},${headY + R * .05} C${R * .6},${headY + R * .35} ${-R * .6},${headY + R * .35} ${-R * 1.0},${headY + R * .05} Z" fill="${hc}"/>`,
+      long: cap(.5) + `<path d="M${-R * 1.02},${headY + R * .2} C${-R * 1.15},${headY + R * 1.6} ${-R * .8},${headY + R * 2.4} 0,${headY + R * 2.5} C${R * .8},${headY + R * 2.4} ${R * 1.15},${headY + R * 1.6} ${R * 1.02},${headY + R * .2} Z" fill="url(#${u}h)"/>`,
+      bob: cap(.5) + `<path d="M${-R * 1.08},${headY} C${-R * 1.12},${headY + R * .9} ${R * 1.12},${headY + R * .9} ${R * 1.08},${headY} Z" fill="url(#${u}h)"/>`,
+      bun: cap(.42) + `<circle cx="0" cy="${headY - R * .95}" r="${R * .46}" fill="url(#${u}h)"/>`,
+      ponytail: cap(.42) + `<path d="M${-R * .2},${headY - R * .1} C${-R * .35},${headY + R * 1.2} ${-R * .1},${headY + R * 1.9} 0,${headY + R * 2.1} C${R * .1},${headY + R * 1.9} ${R * .35},${headY + R * 1.2} ${R * .2},${headY - R * .1} Z" fill="${hcD}"/>`,
+      braids: cap(.42) + `<path d="M${-R * .35},${headY + R * .3} q${-R * .1},${R * 1.1} ${R * .05},${R * 1.9} M${R * .35},${headY + R * .3} q${R * .1},${R * 1.1} ${-R * .05},${R * 1.9}" stroke="${hcD}" stroke-width="${R * .3}" stroke-linecap="round" fill="none"/>`,
+      pigtails: cap(.42) + `<ellipse cx="${-R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/><ellipse cx="${R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/>`,
+      afro: `<circle cx="0" cy="${headY - R * .15}" r="${R * 1.28}" fill="url(#${u}h)"/>`,
+    }[spec.hairStyle || "short"] || cap(.42);
+    const headBack = `<g class="head" style="transform-origin:0px ${neckY.toFixed(1)}px">
+      <rect x="${-R * .3}" y="${neckY - 3}" width="${R * .6}" height="${B.neck + 6}" rx="2" fill="${skD}"/>
+      <ellipse cx="${-R * .98}" cy="${headY + R * .12}" rx="${R * .16}" ry="${R * .24}" fill="${skD}"/><ellipse cx="${R * .98}" cy="${headY + R * .12}" rx="${R * .16}" ry="${R * .24}" fill="${skD}"/>
+      <ellipse cx="0" cy="${headY}" rx="${R}" ry="${R * 1.03}" fill="${sk}"/>
+      ${backHair}${acc}</g>`;
+    const head = spec.back ? headBack : `<g class="head" style="transform-origin:0px ${neckY.toFixed(1)}px">
       ${hairBack}
       <rect x="${-R * .28}" y="${neckY - 3}" width="${R * .56}" height="${B.neck + 6}" rx="2" fill="${skD}"/>
       <ellipse cx="${-R * .98}" cy="${headY + R * .12}" rx="${R * .16}" ry="${R * .24}" fill="${skD}"/><ellipse cx="${R * .98}" cy="${headY + R * .12}" rx="${R * .16}" ry="${R * .24}" fill="${sk}"/>
       <path d="M0,${headY - R} C${R * .62},${headY - R} ${R},${headY - R * .6} ${R},${headY} C${R},${headY + R * .62} ${R * .55},${headY + R * 1.02} 0,${headY + R * 1.04} C${-R * .55},${headY + R * 1.02} ${-R},${headY + R * .62} ${-R},${headY} C${-R},${headY - R * .6} ${-R * .62},${headY - R} 0,${headY - R} Z" fill="url(#${u}f)"/>
-      ${hairFront}
+      ${hairFront}${acc}
       <g class="face">
         <path d="${BROW[mood] || BROW.smile}" stroke="${grey ? "#8E8780" : hcD}" stroke-width="${(R * .085).toFixed(2)}" stroke-linecap="round" fill="none"/>
         <g class="eyes"><ellipse cx="${-ex + look}" cy="${ey}" rx="${R * .17}" ry="${R * .2}" fill="#fff"/><ellipse cx="${ex + look}" cy="${ey}" rx="${R * .17}" ry="${R * .2}" fill="#fff"/>
           <g class="pupils"><circle cx="${-ex + look * 2}" cy="${ey + R * .02}" r="${R * .12}" fill="${spec.eyes || "#5A3A22"}"/><circle cx="${ex + look * 2}" cy="${ey + R * .02}" r="${R * .12}" fill="${spec.eyes || "#5A3A22"}"/><circle cx="${-ex + look * 2}" cy="${ey + R * .03}" r="${R * .065}" fill="#140D09"/><circle cx="${ex + look * 2}" cy="${ey + R * .03}" r="${R * .065}" fill="#140D09"/>
           <circle cx="${-ex + look * 2 - R * .035}" cy="${ey - R * .03}" r="${R * .035}" fill="#fff"/><circle cx="${ex + look * 2 - R * .035}" cy="${ey - R * .03}" r="${R * .035}" fill="#fff"/></g>
           <path class="lid" d="M${-ex + look - R * .16},${ey - R * .02} q${R * .16},${-R * .2} ${R * .32},0 M${ex + look - R * .16},${ey - R * .02} q${R * .16},${-R * .2} ${R * .32},0" stroke="${tone(sk, -.4)}" stroke-width="${(R * .05).toFixed(2)}" fill="none" stroke-linecap="round"/></g>
-        <path d="M${R * .06},${ey + R * .12} q${R * .1},${R * .28} ${-R * .06},${R * .34}" stroke="${tone(sk, -.3)}" stroke-width="${(R * .05).toFixed(2)}" fill="none" stroke-linecap="round"/>
+        <path d="M${R * .06},${ey + R * .12} q${R * .1 * (spec.nose || 1)},${R * .28 * (spec.nose || 1)} ${-R * .06 * (spec.nose || 1)},${R * .34 * (spec.nose || 1)}" stroke="${tone(sk, -.3)}" stroke-width="${(R * .05).toFixed(2)}" fill="none" stroke-linecap="round"/>
         <ellipse cx="${-ex - R * .05}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/><ellipse cx="${ex + R * .15}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/>
         <g class="mouth"><path class="m-closed" d="${MOUTH[mood] || MOUTH.smile}" stroke="${tone(sk, -.45)}" stroke-width="${(R * .065).toFixed(2)}" fill="none" stroke-linecap="round"/>
           <ellipse class="m-open" cx="${look + R * .02}" cy="${ey + R * .63}" rx="${R * .15}" ry="${R * .1}" fill="#7A3B33"/></g>
@@ -134,7 +159,7 @@
     const shadow = `<ellipse cx="0" cy="1" rx="${(B.H * .14).toFixed(1)}" ry="${(B.H * .035).toFixed(1)}" fill="#1B2A22" opacity=".18"/>`;
     const ex0 = (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? R * .6 : 0), vb = `${-H * .32} ${-H * 1.02 - ex0} ${H * .64} ${H * 1.06 + ex0}`;
     return `<svg class="rig" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" overflow="visible">${defs}${shadow}
-      <g class="fig"><g class="bob">${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}</g></g></svg>`;
+      <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(1, false)}${leg(-1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}`}</g></g></svg>`;
   }
   // La distribution du jeu : âge, sexe, coiffure, vêtements (couleurs reprises des anciens personnages)
   const HS = { chignon: "bun", court: "short", ondule: "long", carre: "bob", rase: "buzz", chauve: "bald", boucles: "curly", herisse: "spiky", couettes: "pigtails", tresses: "braids", long: "long", queue: "ponytail", afro: "afro" };
@@ -153,12 +178,15 @@
     if (!L) return null;
     return { age: 27, sex: ["tresses", "long", "ondule", "chignon", "couettes", "carre"].includes(L.hair) ? "f" : "m", skin: SKIN[L.skin] || "#D9A27A", hair: L.hc || "brun", hairStyle: HS[L.hair] || "short", top: L.top || "#3F7CC0", bottom: "#33405C",
       glasses: L.glasses ? ({ rouge: "#C2412A", doree: "#C9A24A" }[L.glasses] || "#3B3B3B") : null, beard: !!L.barbe, moustache: !!L.moustache, badge: true,
-      eyes: { marron: "#5A3A22", noisette: "#8A5A2A", vert: "#4F7A3A", bleu: "#3F6FA8", gris: "#6E7780" }[L.eyes] || null };
+      eyes: { marron: "#5A3A22", noisette: "#8A5A2A", vert: "#4F7A3A", bleu: "#3F6FA8", gris: "#6E7780" }[L.eyes] || null,
+      mood: L.mood || "smile", nose: Number(L.nose || 1), cut: L.cut || "pull", headband: L.headband || null, bow: L.bow || null, earring: !!L.earring };
   }
-  const POSE = { stand: "p-idle", talk: "p-talk", wave: "p-wave", walk: "p-walk", point: "p-point", sit: "p-sit", listen: "p-listen", sad: "p-sad", angry: "p-angry" };
+  const POSE = { stand: "p-idle", talk: "p-talk", wave: "p-wave", walk: "p-walk", run: "p-run", point: "p-point", sit: "p-sit", listen: "p-listen", sad: "p-sad", angry: "p-angry" };
   // Pour placer un personnage dans l'ancien repère des figurines (viewBox -22 -60 44 64, pieds en 0,0)
-  function inMini(spec, pose) {
-    const svg = figure(spec), H = body(spec.age || 30).H, k = 66 / 172;   // un peu plus grands que les anciennes figurines : visages lisibles sur le plan
+  function inMini(spec, pose, opts = {}) {
+    let svg = figure(spec);
+    if (opts.chair) svg = svg.replace('<g class="fig', chair(spec.age, opts.chair === true ? undefined : opts.chair) + '<g class="fig');
+    const H = body(spec.age || 30).H, k = 50 / 172;   // échelle du plan : un adulte mesure environ 1,90 m à l'échelle des portes et des bâtiments
     const m = /viewBox="([^"]+)"/.exec(svg)[1].split(" ").map(Number);
     const w = m[2] * k, h = m[3] * k, x = m[0] * k, y = m[1] * k;
     return svg.replace('<svg class="rig"', `<svg class="rig ${POSE[pose] || "p-idle"}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}"`);
@@ -168,7 +196,15 @@
     const svg = figure(spec), B = body(spec.age || 30), top = B.shY - B.neck - B.headR * 2.4, hgt = -top + B.shY * -0.0 + B.H * .2;
     return svg.replace(/viewBox="[^"]+"/, `viewBox="${(-B.H * .2).toFixed(1)} ${top.toFixed(1)} ${(B.H * .4).toFixed(1)} ${(B.H * .4).toFixed(1)}"`).replace('<svg class="rig"', `<svg class="rig rig-bust p-idle ${cls}"`);
   }
-  G.RIG = { figure, inMini, bust, specOf, specOfLook, POSE, SKIN, HAIR };
+  // une chaise (vue de trois quarts) pour qui est assis : plus personne n'est « assis sur rien »
+  function chair(age, col = "#A8774B") {
+    const B = body(age || 30), seatY = B.hipY + 2, sw = B.hipW * 2.6, d = col, dk = tone(col, -.28), lt = tone(col, .15);
+    return `<g class="chair"><path d="M${-sw * .9},${seatY - B.H * .26} h${sw * .3} v${B.H * .3} h${-sw * .3} Z" fill="${dk}"/>
+      <path d="M${-sw * .95},${seatY} L${sw * .7},${seatY} L${sw * .85},${seatY + 4} L${-sw * .8},${seatY + 4} Z" fill="${lt}"/>
+      <rect x="${-sw * .8}" y="${seatY + 4}" width="2.4" height="${-seatY - 4}" fill="${dk}"/><rect x="${sw * .7}" y="${seatY + 4}" width="2.4" height="${-seatY - 4}" fill="${d}"/>
+      <rect x="${-sw * .45}" y="${seatY + 4}" width="2" height="${-seatY - 6}" fill="${dk}" opacity=".7"/></g>`;
+  }
+  G.RIG = { figure, inMini, bust, specOf, specOfLook, POSE, SKIN, HAIR, chair, body };
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* Les Hautes Herbes — moteur du jeu */
@@ -230,12 +266,13 @@
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
   const Snd = {
     ctx: null, on: false, mood: "home", bar: 0, timer: null, nat: null, natKind: null,
+    // Pendant une voix, la musique baisse (sans s'éteindre), puis remonte. Niveau de référence fixe : la musique qui vient
+    // de démarrer (encore à zéro) n'est plus « mémorisée » à zéro, ce qui la rendait muette pendant tout le prélude.
     duck(on) {
-      if (!this.ctx || !this.music) return;
+      if (!this.ctx || !this.music || !this.on) return;
       const t = this.ctx.currentTime, g = this.music.gain, n = this.natBus.gain;
       g.cancelScheduledValues(t); n.cancelScheduledValues(t);
-      if (on) { this._g = this._g ?? g.value; this._n = this._n ?? n.value; g.setTargetAtTime(Math.max(0.0001, (this._g || 0.01) * 0.3), t, 0.15); n.setTargetAtTime(Math.max(0.0001, (this._n || 0.01) * 0.3), t, 0.15); }
-      else if (this._g != null) { g.setTargetAtTime(this._g, t, 0.4); n.setTargetAtTime(this._n, t, 0.4); this._g = this._n = null; }
+      g.setTargetAtTime(on ? 0.42 : 1, t, on ? 0.2 : 0.6); n.setTargetAtTime(on ? 0.35 : 1, t, on ? 0.2 : 0.6);
     },
     unlock() { if (!this.ctx || this._unl) return; try { const b0 = this.ctx.createBuffer(1, 1, 22050), s0 = this.ctx.createBufferSource(); s0.buffer = b0; s0.connect(this.ctx.destination); s0.start(0); if (this.ctx.state !== "running") this.ctx.resume(); if (this.ctx.state === "running") this._unl = true; } catch (e) { } },
     init() {
@@ -390,21 +427,28 @@
     say(who, text, target) { this.seq([[who, text, target instanceof Element ? target : null]]); },
     seq(list) {
       if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
-      const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null, w })).filter((x) => x.u); if (!items.length) return;
+      const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null, w, t })).filter((x) => x.u); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
         this.el.addEventListener("ended", () => { this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); });
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
+        // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
+        this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
+        this.el.addEventListener("playing", () => clearTimeout(this._wd));
       }
       try { this.el.pause(); } catch (e) { }
       this._done();
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
-      World.talk(it.w);
+      World.talk(it.w, it.t);
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
-      this.el.src = it.u; const p = this.el.play(); if (p && p.catch) p.catch(() => { Snd.duck(false); this._done(); });
+      this.el.src = it.u; const p = this.el.play();
+      if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
+      // garde-fou : une voix générée à la volée peut tarder ; au-delà de 14 s, on passe à la suivante
+      clearTimeout(this._wd); this._wd = setTimeout(() => { if (this._cur === it && this.el.paused) this._skip(); }, 14000);
     },
+    _skip() { clearTimeout(this._wd); this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); },
     _tick() {
       cancelAnimationFrame(this._raf);
       const f = () => {
@@ -556,6 +600,7 @@
     if (sc.type === "hotspots") x.hints = L.hints;
     if (sc.speed || sc.type === "sort") x.speed = Math.max(4, Math.round((sc.speed || 9) * L.speed));
     if (sc.crisis) x.crisis = { ...sc.crisis, secs: Math.round(sc.crisis.secs * L.crisis) };
+    if (sc.opts && (st.level || 2) >= 2 && typeof HARD !== "undefined" && HARD[sc.id]) x.opts = sc.opts.map((o, k) => (HARD[sc.id][k] ? { ...o, t: HARD[sc.id][k] } : o));
     return x;
   }
   // Les épreuves chronométrées attendent que la consigne ait été dite : bouton « Commencer », mis en avant à la fin de la voix.
@@ -636,6 +681,7 @@
     // l'heure défile jusqu'à la nouvelle heure
     const toMin = (x) => { const m = /(\d+) h (\d+)/.exec(x || ""); return m ? +m[1] * 60 + +m[2] : null; };
     const a0 = toMin(t0), a1 = toMin(DC.t), sp = DC.el.querySelector(".dc-top span");
+    if (a0 != null && a1 != null && a1 - a0 >= 40 && d === DCprev && sc.type !== "roam") bigClock(a0, a1, DAYS[d]);   // le temps passe : la grande horloge
     if (sp && a0 != null && a1 != null && a1 > a0 && d === DCprev && !calm()) {
       const T0 = performance.now(), dur = Math.min(2200, 300 + (a1 - a0) * 6);
       const H = DC.el.querySelector(".hh"), M = DC.el.querySelector(".mh");
@@ -648,7 +694,8 @@
     if (changed) { DC.el.classList.remove("newday"); void DC.el.offsetWidth; DC.el.classList.add("newday"); }
   }
   function render(dir = 1) {
-    document.body.classList.remove("athome");
+    document.body.classList.remove("athome", "roaming");
+    if (typeof Life !== "undefined") Life.clear();   // la promenade s'arrête quand on change d'écran
     const sc = tune(SCREENS[st.idx]);
     // partie reprise après la présentation : l'horloge et le téléphone sont déjà connus
     if (!st.rev) st.rev = {};
@@ -669,7 +716,7 @@
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
     { const VP = VOICE_TXT.parts(sc); if (World.entered) { VP.unshift(["narr", ROOM_SAY[World.entered]]); World.entered = null; }
       if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(VP), 350); }
-    if (sc.bridge) { const host = node.querySelector(".panel, .solo, .maphead > div, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "bridge" }, words(sc.bridge)), host.firstChild); }
+    if (sc.bridge) { const host = node.querySelector(".rm-card, .panel, .solo, .maphead > div, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "bridge" }, words(sc.bridge)), host.firstChild); }
     if (sc.fact) { const host = node.querySelector(".panel, .solo, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "fact" }, `<b>Inspiré de faits réels</b> ${esc(sc.fact)}`), host.firstChild); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
     stage.appendChild(node);
@@ -805,19 +852,25 @@
     if (sp) return RIG.bust({ ...sp, mood: mood || "smile" });
     return who === "you" ? youBust() : (A.chars[who] || A.chars.parent)[mood || "smile"];
   }
-  const rigMini = (who, pose) => { const sp = rigSpec(who); return sp ? RIG.inMini(sp, pose) : null; };
+  // opts : { back: vu de dos, chair: assis sur une chaise }
+  const rigMini = (who, pose, opts = {}) => { const sp = rigSpec(who); return sp ? RIG.inMini(opts.back ? { ...sp, back: true } : sp, pose, opts) : null; };
+  // Projection du plan : coordonnées au sol (mètres) <-> position en % du plan, et profondeur (qui passe devant qui)
+  const PJ = (A.dio && A.dio.proj) || [640, 80, 19.05, 11, 28.4, -43, 1375.6, 944.6];
+  const w2f = (x, y) => [((PJ[0] + (x - y) * PJ[2]) - PJ[4]) / PJ[6] * 100, ((PJ[1] + (x + y) * PJ[3]) - PJ[5]) / PJ[7] * 100];
+  const f2w = (fx, fy) => { const X = fx / 100 * PJ[6] + PJ[4], Y = fy / 100 * PJ[7] + PJ[5], a = (X - PJ[0]) / PJ[2], b = (Y - PJ[1]) / PJ[3]; return [(a + b) / 2, (b - a) / 2]; };
+  const zOf = (x, y) => Math.round((x + y) * 10) + 10;
   const World = {
     el: null, ext: null, cam: null, wint: null, room: null, cur: null,
     init() {
       if (this.el || !A.dio) return;
       this.el = el("div", { id: "world", "aria-hidden": "true" },
-        `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i><i class="wgrade"></i><i class="wdof"></i>${fieldGrass()}`);
+        `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i><i class="wgrade"></i><i class="wsky"><b class="wsun"></b><b class="wmoon"></b></i><i class="wdof"></i>${fieldGrass()}`);
       document.body.insertBefore(this.el, document.body.firstChild);
       this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
     },
-    actor(who, pose, pct, size, flip, from) {
+    actor(who, pose, pct, size, flip, from, opts = {}) {
       const key = who === "you" ? youKey() : who;
-      const m = A.minis && A.minis[key], R0 = rigMini(who, pose || "stand"); if (!m && !R0) return null;
+      const m = A.minis && A.minis[key], R0 = rigMini(who, pose || "stand", opts); if (!m && !R0) return null;
       const a = el("div", { class: "actor" + (flip ? " flip" : "") + (R0 ? " rigged" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%;--br:${(Math.random() * 3).toFixed(2)}s` },
         `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64" overflow="visible">${R0 || m[pose || "stand"] || m.stand}</svg>`);
       const setPose = (ps) => { const r = a.querySelector(".rig"); if (r) r.setAttribute("class", "rig " + (RIG.POSE[ps] || "p-idle")); else a.querySelector("svg").innerHTML = m[ps] || m.stand; };
@@ -853,7 +906,7 @@
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
       const gateOpen = sc && (sc.type === "chapter" || ["intro", "parent1", "parent2", "portail"].includes(sc.id));
-      { const lv = LIT[amb] || 0; if (lv !== this.lit) { this.lit = lv; const im = this.el.querySelector(".wcam>.dio-img"); if (im) im.src = litURL(lv); } }
+      this.lights(LIT[amb] || 0);
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "");
       { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
@@ -866,16 +919,21 @@
         z = Math.max(1.6, Math.min(3.6, want / (IN.w / 100 * camW)));   // refonte : plafond 3,6 (au-delà, la petite régie était cadrée deux fois plus près que les autres salles)
         p = { x: (IN.l + IN.w / 2) / 100, y: (IN.t + hp * .52) / 100 };
       }
-      this.cam.style.transform = `translate(${(-p.x * z * 100).toFixed(2)}%,${(-p.y * z * 100).toFixed(2)}%) scale(${z})`;
+      this.camTo(p, z);
       // acteurs dehors
       const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
       const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .84;
       if (!S.room) {
         const L = [];
-        (S.cast || []).forEach(([w, slot, pose], k) => {
-          const p = stand[slot] || stand.a, from = [k % 2 ? 260 : -260, 110];
-          const a = this.actor(w, pose, p, sz, false, k < 3 ? from : null);
-          if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; a.style.zIndex = ((A.dio.standZ || {})[S.at] || (A.dio.standZ || {}).ensemble || {})[slot] || Math.round(p[1] * 10); acts.appendChild(a); L.push([a, p]); }
+        const cast = S.cast || [], others = cast.filter(([w]) => w !== "you"), duo = !cast.some(([w]) => w === "you") && others.length === 2;
+        const anchor = others[0] && (stand[others[0][1]] || stand.a);
+        cast.forEach(([w, slot, pose], k) => {
+          let p = stand[slot] || stand.a; const from = [k % 2 ? 260 : -260, 110];
+          // deux personnes qui se parlent : face à face, l'une de dos. Vous êtes de dos, juste devant la personne qui vous parle.
+          const back = (w === "you" && others.length) || (duo && w === others[1][0]);
+          if (back && anchor && w === "you" && !S.keepSlots) { const [ax, ay] = f2w(anchor[0], anchor[1]); p = w2f(ax + .75, ay + 1.05); }
+          const a = this.actor(w, pose, p, sz, false, k < 3 ? from : null, { back });
+          if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
         { const first = (S.cast || []).find(([w]) => w !== "you"); if (first) setTimeout(() => this.gaze(first[0]), 60); }
@@ -890,6 +948,31 @@
         this._t2 = setTimeout(() => { if (gen === this._gen) this.roof(S.room, S); }, reduce() ? 0 : (sameB ? 0 : 700));
       } else this.roof(null);
     },
+    // fenêtres éclairées : on passe par le niveau intermédiaire (les lumières s'allument une à une)
+    lights(lv) {
+      if (lv === this.lit) return;
+      const im = this.el.querySelector(".wcam>.dio-img"), from = this.lit || 0; this.lit = lv; if (!im) return;
+      clearTimeout(this._lt);
+      if (lv === 2 && from === 0 && !reduce()) { im.src = litURL(1); this._lt = setTimeout(() => { if (this.lit === 2) im.src = litURL(2); }, 900); }
+      else im.src = litURL(lv);
+    },
+    // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
+    // point visé (zoom) au lieu de faire glisser le plan. ms = 0 : tout de suite.
+    camTo(p, z, ms) {
+      const set = (x, y, k) => { this.cv = { x, y, z: k }; this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
+      cancelAnimationFrame(this._cf); this.cam.style.transitionProperty = "left, top";
+      const c0 = this.cv, D = ms != null ? ms : 1500;
+      if (!c0 || reduce() || D <= 0 || !this.el.classList.contains("on")) { set(p.x, p.y, z); return; }
+      const t0 = performance.now(), dz = Math.abs(1 / c0.z - 1 / z) > 1e-4;
+      const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      const f = (now) => {
+        const t = Math.min(1, (now - t0) / D), e = ease(t), k = c0.z * Math.pow(z / c0.z, e);
+        const r = dz ? (1 / c0.z - 1 / k) / (1 / c0.z - 1 / z) : e;
+        set(c0.x + (p.x - c0.x) * r, c0.y + (p.y - c0.y) * r, k);
+        if (t < 1) this._cf = requestAnimationFrame(f);
+      };
+      this._cf = requestAnimationFrame(f);
+    },
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
     people(room, S) {
       const IN = A.dio.inner[room], host = this.cam.querySelector(".wlids");
@@ -899,10 +982,11 @@
       let youLab = null;
       (S.cast || []).forEach(([who, slot, pose], k) => {
         const P = IN.sp[slot] || IN.sp.a; if (!P) return;
-        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose || "stand"), R0 = rigMini(who, ps); if (!m && !R0) return;
+        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose || "stand");
+        const R0 = rigMini(who, ps, { back: who === "you" && (S.cast || []).length > 1 && !P.sit, chair: P.sit && !P.bench }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g");
         g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${P.y})`);
-        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(.84)">${R0 || m[ps] || m.stand}</g></g></g>`;
+        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
@@ -971,26 +1055,61 @@
         a.style.setProperty("--lk", String(flipped ? -d : d)); a.classList.add("gaze");
       });
     },
-    talk(who) {
+    // La personne qui parle enchaîne des gestes courts (2 à 3 s) choisis selon ce qu'elle dit ; les autres écoutent
+    // (hochent la tête, croisent les bras, regardent ailleurs…). Jamais deux fois de suite le même geste.
+    talk(who, text) {
       if (!this.el) return;
       if (who && who !== "narr") this.gaze(who);
-      const GC = ["g1", "g2", "g3", "g4", "g5", "g6"], MC = ["m1", "m2", "m3"];
-      clearInterval(this._gi);
-      this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking", ...GC, ...MC));
+      clearTimeout(this._gi); clearTimeout(this._li);
+      this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking"));
       document.querySelectorAll(".portrait.chip.talking").forEach((a) => a.classList.remove("talking"));
       if (!who || who === "narr") return;
-      // des gestes et des bouches qui changent au fil de la phrase (jamais deux fois de suite le même geste)
       const els = [...this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`)];
-      let last = "";
-      const pick = () => {
-        let g; do { g = GC[Math.floor(Math.random() * GC.length)]; } while (g === last); last = g;
-        const m = MC[Math.floor(Math.random() * MC.length)];
-        els.forEach((a) => { a.classList.remove(...GC, ...MC); a.classList.add("talking", g, m); });
+      els.forEach((a) => a.classList.add("talking"));
+      const pool = gestPool(who, text || ""), others = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== who);
+      let last = "", n = 0;
+      const step = () => {
+        if (!els.some((a) => a.classList.contains("talking"))) return;
+        let g, k = 0; do { g = pool[Math.floor(Math.random() * pool.length)]; } while (g === last && ++k < 6); last = g;
+        els.forEach((a) => gesture(a, g));
+        this._gi = setTimeout(step, (n++ === 0 ? 2600 : 2900) + Math.random() * 900);
       };
-      pick(); this._gi = setInterval(() => { if (!els.some((a) => a.classList.contains("talking"))) return clearInterval(this._gi); pick(); }, 1900 + Math.random() * 900);
+      this._gi = setTimeout(step, 250);
+      const listen = () => {
+        if (!els.some((a) => a.classList.contains("talking"))) return;
+        const a = others[Math.floor(Math.random() * others.length)];
+        if (a) gesture(a, LISTEN[Math.floor(Math.random() * LISTEN.length)]);
+        this._li = setTimeout(listen, 2600 + Math.random() * 2600);
+      };
+      this._li = setTimeout(listen, 1400);
       document.querySelectorAll(`.portrait.chip[data-who="${who}"]`).forEach((a) => a.classList.add("talking"));
     },
   };
+  const GESTS = ["explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug"];
+  const LISTEN = ["nod", "nod", "weight", "chin", "lookaway", "cross", "sigh", "lean", "hips"];
+  const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
+  // les gestes qui vont avec ce qui est dit
+  function gestPool(who, t) {
+    const low = t.toLowerCase(), P = [];
+    if (/\?/.test(t)) P.push("explain2", "open", "shrug", "open");
+    if (/!/.test(t)) P.push("raise", "explain", "point");
+    if (/\b(non|pas|jamais|arrête|stop)\b/.test(low)) P.push("shake", "stop");
+    if (/\b(moi|je |j’|me |mon |ma )/.test(low)) P.push("pointself");
+    if (/merci|confiance|bienvenue|super|bravo|trop bien/.test(low)) P.push("heart", "thumb", "open");
+    if (/euh|…|je sais pas|j’sais pas|n’ose|peur/.test(low)) P.push("fidget", "downcast", "lookaway", "hug", "scratch");
+    if (/t’es|tu peux pas|dégage|c’est nul|rigole/.test(low)) P.push("point", "fist", "hips", "stomp", "laugh");
+    if (/premièrement|d’abord|trois|deux|ensuite|règle/.test(low)) P.push("count", "count");
+    if (/téléphone|appel|sms|message/.test(low)) P.push("phone");
+    if (/viens|venez|par ici|regarde/.test(low)) P.push("beckon", "present");
+    P.push(...(KIDS.has(who) ? ["fidget", "lookaway", "explain", "weight", "scratch", "open"] : ["explain", "explain2", "calm", "present", "lean", "weight", "chin", "nod", "open"]));
+    return P;
+  }
+  function gesture(a, g) {
+    const r = a.querySelector(".rig"); if (!r || reduce()) return;
+    GESTS.forEach((x) => r.classList.remove("g-" + x)); void r.getBoundingClientRect();
+    r.classList.add("g-" + g);
+    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 3200);
+  }
   function reduce() { return matchMedia("(prefers-reduced-motion: reduce)").matches || calm(); }
   function camera(sc) { World.stage(sc); }
 
@@ -1195,19 +1314,15 @@
     const plan = (c.plan || []).filter((p) => st.nuitee || !/nuitée/i.test(p[1])).map((p) => `<li><b>${p[0]}</b><span>${esc(p[1])}</span></li>`).join("");
     n.innerHTML = `<div class="chap day"><div class="journey" aria-hidden="true"><ol>${stations}</ol><div class="walker2" style="--from:${((c.n - 2) / (CHAPTERS.length - 1)) * 100}%;--to:${((c.n - 1) / (CHAPTERS.length - 1)) * 100}%">${youBust()}</div></div>
       <p class="chapnum">Jour ${c.n} sur ${CHAPTERS.length}</p><h2 id="h-${sc.id}">${esc(c.day)}</h2><p class="daytitle">${esc(c.title)}</p>
-      ${hier}<div class="dayplan"><p class="kicker">Aujourd’hui</p><ul>${plan}</ul></div><p class="lead"><b>Objectif du jour.</b> ${esc(c.goal)}</p></div>`;
+      </div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Commencer la journée", next));
     Snd.page();
     if (prev && !calm()) { n.dataset.novoice = "1"; setTimeout(() => { if (n.isConnected) Voice.seq(VOICE_TXT.parts(sc)); }, 4200); }
-    // la nuit tombe sur la veille, puis le jour se lève
-    if (prev && !calm() && !n.dataset.nf) {
-      n.dataset.nf = "1";
-      const nf = el("div", { class: "nightfall", "aria-hidden": "true" }, `<div class="nf-moon"></div><p>La nuit tombe sur les Hautes Herbes…</p>`);
-      document.body.appendChild(nf);
-      requestAnimationFrame(() => nf.classList.add("in")); Snd.night();
-      setTimeout(() => { nf.querySelector("p").textContent = `${c.day}, 7 h 45. Le jour se lève.`; nf.classList.add("dawn"); Snd.rooster(); }, 2300);
-      setTimeout(() => { nf.classList.remove("in"); setTimeout(() => nf.remove(), 900); }, 4000);
-    }
+    // la nuit tombe sur la veille (sur le plan : soleil couchant, fenêtres qui s'allument, lune), puis le jour se lève :
+    // les familles arrivent au portail
+    const morning = () => { if (!n.isConnected) return; World.show({ at: "cour", cast: [], z: 2.1 }, { type: "chapter", kicker: "8 h 20" }); families("morning"); n.querySelector(".chap").classList.remove("wait"); };
+    if (prev && !calm() && !n.dataset.nf) { n.dataset.nf = "1"; n.querySelector(".chap").classList.add("wait"); setTimeout(() => duskToDawn(c.day, morning), 300); }
+    else setTimeout(morning, 200);
   };
 
   R.story = (sc, n) => {
@@ -2505,7 +2620,7 @@
     const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else next(); });
     const li = (t, cls = "") => `<li class="${cls}">${esc(t)}</li>`;
     function play() {
-      const id = ids[i], S0 = SCREENS.find((s) => s.id === id), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
+      const id = ids[i], S0 = tune(SCREENS.find((s) => s.id === id)), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
       if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t].cast }, { id: "retour-" + id, type: "story", ch: 6 });
       else World.show(stageOf(id), { id: "retour-" + id, type: "story", ch: 6 });
       let choix = "", effet = [], cadre = "", V = [];
@@ -2595,164 +2710,491 @@
     requestAnimationFrame(() => { if (box.scrollWidth > box.clientWidth) box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; });
   };
 
-  /* ---------- promenade libre : on circule dans l'accueil, on tombe sur des scènes, on réagit, on repart ---------- */
+  /* ======================= Promenade libre, dans le plan vivant =======================
+     On avance pas à pas sur les chemins (on touche le sol près de son personnage), on entre par les portes,
+     on tombe sur des scènes en direct, on réagit, on repart. Autour, l'accueil vit : des enfants courent,
+     des animateurs encadrent, des parents passent. */
   const toMin = (t) => { const m = /(\d+) ?h ?(\d+)?/.exec(t || ""); return m ? +m[1] * 60 + +(m[2] || 0) : 0; };
-  const fmtMin = (m) => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
-  const PLACE = { jeux: "L’aire de jeux", radio: "L’atelier radio", sanitaires: "Les sanitaires", potager: "Le potager", parc: "Le parc", refectoire: "La restauration", equipe: "La salle des animateurs", cour: "La cour", direction: "Le bureau de la direction", soins: "L’infirmerie", local: "La régie", libre: "La salle d’activités libre", petits: "La salle des petits", grands: "La salle des grands", panneau: "Le panneau d’affichage" };
-  const ROAM_EV = new Proxy({}, { get: (_, id) => SCREENS.find((x) => x.id === id) });
+  const fmtMin = (m) => `${Math.floor(m / 60)} h ${String(Math.round(m) % 60).padStart(2, "0")}`;
+  const PLACE = { jeux: "L’aire de jeux", radio: "L’atelier radio", sanitaires: "Les sanitaires", potager: "Le potager", parc: "Le parc", refectoire: "La restauration", equipe: "La salle des animateurs", cour: "La cour", direction: "Le bureau de la direction", soins: "L’infirmerie", local: "La régie", libre: "La salle d’activités", petits: "La salle des petits", grands: "La salle des grands", panneau: "Le panneau d’affichage", cuisine: "La cuisine pédagogique", preau: "Le préau", main: "Le bâtiment principal" };
+
+  /* ---- les chemins praticables (au sol, en mètres) ---- */
+  const NODES = {
+    f3: [3.2, 21], f6: [6, 21], f9: [9.2, 21], f13: [13.4, 21], f15: [15, 21.6], f17: [17, 21], f19: [19.5, 21], f21: [21.5, 21], f24: [23.8, 21], f26: [26.2, 21.2], f28: [28.4, 21.2],
+    dMain: [13.4, 19.1], dCuis: [23.8, 19.1],
+    j1: [9.2, 23.0], j2: [9.4, 25.0], j3: [6.6, 22.6], m1: [15.1, 22.8], pot: [15.2, 27.6],
+    p1: [18.4, 24.5], q1: [22.3, 23.2], q2: [25.6, 24.1], pan: [24.0, 26.7], gate: [29.0, 23.4], out: [31.4, 23.4],
+    e1: [28.4, 15.5], dSoins: [27.2, 15.5], e2: [28.4, 9.8],
+    b1: [26.4, 9.8], b2: [22.6, 9.8], b3: [18.2, 9.8], b4: [14.2, 9.8], b5: [10, 9.8], b6: [5.8, 9.8],
+    dLib: [26.4, 8.5], dRad: [22.6, 8.5], dSan: [5.8, 8.8], parc: [14.2, 7.4],
+    l1: [30.2, 7.5], dLoc: [33.3, 7.0], r1: [31.4, 16.6], r2: [38.1, 16.6], dRef: [37.4, 12.7],
+  };
+  const EDGES = [["f3", "f6"], ["f6", "f9"], ["f9", "f13"], ["f13", "f15"], ["f15", "f17"], ["f17", "f19"], ["f19", "f21"], ["f21", "f24"], ["f24", "f26"], ["f26", "f28"],
+    ["f13", "dMain"], ["f24", "dCuis"], ["f9", "j1"], ["j1", "j2"], ["j1", "j3"], ["f6", "j3"], ["f15", "m1"], ["m1", "j1"], ["m1", "pot"], ["m1", "p1"], ["p1", "f19"], ["p1", "q1"],
+    ["f21", "q1"], ["q1", "q2"], ["f26", "q2"], ["q2", "pan"], ["q2", "gate"], ["f28", "gate"], ["gate", "out"], ["p1", "pan"],
+    ["f28", "e1"], ["e1", "dSoins"], ["e1", "e2"], ["e2", "b1"], ["b1", "b2"], ["b2", "b3"], ["b3", "b4"], ["b4", "b5"], ["b5", "b6"],
+    ["b1", "dLib"], ["b2", "dRad"], ["b6", "dSan"], ["b4", "parc"], ["b3", "parc"], ["e2", "l1"], ["l1", "dLoc"], ["out", "r1"], ["r1", "r2"], ["r2", "dRef"]];
+  // portes : on entre dans le bâtiment (la salle s'ouvre) ; lieux de plein air : on y passe
+  const DOORS = { dMain: "main", dCuis: "cuisine", dSoins: "soins", dLib: "libre", dRad: "radio", dSan: "sanitaires", dLoc: "local", dRef: "refectoire" };
+  const SPOTS = { jeux: [9.4, 24.6], potager: [15.4, 27.4], parc: [14.2, 7.6], cour: [26.6, 23.4], panneau: [24.0, 26.6], preau: [14.9, 24.1] };
+  const MAIN_ROOMS = ["petits", "grands", "direction", "equipe"];
+  const ADJ = {}; EDGES.forEach(([a, b]) => { (ADJ[a] = ADJ[a] || []).push(b); (ADJ[b] = ADJ[b] || []).push(a); });
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  // le point des chemins le plus proche de (x, y)
+  function onGraph(x, y) {
+    let best = null;
+    EDGES.forEach(([a, b]) => {
+      const A0 = NODES[a], B0 = NODES[b], dx = B0[0] - A0[0], dy = B0[1] - A0[1], L2 = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((x - A0[0]) * dx + (y - A0[1]) * dy) / L2)), p = [A0[0] + dx * t, A0[1] + dy * t], d = Math.hypot(p[0] - x, p[1] - y);
+      if (!best || d < best.d) best = { a, b, t, p, d };
+    });
+    return best;
+  }
+  // chemin le plus court entre deux points posés sur les chemins (Dijkstra, avec deux nœuds provisoires)
+  function route(from, to) {
+    const N = { ...NODES, _s: from.p, _t: to.p }, adj = {};
+    Object.keys(ADJ).forEach((k) => (adj[k] = ADJ[k].slice()));
+    const link = (k, e) => { adj[k] = (adj[k] || []).concat([e.a, e.b]); adj[e.a] = adj[e.a].concat(k); adj[e.b] = adj[e.b].concat(k); };
+    link("_s", from); link("_t", to);
+    if ((from.a === to.a && from.b === to.b) || (from.a === to.b && from.b === to.a)) { adj._s.push("_t"); adj._t.push("_s"); }
+    const D = { _s: 0 }, P = {}, Q = new Set(Object.keys(N));
+    while (Q.size) {
+      let u = null; Q.forEach((k) => { if (D[k] != null && (u == null || D[k] < D[u])) u = k; });
+      if (u == null || u === "_t") break; Q.delete(u);
+      (adj[u] || []).forEach((v) => { if (!Q.has(v)) return; const nd = D[u] + dist(N[u], N[v]); if (D[v] == null || nd < D[v]) { D[v] = nd; P[v] = u; } });
+    }
+    if (D._t == null) return null;
+    const out = []; let k = "_t"; while (k) { out.unshift([N[k][0], N[k][1], k]); k = P[k]; }
+    // un nœud provisoire posé exactement sur une porte prend son nom (on entre par cette porte)
+    out.forEach((q) => { if (q[2] === "_t") { const d = Object.keys(DOORS).find((dk) => dist(NODES[dk], q) < .05); if (d) q[2] = d; } });
+    return out;
+  }
+  // on raccourcit le trajet à « max » mètres : on avance pas à pas
+  function clampPath(pts, max) {
+    const out = [pts[0]]; let left = max;
+    for (let i = 1; i < pts.length; i++) {
+      const d = dist(pts[i - 1], pts[i]);
+      if (d <= left) { out.push(pts[i]); left -= d; continue; }
+      const t = left / d; out.push([pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * t, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * t, null]); break;
+    }
+    return out;
+  }
+
+  /* ---- figurants : enfants et adultes de l'accueil (personnages articulés générés) ---- */
+  const FIGS = {
+    k1: { age: 8, sex: "m", skin: "doree", hair: "brun", hairStyle: "short", top: "#E2702A", bottom: "#3D5A80" },
+    k2: { age: 9, sex: "f", skin: "brune", hair: "noir", hairStyle: "pigtails", top: "#2E9C8A", bottom: "#33405C" },
+    k3: { age: 7, sex: "m", skin: "claire", hair: "blond", hairStyle: "curly", top: "#D94F70", bottom: "#40506A" },
+    k4: { age: 10, sex: "f", skin: "olive", hair: "chatain", hairStyle: "ponytail", top: "#F2B33D", bottom: "#4E6A8E" },
+    k5: { age: 11, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#4F79C2", bottom: "#2F4058" },
+    k6: { age: 6, sex: "f", skin: "rosee", hair: "roux", hairStyle: "bob", top: "#8A6BC4", bottom: "#45506A", skirt: "#8A6BC4" },
+    t1: { age: 15, sex: "f", skin: "mate", hair: "noir", hairStyle: "long", top: "#3B3F48", bottom: "#2E3A4E" },
+    t2: { age: 16, sex: "m", skin: "doree", hair: "brun", hairStyle: "spiky", top: "#1F8A5B", bottom: "#33405C" },
+    pa1: { age: 42, sex: "f", skin: "claire", hair: "chatain", hairStyle: "bob", top: "#C2412A", bottom: "#2E3A4E" },
+    pa2: { age: 38, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#4B6F8E", bottom: "#2F3540", beard: true },
+  };
+  Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
+
+  /* ---- marcheurs : un personnage qui se déplace au sol (vous, les figurants, les personnes d'une scène) ---- */
+  const SZ = () => (44 / A.dio.vbw) * 100 * .84;
+  function Walker(who, x, y, pose = "stand", opts = {}) {
+    const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
+    a.classList.add("walker");
+    const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null };
+    W.place = () => { const f = w2f(W.x, W.y); a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; a.style.zIndex = zOf(W.x, W.y) + 1; };
+    W.set = (px, py) => { W.x = px; W.y = py; W.place(); };
+    W.setPose = (ps) => { if (W.pose === ps) return; W.pose = ps; a._pose(ps); };
+    W.face = (tx) => { const s0 = w2f(W.x, W.y)[0], s1 = w2f(tx[0], tx[1])[0]; if (Math.abs(s1 - s0) > .05) a.classList.toggle("flip", s1 < s0); };
+    W.go = (pts, speed, onDone, pose) => { W.path = pts.slice(); W.speed = speed || 1.6; W.onDone = onDone || null; W.setPose(pose || (W.speed > 2.4 ? "run" : "walk")); Life.wake(); };
+    W.stop = () => { W.path = null; W.setPose("stand"); };
+    W.setBack = (b) => {
+      if (W.back === !!b) return; W.back = !!b;
+      const svg = a.querySelector(":scope > svg"), R0 = rigMini(who, W.pose, { back: W.back }); if (svg && R0) svg.innerHTML = R0;
+      a.classList.toggle("isback", W.back);
+    };
+    W.place();
+    return W;
+  }
+  const Life = {
+    walkers: [], raf: 0, last: 0, agents: [],
+    add(w) { this.walkers.push(w); return w; },
+    clear() { this.walkers = []; this.agents.forEach((g) => { clearTimeout(g.t); if (g.clear) g.clear(); }); this.agents = []; cancelAnimationFrame(this.raf); this.raf = 0; },
+    wake() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.tick(t)); } },
+    tick(now) {
+      const dt = Math.min(.08, (now - this.last) / 1000); this.last = now; let moving = false;
+      this.walkers.forEach((W) => {
+        if (!W.path) return;
+        moving = true;
+        let step = W.speed * dt * (calm() ? 40 : 1);
+        while (step > 0 && W.path.length) {
+          const t = W.path[0], d = dist([W.x, W.y], t);
+          if (d <= step) { W.x = t[0]; W.y = t[1]; W.path.shift(); step -= d; if (W.onMove) W.onMove(d); }
+          else { W.face(t); W.x += (t[0] - W.x) / d * step; W.y += (t[1] - W.y) / d * step; if (W.onMove) W.onMove(step); step = 0; }
+          if (W.onStep && W.path && W.onStep()) break;
+        }
+        if (!W.path) return;
+        W.place();
+        if (!W.path.length) { W.path = null; W.setPose("stand"); const f = W.onDone; W.onDone = null; if (f) f(); }
+      });
+      if (moving) this.raf = requestAnimationFrame((t) => this.tick(t)); else this.raf = 0;
+    },
+    // un figurant qui va et vient sur un parcours, avec des pauses et des gestes
+    loop(who, pts, opts = {}) {
+      const W = this.add(Walker(who, pts[0][0], pts[0][1], "stand"));
+      const g = { t: 0 }; this.agents.push(g); let i = 0;
+      const next = () => {
+        if (!this.walkers.includes(W)) return;
+        i = (i + 1) % pts.length;
+        W.go([pts[i]], opts.speed || 1.3, () => { if (opts.gest && Math.random() < .6) gesture(W.el, opts.gest[Math.floor(Math.random() * opts.gest.length)]); g.t = setTimeout(next, (opts.pause || 1200) * (.5 + Math.random())); }, opts.pose);
+      };
+      g.t = setTimeout(next, Math.random() * 1500);
+      return W;
+    },
+    // une personne sur place (elle discute, joue, attend) : un geste de temps en temps
+    idle(who, x, y, gests, opts = {}) {
+      const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back }));
+      if (opts.face) W.face(opts.face);
+      const g = { t: 0 }; this.agents.push(g);
+      const tick = () => { if (!this.walkers.includes(W)) return; gesture(W.el, gests[Math.floor(Math.random() * gests.length)]); g.t = setTimeout(tick, 2800 + Math.random() * 3200); };
+      g.t = setTimeout(tick, 600 + Math.random() * 2400);
+      return W;
+    },
+  };
 
   R.roam = (sc, n) => {
     st.roam = st.roam || {};
-    const S = st.roam[sc.id] = st.roam[sc.id] || { t: toMin(sc.start), at: sc.from || "cour", done: {}, nudged: {}, guided: !sc.guided };
-    const END = toMin(sc.end), STEP = 15;
+    const S = st.roam[sc.id] = st.roam[sc.id] || { t: toMin(sc.start), x: null, y: null, done: {}, nudged: {}, guided: !sc.guided, seen: {} };
+    S.seen = S.seen || {};
+    const END = toMin(sc.end), MAX = innerWidth < 760 ? 7 : 8.5, PER_M = .5;   // au plus 8 m par pas ; une minute pour deux mètres
+    if (S.x == null) [S.x, S.y] = NODES.q2;   // on démarre dans la cour, juste derrière le portail
     n.dataset.novoice = "1";
-    const evAt = (key) => sc.events.find((e) => e.at === key && !S.done[e.id] && S.t >= toMin(e.from) && S.t <= toMin(e.to));
+    const evLive = (e) => !S.done[e.id] && S.t >= toMin(e.from) - 5 && S.t <= toMin(e.to);
     const mustLeft = () => sc.events.filter((e) => e.must && !S.done[e.id]);
-    const ptOf = (key) => { const p = A.dio.lieux[key] || A.dio.lieux.ensemble; return [p.x * 100, p.y * 100]; };
+    const guideOnly = () => !S.guided && !!sc.guided;
+    const wide = () => innerWidth >= 761;
+    let you = null, busy = false, card = null, ring = null, mark = null;
 
-    // une réplique : le visage de la personne (personnage articulé, en buste), son nom, sa phrase
-    function line(w, t) {
-      if (w === "narr") return el("div", { class: "line narr" }, `<p>${words(t)}</p>`);
-      return el("div", { class: "line said" }, `<div class="mini rbust">${faceOf(w)}</div><div class="bub"><b>${esc(NAMES[w] || "")}</b><p>${words(t)}</p></div>`);
-    }
-    function overview(first) {
-      World.stage({ type: "find" });   // le plan de la promenade remplace le décor
+    /* -- le plan vivant -- */
+    function free(first) {
+      Life.clear(); busy = false;
       document.body.classList.remove("scene"); document.body.classList.add("roaming");
+      World.show({ at: "ensemble", cast: [], free: true }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
+      dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
+      const acts = World.cam.querySelector(".wacts"); acts.innerHTML = "";
+      you = Life.add(Walker("you", S.x, S.y, "stand"));
+      acts.appendChild(you.el);
+      you.onMove = (d) => { S.t += d * PER_M; };
+      you.onStep = () => checkSpots();
+      // l'accueil vit autour de vous
+      (sc.life || []).forEach((L) => {
+        if ((L.from && S.t < toMin(L.from)) || (L.to && S.t > toMin(L.to))) return;
+        if (L.after && !S.done[L.after]) return; if (L.before && S.done[L.before]) return;
+        const W = L.loop ? Life.loop(L.who, L.loop, L) : Life.idle(L.who, L.at[0], L.at[1], L.gest || LISTEN, L);
+        acts.appendChild(W.el);
+      });
+      // les scènes en cours se voient de loin : les personnes sont là, elles bougent
+      sc.events.filter((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided)).forEach((e) => {
+        (e.spots || []).forEach(([w, x, y, pose, gests]) => {
+          const W = Life.idle(w, x, y, gests || ["point", "fist", "stomp"], { pose, face: SPOTS[e.at] });
+          W.ev = e.id; acts.appendChild(W.el);
+        });
+      });
+      // la portée d'un pas : un anneau discret autour de vous
+      ring = el("i", { class: "rm-ring" }); mark = el("i", { class: "rm-mark" }); acts.append(ring, mark);
+      placeRing();
+      follow(first ? 1800 : 1300);
+      drawCard(first);
+      Life.wake();
+      // les voix des scènes encore à vivre sont préparées à l'avance (générées sur le serveur si besoin)
+      sc.events.filter((e) => !S.done[e.id]).forEach((e) => Voice.prefetch(e.lines.concat((e.opts || []).filter((o) => o.reply).map((o) => o.reply), e.replies || [])));
+    }
+    const camZ = () => (wide() ? 1.6 : 1.45);
+    // cadre la caméra pour que le point (x, y) du sol apparaisse à (sx, sy) de l'écran (fractions de la fenêtre)
+    function aim(x, y, z, sx, sy, ms) {
+      // point focal de la caméra : la valeur visée (--fx/--fy), pas celle en cours de transition
+      const cs = getComputedStyle(World.cam), px = (v, D, L) => { v = (v || "").trim(); return !v ? D : v.endsWith("%") ? parseFloat(v) / 100 * L : v.endsWith("vh") ? parseFloat(v) / 100 * innerHeight : v.endsWith("vw") ? parseFloat(v) / 100 * innerWidth : parseFloat(v); };
+      const f = w2f(x, y), Fx = px(cs.getPropertyValue("--fx"), innerWidth / 2, innerWidth), Fy = px(cs.getPropertyValue("--fy"), innerHeight * .52, innerHeight), cw = World.cam.offsetWidth * z, ch = World.cam.offsetHeight * z;
+      World.camTo({ x: f[0] / 100 - (sx * innerWidth - Fx) / cw, y: f[1] / 100 - (sy * innerHeight - Fy) / ch }, z, ms);
+    }
+    // la carte flottante occupe la gauche (ordinateur) ou le bas (téléphone) : votre personnage reste visible à côté
+    function follow(ms) { aim(you.x, you.y, camZ(), wide() ? .6 : .5, wide() ? .55 : .36, ms); }
+    function placeRing() {
+      const f = w2f(you.x, you.y), rx = MAX * PJ[2] * 1.41 / PJ[6] * 100, ry = MAX * PJ[3] * 1.41 / PJ[7] * 100;
+      Object.assign(ring.style, { left: f[0] + "%", top: f[1] + "%", width: rx * 2 + "%", height: ry * 2 + "%" });
+    }
+
+    /* -- la carte : heure, consigne, fin d'après-midi -- */
+    function drawCard(first) {
       n.innerHTML = "";
       const atEnd = S.t >= END;
-      const wrap = el("div", { class: "roamg" });
-      const lead = atEnd && mustLeft().length ? "Il est l’heure : passez vite là où l’on vous attend." : first ? sc.intro : S.guided ? "Touchez un lieu pour vous y rendre. Les points orange : il s’y passe quelque chose." : sc.intro;
-      wrap.innerHTML = `<div class="rm-card"><div class="rm-top"><div>${kicker(`${CHAPTERS[sc.ch - 1].day} · ${sc.kicker.split("·").pop().trim()}`)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2></div>
-        <div class="rm-clock" aria-live="polite"><b>${fmtMin(Math.min(S.t, END))}</b><small>fin à ${esc(sc.end)}</small></div></div>
-        <p class="lead">${esc(lead)}</p></div>`;
-      const box = el("div", { class: "mapbox rm-box" }), map = el("div", { class: "map dio" }, dioHTML());
-      box.appendChild(map);
-      const size = (44 / A.dio.vbw) * 100 * .84;
-      const guideOnly = !S.guided && sc.guided;
-      // les lieux
-      sc.places.forEach((key) => {
-        const [x, y] = ptOf(key), ev = evAt(key), live = !!ev && !(guideOnly && ev.id !== sc.guided);
-        const off = (guideOnly && !(ev && ev.id === sc.guided)) || (atEnd && !(ev && ev.must));
-        const b = el("button", { class: "rm-place" + (live ? " live" : "") + (off ? " off" : "") + (guideOnly && ev && ev.id === sc.guided ? " guide" : ""), type: "button", style: `left:${x}%;top:${y}%`, "aria-label": PLACE[key] + (live ? " : il se passe quelque chose" : "") },
-          `<span class="rm-pin">${live ? "!" : ""}</span><span class="rm-lab">${esc(PLACE[key] || key)}</span>`);
-        b.disabled = off;
-        b.addEventListener("click", () => goTo(key, b));
-        map.appendChild(b);
-        // dehors, on voit déjà les personnages de la scène en train d'agir
-        if (live && !ev.room) {
-          const stand = A.dio.stand[ev.at] || {};
-          ev.cast.filter(([w]) => w !== "you").forEach(([w, slot, pose]) => {
-            const p = stand[slot]; if (!p) return;
-            const f = el("div", { class: "rm-fig", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%` }, `<svg viewBox="-22 -60 44 64" overflow="visible">${rigMini(w, pose) || ""}</svg>`);
-            map.appendChild(f);
-          });
-        }
-      });
-      // vous
-      const [yx, yy] = ptOf(S.at);
-      const you = el("div", { class: "rm-you", style: `left:${yx}%;top:${yy + 2.2}%;width:${size}%` }, `<svg viewBox="-22 -60 44 64" overflow="visible">${rigMini("you", "stand") || ""}</svg><b>Vous</b>`);
-      map.appendChild(you);
+      const tip = atEnd && mustLeft().length ? "Il est l’heure : on vous attend encore quelque part." : guideOnly() ? "" : "Touchez le sol près de votre personnage pour avancer sur les chemins. Pour entrer quelque part, allez jusqu’à la porte.";
+      card = el("div", { class: "rm-card" }, `<div class="rm-top"><div>${kicker(`${CHAPTERS[sc.ch - 1].day} · ${sc.kicker.split("·").pop().trim()}`)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2></div>
+        <div class="rm-clock" aria-live="polite"><b>${fmtMin(Math.min(S.t, END))}</b><small>jusqu’à ${esc(sc.end)}</small></div></div>${tip ? `<p class="lead">${esc(tip)}</p>` : ""}`);
       const row = el("div", { class: "row rm-row" });
-      const fin = btn(mustLeft().length ? "Finir l’après-midi" : "Finir l’après-midi", finish, "ghost");
-      fin.disabled = !!mustLeft().length && !atEnd; if (mustLeft().length) fin.title = "Il vous reste un endroit où l’on vous attend.";
-      row.appendChild(fin);
-      wrap.querySelector(".rm-card").appendChild(row);
-      wrap.prepend(box); n.appendChild(wrap);
-      pannable(box, map);
-      const centre = (x, y, smooth) => { const bw = box.clientWidth, bh = box.clientHeight, mw = map.offsetWidth, mh = map.offsetHeight; const card = wrap.querySelector(".rm-card"), wide = innerWidth >= 761;
-        const offX = wide ? Math.min(230, bw * .16) : 0, offY = wide ? 0 : (card ? card.offsetHeight / 2 : 0);   // la carte ne doit pas cacher votre personnage
-        const top0 = parseFloat(getComputedStyle(map).marginTop) || 0;
-        box.scrollTo({ left: Math.max(0, (x / 100) * mw - bw / 2 - offX), top: Math.max(0, top0 + (y / 100) * mh - bh / 2 + offY), behavior: smooth && !reduce() ? "smooth" : "auto" }); };
-      { const g = guideOnly && sc.events.find((e) => e.id === sc.guided), gp = g ? ptOf(g.at) : null;   // au départ guidé, on voit à la fois votre personnage et l'endroit où aller
-        const c0 = () => (gp ? centre((yx + gp[0]) / 2, (yy + gp[1]) / 2) : centre(yx, yy)); requestAnimationFrame(c0); setTimeout(c0, 350); }
-      // départ guidé : Nour vous oriente
-      if (first && sc.guide && guideOnly) { coach(sc.guide[1], wrap.querySelector(".rm-card")); wrap.querySelector(".rm-card").classList.add("coached"); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 400); }
-      else if (first) setTimeout(() => Voice.say("narr", sc.intro), 400);
-      // rappel d'un rendez-vous (par téléphone)
+      const fin = btn("Finir l’après-midi", finish, "ghost"); fin.disabled = !!mustLeft().length && !atEnd;
+      row.appendChild(fin); card.appendChild(row);
+      n.appendChild(card);
+      if (first && guideOnly() && sc.guide) { coach(sc.guide[1], card); card.classList.add("coached"); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 600); }
+      else if (first) setTimeout(() => Voice.say("narr", sc.intro), 600);
       sc.events.forEach((e) => { if (e.nudge && !S.done[e.id] && !S.nudged[e.id] && S.t >= toMin(e.nudge) && S.guided) { S.nudged[e.id] = 1; save(); toastMsg(`SMS de ${NAMES[e.nudgeLine[0]]} : ${e.nudgeLine[1]}`); Voice.say(e.nudgeLine[0], e.nudgeLine[1]); } });
-      if (atEnd && !mustLeft().length) setTimeout(finish, 600);
-      function goTo(key, b) {
-        if (b.disabled) return;
-        map.querySelectorAll(".rm-place").forEach((x) => (x.disabled = true)); fin.disabled = true;   // pendant le trajet, on ne peut pas finir l'après-midi
-        const [tx, ty] = ptOf(key), dist = Math.hypot(tx - yx, ty - yy), dur = key === S.at ? 0 : Math.max(.6, Math.min(1.6, dist / 22));
-        const r = you.querySelector(".rig"); if (r) r.setAttribute("class", "rig p-walk");
-        you.classList.toggle("flip", tx < yx);
-        you.style.transition = `left ${dur}s linear, top ${dur}s linear`;
-        requestAnimationFrame(() => { you.style.left = tx + "%"; you.style.top = (ty + 2.2) + "%"; centre(tx, ty, true); });
-        Snd.click();
-        setTimeout(() => {
-          if (key !== S.at) S.t += STEP; S.at = key; save();
-          const ev = evAt(key);
-          if (ev && (S.guided || ev.id === sc.guided)) scene(ev); else calm(key);
-        }, dur * 1000 + 150);
-      }
+      if (atEnd && !mustLeft().length) setTimeout(finish, 900);
+    }
+    const tickClock = () => { const b = card && card.querySelector(".rm-clock b"); if (b) b.textContent = fmtMin(Math.min(S.t, END)); };
+
+    /* -- se déplacer : on touche le sol près de soi -- */
+    function onTap(e) {
+      if (busy || !document.body.classList.contains("roaming") || e.button > 0) return;
+      if (World._drag) return;
+      const r = World.cam.getBoundingClientRect(); if (!r.width) return;
+      const fx = (e.clientX - r.left) / r.width * 100, fy = (e.clientY - r.top) / r.height * 100, [wx, wy] = f2w(fx, fy);
+      walkTo(wx, wy);
+    }
+    function walkTo(wx, wy) {
+      const tgt = onGraph(wx, wy);
+      if (!tgt || tgt.d > 3.2) { nudgeRing(); return false; }   // hors des chemins
+      const here = onGraph(you.x, you.y), full = route(here, tgt); if (!full) return false;
+      full[0] = [you.x, you.y, null];
+      const pts = clampPath(full, MAX), end = pts[pts.length - 1], doorK = end[2] && DOORS[end[2]] ? end[2] : null;
+      const fm = w2f(end[0], end[1]); Object.assign(mark.style, { left: fm[0] + "%", top: fm[1] + "%" }); mark.classList.remove("on"); void mark.offsetWidth; mark.classList.add("on");
+      ring.classList.add("moving"); busy = true;
+      you.go(pts.slice(1), 1.7, () => {
+        busy = false; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save(); placeRing(); tickClock(); follow(700);
+        dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
+        if (doorK) enter(DOORS[doorK]); else { arriveSpot(); if (S.t >= END) drawCard(); }
+      });
+      const cam = () => { if (!you.path || !document.body.classList.contains("roaming")) return; follow(0); requestAnimationFrame(cam); }; requestAnimationFrame(cam);
+      return true;
+    }
+    function nudgeRing() { ring.classList.remove("nope"); void ring.offsetWidth; ring.classList.add("nope"); }
+    // en chemin, on tombe sur une scène : on s'arrête
+    function checkSpots() {
+      const ev = sc.events.find((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided) && dist([you.x, you.y], SPOTS[e.at]) < 3.6);
+      if (!ev) return false;
+      you.stop(); you.onDone = null; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save();
+      setTimeout(() => scene(ev), 200); return true;
+    }
+    // un lieu de plein air calme : on regarde, une bulle raconte, on continue
+    function arriveSpot() {
+      const k = Object.keys(SPOTS).find((s) => dist([you.x, you.y], SPOTS[s]) < 2.6), slot = k + Math.floor(S.t / 45);
+      if (!k || S.seen[slot]) return;
+      const C = (sc.calm || {})[k]; if (!C) return;
+      S.seen[slot] = 1;
+      const b = el("div", { class: "rm-bub" }, `${kicker(`${fmtMin(S.t)} · ${PLACE[k] || ""}`)}<p>${words(C.t)}</p>`);
+      n.appendChild(b); requestAnimationFrame(() => b.classList.add("on"));
+      Voice.say("narr", C.t, b.querySelector("p"));
+      setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 500); }, 7000);
     }
 
-    // une scène sur laquelle on tombe : on voit, on entend, on réagit
-    function scene(ev) {
-      document.body.classList.remove("roaming");
-      const E = ROAM_EV[ev.id], key = "roam-" + ev.id;
-      STAGE[key] = { at: ev.at, room: ev.room, cast: ev.cast, z: 3.1 };
-      World.stage({ id: key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
+    /* -- entrer : on disparaît par la porte, puis on plonge dans la salle -- */
+    function enter(key) {
+      busy = true; you.el.classList.add("indoor");
+      setTimeout(() => {
+        if (key === "main") return hall();
+        const ev = sc.events.find((e) => e.room === key && evLive(e) && (S.guided || e.id === sc.guided));
+        if (ev) scene(ev); else calm(key);
+      }, reduce() ? 0 : 500);
+    }
+    // le couloir du bâtiment principal : on choisit la salle
+    function hall() {
+      document.body.classList.remove("roaming"); Life.clear();
+      World.show({ at: "direction", cast: [], z: 2.9 }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
+      const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
+      const g = el("div", { class: "opts" });
+      MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); }); g.appendChild(b); });
+      const row = el("div", { class: "row" }); row.appendChild(btn("Ressortir", () => { Snd.click(); outside(); }, "ghost"));
+      p.append(g, row); wrap.appendChild(p); n.appendChild(wrap);
+    }
+    function outside() { free(); }
+
+    /* -- une scène sur laquelle on tombe : on voit, on entend, on réagit -- */
+    function scene(ev) {
+      const E = tune(SCREENS.find((x) => x.id === ev.id));   // niveau Moyen et plus : réponses plus nuancées
+      document.body.classList.remove("roaming");
+      n.innerHTML = "";
+      busy = true; if (you) you.onStep = null;   // on ne retombe pas sur la scène en s'en approchant
+      if (ev.room) {
+        Life.clear();
+        STAGE["roam-" + ev.id] = { at: ev.at, room: ev.room, cast: ev.cast, z: 3.1 };
+        World.stage({ id: "roam-" + ev.id, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
+      } else {
+        // dehors : on reste dans le plan vivant ; vous vous placez face à la personne qui parle, de dos
+        const sp = Life.walkers.filter((W) => W.ev === ev.id), first = sp[0];
+        Life.agents.forEach((g) => clearTimeout(g.t));   // les gestes au hasard s'arrêtent : la scène commence
+        if (first) {
+          const tx = first.x + .7, ty = first.y + 1.15;
+          you.go([[tx, ty]], 1.5, () => { you.setBack(true); you.face([first.x - .4, first.y]); });
+          aim(first.x + .3, first.y + .5, 3.0, wide() ? .3 : .5, wide() ? .62 : .3, 1500);   // la scène à gauche, le texte à droite
+          sp.forEach((W) => W.face([tx, ty]));
+        }
+      }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
       const log = el("div", { class: "dlog" }); panel.appendChild(log);
       const seq = [];
-      ev.lines.forEach(([w, t]) => {
-        const r = line(w, t); log.appendChild(r); seq.push([w, t, r]);
-      });
-      setTimeout(() => Voice.seq(seq), 900);
+      ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
+      setTimeout(() => Voice.seq(seq), ev.room ? 2000 : 1200);
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")), opts = el("div", { class: "opts" }), fbz = el("div", { class: "fbzone", "aria-live": "polite" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
-      E.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11)).forEach((k, pos) => { const o = E.opts[k];
-        const b = el("button", { class: "opt", type: "button", style: `--k:${pos}` }, `<span class="ol">${String.fromCharCode(65 + pos)}</span><span>${esc(o.t)}</span>`);
-        b.addEventListener("click", () => choose(o, k, b));
-        opts.appendChild(b);
+      E.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11)).forEach((k, pos) => {
+        const o = E.opts[k], b = el("button", { class: "opt", type: "button", style: `--k:${pos}` }, `<span class="ol">${String.fromCharCode(65 + pos)}</span><span>${esc(o.t)}</span>`);
+        b.addEventListener("click", () => choose(o, k, b)); opts.appendChild(b);
       });
       panel.append(q, opts, fbz); wrap.appendChild(panel); n.appendChild(wrap);
       function choose(o, k, b) {
         opts.querySelectorAll("button").forEach((x) => (x.disabled = true)); b.classList.add("picked", "neutral");
-        const first = st.res[ev.id] == null;
+        const firstTime = st.res[ev.id] == null;
         record(E, o.q);
-        if (first) { st.later = st.later || {}; st.later[ev.id] = { k }; }
+        if (firstTime) { st.later = st.later || {}; st.later[ev.id] = { k }; }
         S.done[ev.id] = 1; S.t += 20; S.guided = true; save();
-        // la réaction des personnes sur place (ce n'est pas un verdict : on verra les conséquences vendredi)
         const react = o.react || (ev.reacts && ev.reacts[k]) || {}, reply = o.reply || (ev.replies && ev.replies[k]);
         Object.entries(react).forEach(([w, p]) => document.querySelectorAll(`#world .actor[data-who="${w}"] .rig, #world .ractor[data-who="${w}"] .rig`).forEach((r) => { if (!r.classList.contains("p-sit")) r.setAttribute("class", "rig " + (RIG.POSE[p] || "p-idle")); }));
-        const say = [[ "you", o.t ]];
-        if (reply) { const r = line(reply[0], reply[1]); log.appendChild(r); say.push([reply[0], reply[1], r]); }
+        if (reply) { const r = line(reply[0], reply[1]); log.appendChild(r); Voice.seq([[reply[0], reply[1], r]]); }
         fbz.innerHTML = `<div class="fb later"><p class="vt">Décision enregistrée</p><p>Vous découvrirez vendredi ce qu’elle a produit, et ce que dit le cadre.</p></div>`;
-        const row = el("div", { class: "row" }); row.appendChild(btn("Repartir", () => { Snd.click(); overview(); })); fbz.appendChild(row);
-        Voice.seq(say.filter(([w]) => w !== "you")); Snd.click();
-        row.querySelector("button").focus({ preventScroll: true });
+        const row = el("div", { class: "row" }); row.appendChild(btn("Repartir", () => { Snd.click(); Voice.stop(); if (!ev.room) { S.x = you.x; S.y = you.y; } outside(); })); fbz.appendChild(row);
+        Snd.click(); row.querySelector("button").focus({ preventScroll: true });
       }
     }
-
-    // un lieu calme : on y passe, on regarde, on repart
+    // une réplique : le visage de la personne, son nom, sa phrase
+    function line(w, t) {
+      if (w === "narr") return el("div", { class: "line narr" }, `<p>${words(t)}</p>`);
+      return el("div", { class: "line said" }, `<div class="mini rbust">${faceOf(w)}</div><div class="bub"><b>${esc(NAMES[w] || "")}</b><p>${words(t)}</p></div>`);
+    }
+    // une salle calme : on y entre, on regarde, on ressort
     function calm(key) {
-      document.body.classList.remove("roaming");
-      const C = (sc.calm || {})[key] || { cast: [["you", "a", "stand"]], t: `${PLACE[key]} : rien à signaler.` }, k = "roam-calm-" + key;
-      const evH = sc.events.find((e) => e.at === key), txt = C.before && evH && !S.done[evH.id] && S.t < toMin(evH.from) ? C.before : C.t;
-      STAGE[k] = { at: key, room: C.room, cast: C.cast.map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3 };
-      World.stage({ id: k, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
+      const C = (sc.calm || {})[key] || { cast: [["you", "a", "stand"]], t: `${PLACE[key]} : rien à signaler.` };
+      const evH = sc.events.find((e) => e.room === key), txt = C.before && evH && !S.done[evH.id] && S.t < toMin(evH.from) ? C.before : C.t;
+      document.body.classList.remove("roaming"); Life.clear();
+      const room = C.room || (A.dio.inner && A.dio.inner[key] ? key : null);
+      STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3 };
+      World.stage({ id: "roam-calm-" + key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
+      S.t += 8; save();
       const wrap = el("div", { class: "duo roamscene calm" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
-      const row = el("div", { class: "row" }); row.appendChild(btn("Repartir", () => { Snd.click(); overview(); }));
+      const row = el("div", { class: "row" }); row.appendChild(btn("Ressortir", () => { Snd.click(); Voice.stop(); outside(); }));
       panel.appendChild(row); wrap.appendChild(panel); n.appendChild(wrap);
-      setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 700);
+      setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 1700);
       row.querySelector("button").focus({ preventScroll: true });
     }
-
     function finish() {
-      document.body.classList.remove("roaming");
       if (mustLeft().length && S.t < END) return;
+      document.body.classList.remove("roaming"); Life.clear();
       S.t = Math.max(S.t, END); save();
       Voice.say("narr", sc.end_t); toastMsg(sc.end_t);
-      setTimeout(next, 1200);
+      setTimeout(next, 1400);
     }
-    overview(true);
+    World.init();
+    if (!World._roamTap) {
+      World._roamTap = true;
+      // un toucher (pas un glissement) sur le plan fait avancer votre personnage
+      let d0 = null;
+      World.el.addEventListener("pointerdown", (e) => { d0 = [e.clientX, e.clientY]; World._drag = false; });
+      World.el.addEventListener("pointerup", (e) => { if (d0 && Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 12) World._drag = true; d0 = null; if (World._onTap) World._onTap(e); });
+    }
+    World._onTap = onTap;
+    window.__roamWalk = (x, y) => walkTo(x, y);   // pour les tests automatiques
+    window.__roamPos = () => [you.x, you.y, busy, S.t];
+    free(true);
+  };
+
+  /* ======================= La vie de l'accueil : familles, voitures, jour et nuit, horloge ======================= */
+  // Une voiture : copie du dessin de voiture du plan, qu'on déplace le long de la voie du parking (axe x du sol)
+  function Car(dx0) {
+    const src = World.cam.querySelector(".dio-ov.dio-car"); if (!src) return null;
+    const c = src.cloneNode(true); c.classList.remove("dio-car"); c.classList.add("dio-car2");
+    const L0 = parseFloat(src.style.left), T0 = parseFloat(src.style.top);
+    const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 27.3) + 2; } };
+    C.drive = (to, sec, done) => {
+      const a = C.dx, t0 = performance.now(), D = reduce() ? 1 : sec * 1000, e = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+      const f = (now) => { const t = Math.min(1, (now - t0) / D); C.dx = a + (to - a) * e(t); C.place(); if (t < 1) requestAnimationFrame(f); else if (done) done(); };
+      requestAnimationFrame(f);
+    };
+    C.place(); World.cam.querySelector(".wanim").appendChild(c);
+    return C;
+  }
+  // Les familles : le matin, la voiture arrive, l'enfant entre, le parent échange un mot avec l'équipe et repart ;
+  // le soir, c'est l'inverse. Plusieurs familles, l'une après l'autre.
+  const FAMS = [["pa1", "k3"], ["pa2", "k6"], ["pa1", "k2"], ["pa2", "k5"]];
+  function families(mode, staff = "nour") {
+    if (!World.el || !A.dio || reduce()) return;
+    const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9];
+    World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
+    const host = Life.add(Walker(staff, 27.6, 22.6, "stand")); acts.appendChild(host.el); host.face(GATE);
+    const timers = [];
+    FAMS.slice(0, 3).forEach(([pa, kid], i) => timers.push(setTimeout(() => {
+      if (!World.el.classList.contains("on")) return;
+      const car = Car(13); if (!car) return;
+      car.drive(0, 3.2, () => {
+        const P = Life.add(Walker(pa, DOOR[0], DOOR[1], "stand")); acts.appendChild(P.el);
+        if (mode === "morning") {
+          const K = Life.add(Walker(kid, DOOR[0] - .5, DOOR[1] + .3, "stand")); acts.appendChild(K.el);
+          K.go([OUT, GATE, IN, [22.3, 23.2], [18.4, 24.5]], 2.2, () => { gesture(K.el, "wave"); K.go([[15.1, 22.8], [9.2, 23.0]], 2.8, null, "run"); }, "run");
+          P.go([OUT, [GATE[0] + .4, GATE[1] + .2]], 1.4, () => {
+            P.setBack(true); P.face([host.x, host.y]); gesture(host.el, "explain"); gesture(P.el, "nod");
+            setTimeout(() => { gesture(host.el, "wave"); gesture(P.el, "wave"); P.setBack(false); P.go([OUT, DOOR], 1.5, () => { P.el.remove(); car.drive(-14, 3.6, () => car.el.remove()); }); }, 3600);
+          });
+        } else {
+          const K = Life.add(Walker(kid, 18.4, 24.5, "stand")); acts.appendChild(K.el);
+          P.go([OUT, [GATE[0] + .4, GATE[1] + .2]], 1.4, () => { P.setBack(true); gesture(host.el, "explain"); gesture(P.el, "nod"); });
+          K.go([[22.3, 23.2], IN, [GATE[0] - .3, GATE[1] - .2]], 2.4, () => {
+            gesture(K.el, "hug");
+            setTimeout(() => { P.setBack(false); gesture(host.el, "wave"); P.go([OUT, DOOR], 1.4, () => { P.el.remove(); }); K.go([GATE, OUT, [DOOR[0] - .5, DOOR[1] + .3]], 1.5, () => { K.el.remove(); car.drive(-14, 3.6, () => car.el.remove()); }); }, 2600);
+          }, "run");
+        }
+      });
+    }, 600 + i * 5200)));
+    Life.agents.push({ t: 0, clear: () => timers.forEach(clearTimeout) });
+  }
+
+  // Le soir tombe sur le plan : le soleil descend, les fenêtres s'allument, la lune apparaît ; puis le jour se lève.
+  function duskToDawn(dayLabel, done) {
+    World.init(); if (!World.el) return done();
+    Life.clear();
+    World.show({ at: "ensemble", cast: [] }, { type: "chapter", kicker: "18 h 30" });
+    document.body.classList.add("dusk");
+    const pill = el("div", { class: "dusk-pill", "aria-live": "polite" }, "La nuit tombe sur les Hautes Herbes…");
+    document.body.appendChild(pill); requestAnimationFrame(() => pill.classList.add("on"));
+    const W = World.el, steps = [
+      [0, () => { W.classList.remove("amb-morning", "amb-day", "amb-night"); W.classList.add("amb-golden"); World.lights(1); }],
+      [1300, () => { W.classList.replace("amb-golden", "amb-evening"); World.lights(2); Snd.night(); }],
+      [2600, () => { W.classList.replace("amb-evening", "amb-night"); }],
+      [4300, () => { pill.textContent = `${dayLabel}, 7 h 45. Le jour se lève.`; W.classList.replace("amb-night", "amb-morning"); World.lights(0); }],
+      [5800, () => { pill.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => pill.remove(), 600); done(); }],
+    ];
+    if (calm()) { pill.remove(); document.body.classList.remove("dusk"); return done(); }
+    steps.forEach(([t, f]) => setTimeout(f, t));
+  }
+
+  // La grande horloge : entre deux moments de la journée, on voit le temps passer
+  function bigClock(a0, a1, label) {
+    if (calm() || a1 - a0 < 40 || document.querySelector(".bigclock")) return;
+    const k = el("div", { class: "bigclock", "aria-hidden": "true" }, `<svg viewBox="-60 -60 120 120"><circle r="56" class="bf"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-48" x2="0" y2="${i % 3 ? -43 : -39}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="6" x2="0" y2="-26"/><line class="mh" x1="0" y1="8" x2="0" y2="-40"/><circle r="3.2" class="bc"/></svg><p></p>`);
+    document.body.appendChild(k); requestAnimationFrame(() => k.classList.add("on"));
+    const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = 1700;
+    const f = (now) => {
+      const t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3), m = a0 + (a1 - a0) * e;
+      hh.setAttribute("transform", `rotate(${(m / 60 % 12) * 30})`); mh.setAttribute("transform", `rotate(${(m % 60) * 6})`);
+      p.textContent = `${label ? label + " · " : ""}${Math.floor(m / 60)} h ${String(Math.floor(m % 60)).padStart(2, "0")}`;
+      if (t < 1) requestAnimationFrame(f); else setTimeout(() => { k.classList.remove("on"); setTimeout(() => k.remove(), 500); }, 650);
+    };
+    requestAnimationFrame(f); Snd.tick && Snd.tick();
+  }
+
+  // Fin de journée : les familles repartent, et on fait le bilan de ce qu'on a vécu aujourd'hui
+  R.dayend = (sc, n) => {
+    const c = CHAPTERS[sc.ch - 1], B = (typeof DAYEND !== "undefined" && DAYEND[sc.ch]) || { t: "", learn: [] };
+    World.show({ at: "cour", cast: [], z: 2.1 }, { type: "dayend", kicker: B.t || "17 h 15" });
+    if (B.fam !== false) setTimeout(() => families("evening"), 400);
+    const L = SCREENS.filter((x) => x.ch === sc.ch && x.comp && st.res[x.id] != null && x.type !== "dayend");
+    const items = L.map((x) => `<li><b>${esc((x.kicker || "").split("·").pop().trim() || "")}</b><span>${esc(x.title || x.prompt || "")}</span></li>`).join("");
+    n.innerHTML = `<div class="panel dayend">${kicker(`${c.day}, ${B.t || "17 h 15"} · fin de journée`)}<h2 id="h-${sc.id}">Bilan de la journée</h2>
+      <p class="lead">${esc(B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée.")}</p>
+      ${items ? `<p class="kicker">Ce que vous avez vécu aujourd’hui</p><ul class="de-list">${items}</ul><p class="de-note">Vos décisions sont enregistrées : vous verrez vendredi ce qu’elles ont produit.</p>` : ""}
+      <p class="kicker">À retenir</p><ul class="de-learn">${B.learn.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+    n.querySelector(".panel").appendChild(btn("Continuer", next));
+    n.dataset.novoice = "1";
+    setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."], ["narr", "À retenir. " + B.learn.join(" ")]]); }, 900);
   };
 
   /* ---------- Personnage du joueur, créé sur mesure ----------

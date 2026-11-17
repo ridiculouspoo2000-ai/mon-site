@@ -29,6 +29,8 @@ const DEFAUT = {
   malo: "1A1lOhlOFIlPyxQ8NgiG",    // Solène : Malo, 7 ans (lundi, aux sanitaires)
   theo: "1A1lOhlOFIlPyxQ8NgiG",    // Solène : Théo, 8 ans (lundi, au foot)
   zoe: "Yx2a8qp2EqI9c5i8MzBo",     // Philippine : Zoé, 8 ans (lundi, au foot)
+  enzo: "1A1lOhlOFIlPyxQ8NgiG",    // Solène : Enzo, 14 ans (lundi, sous le préau)
+  clara: "zPy2sgLU4pZ7Xrjh87uz",   // Justine : Clara, 17 ans (lundi, sous le préau)
   garnier: "h5FvD7dtq6DdnVBPv8Ii", // Max · Narration
   roussel: "OOiDJrD1goukqfTpiySr", // Greg · Authentic French Voice (parent)
   benali: "nVPCtAFzgyMX3FZKNzH0",  // Anna · Natural and Conversational (parent)
@@ -50,7 +52,7 @@ const DEFAUT = {
 // Voix d’enfants : la bibliothèque ElevenLabs interdit les voix d’enfants (ou imitant un enfant). On retient les voix
 // françaises les plus aiguës (mesurées sur leurs extraits), jouées « en enfant » grâce aux balises. Si une voix n’a pas
 // encore été ajoutée au compte ElevenLabs, la réplique est faite avec l’ancienne voix, en attendant (jamais de silence).
-const REPLI = { zoe: "txtf1EDouKke753vN8SL", theo: "mvhJVdVoTWVUtL4keT7W", malo: "mvhJVdVoTWVUtL4keT7W", lou: "txtf1EDouKke753vN8SL", e_fille: "txtf1EDouKke753vN8SL", sacha: "mvhJVdVoTWVUtL4keT7W", e_garcon: "mvhJVdVoTWVUtL4keT7W", lena: "txtf1EDouKke753vN8SL", maelys: "zPy2sgLU4pZ7Xrjh87uz" };
+const REPLI = { enzo: "mvhJVdVoTWVUtL4keT7W", clara: "txtf1EDouKke753vN8SL", zoe: "txtf1EDouKke753vN8SL", theo: "mvhJVdVoTWVUtL4keT7W", malo: "mvhJVdVoTWVUtL4keT7W", lou: "txtf1EDouKke753vN8SL", e_fille: "txtf1EDouKke753vN8SL", sacha: "mvhJVdVoTWVUtL4keT7W", e_garcon: "mvhJVdVoTWVUtL4keT7W", lena: "txtf1EDouKke753vN8SL", maelys: "zPy2sgLU4pZ7Xrjh87uz" };
 const REGLAGES = {
   // Eleven v4 : stabilité et ressemblance seulement (pas de style). Plus de stabilité = voix plus proche de l’original.
   defaut: { stability: 0.5, similarity_boost: 0.8 },
@@ -124,6 +126,8 @@ export const PROFILS = {
   zoe: { nom: "Zoé (8 ans)", role: "Petite fille de 8 ans : « Mais… moi je joue bien, euh… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   theo: { nom: "Théo (8 ans)", role: "Garçon de 8 ans, au foot : « Non, t’es une fille ! »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   malo: { nom: "Malo (7 ans)", role: "Garçon de 7 ans, qui n’ose pas : « Je veux pas y aller… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  enzo: { nom: "Enzo (14 ans)", role: "Ado de 14 ans, sous le préau : « Ça va, c’est pour rigoler… »", gender: "male", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
+  clara: { nom: "Clara (17 ans)", role: "Ado de 17 ans : « Arrête, Enzo ! Efface ça tout de suite »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   e_fille: { nom: "Petite fille (prélude)", role: "Enfant de 7 ans : « Il… il m’a soulevé ma jupe… »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
   e_garcon: { nom: "Petit garçon (prélude)", role: "Enfant de 8 ans : « Il m’a dit que… que c’était notre secret. »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
 };
@@ -172,7 +176,7 @@ async function casting() {
     }
     const kid = (v) => /child|kid|enfant|girl|boy|fille|gar[çc]on|young child|little/i.test(v.nom + " " + v.description);
     liste.sort((a, b) => (p.enfant ? kid(b) - kid(a) : 0) || (/paris/i.test(b.accent) - /paris/i.test(a.accent)) || b.popularite - a.popularite);
-    const choisies = new Set(["lou", "sacha", "lena", "maelys", "zoe", "theo", "malo", "e_fille", "e_garcon"].map((w) => actuelles[w]));
+    const choisies = new Set(["lou", "sacha", "lena", "maelys", "zoe", "theo", "malo", "enzo", "clara", "e_fille", "e_garcon"].map((w) => actuelles[w]));
     const garde = p.enfant ? [...new Set([...liste.filter(kid).slice(0, 16), ...liste.filter((v) => choisies.has(v.id)), ...liste.filter((v) => !kid(v) && v.langue === "fr").slice(0, 36)])] : liste.slice(0, 8);
     if (p.enfant && actuelles[who] && !garde.some((v) => v.id === actuelles[who])) { const a = liste.find((v) => v.id === actuelles[who]); if (a) garde.unshift(a); }
     garde.forEach((v) => autorisees.add(v.id + "|" + v.proprio));

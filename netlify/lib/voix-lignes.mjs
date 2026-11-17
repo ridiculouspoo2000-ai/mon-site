@@ -72,11 +72,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ces phrases, on les entend tous les jours. Certaines blessent, d’autres font taire. Cette semaine, aux Hautes Herbes, vous allez apprendre à les entendre… et à agir."
  },
- "434ac094f566": {
+ "a44a86458be1": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous êtes animateur ou animatrice pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, et vous êtes le binôme de Nour pour prévenir les violences sexistes et sexuelles."
+  "text": "Vous êtes recrutée comme animatrice volante pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : être vigilante, et agir."
  },
  "940880613dc6": {
   "who": "narr",
@@ -84,17 +84,29 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre."
  },
- "b807fd8a8d81": {
+ "d404b73d70a4": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Tu nous rejoins pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille. Moi, c’est Nour, directrice adjointe et référente de l’équipe pour les violences sexistes et sexuelles. Cette semaine, tu es mon binôme sur ce sujet."
+  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille."
  },
- "47552d855541": {
+ "b185af368b11": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où l’équipe a besoin de toi. Et comme tu es mon binôme sur ces questions, quand tu vois que quelque chose coince, tu interviens. Je te fais confiance."
+  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu passes de l’un à l’autre, là où on a besoin de toi."
+ },
+ "0b2e043b8482": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Bon. Ce que j’attends de toi, c’est que tu ailles dans le centre et que tu aides l’équipe à réagir, ou à prendre des décisions. L’équipe, je la connais à peu près… mais elle n’est pas au top sur les violences sexistes et sexuelles, et moi, je n’ai pas le temps de tout gérer."
+ },
+ "c779a86db266": {
+  "who": "nour",
+  "mood": "big",
+  "kind": "replique",
+  "text": "J’ai lu ton CV, et je pense que tu vas beaucoup leur apporter. J’ai confiance en toi."
  },
  "99811a9421b6": {
   "who": "nour",
@@ -672,12 +684,6 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Lundi, jour 1 sur 5. L’arrivée. Découvrir l’accueil et repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques de violences."
  },
- "b1013c2d2a6a": {
-  "who": "narr",
-  "mood": "",
-  "kind": "recit",
-  "text": "Ce jeu porte sur la prévention des violences sexistes et sexuelles auprès des enfants et des jeunes. Pendant une semaine, votre rôle sera de les repérer, de protéger et d’alerter."
- },
  "436f4b84cdd1": {
   "who": "narr",
   "mood": "",
@@ -690,11 +696,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles."
  },
- "28735a2d9373": {
+ "824fcb1d28d7": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Une fois que Nour vous a donné ces informations, elle vous accompagne à la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme un instant, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui."
+  "text": "Nour vous laisse seule un moment dans la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui."
  },
  "1b77d962ceba": {
   "who": "narr",
@@ -792,11 +798,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe."
  },
- "ef7799b25e0a": {
+ "cc1da1712f7a": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Après le repas, Nour vous laisse circuler : vous êtes en volant, et son binôme pour repérer ce qui coince. Touchez un lieu pour vous y rendre. Chaque déplacement prend un quart d’heure."
+  "text": "Après le repas, vous circulez dans l’accueil, en volante. Avancez sur les chemins, entrez dans les salles, et restez attentive à ce qui se passe autour de vous."
  },
  "5d24c034d9c5": {
   "who": "narr",
@@ -917,6 +923,48 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Laisser passer une exclusion fondée sur le sexe l’installe comme une règle. Les stéréotypes se construisent tôt, dans le jeu, et l’adulte qui se tait les cautionne."
+ },
+ "d80cb4ed45d5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sous le préau, Enzo, 14 ans, tend son téléphone vers Clara, 17 ans, qui se cache le visage. Deux autres jeunes rigolent. Arrête, Enzo ! Efface ça tout de suite, je t’ai dit non ! Ça va, c’est pour rigoler… Je la mets juste sur le groupe, personne verra."
+ },
+ "7614c63f5274": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "La photo est supprimée devant vous. Nour reprend le droit à l’image avec le groupe des grands : le lendemain, c’est Enzo qui rappelle la règle à un autre jeune. Photographier quelqu’un qui refuse, et surtout diffuser son image sans accord, porte atteinte à sa vie privée ; la diffusion peut constituer une infraction. Vous faites cesser, vous vérifiez la suppression et vous transmettez : c’est complet."
+ },
+ "974c4c8bd0fa": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Enzo récupère son téléphone le soir… et la photo, jamais supprimée, circule le lendemain sur le groupe. Confisquer fait cesser sur le moment, mais sans vérifier la suppression ni transmettre, la photo peut encore circuler. Et personne n’a expliqué pourquoi c’est grave. Pour faire mieux : Faire cesser, faire supprimer devant soi, transmettre à l’équipe, puis reprendre le droit à l’image avec le groupe."
+ },
+ "0b1770b17e99": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "La photo circule le soir même, avec des commentaires. Clara ne revient pas le mercredi. Minimiser renvoie la responsabilité sur la victime. Une image prise et diffusée sans accord est une atteinte grave ; entre jeunes, elle nourrit vite le harcèlement. Pour faire mieux : Faire cesser, faire supprimer devant soi, transmettre à l’équipe, puis reprendre le droit à l’image avec le groupe."
+ },
+ "848ae24e070b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Photographier quelqu’un qui refuse, et surtout diffuser son image sans accord, porte atteinte à sa vie privée ; la diffusion peut constituer une infraction. Vous faites cesser, vous vérifiez la suppression et vous transmettez : c’est complet."
+ },
+ "62f488bb740a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Confisquer fait cesser sur le moment, mais sans vérifier la suppression ni transmettre, la photo peut encore circuler. Et personne n’a expliqué pourquoi c’est grave."
+ },
+ "d8292e4db230": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Minimiser renvoie la responsabilité sur la victime. Une image prise et diffusée sans accord est une atteinte grave ; entre jeunes, elle nourrit vite le harcèlement."
  },
  "74c1c0b449c2": {
   "who": "narr",
@@ -2226,6 +2274,48 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Malo avait parlé. Faute de réponse, c’est sa famille qui l’a retiré de l’accueil."
  },
+ "f8e09fa785bf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, sous le préau. Un jeune sort son téléphone pour filmer un copain qui chute."
+ },
+ "0d8231d6a4a3": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Hé, tu lui demandes d’abord ! Et tu le postes pas sans son accord, c’est la règle."
+ },
+ "4e2947fbb106": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Il a raison."
+ },
+ "ebc1218d8736": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Mardi matin, la photo de Clara a circulé sur le groupe des grands."
+ },
+ "7a804ffff696": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tout le monde l’a vue… Le téléphone, vous l’avez rendu, mais personne lui a demandé de l’effacer."
+ },
+ "9306931d1946": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Mercredi. Clara n’est pas revenue. Sa photo, avec des commentaires moqueurs, a fait le tour du groupe."
+ },
+ "bade905f6afc": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ben quoi ? L’animatrice a dit que c’était rien."
+ },
  "4757bb9b070a": {
   "who": "narr",
   "mood": "",
@@ -2778,6 +2868,42 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Bon… je retourne aux textes."
  },
+ "509761fa4ff8": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sous le préau, Enzo, 14 ans, tend son téléphone vers Clara, 17 ans, qui se cache le visage. Deux autres jeunes rigolent."
+ },
+ "bd37eaeab2ae": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Arrête, Enzo ! Efface ça tout de suite, je t’ai dit non !"
+ },
+ "b8969c09940c": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ça va, c’est pour rigoler… Je la mets juste sur le groupe, personne verra."
+ },
+ "19ccb9c0ed03": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Bon… c’est bon, je l’efface. Regarde."
+ },
+ "74a0ae933af2": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "T’as pas le droit ! C’est mon téléphone !"
+ },
+ "e999c1806894": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ok… laisse tomber."
+ },
  "366ecf29a921": {
   "who": "narr",
   "mood": "",
@@ -2808,6 +2934,54 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…"
  },
+ "8800be49aedf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la salle des petits, Jade termine une histoire. Les enfants sont assis, captivés. Le goûter, ici, se prend tous ensemble à 16 h 30."
+ },
+ "bd4fc2bca14d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la salle des grands, Inès aide Sacha à finir une maquette. Tout est calme."
+ },
+ "48f8028a6587": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Monsieur Garnier, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé."
+ },
+ "f1b379011e60": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "L’infirmerie est vide. Le registre des soins est rangé à sa place, dans l’armoire."
+ },
+ "b28809c37848": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La cuisine pédagogique est rangée : l’atelier pâtisserie, c’est mercredi."
+ },
+ "05241f22207a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La salle d’activités est libre cet après-midi. Les tapis sont empilés dans un coin."
+ },
+ "ab390fe7b77d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La régie est fermée à clé, comme il se doit. Rien à signaler."
+ },
+ "0b5d4ff0f005": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Sous le préau, quelques grands discutent à l’ombre."
+ },
  "d9bc8126958b": {
   "who": "narr",
   "mood": "",
@@ -2820,11 +2994,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Au parc, le groupe de Jade fait un jeu de piste. Ça court, ça rit, chacun a sa place."
  },
- "01fb3cb66f09": {
+ "2cd866a6d72e": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle de restauration est vide. Le goûter sera servi à 16 h 30."
+  "text": "La salle de restauration est vide : elle ne sert qu’au repas de midi. Le goûter, chaque animateur le prend avec son groupe, dans sa salle."
  },
  "caaa74bb39ec": {
   "who": "narr",
@@ -2867,5 +3041,53 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "Les sanitaires sont vides et propres. Rien à signaler pour l’instant."
+ },
+ "88a9861a68b6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "17 h 15. Les familles repartent les unes après les autres. Avant de partir, vous repensez à votre premier jour."
+ },
+ "3ef2525af226": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. L’organisation fait partie de la prévention : qui va où, avec qui, et à quel moment, surtout aux sanitaires. Les stéréotypes s’installent dans le jeu et dans la répartition des rôles : c’est à l’adulte de garantir à chacun le même accès. Repérer, c’est d’abord observer et noter des faits, sans juger."
+ },
+ "5170455aad03": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "18 h 15. Le point du soir est terminé, les derniers enfants sont partis. Vous repensez à cette journée."
+ },
+ "7c55d7ca267b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Distinguez ce que vous avez vu, ce qu’on vous a rapporté et ce que vous supposez. Le sexisme et le harcèlement se nomment : une remarque qui se répète n’est pas une blague. Une parole recueillie se transmet à la direction, le jour même."
+ },
+ "d96f53842a47": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "17 h 40. La grosse journée se termine au portail. Vous repensez à ce que vous avez vu."
+ },
+ "fc09084a4499": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Le consentement est libre et réversible : un enfant peut dire non, même à un adulte. Un adulte ne force jamais un contact, même affectueux : ni bisou, ni câlin imposés. Jamais seul avec un enfant, hors de la vue des autres."
+ },
+ "82ce6f883b8e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "17 h 20. La journée a été lourde. Les familles repartent ; vous repensez à ce que Lou vous a confié."
+ },
+ "a16dd93ea4b1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Quand un enfant se confie : l’écouter, le croire, ne pas l’interroger pour enquêter, et ne pas promettre de garder le secret. Protéger d’abord, puis alerter le jour même : la direction et, selon la situation, le 119 ou le procureur. Noter ses mots exacts, la date et l’heure, sans interprétation."
  }
 };

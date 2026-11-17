@@ -63,7 +63,8 @@
     const C = (help.closest("section") || help).getBoundingClientRect(), room = innerWidth - C.right > 46;
     const yy = L.bottom < 0 ? L.top + L.height * .5 : Math.max(110, L.top + L.height * .5);
     return room ? { x: C.right + Math.min(40, (innerWidth - C.right) / 2), y: yy, k: Math.min(1, Math.max(0, (innerHeight * .92 - r.top) / (innerHeight * .35))) }
-      : { x: Math.min(innerWidth - 30, L.right), y: C.bottom < 0 ? C.top - 26 : Math.max(96, C.top - 26), k: Math.min(1, Math.max(0, (innerHeight * .92 - r.top) / (innerHeight * .35))) };
+      // téléphone : la carte occupe toute la largeur ; la fourmi monte sur la carte et s'arrête juste sous le point d'interrogation
+      : { x: Math.min(innerWidth - 24, L.right - 8), y: L.bottom + 16, k: Math.min(1, Math.max(0, (innerHeight * .92 - r.top) / (innerHeight * .35))), on: true };
   }
   // sous quelque chose ? (texte, image, carte, bouton, bande de couleur…) : alors on ne la voit pas du tout
   const LAYOUT = new Set(["HTML", "BODY", "MAIN"]);
@@ -115,6 +116,7 @@
     const hd = hidden(), behindPhoto = !revealed() || (p <= .02 && Math.hypot(x - hd.x, y - hd.y) < 60 && frame.left);
     if (!frame.cc || now - frame.cc > 90) { frame.cc = now; frame.hid = covered(x, y); }
     if (behindPhoto) frame.hid = true;
+    const onCard = !!(E && E.on && E.k > .85); ant.classList.toggle("over", onCard); if (onCard) frame.hid = false;
     vis += ((frame.hid ? 0 : 1) - vis) * Math.min(1, dt * 14);
     ant.style.opacity = vis.toFixed(2);
     ant.classList.toggle("idle", sp <= 25);

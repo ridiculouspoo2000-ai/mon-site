@@ -14,3 +14,4 @@
 @media print{.fbal{display:none}}
 /* elle passe sous les éléments du site (images, cartes, boutons, textes) : elle est derrière le contenu, au-dessus du fond */
 .fbal{pointer-events:none}
+.fbal.over{z-index:30}

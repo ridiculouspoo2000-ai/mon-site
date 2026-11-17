@@ -2954,7 +2954,9 @@
       if (!tgt || tgt.d > 3.2) { nudgeRing(); return false; }   // hors des chemins
       const here = onGraph(you.x, you.y), full = route(here, tgt); if (!full) return false;
       full[0] = [you.x, you.y, null];
-      const pts = clampPath(full, MAX), end = pts[pts.length - 1], doorK = end[2] && DOORS[end[2]] ? end[2] : null;
+      // une porte juste au-delà de la portée : on va jusqu'à elle (on ne s'arrête pas à un mètre du seuil)
+      const fe = full[full.length - 1], tot = full.reduce((t, q, i) => (i ? t + dist(full[i - 1], q) : 0), 0);
+      const pts = fe[2] && DOORS[fe[2]] && tot <= MAX + 1.5 ? full : clampPath(full, MAX), end = pts[pts.length - 1], doorK = end[2] && DOORS[end[2]] ? end[2] : null;
       const fm = w2f(end[0], end[1]); Object.assign(mark.style, { left: fm[0] + "%", top: fm[1] + "%" }); mark.classList.remove("on"); void mark.offsetWidth; mark.classList.add("on");
       ring.classList.add("moving"); busy = true;
       you.go(pts.slice(1), 1.7, () => {

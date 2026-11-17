@@ -330,3 +330,6 @@ header nav .nav-fly a[href$="bafa.html"]{background:transparent;color:#2a3a48;pa
 header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);color:#2a3a48}
 @media (max-width:640px){.fo-figs-sec .fo-tile{padding:18px 16px}.fo-figs .fo-n{font-size:40px;margin:8px 0 6px}.fo-fig small{font-size:13.5px}.fo-k{font-size:11.5px}}
 @media (max-width:1150px){header nav.open{flex-wrap:nowrap!important}header nav.open>*{flex-shrink:0}}
+
+/* le halo coloré du fond ne s’arrête plus net (plus de barre colorée sur le côté) */
+.ap-glow{contain:none!important;inset:-40vh -15vw -80vh!important}

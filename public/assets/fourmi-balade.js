@@ -12,13 +12,15 @@
     const y = [-1, 3, 7][i], a = [-34, 4, 40][i] * side, k = [[9, -5], [10, 0], [9, 5]][i], f = [[15, -14], [19, 1], [16, 15]][i];
     return `<g class="fm-leg" data-s="${side}" data-i="${i}" transform="translate(${side * 3.6},${y}) rotate(${a})"><path d="M0,0 L${side * k[0]},${k[1]} L${side * f[0]},${f[1]}" stroke="#4A1F0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>`;
   };
-  const svg = `<svg viewBox="-34 -46 68 92" aria-hidden="true">
+  const svg = `<svg class="fbal-layer" aria-hidden="true">
     <defs>
+      <mask id="fbalMask" maskUnits="userSpaceOnUse" x="-50" y="-50" width="9999" height="9999"><rect class="fbal-all" x="-50" y="-50" width="9999" height="9999" fill="#fff"/><g class="fbal-holes" fill="#000"></g></mask>
       <radialGradient id="fmGas" cx="38%" cy="30%" r="78%"><stop offset="0" stop-color="#F59A5C"/><stop offset=".42" stop-color="#D9661F"/><stop offset="1" stop-color="#7C2F0E"/></radialGradient>
       <radialGradient id="fmTh" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#EE8C4E"/><stop offset=".5" stop-color="#C95619"/><stop offset="1" stop-color="#6E290C"/></radialGradient>
       <linearGradient id="fmShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
       <filter id="fmSoft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.6"/></filter>
     </defs>
+    <g mask="url(#fbalMask)"><g class="fm-root">
     <ellipse class="fm-shadow" cx="2.5" cy="9" rx="13" ry="30" fill="#0E1B2A" opacity=".18" filter="url(#fmSoft)"/>
     <g class="fm-legs">${[0, 1, 2].map((i) => leg(-1, i) + leg(1, i)).join("")}</g>
     <ellipse cx="0" cy="24" rx="10.5" ry="14.5" fill="url(#fmGas)"/>
@@ -36,13 +38,45 @@
       <ellipse cx="-6.2" cy="-14.4" rx="1.5" ry="2.2" fill="#1A0D08"/><ellipse cx="6.2" cy="-14.4" rx="1.5" ry="2.2" fill="#1A0D08"/>
       <circle cx="-6.6" cy="-15.2" r=".5" fill="#fff" opacity=".8"/><circle cx="5.8" cy="-15.2" r=".5" fill="#fff" opacity=".8"/>
       <ellipse cx="-2" cy="-17.6" rx="2.2" ry="1.6" fill="url(#fmShine)" opacity=".65"/>
-    </g></svg>`;
+    </g></g></g></svg>`;
   const ant = document.createElement("div");
   ant.className = "fbal"; ant.innerHTML = svg;
   ant.setAttribute("role", "img"); ant.setAttribute("aria-label", "Une petite fourmi qui vous accompagne");
   document.body.appendChild(ant);
   const legs = [...ant.querySelectorAll(".fm-leg")].map((g) => ({ g, s: +g.dataset.s, i: +g.dataset.i, base: g.getAttribute("transform") }));
-  const head = ant.querySelector(".fm-head");
+  const head = ant.querySelector(".fm-head"), root = ant.querySelector(".fm-root"), holesG = ant.querySelector(".fbal-holes");
+  // Ce qui « flotte » sur le fond du site et sous quoi la fourmi passe : images, cartes, cadres, boutons, bandes pleines,
+  // menu, Mica… La fourmi est découpée exactement par leur contour (coins arrondis compris) : rien de flou, rien de progressif.
+  // Les lettres, elles, sont dessinées par-dessus la fourmi (elle passe dessous) : on la voit seulement entre les lettres.
+  const SKIP = new Set(["HTML", "BODY", "MAIN", "SCRIPT", "STYLE", "LINK", "META", "BR", "SOURCE"]);
+  let cands = [], lastScan = 0;
+  function alpha(c) { const m = /rgba?\(([^)]+)\)/.exec(c || ""); if (!m) return 0; const v = m[1].split(","); return v[3] == null ? 1 : +v[3]; }
+  function scan() {
+    cands = [];
+    document.querySelectorAll("body *").forEach((e) => {
+      if (SKIP.has(e.tagName) || e.closest(".fbal") || e.closest(".ap-glow")) return;
+      if (e.closest("svg") && e.tagName.toLowerCase() !== "svg") return;
+      const cs = getComputedStyle(e); if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity === 0) return;
+      const media = /^(IMG|VIDEO|CANVAS|IFRAME|BUTTON|INPUT|SELECT|TEXTAREA|PICTURE)$/.test(e.tagName) || e.tagName.toLowerCase() === "svg";
+      const filled = alpha(cs.backgroundColor) > .02 || (cs.backgroundImage && cs.backgroundImage !== "none") || (cs.backdropFilter && cs.backdropFilter !== "none") || (cs.webkitBackdropFilter && cs.webkitBackdropFilter !== "none") || (cs.boxShadow && cs.boxShadow !== "none") || /^(solid|double)$/.test(cs.borderTopStyle) && parseFloat(cs.borderTopWidth) > 0;
+      // les décors de fond (halos, voiles, particules plein écran) font partie du fond du site : la fourmi marche dessus
+      const r = e.getBoundingClientRect();
+      if (r.width > innerWidth * 1.15 || (cs.position === "fixed" && r.width >= innerWidth * .9 && r.height >= innerHeight * .9) || (cs.pointerEvents === "none" && !media && alpha(cs.backgroundColor) < .5)) return;
+      if (media || filled) cands.push(e);
+    });
+  }
+  const rad = (v, w, h) => { const n = parseFloat(v) || 0; return /%/.test(v) ? n / 100 * Math.min(w, h) : n; };
+  function cutHoles(px, py, ignore) {
+    const R = 70 * S() + 10; let html = "";
+    for (const e of cands) {
+      if (ignore && (e === ignore || ignore.contains(e))) continue;
+      const r = e.getBoundingClientRect(); if (!r.width || !r.height) continue;
+      if (r.right < px - R || r.left > px + R || r.bottom < py - R || r.top > py + R) continue;
+      const cs = getComputedStyle(e), rr = Math.min(rad(cs.borderTopLeftRadius, r.width, r.height), r.width / 2, r.height / 2);
+      html += `<rect x="${r.left.toFixed(1)}" y="${r.top.toFixed(1)}" width="${r.width.toFixed(1)}" height="${r.height.toFixed(1)}" rx="${rr.toFixed(1)}"/>`;
+    }
+    if (html !== cutHoles.last) { holesG.innerHTML = html; cutHoles.last = html; }
+  }
 
   // --- où elle se trouve : cachée derrière la photo, puis elle se promène sous la page, et finit près de « Une question… » ---
   let x = 0, y = 0, ang = Math.PI, phase = 0, lastScroll = scrollY, inited = false, still = 0, vis = 0, out = false;
@@ -110,15 +144,13 @@
     phase += Math.min(sp, 900) * dt * .045;
     legs.forEach((L) => { const tri = (L.i === 1) === (L.s > 0) ? 0 : Math.PI, sw = sp > 25 ? Math.sin(phase + tri) * 13 : 0; L.g.setAttribute("transform", L.base + ` rotate(${(sw * L.s).toFixed(1)})`); });
     head.setAttribute("transform", sp > 25 ? `rotate(${(Math.sin(phase * .5) * 3).toFixed(1)})` : "");
-    ant.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%) rotate(${ang.toFixed(3)}rad) scale(${S()})`;
-    // jamais visible quand elle passe sous quelque chose : elle s'efface dessous, réapparaît de l'autre côté
-    // derrière la photo (ou la photo refermée en haut de page) : invisible aussi
-    const hd = hidden(), behindPhoto = !revealed() || (p <= .02 && Math.hypot(x - hd.x, y - hd.y) < 60 && frame.left);
-    if (!frame.cc || now - frame.cc > 90) { frame.cc = now; frame.hid = covered(x, y); }
-    if (behindPhoto) frame.hid = true;
-    const onCard = !!(E && E.on && E.k > .85); ant.classList.toggle("over", onCard); if (onCard) frame.hid = false;
-    vis += ((frame.hid ? 0 : 1) - vis) * Math.min(1, dt * 14);
-    ant.style.opacity = vis.toFixed(2);
+    root.setAttribute("transform", `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(ang * 180 / Math.PI).toFixed(2)}) scale(${S()})`);
+    // découpe nette : tout ce qui flotte au-dessus d'elle la cache exactement à son contour
+    if (now - lastScan > 1200) { lastScan = now; scan(); }
+    const onCard = !!(E && E.on && E.k > .85);
+    cutHoles(x, y, onCard ? help.closest("section") : null);
+    ant.classList.toggle("over", onCard);   // sur la carte finale (téléphone), elle est posée dessus
+    ant.style.opacity = "1";
     ant.classList.toggle("idle", sp <= 25);
     requestAnimationFrame(frame);
   }

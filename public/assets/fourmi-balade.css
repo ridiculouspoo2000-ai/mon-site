@@ -1,6 +1,6 @@
 /* La petite fourmi de l'accueil */
-.fbal{position:fixed;left:0;top:0;width:68px;height:92px;z-index:-1;cursor:pointer;will-change:transform;-webkit-tap-highlight-color:transparent}
-.fbal svg{width:100%;height:100%;display:block;overflow:visible}
+.fbal{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.fbal svg.fbal-layer{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
 .fbal .fm-ant{transform-box:fill-box;transition:transform .4s ease}
 .fbal .fm-antL{transform-origin:100% 100%}.fbal .fm-antR{transform-origin:0 100%}
 .fbal.idle .fm-antL{animation:fmAntL 2.6s ease-in-out infinite}
@@ -8,7 +8,6 @@
 @keyframes fmAntL{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg)}60%{transform:rotate(6deg)}}
 @keyframes fmAntR{0%,100%{transform:rotate(0)}30%{transform:rotate(14deg)}60%{transform:rotate(-6deg)}}
 
-.fbal.hop svg{animation:fmHop .7s cubic-bezier(.3,1.6,.5,1)}
 @keyframes fmHop{0%,100%{transform:scale(1)}40%{transform:scale(1.08)}}
 @media (prefers-reduced-motion:reduce){.fbal *{animation:none!important}}
 @media print{.fbal{display:none}}

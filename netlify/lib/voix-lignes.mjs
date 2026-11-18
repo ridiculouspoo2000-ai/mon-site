@@ -6,6 +6,18 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels."
  },
+ "5fea3eea43c9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Oui, on sait : parfois, plusieurs réponses donnent envie d’être cochées, et tout semble s’additionner. Mais la réponse à choisir en premier, c’est la démarche principale à effectuer. Chaque situation est nuancée : ce qui compte, c’est l’ordre dans lequel on agit, et ce qu’on fait d’abord pour protéger."
+ },
+ "ba178c21b169": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Parfois, plusieurs réponses avaient l’air bien. Mais la première chose à faire, c’est toujours de protéger, et d’en parler à un adulte de confiance."
+ },
  "b4224bb93fca": {
   "who": "e_maman",
   "mood": "",
@@ -90,35 +102,29 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre."
  },
- "d404b73d70a4": {
+ "d2a4070e805c": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi. Ils arrivent à 8 h 30 et repartent le soir avec leur famille."
+  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
  },
- "b185af368b11": {
+ "858de03d52ab": {
+  "who": "nour",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont cinquante-deux pour des soupçons de violences sexuelles ou sexistes. Ici aussi, les parents s’inquiètent. Et c’est pour ça que j’ai besoin de toi."
+ },
+ "512d23365eb8": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu passes de l’un à l’autre, là où on a besoin de toi."
+  "text": "J’ai vu sur ton CV que tu t’étais formée à la protection de l’enfance. Ce que j’attends de toi, donc, c’est de circuler dans le centre, d’aider l’équipe à réagir et à prendre les bonnes décisions. Repérer, protéger, transmettre : personne ne te demande d’être juge."
  },
- "0b2e043b8482": {
-  "who": "nour",
-  "mood": "calm",
-  "kind": "replique",
-  "text": "Bon. Ce que j’attends de toi, c’est que tu ailles dans le centre et que tu aides l’équipe à réagir, ou à prendre des décisions. L’équipe, je la connais à peu près… mais elle n’est pas au top sur les violences sexistes et sexuelles, et moi, je n’ai pas le temps de tout gérer."
- },
- "c779a86db266": {
-  "who": "nour",
-  "mood": "big",
-  "kind": "replique",
-  "text": "J’ai lu ton CV, et je pense que tu vas beaucoup leur apporter. J’ai confiance en toi."
- },
- "99811a9421b6": {
+ "d34695f4428b": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Cette semaine, tu vas croiser des situations délicates. Personne ne te demande d’être juge : on te demande de repérer, de protéger et de transmettre."
+  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où on a besoin de toi."
  },
  "5e9c77ef12b8": {
   "who": "nour",
@@ -137,6 +143,24 @@ export const LIGNES = {
   "mood": "calm",
   "kind": "replique",
   "text": "À chaque étape, je te laisse une page de mon carnet. Tu pourras l’ouvrir à tout moment, en haut de l’écran."
+ },
+ "5b9e4c62aac4": {
+  "who": "bastien",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Et l’atelier vélo, Inès ? C’est toujours le club des filles qui se prennent pour des garçons ?"
+ },
+ "d3c54773f9e4": {
+  "who": "ines",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Arrête, Bastien. Je te l’ai déjà dit hier : ça ne me fait pas rire."
+ },
+ "0363eae00b5b": {
+  "who": "bastien",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Ça ne me fait pas rire … Oh là là, on se détend !"
  },
  "f6668966d6ac": {
   "who": "ines",
@@ -210,11 +234,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "D’accord. On y va après le déjeuner."
  },
- "82f7f36bfb3b": {
+ "da4b4f56c0a4": {
   "who": "bastien",
   "mood": "smile",
   "kind": "replique",
-  "text": "Franchement, c’était pour rire. On ne voulait pas la blesser."
+  "text": "J’ai vu que tu as parlé à Inès ce matin. Franchement, c’était pour rire, on ne voulait pas la blesser."
  },
  "7ec27ab569c4": {
   "who": "roussel",
@@ -540,11 +564,53 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je… je peux te parler ? … Hier, quand on rangeait le local… le monsieur de l’atelier bois, il m’a touchée. Là où il a pas le droit. Moi, je voulais pas."
  },
+ "7c172c152f91": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "On ne demande ni détails ni gestes : on accueille. Le récit précis, ce sont les enquêteurs qui le recueillent."
+ },
+ "80199bddf15d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Mettre en doute sa parole lui apprend à se taire. On croit, on protège, on transmet."
+ },
+ "cd0beb7bdb4d": {
+  "who": "maelys",
+  "mood": "concern",
+  "kind": "replique",
+  "text": "Je… je sais pas… je veux plus en parler."
+ },
  "66c67e748da8": {
   "who": "maelys",
   "mood": "concern",
   "kind": "replique",
   "text": "Je veux plus aller là-bas. Et… y a atelier bois à 15 h."
+ },
+ "78fd3aedfc2f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous ne pouvez pas promettre le secret : vous allez devoir transmettre. Dites-le-lui simplement."
+ },
+ "e013871d10ab": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Minimiser l’expose à nouveau. Elle ne doit plus croiser l’intervenant."
+ },
+ "1821e3c0836a": {
+  "who": "maelys",
+  "mood": "sad",
+  "kind": "replique",
+  "text": "…D’accord."
+ },
+ "8b5f30bd7976": {
+  "who": "maelys",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "Non… Sacha était à côté. Il rangeait les outils. Je crois qu’il a vu."
  },
  "b1ea2f4c85c3": {
   "who": "garnier",
@@ -605,6 +671,24 @@ export const LIGNES = {
   "mood": "calm",
   "kind": "replique",
   "text": "Je… je vais avoir des problèmes ?"
+ },
+ "ec75482fcd0d": {
+  "who": "nour",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Voilà, la semaine est finie. Merci, vraiment : tu as été là quand les enfants et l’équipe en avaient besoin."
+ },
+ "bdc4859b4cee": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Je t’ai envoyé par mail le bilan à faire, me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan, avec tes points de valorisation et d’amélioration."
+ },
+ "81d9e0e7c1e3": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "On se fait une visio pour le bilan du projet pédagogique. Merci encore pour la semaine… et au revoir !"
  },
  "48a34342df10": {
   "who": "narr",
@@ -696,17 +780,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?"
  },
- "cbe8fa9536c9": {
-  "who": "narr",
-  "mood": "",
-  "kind": "recit",
-  "text": "Ce que vous allez vivre s’inspire de faits réels : cette année, à Paris, 132 animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles."
- },
- "824fcb1d28d7": {
+ "05488c98cdf7": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous laisse seule un moment dans la salle des animateurs. Les enfants ont rejoint leur groupe, et les autres animateurs ont commencé leur journée. Au calme, vous vous posez quelques questions : répondez-y pour savoir où vous en êtes aujourd’hui."
+  "text": "Nour vous laisse seule un moment dans la salle de réunion. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
  },
  "1b77d962ceba": {
   "who": "narr",
@@ -1038,23 +1116,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin."
  },
- "c1224627f998": {
+ "1bbe024c521e": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Depuis lundi, à chaque briefing, Bastien et Yanis lancent à Inès, responsable de l’atelier vélo, des remarques sur"
- },
- "ee090586da63": {
-  "who": "ines",
-  "mood": "",
-  "kind": "replique",
-  "text": "les filles qui se prennent pour des garçons"
- },
- "ff04370f819d": {
-  "who": "narr",
-  "mood": "",
-  "kind": "recit",
-  "text": "Ce matin, elle leur a demandé d’arrêter. Ils ont continué, en imitant sa façon de parler. Toute l’équipe a ri, sauf elle."
+  "text": "Toute l’équipe rit, sauf Inès. Depuis lundi, c’est comme ça à chaque briefing."
  },
  "064502019e71": {
   "who": "narr",
@@ -1062,17 +1128,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe."
  },
- "a1402e704dd2": {
+ "015c4b79f18d": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "12 h 15, au réfectoire. Bastien s’assoit en face de vous. Il a vu Inès vous parler ce matin, et il revient sur les remarques faites au briefing."
+  "text": "Mardi, 12 h 15, au réfectoire."
  },
- "62ce693b69ca": {
+ "c9041527a782": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Bastien vous arrête"
+  "text": "Bastien pose son plateau et s’assoit en face de vous"
  },
  "31c89b81b592": {
   "who": "narr",
@@ -1704,11 +1770,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter."
  },
- "28a7a150d384": {
+ "074e10b00bb7": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Triez les cartes Actions pour la situation de Lou."
+  "text": "Il est 16 h 06. L’adulte désigné par Lou doit venir le chercher à 17 h. Chaque action prend du temps : faites celles qui protègent Lou, et seulement celles-là."
  },
  "ce0cb94ede41": {
   "who": "narr",
@@ -1905,14 +1971,8 @@ export const LIGNES = {
  "babc27c60b76": {
   "who": "narr",
   "mood": "",
-  "kind": "recit",
+  "kind": "situation",
   "text": "Vendredi, 13 h. L’atelier bois du matin vient de se terminer. Dans la cour, Maëlys, 14 ans, attend que les autres soient partis pour venir vous voir."
- },
- "f845a209bc08": {
-  "who": "narr",
-  "mood": "",
-  "kind": "recit",
-  "text": "Vous remerciez Maëlys de vous avoir parlé et lui dites que ce n’est pas de sa faute. Maintenant, il faut décider."
  },
  "acd119d9b444": {
   "who": "narr",
@@ -1944,17 +2004,29 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "d5f582516648": {
+ "0c227e0dd9ef": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "13 h 20. Pour comprendre ce qui s’est passé au local, vous retrouvez Sacha, qui participait au rangement hier, dans la salle des grands."
+  "text": "13 h 15. Maëlys est avec Inès, loin du local."
  },
- "efd611539ccf": {
+ "c23447e8d6b3": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Sacha, 11 ans, vient vous voir, l’air embêté. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+  "text": "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Repensez à ce qu’elle vous a dit : quelqu’un d’autre était là, hier, au local. Trouvez cette personne dans le centre, sans attirer l’attention."
+ },
+ "b3d5f12e0f2e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "13 h 20. Vous vous installez avec Sacha dans la salle des grands, au calme."
+ },
+ "63ae849a886e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vous êtes assis avec Sacha, 11 ans, un peu à l’écart. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
  "b93c9594f2e2": {
   "who": "narr",
@@ -1986,11 +2058,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Une prévention qui se voit Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable. Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables. Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe. L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement. Un contrôle d’honorabilité ne remplace jamais cette vigilance."
  },
- "4a01778ac119": {
+ "1b0c7cb54e29": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Vendredi, 17 h 30. Les enfants sont partis. Vous revenez dans la salle des animateurs, là où tout a commencé lundi. Les mêmes questions vous reviennent en tête."
+  "text": "Vendredi, 17 h 30. Les enfants sont partis. Au calme, en salle de réunion, les questions du premier jour vous reviennent."
  },
  "abbe2c6b9de5": {
   "who": "narr",
@@ -1998,11 +2070,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
  },
- "189fd77e5a2c": {
+ "8f4cb18c5d97": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "18 h. Avant de quitter les Hautes Herbes, Nour vous propose de revenir sur chacune de vos décisions de la semaine."
+  "text": "Retour en arrière. Lundi, vous arriviez aux Hautes Herbes sans rien connaître de l’équipe. Revoyons ensemble chacune de vos décisions : ce que vous avez choisi alors, et ce qu’il en est aujourd’hui."
  },
  "ee09ad6f73ae": {
   "who": "narr",
@@ -2196,17 +2268,17 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Elle voulait peut-être confier quelque chose : sans réponse ni relais, sa parole se perd. Répondez sobrement et prévenez Nour."
  },
- "da87adba74ac": {
+ "99c98ca62571": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Juste : une image intime d’une mineure ne se regarde pas, ne se garde pas, ne se transfère pas. Nour alerte la direction ; le 3018 aide à la faire retirer."
+  "text": "Une image intime d’une mineure ne se regarde pas, ne se garde pas, ne se transfère pas. Nour alerte la direction ; le 3018 aide à la faire retirer."
  },
- "20763d98061c": {
+ "11614cf831d5": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Bon réflexe de stopper, mais ne gérez pas seul : il faut alerter Nour et protéger Clara."
+  "text": "Stopper la diffusion est utile, mais ne gérez pas seul : il faut alerter Nour et protéger Clara."
  },
  "a017e7ac1803": {
   "who": "narr",
@@ -2934,6 +3006,36 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Juste : vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
  },
+ "0e65d7eb2dce": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "À retenir. Accueillir sans questionner sur les faits : remercier, déculpabiliser, protéger. Une question sur le contexte (qui était là ?) aide à transmettre sans orienter le récit."
+ },
+ "faa07750272b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Sacha range des ballons sous le préau. Il vous voit arriver et baisse les yeux, l’air embêté."
+ },
+ "7c76360d8333": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous le prenez à part, au calme, sans évoquer les faits devant les autres : il pourra parler librement."
+ },
+ "88e4b842e1c0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Vous lui révélez ce que Maëlys a confié, et vous orientez sa réponse : son témoignage risque de ne plus être le sien."
+ },
+ "b006e33d6874": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "La question suggère déjà ce qui se serait passé : préférez une invitation ouverte, à l’écart des autres."
+ },
  "2e04a089b50e": {
   "who": "sacha",
   "mood": "",
@@ -3198,17 +3300,17 @@ export const LIGNES = {
   "kind": "recit",
   "text": "L’infirmerie est vide. Le registre des soins est rangé à sa place, dans l’armoire."
  },
- "b28809c37848": {
+ "58a3c00049b6": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La cuisine pédagogique est rangée : l’atelier pâtisserie, c’est mercredi."
+  "text": "Dans la cuisine pédagogique, Yanis et trois enfants préparent le goûter de leur groupe : salade de fruits pour tout le monde."
  },
- "05241f22207a": {
+ "6e4bd060f54a": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle d’activités est libre cet après-midi. Les tapis sont empilés dans un coin."
+  "text": "Dans la salle d’activités, Léa fait un jeu de mime avec les plus jeunes. Ça rit beaucoup."
  },
  "ab390fe7b77d": {
   "who": "narr",
@@ -3240,11 +3342,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La salle de restauration est vide : elle ne sert qu’au repas de midi. Le goûter, chaque animateur le prend avec son groupe, dans sa salle."
  },
- "caaa74bb39ec": {
+ "b76a006103b2": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "En salle des animateurs, Kévin prépare le matériel de demain. Il vous fait un signe de la main."
+  "text": "En salle des animateurs, Kévin, assis à la table, prépare le matériel de demain. Il vous fait un signe de la main."
  },
  "25e58f56f882": {
   "who": "narr",
@@ -3372,11 +3474,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Tu passes au panneau d’affichage ? Il me manque des affiches pour l’inspection de demain."
  },
- "4306284bc5b0": {
+ "cce1fa08952d": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "À l’aire de jeux, Jade surveille une partie de chat. Tout le monde court, tout va bien."
+  "text": "À l’aire de jeux, Jade, l’animatrice des petits, joue au chat avec les enfants. Tout le monde court, tout va bien."
  },
  "382aac288d6c": {
   "who": "narr",
@@ -3396,11 +3498,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la cour, Bastien prépare les ballons pour le temps libre."
  },
- "888c20e9eb7d": {
+ "2009c1cece95": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle des grands est vide : tout le monde est dehors."
+  "text": "Dans la salle des grands, Inès aide Sacha et un autre jeune à finir leurs maquettes. Les autres sont dehors."
  },
  "4d01bb3bf445": {
   "who": "narr",
@@ -3414,11 +3516,23 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La sieste n’a pas encore commencé : Jade installe les tapis."
  },
- "0ea0c219b540": {
+ "15342f3b711e": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle des animateurs est calme. Sur la table, le cahier de liaison est ouvert."
+  "text": "La salle des animateurs est calme. Tous les animateurs semblent être avec leur groupe."
+ },
+ "724e89ec4dd0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la cuisine pédagogique, Yanis prépare la pâte à crêpes du goûter avec deux enfants de son groupe."
+ },
+ "c4dd91319124": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la salle d’activités, Léa anime un atelier de perles avec des petits."
  },
  "8712a95c9d19": {
   "who": "narr",

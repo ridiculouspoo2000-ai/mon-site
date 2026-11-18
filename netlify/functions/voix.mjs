@@ -205,6 +205,11 @@ export default async (req) => {
     return json({ ok: true, active: !!env("ELEVENLABS_API_KEY"), modele: modele(), lignes: Object.keys(LIGNES).length,
       generees: Object.keys(LIGNES).length - manquantes.length, besoin });
   }
+  if (u.searchParams.get("a") === "manquantes") {   // répliques pas encore générées (aucun crédit consommé) : id, personnage, nombre de caractères
+    const s = store(); const { blobs } = await s.list(); const have = new Set(blobs.map((b) => b.key));
+    const L = Object.entries(LIGNES).filter(([id, l]) => !have.has(ckey(id, l.who))).map(([id, l]) => ({ id, who: l.who, n: ((avecBalises() && BALISES[id]) || l.text).length, t: l.text.slice(0, 80) }));
+    return json({ ok: true, total: L.length, caracteres: L.reduce((a, x) => a + x.n, 0), lignes: L });
+  }
   if (u.searchParams.get("a") === "test") {
     const k = env("ELEVENLABS_API_KEY");
     if (!k) return json({ ok: false, detail: "La variable ELEVENLABS_API_KEY n’est pas visible par cette version du site." });

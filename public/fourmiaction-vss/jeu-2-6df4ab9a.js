@@ -47,6 +47,8 @@ const DQ = [
 // Elles paraissent anodines ; chacune touche aux violences sexistes et sexuelles (consentement, stéréotypes,
 // minimisation, culpabilisation de la victime, silence, secret, doute). Voix : e_* (voir voix.mjs).
 const ECHOES = {
+  // Le narrateur se présente, puis annonce la semaine, juste avant les citations.
+  intro: "Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels.",
   lines: [
     { who: "e_maman", label: "Une maman, au portail", t: "Allez, fais un bisou à tonton, ne fais pas ta timide." },
     { who: "e_papa", label: "Un papa", t: "Arrête de pleurer, t’es un garçon." },

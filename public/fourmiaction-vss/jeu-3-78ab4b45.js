@@ -79,34 +79,62 @@
       <path d="M${-hw},${waist - 2} C${-hw},${waist + 5} ${hw},${waist + 5} ${hw},${waist - 2} L${hw * 1.02},${hipY + 9} C${hw},${hipY + 13} ${-hw},${hipY + 13} ${-hw * 1.02},${hipY + 9} Z" fill="${spec.skirt ? spec.skirt : `url(#${u}b)`}"/>
       ${spec.skirt ? `<path d="M${-hw * 1.02},${hipY + 6} L${-hw * 1.55},${hipY + B.H * .14} Q0,${hipY + B.H * .16} ${hw * 1.55},${hipY + B.H * .14} L${hw * 1.02},${hipY + 6} Z" fill="${spec.skirt}"/>` : ""}
       <path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="1.6" opacity=".6"/>
-      ${!spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .55},${shY - 3.5} C${-sw * .62},${shY + 3} ${sw * .62},${shY + 3} ${sw * .55},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="3.2" opacity=".75"/><path d="M-2,${shY + 1} v${B.H * .07} M2,${shY + 1} v${B.H * .065}" stroke="${tone(top, .45)}" stroke-width=".9"/><path d="M${-hw * .7},${hipY - 10} h${hw * 1.4}" stroke="${topD}" stroke-width="1.2" opacity=".5"/>` : ""}
+      ${!spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .78},${shY + 1} C${-sw * .9},${shY - B.H * .07} ${-sw * .4},${shY - B.H * .1} 0,${shY - B.H * .1} C${sw * .4},${shY - B.H * .1} ${sw * .9},${shY - B.H * .07} ${sw * .78},${shY + 1} C${sw * .5},${shY + 4} ${sw * .3},${shY + 1.5} 0,${shY + 2.5} C${-sw * .3},${shY + 1.5} ${-sw * .5},${shY + 4} ${-sw * .78},${shY + 1} Z" fill="${topD}"/><path d="M${-sw * .58},${shY - 1} C${-sw * .45},${shY + 5} ${sw * .45},${shY + 5} ${sw * .58},${shY - 1}" fill="none" stroke="${tone(top, -.32)}" stroke-width="1.4" opacity=".7"/><path d="M-2.4,${shY + 3.5} q-.6,${B.H * .045} .2,${B.H * .075} M2.4,${shY + 3.5} q.6,${B.H * .04} -.2,${B.H * .07}" stroke="${tone(top, .5)}" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="-2.2" cy="${(shY + 3.5 + B.H * .075).toFixed(1)}" r=".9" fill="${tone(top, .5)}"/><circle cx="2.2" cy="${(shY + 3.5 + B.H * .07).toFixed(1)}" r=".9" fill="${tone(top, .5)}"/><path d="M${-sw * .45},${waist - B.H * .06} L${sw * .45},${waist - B.H * .06} L${sw * .36},${waist - 1} L${-sw * .36},${waist - 1} Z" fill="${tone(top, -.08)}" stroke="${topD}" stroke-width=".8"/>` : ""}
       ${!spec.back && spec.cut === "chemise" ? `<path d="M${-sw * .36},${shY - 3.6} L0,${shY + 4} L${sw * .36},${shY - 3.6} L${sw * .14},${shY + 2.5} L0,${shY + 4} L${-sw * .14},${shY + 2.5} Z" fill="${tone(top, .5)}"/>${[0, 1, 2, 3].map((i) => `<circle cx="0" cy="${(shY + 7 + i * (B.H * .05)).toFixed(1)}" r=".75" fill="${tone(top, .55)}"/>`).join("")}` : ""}
       ${!spec.back && spec.cut === "cardigan" ? `<path d="M${-sw * .3},${shY - 3.6} L${-2.2},${waist + 2} L${2.2},${waist + 2} L${sw * .3},${shY - 3.6} Q0,${shY + 2} ${-sw * .3},${shY - 3.6} Z" fill="#F1EDE6"/><path d="M${-sw * .3},${shY - 3.6} L-2.2,${waist + 2} M${sw * .3},${shY - 3.6} L2.2,${waist + 2}" stroke="${topD}" stroke-width="1"/>` : ""}
-      ${spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .5},${shY - 3} C${-sw * .55},${shY + 9} ${sw * .55},${shY + 9} ${sw * .5},${shY - 3} Z" fill="${topD}" opacity=".85"/>` : ""}
-      ${spec.badge && !spec.back ? `<path d="M${-sw * .32},${shY - 2} L-1,${shY + B.H * .12} M${sw * .32},${shY - 2} L1,${shY + B.H * .12}" stroke="#2F6DB5" stroke-width="1.2" fill="none"/><rect x="-4" y="${(shY + B.H * .115).toFixed(1)}" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="${(shY + B.H * .115 + 2).toFixed(1)}" width="5.2" height="1.6" fill="#E07E12"/>` : ""}
+      ${spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .6},${shY - 3} C${-sw * .7},${shY + B.H * .1} ${-sw * .25},${shY + B.H * .14} 0,${shY + B.H * .14} C${sw * .25},${shY + B.H * .14} ${sw * .7},${shY + B.H * .1} ${sw * .6},${shY - 3} Z" fill="${topD}"/><path d="M${-sw * .38},${shY} C${-sw * .4},${shY + B.H * .08} ${sw * .4},${shY + B.H * .08} ${sw * .38},${shY}" stroke="${tone(top, -.35)}" stroke-width="1.2" fill="none" opacity=".6"/>` : ""}
+      ${spec.badge && !spec.back ? `<g transform="translate(${(sw * .45).toFixed(1)},${(shY + B.H * .07).toFixed(1)}) rotate(-6) scale(.7)"><rect x="-4" y="0" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="2" width="5.2" height="1.6" fill="#E07E12"/><rect x="-1.4" y="-1.2" width="2.8" height="1.6" rx=".5" fill="#9AA6B2"/></g>` : ""}
       <path d="M${sw * .55},${shY + 2} C${sw * .9},${(shY + waist) / 2} ${hw * .9},${waist - 6} ${hw * .8},${waist}" stroke="${topD}" stroke-width="2" fill="none" opacity=".35"/>`;
     // tête : cou, oreilles, visage, cheveux, traits
     const ex = R * .36, ey = headY + R * .05, look = R * .08;
+    // --- coiffures détaillées : tresses (natte en épi), couettes hautes avec élastique, ondulations ---
+    const f2 = (v) => v.toFixed(1);
+    const plait = (x0, y0, x1, y1, w, n, tie) => {   // une natte : des mèches en épi qui se chevauchent, un élastique, une petite touffe
+      let o = "";
+      for (let i = 0; i < n; i++) {
+        const t = (i + .5) / n, x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t, ww = w * (1 - t * .35), side = i % 2 ? 1 : -1;
+        o += `<ellipse cx="${f2(x + side * ww * .18)}" cy="${f2(y)}" rx="${f2(ww * .62)}" ry="${f2((y1 - y0) / n * .78)}" transform="rotate(${side * 28} ${f2(x)} ${f2(y)})" fill="${i % 2 ? hc : hcD}"/>`;
+      }
+      return o + `<rect x="${f2(x1 - w * .34)}" y="${f2(y1 - w * .08)}" width="${f2(w * .68)}" height="${f2(w * .3)}" rx="${f2(w * .12)}" fill="${tie}"/>`
+        + `<path d="M${f2(x1 - w * .3)},${f2(y1 + w * .2)} q${f2(w * .3)},${f2(w * .7)} ${f2(w * .6)},0" fill="${hc}"/>`;
+    };
+    const tieC = spec.bow || "#E2702A";
+    const tail = (sg) => {   // une couette : attachée haut sur le côté, elle retombe en goutte, avec son élastique
+      const ax = sg * R * .98, ay = headY - R * .62, tx = sg * R * 1.55, ty = headY + R * .55;
+      return `<path d="M${f2(ax)},${f2(ay - R * .14)} C${f2(sg * R * 1.75)},${f2(ay - R * .1)} ${f2(sg * R * 1.85)},${f2(ty - R * .5)} ${f2(tx)},${f2(ty)} C${f2(sg * R * 1.3)},${f2(ty - R * .25)} ${f2(sg * R * 1.15)},${f2(ay + R * .45)} ${f2(ax)},${f2(ay + R * .14)} Z" fill="url(#${u}h)"/>`
+        + `<path d="M${f2(sg * R * 1.22)},${f2(ay + R * .1)} C${f2(sg * R * 1.55)},${f2(ay + R * .35)} ${f2(sg * R * 1.58)},${f2(ty - R * .4)} ${f2(sg * R * 1.48)},${f2(ty - R * .12)}" stroke="${hcD}" stroke-width="${f2(R * .05)}" fill="none" opacity=".6"/>`
+        + `<ellipse cx="${f2(ax + sg * R * .08)}" cy="${f2(ay)}" rx="${f2(R * .14)}" ry="${f2(R * .19)}" fill="${tieC}"/>`;
+    };
+    const wavyBack = (sg) => {   // cheveux ondulés mi-longs : des vagues régulières jusqu'aux épaules
+      const pts = [[1.0, -.75], [1.18, -.1], [1.02, .45], [1.2, 1.0], [1.0, 1.5], [1.12, 1.82]];
+      let d = `M${f2(sg * R * .1)},${f2(headY - R * 1.04)} C${f2(sg * R * .8)},${f2(headY - R * 1.05)} ${f2(sg * R * 1.05)},${f2(headY - R * .95)} ${f2(sg * R * pts[0][0])},${f2(headY + R * pts[0][1])}`;
+      for (let i = 1; i < pts.length; i++) { const [a, b] = pts[i], [pa, pb] = pts[i - 1]; d += ` Q${f2(sg * R * (a + (i % 2 ? .14 : -.14)))},${f2(headY + R * (pb + b) / 2)} ${f2(sg * R * a)},${f2(headY + R * b)}`; }
+      d += ` Q${f2(sg * R * .86)},${f2(headY + R * 2.0)} ${f2(sg * R * .62)},${f2(headY + R * 1.8)} C${f2(sg * R * .76)},${f2(headY + R * 1.2)} ${f2(sg * R * .74)},${f2(headY + R * .5)} ${f2(sg * R * .7)},${f2(headY)} Z`;
+      return `<path d="${d}" fill="url(#${u}h)"/><path d="M${f2(sg * R * 1.02)},${f2(headY + R * .2)} q${f2(sg * R * .14)},${f2(R * .28)} 0,${f2(R * .55)} q${f2(-sg * R * .14)},${f2(R * .28)} 0,${f2(R * .55)}" stroke="${hcD}" stroke-width="${f2(R * .05)}" fill="none" opacity=".55"/>`;
+    };
     const hairBack = {
       long: `<path d="M${-R * .2},${headY - R * 1.02} C${-R * 1.2},${headY - R * .95} ${-R * 1.3},${headY + R * .9} ${-R * 1.05},${headY + R * 2.05} C${-R * .85},${headY + R * 2.2} ${-R * .55},${headY + R * 2.1} ${-R * .5},${headY + R * 1.7} C${-R * .7},${headY + R * 1.1} ${-R * .78},${headY + R * .6} ${-R * .7},${headY} Z M${R * .2},${headY - R * 1.02} C${R * 1.2},${headY - R * .95} ${R * 1.3},${headY + R * .9} ${R * 1.05},${headY + R * 2.05} C${R * .85},${headY + R * 2.2} ${R * .55},${headY + R * 2.1} ${R * .5},${headY + R * 1.7} C${R * .7},${headY + R * 1.1} ${R * .78},${headY + R * .6} ${R * .7},${headY} Z" fill="${hcD}"/>`,
       bun: `<circle cx="${-R * .15}" cy="${headY - R * 1.12}" r="${R * .48}" fill="url(#${u}h)"/>`,
       ponytail: `<path d="M${R * .55},${headY - R * .55} C${R * 1.5},${headY - R * .2} ${R * 1.3},${headY + R * 1.4} ${R * .95},${headY + R * 1.8} C${R * 1.05},${headY + R * .9} ${R * .9},${headY + R * .1} ${R * .4},${headY - R * .2} Z" fill="${hc}"/>`,
-      braids: `<path d="M${-R * .95},${headY} q${-R * .25},${R * 1.2} ${R * .05},${R * 2.1} M${R * .95},${headY} q${R * .25},${R * 1.2} ${-R * .05},${R * 2.1}" stroke="${hcD}" stroke-width="${R * .32}" stroke-linecap="round" fill="none"/>`,
+      braids: `${plait(-R * 1.0, headY + R * .15, -R * .92, headY + R * 2.15, R * .42, 7, tieC)}${plait(R * 1.0, headY + R * .15, R * .92, headY + R * 2.15, R * .42, 7, tieC)}`,
+      pigtails: `${tail(-1)}${tail(1)}`,
+      wavy: `${wavyBack(-1)}${wavyBack(1)}`,
       afro: `<circle cx="0" cy="${headY - R * .15}" r="${R * 1.28}" fill="url(#${u}h)"/>`,
     }[spec.hairStyle] || "";
     const hairFront = {
       short: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .1} C${R * .7},${headY - R * .62} ${-R * .2},${headY - R * .78} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/>`,
       buzz: `<path d="M${-R * .98},${headY - R * .15} C${-R},${headY - R * 1.12} ${R},${headY - R * 1.15} ${R * .98},${headY - R * .2} C${R * .6},${headY - R * .7} ${-R * .6},${headY - R * .72} ${-R * .98},${headY - R * .15} Z" fill="${hc}" opacity=".9"/>`,
-      long: `<path d="M${-R * 1.06},${headY + R * .5} C${-R * 1.25},${headY - R * 1.35} ${R * 1.25},${headY - R * 1.35} ${R * 1.06},${headY + R * .5} C${R * .95},${headY - R * .3} ${R * .3},${headY - R * .72} ${-R * .1},${headY - R * .62} C${-R * .5},${headY - R * .4} ${-R * .95},${headY - R * .2} ${-R * 1.06},${headY + R * .5} Z" fill="url(#${u}h)"/>`,
+      long: `<path d="M${-R * 1.03},${headY - R * .1} C${-R * 1.1},${headY - R * 1.32} ${R * 1.1},${headY - R * 1.32} ${R * 1.03},${headY - R * .1} C${R * .7},${headY - R * .6} ${-R * .7},${headY - R * .6} ${-R * 1.03},${headY - R * .1} Z" fill="url(#${u}h)"/><path d="M${-R * 1.06},${headY + R * .5} C${-R * 1.25},${headY - R * 1.35} ${R * 1.25},${headY - R * 1.35} ${R * 1.06},${headY + R * .5} C${R * .95},${headY - R * .3} ${R * .3},${headY - R * .72} ${-R * .1},${headY - R * .62} C${-R * .5},${headY - R * .4} ${-R * .95},${headY - R * .2} ${-R * 1.06},${headY + R * .5} Z" fill="url(#${u}h)"/>`,
       bun: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .05} C${R * .6},${headY - R * .72} ${-R * .6},${headY - R * .72} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/>`,
       ponytail: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .05} C${R * .6},${headY - R * .72} ${-R * .6},${headY - R * .72} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/>`,
-      braids: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .05} C${R * .2},${headY - R * .9} ${-R * .2},${headY - R * .9} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/>`,
+      braids: `<path d="M${-R * 1.04},${headY + R * .2} C${-R * 1.12},${headY - R * 1.25} ${R * 1.12},${headY - R * 1.3} ${R * 1.04},${headY + R * .2} C${R * .9},${headY - R * .4} ${R * .4},${headY - R * .82} 0,${headY - R * .86} C${-R * .4},${headY - R * .82} ${-R * .9},${headY - R * .4} ${-R * 1.04},${headY + R * .2} Z" fill="url(#${u}h)"/><path d="M0,${headY - R * 1.03} L0,${headY - R * .86}" stroke="${tone(sk, -.2)}" stroke-width="${(R * .05).toFixed(2)}"/>`,
       afro: "",
-      bob: `<path d="M${-R * 1.08},${headY + R * .62} C${-R * 1.3},${headY - R * 1.35} ${R * 1.3},${headY - R * 1.35} ${R * 1.08},${headY + R * .62} L${R * .82},${headY + R * .62} C${R * .9},${headY - R * .2} ${R * .2},${headY - R * .7} ${-R * .3},${headY - R * .55} C${-R * .7},${headY - R * .4} ${-R * .86},${headY} ${-R * .82},${headY + R * .62} Z" fill="url(#${u}h)"/>`,
-      pigtails: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .05} C${R * .2},${headY - R * .9} ${-R * .2},${headY - R * .9} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/><ellipse cx="${-R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/><ellipse cx="${R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/>`,
+      bob: `<path d="M${-R * 1.03},${headY - R * .1} C${-R * 1.1},${headY - R * 1.32} ${R * 1.1},${headY - R * 1.32} ${R * 1.03},${headY - R * .1} C${R * .7},${headY - R * .6} ${-R * .7},${headY - R * .6} ${-R * 1.03},${headY - R * .1} Z" fill="url(#${u}h)"/><path d="M${-R * 1.1},${headY + R * .72} C${-R * 1.28},${headY - R * 1.3} ${R * 1.28},${headY - R * 1.3} ${R * 1.1},${headY + R * .72} Q${R * 1.02},${headY + R * .86} ${R * .84},${headY + R * .74} C${R * .9},${headY + R * .1} ${R * .86},${headY - R * .36} ${R * .62},${headY - R * .5} L${-R * .62},${headY - R * .5} C${-R * .86},${headY - R * .36} ${-R * .9},${headY + R * .1} ${-R * .84},${headY + R * .74} Q${-R * 1.02},${headY + R * .86} ${-R * 1.1},${headY + R * .72} Z" fill="url(#${u}h)"/><path d="M${-R * .62},${headY - R * .5} L${R * .62},${headY - R * .5}" stroke="${hcD}" stroke-width="${(R * .05).toFixed(2)}" opacity=".5"/><path d="M${-R * .2},${headY - R * 1.0} q${-R * .45},${R * .2} ${-R * .6},${R * .5}" stroke="#fff" stroke-opacity=".18" stroke-width="${(R * .08).toFixed(2)}" fill="none" stroke-linecap="round"/>`,
+      pigtails: `<path d="M${-R * 1.02},${headY - R * .05} C${-R * 1.1},${headY - R * 1.25} ${R * 1.1},${headY - R * 1.3} ${R * 1.02},${headY - R * .05} C${R * .55},${headY - R * .78} ${R * .1},${headY - R * .85} 0,${headY - R * .86} C${-R * .1},${headY - R * .85} ${-R * .55},${headY - R * .78} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/><path d="M0,${headY - R * 1.02} v${R * .2}" stroke="${hcD}" stroke-width="${(R * .04).toFixed(2)}" opacity=".6"/>`,
       bald: `<path d="M${-R * .99},${headY + R * .1} C${-R * 1.04},${headY - R * .25} ${-R * .9},${headY - R * .45} ${-R * .82},${headY - R * .4} L${-R * .86},${headY + R * .25} Z M${R * .99},${headY + R * .1} C${R * 1.04},${headY - R * .25} ${R * .9},${headY - R * .45} ${R * .82},${headY - R * .4} L${R * .86},${headY + R * .25} Z" fill="${hc}"/>`,
       spiky: `<path d="M${-R * 1.02},${headY - R * .05} L${-R * .9},${headY - R * 1.15} L${-R * .55},${headY - R * .9} L${-R * .3},${headY - R * 1.3} L${0},${headY - R * .95} L${R * .3},${headY - R * 1.3} L${R * .55},${headY - R * .9} L${R * .9},${headY - R * 1.15} L${R * 1.02},${headY - R * .05} C${R * .6},${headY - R * .6} ${-R * .6},${headY - R * .6} ${-R * 1.02},${headY - R * .05} Z" fill="url(#${u}h)"/>`,
       curly: `<g fill="url(#${u}h)">${[-.85, -.45, 0, .45, .85].map((k, i) => `<circle cx="${R * k}" cy="${headY - R * (.7 + (i % 2) * .15)}" r="${R * .42}"/>`).join("")}</g>`,
+      wavy: `<path d="M${-R * 1.03},${headY - R * .1} C${-R * 1.1},${headY - R * 1.32} ${R * 1.1},${headY - R * 1.32} ${R * 1.03},${headY - R * .1} C${R * .7},${headY - R * .6} ${-R * .7},${headY - R * .6} ${-R * 1.03},${headY - R * .1} Z" fill="url(#${u}h)"/><path d="M${-R * 1.06},${headY + R * .45} C${-R * 1.25},${headY - R * 1.35} ${R * 1.25},${headY - R * 1.35} ${R * 1.06},${headY + R * .45} C${R * 1.0},${headY - R * .2} ${R * .55},${headY - R * .8} ${R * .05},${headY - R * .7} Q${-R * .35},${headY - R * .82} ${-R * .55},${headY - R * .5} Q${-R * .85},${headY - R * .28} ${-R * 1.06},${headY + R * .45} Z" fill="url(#${u}h)"/><path d="M${-R * .45},${headY - R * .95} q${R * .25},${R * .1} ${R * .3},${R * .35} q${R * .05},${R * .2} ${R * .3},${R * .25}" stroke="${hcD}" stroke-width="${(R * .05).toFixed(2)}" fill="none" opacity=".55"/>`,
     }[spec.hairStyle || "short"] || "";
     // l'expression : sourcils et bouche (sourire, grand sourire, calme, inquiet, surpris, fâché, triste)
     const mood = spec.mood || "smile", bl = (dy1, dy2, dy3) => `M${-ex - R * .2},${ey - R * .32 + R * dy1} q${R * .2},${-R * .12 + R * dy2} ${R * .38},${-R * .02 + R * dy3} M${ex + R * .2},${ey - R * .32 + R * dy1} q${-R * .2},${-R * .12 + R * dy2} ${-R * .38},${-R * .02 + R * dy3}`;
@@ -116,8 +144,8 @@
       o: `M${mx - R * .07},${my + R * .04} a${R * .08},${R * .1} 0 1 0 ${R * .14},0 a${R * .08},${R * .1} 0 1 0 ${-R * .14},0`, angry: `M${-R * .18 + mx},${my + R * .06} q${R * .18},${-R * .06} ${R * .36},0` };
     const grey = spec.age >= 55 || spec.hair === "gris" || spec.hair === "poivre";
     // accessoires : bandeau, nœud, boucles d'oreilles
-    const acc = (spec.headband ? `<path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="${spec.headband}" stroke-width="${(R * .2).toFixed(2)}" stroke-linecap="round"/><path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="${(R * .05).toFixed(2)}" transform="translate(0,${(-R * .05).toFixed(2)})"/>` : "")
-      + (spec.bow ? `<g transform="translate(${(spec.back ? -R * .5 : R * .55).toFixed(1)},${(headY - R * .86).toFixed(1)}) rotate(${spec.back ? -18 : 18})"><path d="M0,0 L${-R * .42},${-R * .26} L${-R * .42},${R * .26} Z M0,0 L${R * .42},${-R * .26} L${R * .42},${R * .26} Z" fill="${spec.bow}"/><circle r="${(R * .12).toFixed(2)}" fill="${tone(spec.bow, -.25)}"/></g>` : "")
+    const acc = (spec.headband ? `<path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="${tone(spec.headband, -.35)}" stroke-width="${(R * .27).toFixed(2)}" stroke-linecap="round"/><path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="${spec.headband}" stroke-width="${(R * .2).toFixed(2)}" stroke-linecap="round"/><path d="M${-R * .99},${headY - R * .2} C${-R * .9},${headY - R * 1.2} ${R * .9},${headY - R * 1.2} ${R * .99},${headY - R * .2}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="${(R * .05).toFixed(2)}" transform="translate(0,${(-R * .05).toFixed(2)})"/>` : "")
+      + (spec.bow ? `<g transform="translate(${(spec.back ? -R * .5 : R * .55).toFixed(1)},${(headY - R * .86).toFixed(1)}) rotate(${spec.back ? -18 : 18}) scale(1.45)"><path d="M0,0 L${-R * .42},${-R * .26} L${-R * .42},${R * .26} Z M0,0 L${R * .42},${-R * .26} L${R * .42},${R * .26} Z" fill="${spec.bow}" stroke="${tone(spec.bow, -.35)}" stroke-width="${(R * .05).toFixed(2)}" stroke-linejoin="round"/><circle r="${(R * .13).toFixed(2)}" fill="${tone(spec.bow, -.25)}"/></g>` : "")
       + (spec.earring ? `<circle cx="${-R * .98}" cy="${headY + R * .4}" r="${(R * .08).toFixed(2)}" fill="#E5B94E"/><circle cx="${R * .98}" cy="${headY + R * .4}" r="${(R * .08).toFixed(2)}" fill="#E5B94E"/>` : "");
     const cap = (y2) => `<path d="M${-R * 1.01},${headY + R * y2} C${-R * 1.12},${headY - R * 1.3} ${R * 1.12},${headY - R * 1.3} ${R * 1.01},${headY + R * y2} C${R * .6},${headY + R * (y2 + .18)} ${-R * .6},${headY + R * (y2 + .18)} ${-R * 1.01},${headY + R * y2} Z" fill="url(#${u}h)"/>`;
     const backHair = {
@@ -127,9 +155,10 @@
       bob: cap(.5) + `<path d="M${-R * 1.08},${headY} C${-R * 1.12},${headY + R * .9} ${R * 1.12},${headY + R * .9} ${R * 1.08},${headY} Z" fill="url(#${u}h)"/>`,
       bun: cap(.42) + `<circle cx="0" cy="${headY - R * .95}" r="${R * .46}" fill="url(#${u}h)"/>`,
       ponytail: cap(.42) + `<path d="M${-R * .2},${headY - R * .1} C${-R * .35},${headY + R * 1.2} ${-R * .1},${headY + R * 1.9} 0,${headY + R * 2.1} C${R * .1},${headY + R * 1.9} ${R * .35},${headY + R * 1.2} ${R * .2},${headY - R * .1} Z" fill="${hcD}"/>`,
-      braids: cap(.42) + `<path d="M${-R * .35},${headY + R * .3} q${-R * .1},${R * 1.1} ${R * .05},${R * 1.9} M${R * .35},${headY + R * .3} q${R * .1},${R * 1.1} ${-R * .05},${R * 1.9}" stroke="${hcD}" stroke-width="${R * .3}" stroke-linecap="round" fill="none"/>`,
-      pigtails: cap(.42) + `<ellipse cx="${-R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/><ellipse cx="${R * 1.25}" cy="${headY + R * .1}" rx="${R * .32}" ry="${R * .55}" fill="${hc}"/>`,
+      braids: cap(.42) + `${plait(-R * .45, headY + R * .35, -R * .5, headY + R * 2.2, R * .4, 7, tieC)}${plait(R * .45, headY + R * .35, R * .5, headY + R * 2.2, R * .4, 7, tieC)}`,
+      pigtails: cap(.42) + `${tail(-1)}${tail(1)}`,
       afro: `<circle cx="0" cy="${headY - R * .15}" r="${R * 1.28}" fill="url(#${u}h)"/>`,
+      wavy: cap(.5) + `${wavyBack(-1)}${wavyBack(1)}<path d="M${-R * .75},${headY + R * .4} q${R * .2},${R * .6} 0,${R * 1.2} M${R * .75},${headY + R * .4} q${-R * .2},${R * .6} 0,${R * 1.2}" stroke="${hcD}" stroke-width="${(R * .05).toFixed(2)}" fill="none" opacity=".5"/>`,
     }[spec.hairStyle || "short"] || cap(.42);
     const headBack = `<g class="head" style="transform-origin:0px ${neckY.toFixed(1)}px">
       <rect x="${-R * .3}" y="${neckY - 3}" width="${R * .6}" height="${B.neck + 6}" rx="2" fill="${skD}"/>
@@ -155,9 +184,16 @@
         ${mood === "angry" ? `<ellipse class="flush" cx="${look}" cy="${ey + R * .32}" rx="${R * .82}" ry="${R * .5}" fill="#E0442B" opacity=".26"/><path d="M${-ex - R * .28},${ey - R * .5} l${R * .16},${R * .1} M${ex + R * .28},${ey - R * .5} l${-R * .16},${R * .1}" stroke="${tone(sk, -.4)}" stroke-width="${(R * .04).toFixed(2)}"/>` : ""}
         ${mood === "sad" ? `<path class="tear" d="M${-ex + look},${ey + R * .2} q${-R * .08},${R * .2} 0,${R * .26} q${R * .08},${-R * .06} 0,${-R * .26} Z" fill="#7EC8F2" opacity=".9"/>` : ""}
         ${mood === "o" ? `<ellipse cx="${-ex + look}" cy="${ey}" rx="${R * .2}" ry="${R * .24}" fill="none" stroke="#fff" stroke-width="${(R * .03).toFixed(2)}" opacity=".6"/>` : ""}
-        ${spec.glasses ? `<g fill="none" stroke="${spec.glasses}" stroke-width="${(R * .06).toFixed(2)}"><circle cx="${-ex + look}" cy="${ey}" r="${R * .25}"/><circle cx="${ex + look}" cy="${ey}" r="${R * .25}"/><path d="M${-ex + look + R * .25},${ey} h${ex * 2 - R * .5}"/></g>` : ""}
+        ${spec.glasses ? `<g fill="none" stroke="${spec.glasses}" stroke-width="${(R * .065).toFixed(2)}">${spec.glassShape === "square"
+          ? `<rect x="${-ex + look - R * .29}" y="${ey - R * .22}" width="${R * .58}" height="${R * .44}" rx="${(R * .06).toFixed(2)}"/><rect x="${ex + look - R * .29}" y="${ey - R * .22}" width="${R * .58}" height="${R * .44}" rx="${(R * .06).toFixed(2)}"/><path d="M${-ex + look + R * .29},${ey - R * .04} h${ex * 2 - R * .58}"/>`
+          : `<circle cx="${-ex + look}" cy="${ey}" r="${R * .25}"/><circle cx="${ex + look}" cy="${ey}" r="${R * .25}"/><path d="M${-ex + look + R * .25},${ey} h${ex * 2 - R * .5}"/>`}</g>` : ""}
         ${spec.moustache ? `<path d="M${look - R * .32},${ey + R * .5} q${R * .32},${-R * .18} ${R * .64},0 q${-R * .32},${R * .1} ${-R * .64},0 Z" fill="${grey ? "#B9B3AC" : hcD}"/>` : ""}
-        ${spec.beard ? `<path d="M${-R * .82},${headY + R * .25} C${-R * .7},${headY + R * 1.15} ${R * .7},${headY + R * 1.15} ${R * .82},${headY + R * .25} C${R * .55},${headY + R * .85} ${-R * .55},${headY + R * .85} ${-R * .82},${headY + R * .25} Z" fill="${grey ? "#B9B3AC" : hc}" opacity=".85"/>` : ""}
+        ${spec.beard ? (() => { const bc = grey ? "#B9B3AC" : hc, bd = grey ? "#9A948D" : hcD, jy = headY + R * .15;
+          return `<path d="M${-R * .97},${jy - R * .25} C${-R * 1.0},${headY + R * .75} ${-R * .62},${headY + R * 1.22} 0,${headY + R * 1.26} C${R * .62},${headY + R * 1.22} ${R * 1.0},${headY + R * .75} ${R * .97},${jy - R * .25}
+            L${R * .8},${jy - R * .2} C${R * .74},${headY + R * .5} ${R * .42},${headY + R * .58} ${R * .2},${headY + R * .52} Q0,${headY + R * .46} ${-R * .2},${headY + R * .52} C${-R * .42},${headY + R * .58} ${-R * .74},${headY + R * .5} ${-R * .8},${jy - R * .2} Z" fill="${bc}"/>
+            <path d="M${look - R * .3},${ey + R * .5} q${R * .3},${-R * .16} ${R * .6},0 q${-R * .3},${R * .12} ${-R * .6},0 Z" fill="${bd}"/>
+            <path d="M${look - R * .16},${ey + R * .66} q${R * .16},${R * .1} ${R * .32},0" stroke="${tone(sk, -.45)}" stroke-width="${(R * .06).toFixed(2)}" fill="none" stroke-linecap="round"/>
+            <path d="M${-R * .55},${headY + R * .85} q${R * .1},${R * .12} ${R * .22},${R * .16} M${R * .55},${headY + R * .85} q${-R * .1},${R * .12} ${-R * .22},${R * .16} M${-R * .1},${headY + R * 1.05} v${R * .12} M${R * .12},${headY + R * 1.04} v${R * .12}" stroke="${bd}" stroke-width="${(R * .05).toFixed(2)}" stroke-linecap="round" opacity=".7"/>`; })() : ""}
       </g></g>`;
     const shadow = `<ellipse cx="0" cy="1" rx="${(B.H * .14).toFixed(1)}" ry="${(B.H * .035).toFixed(1)}" fill="#1B2A22" opacity=".18"/>`;
     const ex0 = (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? R * .6 : 0), vb = `${-H * .32} ${-H * 1.02 - ex0} ${H * .64} ${H * 1.06 + ex0}`;
@@ -165,7 +201,7 @@
       <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(1, false)}${leg(-1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}`}</g></g></svg>`;
   }
   // La distribution du jeu : âge, sexe, coiffure, vêtements (couleurs reprises des anciens personnages)
-  const HS = { chignon: "bun", court: "short", ondule: "long", carre: "bob", rase: "buzz", chauve: "bald", boucles: "curly", herisse: "spiky", couettes: "pigtails", tresses: "braids", long: "long", queue: "ponytail", afro: "afro" };
+  const HS = { chignon: "bun", court: "short", ondule: "wavy", carre: "bob", rase: "buzz", chauve: "bald", boucles: "curly", herisse: "spiky", couettes: "pigtails", tresses: "braids", long: "long", queue: "ponytail", afro: "afro" };
   const AGE = { nour: 34, bastien: 20, ines: 26, jade: 29, kevin: 24, garnier: 58, lou: 10, malo: 7, maelys: 14, roussel: 42, benali: 40, zoe: 8, theo: 8, sacha: 11, clara: 17, enzo: 14, lena: 13, parent: 46, rey: 40, karim: 35, petit: 68, intervenant: 50 };
   const FEM = new Set(["nour", "ines", "jade", "maelys", "benali", "zoe", "clara", "lena", "petit"]);
   const BOT = { nour: "#38465C", bastien: "#3A4A64", ines: "#2E3A4E", jade: "#4A5A78", kevin: "#3B3F48", garnier: "#4B4136", lou: "#40506A", malo: "#3D5A80", maelys: "#33405C", roussel: "#2F3540", benali: "#3A2F3E", zoe: "#6B4E9A", theo: "#3D5A80", sacha: "#2F4058", clara: "#2E3A4E", enzo: "#45506A", lena: "#4E6A8E", parent: "#3A3F48", rey: "#2F3540", karim: "#4B4136", petit: "#5A5060", intervenant: "#3B342E" };
@@ -180,7 +216,7 @@
   function specOfLook(L) {
     if (!L) return null;
     return { age: 27, sex: ["tresses", "long", "ondule", "chignon", "couettes", "carre"].includes(L.hair) ? "f" : "m", skin: SKIN[L.skin] || "#D9A27A", hair: L.hc || "brun", hairStyle: HS[L.hair] || "short", top: L.top || "#3F7CC0", bottom: "#33405C",
-      glasses: L.glasses ? ({ rouge: "#C2412A", doree: "#C9A24A" }[L.glasses] || "#3B3B3B") : null, beard: !!L.barbe, moustache: !!L.moustache, badge: true,
+      glasses: L.glasses ? ({ rouge: "#C2412A", doree: "#C9A24A" }[L.glasses] || "#3B3B3B") : null, glassShape: L.glasses === "carree" ? "square" : "round", beard: !!L.barbe, moustache: !!L.moustache, badge: true,
       eyes: { marron: "#5A3A22", noisette: "#8A5A2A", vert: "#4F7A3A", bleu: "#3F6FA8", gris: "#6E7780" }[L.eyes] || null,
       mood: L.mood || "smile", nose: Number(L.nose || 1), cut: L.cut || "pull", headband: L.headband || null, bow: L.bow || null, earring: !!L.earring };
   }
@@ -196,8 +232,8 @@
   }
   // Portrait (buste) : le même personnage, cadré sur le haut du corps
   function bust(spec, cls = "") {
-    const svg = figure(spec), B = body(spec.age || 30), top = B.shY - B.neck - B.headR * 2.4, hgt = -top + B.shY * -0.0 + B.H * .2;
-    return svg.replace(/viewBox="[^"]+"/, `viewBox="${(-B.H * .2).toFixed(1)} ${top.toFixed(1)} ${(B.H * .4).toFixed(1)} ${(B.H * .4).toFixed(1)}"`).replace('<svg class="rig"', `<svg class="rig rig-bust p-idle ${cls}"`);
+    const svg = figure(spec), B = body(spec.age || 30), top = B.shY - B.neck - B.headR * (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? 2.95 : 2.4), hgt = -top + B.shY * -0.0 + B.H * .2;
+    return svg.replace(/viewBox="[^"]+"/, `viewBox="${(-B.H * .2).toFixed(1)} ${top.toFixed(1)} ${(B.H * .4).toFixed(1)} ${(B.H * .4 + (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? B.headR * .55 : 0)).toFixed(1)}"`).replace('<svg class="rig"', `<svg class="rig rig-bust p-idle ${cls}"`);
   }
   // une chaise (vue de trois quarts) pour qui est assis : plus personne n'est « assis sur rien »
   function chair(age, col = "#A8774B") {
@@ -355,7 +391,8 @@
       if (!this.on || !this.ctx) return;
       const m = MOODS[this.mood] || MOODS.home, c = this.ctx, beat = 60 / m.bpm, barDur = beat * 4, t0 = c.currentTime + 0.08;
       const ch = m.chords[this.bar % m.chords.length];
-      ch.forEach((n, i) => { this.voice(mtof(n), t0, barDur + 1.2, { wave: m.wave, gain: 0.011, attack: 1.1, release: 1.4, cut: m.cut, detune: -6 }); this.voice(mtof(n), t0, barDur + 1.2, { wave: "sine", gain: 0.008, attack: 1.3, release: 1.4, cut: m.cut, detune: 7 }); });
+      const at = this._fast ? 0.12 : 1.1; this._fast = false;
+      ch.forEach((n, i) => { this.voice(mtof(n), t0, barDur + 1.2, { wave: m.wave, gain: 0.011, attack: at, release: 1.4, cut: m.cut, detune: -6 }); this.voice(mtof(n), t0, barDur + 1.2, { wave: "sine", gain: 0.008, attack: at + .2, release: 1.4, cut: m.cut, detune: 7 }); });
       this.voice(mtof(ch[0] - 12), t0, barDur * 0.9, { wave: "sine", gain: 0.022, attack: 0.08, release: 0.8, cut: 400 });
       if (m.pulse) for (let k = 0; k < 4; k += 2) { this.voice(mtof(ch[0] - 24), t0 + k * beat, 0.35, { wave: "sine", gain: 0.03, attack: 0.01, release: 0.3, cut: 200 }); }
       // battement de cœur (deux coups rapprochés) et ostinato de croches : l'adrénaline monte
@@ -409,10 +446,11 @@
       try { if (this.ctx.state === "suspended") this.ctx.resume(); } catch (e) { }
       this.on = true;
       const t = this.ctx.currentTime;
-      this.music.gain.cancelScheduledValues(t); this.music.gain.setTargetAtTime(1, t, 1.5);
-      this.natBus.gain.cancelScheduledValues(t); this.natBus.gain.setTargetAtTime(1, t, 1.5);
+      // la musique démarre tout de suite (dès « Commencer ») : montée courte, premier accord franc
+      this.music.gain.cancelScheduledValues(t); this.music.gain.setValueAtTime(Math.max(this.music.gain.value, .35), t); this.music.gain.setTargetAtTime(1, t, 0.25);
+      this.natBus.gain.cancelScheduledValues(t); this.natBus.gain.setTargetAtTime(1, t, 0.6);
       this.natKind = null; this.setNature((MOODS[this.mood] || MOODS.home).nature);
-      this.scheduleBar();
+      this._fast = true; this.scheduleBar();
     },
     stopAmb() {
       if (!this.ctx || !this.on) return;
@@ -446,21 +484,24 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => clearTimeout(this._wd));
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); if (this._cur && this._cur.e) this._cur.e.classList.remove("vpend"); });
       }
       try { this.el.pause(); } catch (e) { }
       this._done();
+      // texte et voix ensemble : une réplique pas encore dite reste cachée, puis apparaît au moment où on l'entend
+      items.forEach((x, i) => { if (x.e && i > 0) x.e.classList.add("vpend"); });
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
       World.talk(it.w, it.t);
+      clearTimeout(this._show); if (it.e) this._show = setTimeout(() => it.e && it.e.classList.remove("vpend"), 1500);   // si la voix tarde, le texte paraît quand même
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
       // garde-fou : une voix générée à la volée peut tarder ; au-delà de 14 s, on passe à la suivante
       clearTimeout(this._wd); this._wd = setTimeout(() => { if (this._cur === it && this.el.paused) this._skip(); }, 14000);
     },
-    _skip() { clearTimeout(this._wd); this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); },
+    _skip() { clearTimeout(this._wd); if (this._cur && this._cur.e) this._cur.e.classList.remove("vpend"); this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); },
     _tick() {
       cancelAnimationFrame(this._raf);
       const f = () => {
@@ -477,7 +518,7 @@
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
 
@@ -886,11 +927,19 @@
       a.classList.toggle("emo-angry", emo === "angry"); a.classList.toggle("emo-sad", emo === "sad");
       // le signe au-dessus de la tête (dehors : un élément HTML ; dans une salle : dans le dessin)
       a.querySelectorAll(".emo-sign").forEach((x) => x.remove());
-      if (emo && EMO_SIGN[emo]) {
-        if (a.tagName === "DIV") a.appendChild(el("span", { class: "emo-sign emo-" + emo }, EMO_SIGN[emo]));
-        else { const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "emo-sign emo-" + emo); g.setAttribute("transform", "translate(9,-62) scale(.9)"); g.innerHTML = EMO_SIGN[emo].replace(/^<svg[^>]*>|<\/svg>$/g, ""); a.appendChild(g); }
-      }
+      signOnHead(nr, who, emo);
     });
+  }
+  // Le signe d'émotion est dessiné dans la tête du personnage (il suit la tête, toujours bien placé, quel que soit le cadrage).
+  // Jamais pendant l'exploration libre (le joueur découvre seul), ni pour les plus jeunes enfants (Malo).
+  function signOnHead(rig, who, emo) {
+    if (!rig || !emo || !EMO_SIGN[emo] || who === "malo" || document.body.classList.contains("roaming")) return;
+    const h = rig.querySelector(".head"); if (!h) return;
+    let bb; try { bb = h.getBBox(); } catch (e) { return; } if (!bb || !bb.width) return;
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g"), k = bb.width * .42 / 20;
+    g.setAttribute("class", "emo-sign emo-" + emo);
+    g.setAttribute("transform", `translate(${(bb.x + bb.width * 1.02).toFixed(1)},${(bb.y + bb.height * .08).toFixed(1)}) scale(${k.toFixed(3)})`);
+    g.innerHTML = EMO_SIGN[emo].replace(/^<svg[^>]*>|<\/svg>$/g, ""); h.appendChild(g);
   }
   // l'émotion d'une réplique, d'après ce qui est dit
   function emoOf(who, t) {
@@ -1127,7 +1176,8 @@
       if (!this.el) return;
       if (who && who !== "narr") this.gaze(who);
       clearTimeout(this._gi); clearTimeout(this._li);
-      this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking"));
+      // fin de réplique : la bouche s'arrête net et le geste en cours se termine tout de suite (plus de gestes inutiles)
+      this.el.querySelectorAll(".talking").forEach((a) => { a.classList.remove("talking"); const r = a.querySelector(".rig"); if (r) { clearTimeout(r._gt); GESTS.forEach((x) => r.classList.remove("g-" + x)); } });
       document.querySelectorAll(".portrait.chip.talking").forEach((a) => a.classList.remove("talking"));
       if (!who || who === "narr") return;
       const els = [...this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`)];
@@ -1141,7 +1191,8 @@
         if (!els.some((a) => a.classList.contains("talking"))) return;
         let g, k = 0; do { g = pool[Math.floor(Math.random() * pool.length)]; } while (g === last && ++k < 6); last = g;
         els.forEach((a) => gesture(a, g));
-        this._gi = setTimeout(step, (n++ === 0 ? 2600 : 2900) + Math.random() * 900);
+        // un ou deux gestes courts par réplique, espacés : jamais d'enchaînement mécanique
+        if (++n < 2) this._gi = setTimeout(step, 4200 + Math.random() * 1800);
       };
       this._gi = setTimeout(step, 250);
       const listen = () => {
@@ -1177,7 +1228,7 @@
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
     GESTS.forEach((x) => r.classList.remove("g-" + x)); void r.getBoundingClientRect();
     r.classList.add("g-" + g);
-    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 3200);
+    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 2500);   // un geste dure 2 à 3 secondes au plus
   }
   function reduce() { return matchMedia("(prefers-reduced-motion: reduce)").matches || calm(); }
   function camera(sc) { World.stage(sc); }
@@ -1599,8 +1650,15 @@
     if (sc.timer && st.res[sc.id] == null && !calm()) {
       bar = el("div", { class: "qtimer", role: "timer", "aria-label": `${sc.timer} secondes pour décider` }, `<i style="animation-duration:${sc.timer}s"></i><span>${sc.timer} s pour décider</span>`);
       panel.appendChild(bar);
-      let left = sc.timer;
-      tId = setInterval(() => { left--; bar.querySelector("span").textContent = left > 0 ? `${left} s pour décider` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 5); if (left <= 0) { clearInterval(tId); timeout(); } }, 1000);
+      let left = sc.timer, started = false, t0 = performance.now();
+      // le chrono attend que tout le monde ait fini de parler (narrateur compris), et se met en pause si quelqu'un reprend la parole
+      const speaking = () => Voice.busy() && st.settings.voice;
+      bar.classList.add("wait"); bar.querySelector("span").textContent = "Écoutez…";
+      tId = setInterval(() => {
+        if (speaking() && performance.now() - t0 < 45000) { bar.classList.add("wait"); if (!started) bar.querySelector("span").textContent = "Écoutez…"; return; }
+        if (!started) { started = true; const i = bar.querySelector("i"); i.style.animation = "none"; void i.offsetWidth; i.style.animation = ""; i.style.animationDuration = sc.timer + "s"; }
+        bar.classList.remove("wait");
+        left--; bar.querySelector("span").textContent = left > 0 ? `${left} s pour décider` : "Temps écoulé"; bar.classList.toggle("hurry", left <= 5); if (left <= 0) { clearInterval(tId); timeout(); } }, 1000);
     }
     panel.append(opts, fbz);
     wrap.appendChild(panel);
@@ -2153,26 +2211,41 @@
     const m = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
     return Math.min(1100, Math.round(m * 1000 * ({ 1: .85, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
   }
-  const LVN = { 1: "Découverte", 2: "Standard", 3: "Expert" };
-  // Parties test (scores de référence de l'équipe Fourmi'Action) : affichées comme telles, pour donner un score à battre
-  const SEED = [["Marie", 874], ["jojo45", 812], ["Arthur", 768], ["VSSKILLER", 731], ["Moumou", 689], ["Safia", 655]].map(([pseudo, score]) => ({ pseudo, score, niveau: 2, test: true }));
-  function withSeed(top) { return (top || []).filter((e) => !e.test).concat(SEED).sort((a, b) => b.score - a.score).slice(0, 20).map((e, i) => ({ ...e, rang: i + 1 })); }
-  const testTag = (e) => (e.test ? ' <small class="rk-test" title="Partie test de l’équipe Fourmi’Action">test</small>' : "");
+  const LVN = { 1: "Enfants", 2: "Adultes", 3: "Adultes · expert" };
+  const GRP = (n) => (Number(n) === 1 ? "enfants" : "adultes");
+  const GRPN = { enfants: "Niveau enfants", adultes: "Niveau adultes" };
+  const expTag = (e) => (Number(e.niveau) === 3 ? ' <small class="rk-exp" title="Mode expert activé">expert</small>' : "");
+  // Un podium : les 10 premiers joueurs qui ont inscrit leur score (aucune partie fictive).
   function boardList(top, me) {
-    top = withSeed(top); if (me && st.ranked) { const m = top.find((e) => !e.test && e.pseudo === st.ranked.pseudo); me = m ? m.rang : null; }
-    if (!top || !top.length) return `<p class="rk-empty">Personne n’est encore classé : soyez le premier ou la première !</p>`;
-    return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${testTag(e)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><span class="rk-l">${LVN[e.niveau] || ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
+    top = (top || []).slice(0, 10);
+    if (!top.length) return `<p class="rk-empty">Personne n’est encore classé à ce niveau : soyez le premier ou la première !</p>`;
+    return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${expTag(e)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
   }
+  // Les deux podiums côte à côte (onglets) : niveau adultes et niveau enfants.
+  function boards(j, me, mine) {
+    const g0 = mine || (st.level === 1 ? "enfants" : "adultes");
+    const id = "rkb" + Math.random().toString(36).slice(2, 7);
+    const tab = (g) => `<button type="button" role="tab" class="rk-tab${g === g0 ? " on" : ""}" aria-selected="${g === g0}" aria-controls="${id}-${g}" data-g="${g}">${GRPN[g]}</button>`;
+    const pane = (g) => `<div class="rk-pane" role="tabpanel" id="${id}-${g}"${g === g0 ? "" : " hidden"}>${boardList(j[g], g === mine ? me : null)}</div>`;
+    return `<div class="rk-tabs" role="tablist" aria-label="Podiums">${tab("adultes")}${tab("enfants")}</div>${pane("adultes")}${pane("enfants")}`;
+  }
+  function wireTabs(root) {
+    root.addEventListener("click", (e) => { const t = e.target.closest(".rk-tab"); if (!t) return; const box = t.closest(".rk-tabs").parentElement;
+      box.querySelectorAll(".rk-tab").forEach((b) => { const on = b === t; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+      box.querySelectorAll(".rk-pane").forEach((p) => { p.hidden = p.id !== t.getAttribute("aria-controls"); }); });
+  }
+  const norm2 = (j) => (j && j.ok ? { ...j, adultes: j.adultes || j.top || [], enfants: j.enfants || [] } : null);
   function rankBox(defi) {
     const score = finalScore(defi);
     const box = el("section", { class: "rank", "aria-labelledby": "rk-h" });
     box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>/ 1 000</small></h3>
-      <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2]}${defi ? ", défi relevé (+ 50)" : ""}. Entrez dans le classement des joueurs avec un pseudo : pas votre nom complet.</p></div></div>
-      <form class="rk-form"><label class="sr-only" for="rk-pseudo">Votre pseudo</label><input id="rk-pseudo" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" value="${esc((st.name || "").slice(0, 16))}"><button class="cta" type="submit">Entrer dans le classement</button></form>
+      <p class="small">Moyenne de vos décisions, ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Inscrivez-vous sur le podium ${st.level === 1 ? "des enfants" : "des adultes"} avec un pseudo : pas votre nom complet.</p></div></div>
+      <form class="rk-form"><label class="sr-only" for="rk-pseudo">Votre pseudo</label><input id="rk-pseudo" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" value="${esc((st.name || "").slice(0, 16))}"><button class="cta" type="submit">M’inscrire sur le podium</button></form>
       <p class="rk-msg" role="status"></p><div class="rk-board"></div>`;
     const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
     if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
-    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { if (j && j.ok) board.innerHTML = boardList(j.top, st.ranked && st.ranked.rang) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
+    wireTabs(board);
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang, GRP(st.level || 2)) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const pseudo = box.querySelector("#rk-pseudo").value.trim(); const sb = form.querySelector("button");
@@ -2182,20 +2255,20 @@
           sb.disabled = false;
           if (!j || !j.ok) { msg.textContent = (j && j.error) || "Le classement n’est pas disponible pour le moment."; return; }
           st.ranked = { pseudo, rang: j.rang }; save(); form.hidden = true;
-          msg.textContent = j.ameliore === false ? `Votre meilleur score (${j.meilleur}) reste au classement : vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"}.` : `Bravo ! Vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"} sur ${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}.`;
-          board.innerHTML = boardList(j.top, j.rang); Snd.good(); if (j.rang <= 3) confetti(box);
+          msg.textContent = j.ameliore === false ? `Votre meilleur score (${j.meilleur}) reste au classement : vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"}.` : `Bravo ! Vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"} sur le podium ${st.level === 1 ? "des enfants" : "des adultes"}.`;
+          board.innerHTML = boards(norm2(j), j.rang, GRP(st.level || 2)); Snd.good(); if (j.rang <= 3) confetti(box);
         }).catch(() => { sb.disabled = false; msg.textContent = "Le classement n’est pas disponible pour le moment."; });
     });
     return box;
   }
   function openBoard() {
     const d = el("div", { class: "rk-pop", role: "dialog", "aria-modal": "true", "aria-labelledby": "rkp-h" });
-    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Score sur 1 000 à la fin de la semaine, selon vos décisions et le niveau choisi.</p></div>`;
+    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Les 10 premiers de chaque niveau. Score sur 1 000 à la fin de la semaine, selon vos décisions et le niveau choisi.</p></div>`;
     const close = () => { d.remove(); document.removeEventListener("keydown", esc2); };
     const esc2 = (e) => { if (e.key === "Escape") close(); };
     d.addEventListener("click", (e) => { if (e.target === d || e.target.closest(".rk-x")) close(); });
-    document.addEventListener("keydown", esc2); document.body.appendChild(d); d.querySelector(".rk-x").focus();
-    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { d.querySelector(".rk-board").innerHTML = j && j.ok ? boardList(j.top) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
+    document.addEventListener("keydown", esc2); document.body.appendChild(d); wireTabs(d); d.querySelector(".rk-x").focus();
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); d.querySelector(".rk-board").innerHTML = j ? boards(j) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
       .catch(() => { d.querySelector(".rk-board").innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
   }
 
@@ -2316,8 +2389,21 @@
       const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { byTime(); nextOnce(read); });
       timer = setTimeout(() => nextOnce(0), Math.max(read, 9000));   // garde-fou si l’audio ne répond pas
     }
-    Snd.duck(true);
-    step();   // première phrase lancée pendant le clic : le son est autorisé sur téléphone
+    // Bafaël se présente et annonce la semaine, puis les citations commencent.
+    function intro() {
+      const box = el("div", { class: "ec-intro" }, `<p><small>Bafaël, votre narrateur</small>${esc(ECHOES.intro)}</p>`);
+      n.appendChild(box); requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add("on")));
+      say(ECHOES.intro);
+      let gone = false;
+      const next = () => { if (gone || !alive) return; gone = true; clearTimeout(timer); box.classList.add("out"); timer = setTimeout(() => { box.remove(); step(); }, 650); };
+      const read = Math.max(4000, 900 + ECHOES.intro.length * 52);
+      const u = audio && Voice.url("narr", ECHOES.intro);
+      if (!u) { timer = setTimeout(next, read); return; }
+      audio.onended = () => setTimeout(next, 250); audio.onerror = () => { timer = setTimeout(next, read); };
+      audio.src = u; const pr = audio.play(); if (pr && pr.catch) pr.catch(() => { timer = setTimeout(next, read); });
+      timer = setTimeout(next, Math.max(read + 4000, 16000));   // garde-fou si l’audio ne répond pas
+    }
+    intro();   // lancé pendant le clic : le son est autorisé sur téléphone
   }
 
   /* =============================================================================================
@@ -2726,7 +2812,7 @@
         const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w] || ""}</b><p>${words(tx)}</p>`);
         box.appendChild(r); seq.push([w, tx, r.querySelector("p")]);
       });
-      setTimeout(() => Voice.seq(seq.concat(V)), 1300);
+      setTimeout(() => Voice.seq(seq.concat(V)), 500);
       nb.textContent = i < ids.length - 1 ? "Décision suivante" : "Voir le bilan";
       Snd[t === "excellent" ? "good" : t === "moyen" ? "mid" : "low"]();
     }
@@ -2948,11 +3034,11 @@
     const mustLeft = () => sc.events.filter((e) => e.must && !S.done[e.id]);
     const guideOnly = () => !S.guided && !!sc.guided;
     const wide = () => innerWidth >= 761;
-    let you = null, busy = false, card = null, ring = null, mark = null;
+    let you = null, busy = false, moving = false, sceneLock = false, card = null, ring = null, mark = null;
 
     /* -- le plan vivant -- */
     function free(first) {
-      Life.clear(); busy = false;
+      Life.clear(); busy = false; moving = false; sceneLock = false;
       Snd.setMood(sc.ch);
       document.body.classList.remove("scene"); document.body.classList.add("roaming");
       World.show({ at: "ensemble", cast: [], free: true }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
@@ -3020,7 +3106,7 @@
 
     /* -- se déplacer : on touche le sol près de soi -- */
     function onTap(e) {
-      if (busy || !document.body.classList.contains("roaming") || e.button > 0) return;
+      if ((busy && !moving) || !document.body.classList.contains("roaming") || e.button > 0) return;   // en marchant, on peut recliquer plus loin
       if (World._drag) return;
       const r = World.cam.getBoundingClientRect(); if (!r.width) return;
       const fx = (e.clientX - r.left) / r.width * 100, fy = (e.clientY - r.top) / r.height * 100, [wx, wy] = f2w(fx, fy);
@@ -3035,9 +3121,10 @@
       const fe = full[full.length - 1], tot = full.reduce((t, q, i) => (i ? t + dist(full[i - 1], q) : 0), 0);
       const pts = fe[2] && DOORS[fe[2]] && tot <= MAX + 1.5 ? full : clampPath(full, MAX), end = pts[pts.length - 1], doorK = end[2] && DOORS[end[2]] ? end[2] : null;
       const fm = w2f(end[0], end[1]); Object.assign(mark.style, { left: fm[0] + "%", top: fm[1] + "%" }); mark.classList.remove("on"); void mark.offsetWidth; mark.classList.add("on");
-      ring.classList.add("moving"); busy = true;
+      ring.classList.add("moving"); busy = true; moving = true;
+      you.onDone = null;   // nouveau clic pendant la marche : on enchaîne depuis là où l’on est, sans s’arrêter
       you.go(pts.slice(1), 1.7, () => {
-        busy = false; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save(); placeRing(); tickClock(); follow(700);
+        busy = false; moving = false; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save(); placeRing(); tickClock(); follow(700);
         dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
         if (doorK) enter(DOORS[doorK]); else { arriveSpot(); if (S.t >= END) drawCard(); }
       });
@@ -3048,8 +3135,9 @@
     // en chemin, on tombe sur une scène : on s'arrête
     function checkSpots() {
       const ev = sc.events.find((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided) && dist([you.x, you.y], SPOTS[e.at]) < (e.r || 3.6));
-      if (!ev) return false;
-      you.stop(); you.onDone = null; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save();
+      if (!ev || sceneLock) return !!ev;
+      sceneLock = true; busy = true;   // une seule fois : la scène ne peut pas se lancer deux fois (sinon les répliques se répètent)
+      you.stop(); you.onDone = null; moving = false; ring.classList.remove("moving"); S.x = you.x; S.y = you.y; save();
       setTimeout(() => scene(ev), 200); return true;
     }
     // un lieu de plein air calme : on regarde, une bulle raconte, on continue
@@ -3088,6 +3176,8 @@
 
     /* -- une scène sur laquelle on tombe : on voit, on entend, on réagit -- */
     function scene(ev) {
+      if (n._scene === ev.id && n.querySelector(".roamscene")) return;   // déjà en cours
+      n._scene = ev.id;
       const E = tune(SCREENS.find((x) => x.id === ev.id));   // niveau Moyen et plus : réponses plus nuancées
       document.body.classList.remove("roaming");
       n.innerHTML = "";
@@ -3116,7 +3206,7 @@
       if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
-      setTimeout(() => Voice.seq(seq), ev.room ? 2000 : 1200);
+      setTimeout(() => Voice.seq(seq), ev.room ? 1000 : 450);
       // son coupé : les personnes jouent quand même leurs répliques (gestes, visage, émotion)
       if (!(Voice.ok && Voice.ready && st.settings.voice)) { const L0 = seq.filter(([w]) => w !== "narr"); L0.forEach(([w, t], i) => setTimeout(() => n.isConnected && World.talk(w, t), (ev.room ? 2600 : 1800) + i * 3000)); setTimeout(() => World.talk(null), (ev.room ? 2600 : 1800) + L0.length * 3000); }
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
@@ -3207,7 +3297,7 @@
       panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
       const row = el("div", { class: "row" }); row.appendChild(btn("Ressortir", () => { Snd.click(); Voice.stop(); outside(); }));
       panel.appendChild(row); wrap.appendChild(panel); n.appendChild(wrap);
-      setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 1700);
+      setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 700);
       row.querySelector("button").focus({ preventScroll: true });
     }
     function finish() {
@@ -3350,7 +3440,7 @@
     setTimeout(() => {
       const r = box.querySelector(".rig"); if (r) r.setAttribute("class", "rig p-idle");
       gesture(box, emo === "angry" ? "fist" : "beckon");
-      if (emo) { box.classList.add("emo-" + emo); if (EMO_SIGN[emo]) box.appendChild(el("span", { class: "emo-sign emo-" + emo }, EMO_SIGN[emo])); }
+      if (emo) { box.classList.add("emo-" + emo); signOnHead(box.querySelector(".rig"), who, emo); }
       Voice.seq(parts);
       setTimeout(() => gesture(box, "beckon"), 2900);
     }, 1050);
@@ -3636,10 +3726,10 @@
       <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
       <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
-      <p class="hsound" aria-hidden="false"><span class="hs-ic" aria-hidden="true"><i></i><i></i><i></i></span><span><b>Activez le son</b> : voix, musique et ambiances font partie du jeu. Un casque ou des écouteurs, c’est encore mieux.</span></p>
+      <p class="hsound" aria-hidden="false"><span class="hs-ic" aria-hidden="true"><i></i><i></i><i></i></span><span>Activez le son pour une expérience ultime.</span></p>
       <div class="hbtns"></div>
       <p class="small warn">Situations fictives destinées à des adultes en formation, sans aucune représentation de violence. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
-      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ». Voix des personnages : ElevenLabs.</p></div>
+      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
 `;
     const hb = n.querySelector(".hbtns");
     // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)
@@ -3656,15 +3746,17 @@
     // ordinateur : à droite, sur les herbes ; téléphone et tablette : juste sous le bouton « Commencer »
     const mq = matchMedia("(max-width: 960px)"), place = () => { if (mq.matches) hb.after(rk); else n.appendChild(rk); };
     place(); try { mq.addEventListener("change", place); } catch (e) { }
+    const hrow = (e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${expTag(e)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`;
+    const hlist = (top) => (top && top.length ? top.slice(0, 10).map(hrow).join("") : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`);
+    rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Les podiums</h2>
+      <div class="rk-tabs hr-tabs" role="tablist" aria-label="Podiums"><button type="button" role="tab" class="rk-tab on" aria-selected="true" aria-controls="hrp-adultes">Adultes</button><button type="button" role="tab" class="rk-tab" aria-selected="false" aria-controls="hrp-enfants">Enfants</button></div>
+      <div class="rk-pane" role="tabpanel" id="hrp-adultes"><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><div class="rk-pane" role="tabpanel" id="hrp-enfants" hidden><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><p class="hr-foot"></p>`;
+    wireTabs(rk);
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
-      const list = rk.querySelector(".hr-list"), foot = rk.querySelector(".hr-foot");
-      if (!j || !j.ok) j = { ok: true, top: [], total: 0 };
-      const top = withSeed(j.top).slice(0, 6);
-      list.innerHTML = top.length ? top.map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${testTag(e)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`).join("")
-        : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`;
-      foot.innerHTML = `${j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} · ` : ""}« test » : parties de référence de l’équipe · <button type="button" class="hr-all">Voir le top 20</button>`;
-      const all = foot.querySelector(".hr-all"); if (all) all.addEventListener("click", openBoard);
-    }).catch(() => { rk.querySelector(".hr-list").innerHTML = withSeed([]).slice(0, 6).map((e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${testTag(e)}</span><b class="hr-s">${e.score}</b></li>`).join(""); });
+      j = norm2(j) || { adultes: [], enfants: [], total: 0 };
+      rk.querySelector("#hrp-adultes .hr-list").innerHTML = hlist(j.adultes); rk.querySelector("#hrp-enfants .hr-list").innerHTML = hlist(j.enfants);
+      rk.querySelector(".hr-foot").innerHTML = j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "";
+    }).catch(() => { rk.querySelectorAll(".hr-list").forEach((l) => { l.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; }); });
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
   }

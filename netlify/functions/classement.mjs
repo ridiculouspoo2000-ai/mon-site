@@ -1,6 +1,6 @@
 /*
  * Fourmi'Action · classement du jeu « Les Hautes Herbes »
- * GET  /api/classement          → les 20 meilleurs scores et le nombre total de parties classées
+ * GET  /api/classement          → les 10 meilleurs scores de chaque podium (enfants · adultes) et le nombre de parties classées
  * POST /api/classement          → { pseudo, score, niveau, defi, nuitee } ; renvoie le rang obtenu
  *
  * Données conservées : un pseudo (jamais un nom complet ni une adresse), le score, le niveau et la date.
@@ -12,7 +12,10 @@ import crypto from "node:crypto";
 export const config = { path: "/api/classement" };
 const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] ?? d);
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
-const GARDER = 300, AFFICHER = 20, PAR_JOUR = 6;
+const GARDER = 300, AFFICHER = 10, PAR_JOUR = 6;
+// Deux podiums : niveau enfants (1) et niveau adultes (2 = moyen, 3 = expert).
+const groupe = (n) => (Number(n) === 1 ? "enfants" : "adultes");
+const du = (L, g) => L.filter((e) => groupe(e.n) === g);
 
 // Mots refusés dans les pseudos (insultes, termes sexuels ou haineux). Comparaison sans accents ni chiffres déguisés.
 const INTERDITS = ["con", "conne", "connard", "connasse", "salop", "salope", "pute", "putain", "encule", "enculer", "bite", "couille", "chatte", "nique", "niquer", "ntm", "fdp",
@@ -39,7 +42,7 @@ export default async (req) => {
   const s = store();
   if (req.method === "GET") {
     const L = await lire(s); const total = Number((await s.get("total")) || L.length);
-    return json({ ok: true, total, top: publique(L) });
+    return json({ ok: true, total, enfants: publique(du(L, "enfants")), adultes: publique(du(L, "adultes")), top: publique(du(L, "adultes")) });
   }
   if (req.method !== "POST") return json({ ok: false }, 405);
   let b; try { b = await req.json(); } catch { return json({ ok: false, error: "Requête illisible." }, 400); }
@@ -57,13 +60,15 @@ export default async (req) => {
   await s.set(cle, String(n + 1));
   const L = await lire(s);
   const e = { p: pseudo, s: score, n: niveau, d: !!b.defi, t: new Date().toISOString() };
-  // un même pseudo garde son meilleur score (pas de doublons dans le classement)
-  const i0 = L.findIndex((x) => x.p.toLowerCase() === pseudo.toLowerCase());
-  if (i0 >= 0) { if (L[i0].s >= score) { const rang = i0 + 1; return json({ ok: true, rang, ameliore: false, meilleur: L[i0].s, total: Number((await s.get("total")) || L.length), top: publique(L) }); } L.splice(i0, 1); }
+  // un même pseudo garde son meilleur score dans son podium (pas de doublons)
+  const g = groupe(niveau);
+  const i0 = L.findIndex((x) => groupe(x.n) === g && x.p.toLowerCase() === pseudo.toLowerCase());
+  const reponse = (extra) => ({ ok: true, groupe: g, enfants: publique(du(L, "enfants")), adultes: publique(du(L, "adultes")), ...extra });
+  if (i0 >= 0) { if (L[i0].s >= score) { const rang = du(L, g).indexOf(L[i0]) + 1; return json(reponse({ rang, ameliore: false, meilleur: L[i0].s, total: Number((await s.get("total")) || L.length) })); } L.splice(i0, 1); }
   L.push(e); L.sort((a, c) => c.s - a.s || a.t.localeCompare(c.t));
-  const rang = L.indexOf(e) + 1;
+  const rang = du(L, g).indexOf(e) + 1;
   const total = Number((await s.get("total")) || 0) + 1;
   await Promise.all([s.set("scores", JSON.stringify(L.slice(0, GARDER))), s.set("total", String(total))]);
   try { const { blobs } = await s.list({ prefix: "lim/" }); await Promise.all(blobs.filter((x) => !x.key.includes(jour)).slice(0, 50).map((x) => s.delete(x.key))); } catch {}
-  return json({ ok: true, rang, ameliore: true, total, top: publique(L) });
+  return json(reponse({ rang, ameliore: true, total }));
 };

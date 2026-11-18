@@ -2143,11 +2143,37 @@ body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
 @media (min-width:861px) and (max-width:1000px){ #hud #btn-carnet .lbl{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important} .hp-left #btn-home{display:none} }
 @media (min-width:861px) and (max-width:1000px){ .hp-left #hudav{border-left:0;padding-left:0} }
 /* « Herbes » : sur Safari, le dégradé découpé sur le texte rognait le « s » final */
-.home2 .hero .w3{display:inline-block;padding:0 .12em .08em .02em;margin:0 -.12em -.08em -.02em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.home2 .hero .w3{display:inline-block;padding:0 .3em .12em .04em;margin:0 -.3em -.12em -.04em;letter-spacing:-.03em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 /* Prélude : quand on passe à la phrase suivante, l'ancienne s'estompe sans sursaut (plus de changement de taille) */
 .ec blockquote,.ec:not(.past) blockquote{font-size:clamp(20px,2.4vw,30px)}
 .ec.on.past{transform:translate(-50%,-50%) scale(1);transition:opacity 1.6s ease,filter 1.6s ease}
 @media(max-width:700px){.ec blockquote,.ec:not(.past) blockquote{font-size:clamp(18px,5.4vw,24px)}}
+/* Podiums : onglets adultes / enfants, 10 premiers, mention « expert » */
+.rk-tabs{display:flex;gap:4px;padding:3px;margin:10px 0 12px;border-radius:12px;background:rgba(127,140,160,.14)}
+.rk-tab{flex:1;appearance:none;border:0;background:none;padding:7px 10px;border-radius:9px;font:600 13px/1.2 'Inter',sans-serif;color:inherit;opacity:.7;cursor:pointer}
+.rk-tab.on{opacity:1;background:rgba(255,255,255,.9);color:#0B2540;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.home2 .hr-tabs{background:rgba(255,255,255,.08)}
+.home2 .hr-tabs .rk-tab{color:#EAF3F9}.home2 .hr-tabs .rk-tab.on{color:#0B2540}
+.rk-exp{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;background:linear-gradient(100deg,#7FB0FF,#C59BFF);color:#0B2540;font:700 9.5px/1.4 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
+.home2 .hr-list li{padding:5px 4px;font-size:14px}
+.home2 .hrank{transform:translateY(-44%)}
+@media(max-width:960px){.home2 .hrank{transform:none}}
+/* Prélude : apparition floutée seule, sans aucune impulsion (ni zoom, ni glissement) */
+.ec,.ec.on,.ec.on.past{transform:translate(-50%,-50%)!important}
+.ec blockquote,.ec.lit blockquote,.ec-out,.ec-end.on .ec-out{transform:none!important}
+.ec{transition:opacity .9s ease,filter .9s ease}
+.ec-intro{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none}
+.ec-intro p{max-width:780px;margin:0;text-align:center;font:600 clamp(22px,2.8vw,34px)/1.32 'Inter Display','Inter',sans-serif;letter-spacing:-.015em;color:#fff;text-wrap:balance;opacity:0;filter:blur(14px);transition:opacity 1.1s ease,filter 1.4s ease}
+.ec-intro p small{display:block;margin-bottom:14px;font:600 12px/1.2 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#F2C48A}
+.ec-intro.on p{opacity:1;filter:none}
+.ec-intro.out p{opacity:0;filter:blur(8px)}
+.home2 .hsound{display:inline-flex;width:auto}
+/* Plus de point d'exclamation au-dessus des personnages : le joueur découvre les scènes par lui-même */
+.actor.upset:before{content:none!important;display:none!important}
+body.roaming .emo-sign{display:none!important}
+.qtimer.wait i{animation-play-state:paused!important}
+.vpend{opacity:0!important;transition:none!important}
+.dlog > *:not(.vpend),.kara:not(.vpend){transition:opacity .18s ease}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -2178,8 +2204,8 @@ body.calm .dio-ov.dio-par,body.calm .dio-ov.dio-kid{opacity:0}
 
 /* parler : la main accompagne la parole, la tête bouge un peu, la bouche s'ouvre */
 .p-talk .aL{transform:rotate(-14deg)}.p-talk .aL .fore{transform:rotate(-58deg)}
-.p-talk .m-open,.talking .m-open{animation:rg-mouth .32s steps(1) infinite}
-.p-talk .m-closed,.talking .m-closed{animation:rg-mouthc .32s steps(1) infinite}
+.talking .m-open{animation:rg-mouth .32s steps(1) infinite}
+.talking .m-closed{animation:rg-mouthc .32s steps(1) infinite}
 @keyframes rg-gest{0%,100%{transform:rotate(-12deg)}30%{transform:rotate(-30deg)}60%{transform:rotate(-20deg)}}
 @keyframes rg-gestf{0%,100%{transform:rotate(-55deg)}30%{transform:rotate(-85deg)}60%{transform:rotate(-60deg)}}
 @keyframes rg-nod{0%,100%{transform:rotate(0)}25%{transform:rotate(3deg)}65%{transform:rotate(-2deg)}}
@@ -2288,7 +2314,7 @@ svg.rig-bust{display:block}
 @keyframes gx-count-aLf{0%{transform:rotate(-6deg)} 15%{transform:rotate(-96deg)} 30%{transform:rotate(-80deg)} 45%{transform:rotate(-96deg)} 60%{transform:rotate(-80deg)} 75%{transform:rotate(-96deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-count .aL .fore{animation:gx-count-aLf 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-count-head{0%{transform:rotate(0deg)} 30%{transform:rotate(2deg)} 60%{transform:rotate(-2deg)} 100%{transform:rotate(0deg)}}
-.rig.g-count .head{animation:gx-count-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-count .head{animation:gx-count-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-shrug-aL{0%{transform:rotate(5deg)} 30%{transform:rotate(26deg)} 60%{transform:rotate(26deg)} 100%{transform:rotate(5deg)}}
 .rig.g-shrug .aL{animation:gx-shrug-aL 2.2s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-shrug-aLf{0%{transform:rotate(-6deg)} 30%{transform:rotate(-50deg)} 60%{transform:rotate(-50deg)} 100%{transform:rotate(-6deg)}}
@@ -2326,13 +2352,13 @@ svg.rig-bust{display:block}
 @keyframes gx-heart-aRf{0%{transform:rotate(-6deg)} 30%{transform:rotate(108deg)} 75%{transform:rotate(108deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-heart .aR .fore{animation:gx-heart-aRf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-heart-head{0%{transform:rotate(0deg)} 40%{transform:rotate(4deg)} 100%{transform:rotate(0deg)}}
-.rig.g-heart .head{animation:gx-heart-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-heart .head{animation:gx-heart-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-facepalm-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-46deg)} 80%{transform:rotate(-46deg)} 100%{transform:rotate(5deg)}}
 .rig.g-facepalm .aL{animation:gx-facepalm-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-facepalm-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-130deg)} 80%{transform:rotate(-130deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-facepalm .aL .fore{animation:gx-facepalm-aLf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-facepalm-head{0%{transform:rotate(0deg)} 25%{transform:rotate(8deg)} 80%{transform:rotate(8deg)} 100%{transform:rotate(0deg)}}
-.rig.g-facepalm .head{animation:gx-facepalm-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-facepalm .head{animation:gx-facepalm-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-chin-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-36deg)} 80%{transform:rotate(-36deg)} 100%{transform:rotate(5deg)}}
 .rig.g-chin .aL{animation:gx-chin-aL 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-chin-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-128deg)} 80%{transform:rotate(-128deg)} 100%{transform:rotate(-6deg)}}
@@ -2342,7 +2368,7 @@ svg.rig-bust{display:block}
 @keyframes gx-chin-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(72deg)} 80%{transform:rotate(72deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-chin .aR .fore{animation:gx-chin-aRf 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-chin-head{0%{transform:rotate(0deg)} 30%{transform:rotate(-5deg)} 80%{transform:rotate(-5deg)} 100%{transform:rotate(0deg)}}
-.rig.g-chin .head{animation:gx-chin-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-chin .head{animation:gx-chin-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-scratch-aR{0%{transform:rotate(-4deg)} 25%{transform:rotate(-150deg)} 80%{transform:rotate(-150deg)} 100%{transform:rotate(-4deg)}}
 .rig.g-scratch .aR{animation:gx-scratch-aR 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-scratch-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-60deg)} 40%{transform:rotate(-44deg)} 55%{transform:rotate(-60deg)} 70%{transform:rotate(-44deg)} 100%{transform:rotate(-6deg)}}
@@ -2362,7 +2388,7 @@ svg.rig-bust{display:block}
 @keyframes gx-cross-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(104deg)} 85%{transform:rotate(104deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-cross .aR .fore{animation:gx-cross-aRf 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-cross-head{0%{transform:rotate(0deg)} 30%{transform:rotate(-2deg)} 85%{transform:rotate(-2deg)} 100%{transform:rotate(0deg)}}
-.rig.g-cross .head{animation:gx-cross-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-cross .head{animation:gx-cross-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hips-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(34deg)} 85%{transform:rotate(34deg)} 100%{transform:rotate(5deg)}}
 .rig.g-hips .aL{animation:gx-hips-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hips-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-96deg)} 85%{transform:rotate(-96deg)} 100%{transform:rotate(-6deg)}}
@@ -2390,7 +2416,7 @@ svg.rig-bust{display:block}
 @keyframes gx-calm-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(56deg)} 50%{transform:rotate(48deg)} 75%{transform:rotate(56deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-calm .aR .fore{animation:gx-calm-aRf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-calm-head{0%{transform:rotate(0deg)} 40%{transform:rotate(2deg)} 100%{transform:rotate(0deg)}}
-.rig.g-calm .head{animation:gx-calm-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-calm .head{animation:gx-calm-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-stop-aL{0%{transform:rotate(5deg)} 20%{transform:rotate(-60deg)} 80%{transform:rotate(-60deg)} 100%{transform:rotate(5deg)}}
 .rig.g-stop .aL{animation:gx-stop-aL 2.2s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-stop-aLf{0%{transform:rotate(-6deg)} 20%{transform:rotate(-80deg)} 80%{transform:rotate(-80deg)} 100%{transform:rotate(-6deg)}}
@@ -2402,9 +2428,9 @@ svg.rig-bust{display:block}
 @keyframes gx-beckon-aLf{0%{transform:rotate(-6deg)} 20%{transform:rotate(-60deg)} 35%{transform:rotate(-100deg)} 50%{transform:rotate(-60deg)} 65%{transform:rotate(-100deg)} 80%{transform:rotate(-60deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-beckon .aL .fore{animation:gx-beckon-aLf 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-lean-bob{0%{transform:translate(0,0)} 30%{transform:translate(0,1px) rotate(3deg)} 75%{transform:translate(0,1px) rotate(3deg)} 100%{transform:translate(0,0)}}
-.rig.g-lean:not(.p-sit) .bob{animation:gx-lean-bob 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-lean:not(.p-sit) .bob{animation:gx-lean-bob 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-lean-head{0%{transform:rotate(0deg)} 30%{transform:rotate(4deg)} 75%{transform:rotate(4deg)} 100%{transform:rotate(0deg)}}
-.rig.g-lean .head{animation:gx-lean-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-lean .head{animation:gx-lean-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-lean-aL{0%{transform:rotate(5deg)} 30%{transform:rotate(-10deg)} 100%{transform:rotate(5deg)}}
 .rig.g-lean .aL{animation:gx-lean-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-lean-aLf{0%{transform:rotate(-6deg)} 30%{transform:rotate(-40deg)} 100%{transform:rotate(-6deg)}}
@@ -2422,7 +2448,7 @@ svg.rig-bust{display:block}
 @keyframes gx-stepback-head{0%{transform:rotate(0deg)} 25%{transform:rotate(-6deg)} 100%{transform:rotate(0deg)}}
 .rig.g-stepback .head{animation:gx-stepback-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-weight-bob{0%{transform:translate(0,0)} 40%{transform:translate(1.4px,0)} 70%{transform:translate(1.4px,0)} 100%{transform:translate(0,0)}}
-.rig.g-weight:not(.p-sit) .bob{animation:gx-weight-bob 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-weight:not(.p-sit) .bob{animation:gx-weight-bob 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-weight-lL{0%{transform:rotate(0deg)} 40%{transform:rotate(-5deg)} 100%{transform:rotate(0deg)}}
 .rig.g-weight:not(.p-sit) .lL{animation:gx-weight-lL 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-weight-lR{0%{transform:rotate(0deg)} 40%{transform:rotate(3deg)} 100%{transform:rotate(0deg)}}
@@ -2430,11 +2456,11 @@ svg.rig-bust{display:block}
 @keyframes gx-weight-lRs{0%{transform:rotate(0deg)} 40%{transform:rotate(10deg)} 100%{transform:rotate(0deg)}}
 .rig.g-weight:not(.p-sit) .lR .shin{animation:gx-weight-lRs 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-weight-head{0%{transform:rotate(0deg)} 40%{transform:rotate(3deg)} 100%{transform:rotate(0deg)}}
-.rig.g-weight .head{animation:gx-weight-head 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-weight .head{animation:gx-weight-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-lookaway-head{0%{transform:rotate(0deg)} 25%{transform:rotate(-9deg)} 75%{transform:rotate(-9deg)} 100%{transform:rotate(0deg)}}
-.rig.g-lookaway .head{animation:gx-lookaway-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-lookaway .head{animation:gx-lookaway-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-downcast-head{0%{transform:rotate(0deg)} 25%{transform:rotate(10deg) translateY(1px)} 80%{transform:rotate(10deg) translateY(1px)} 100%{transform:rotate(0deg)}}
-.rig.g-downcast .head{animation:gx-downcast-head 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-downcast .head{animation:gx-downcast-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-downcast-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-8deg)} 80%{transform:rotate(-8deg)} 100%{transform:rotate(5deg)}}
 .rig.g-downcast .aL{animation:gx-downcast-aL 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-downcast-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-46deg)} 80%{transform:rotate(-46deg)} 100%{transform:rotate(-6deg)}}
@@ -2452,11 +2478,11 @@ svg.rig-bust{display:block}
 @keyframes gx-fidget-aRf{0%{transform:rotate(-6deg)} 20%{transform:rotate(50deg)} 35%{transform:rotate(44deg)} 50%{transform:rotate(56deg)} 65%{transform:rotate(44deg)} 80%{transform:rotate(50deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-fidget .aR .fore{animation:gx-fidget-aRf 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-fidget-head{0%{transform:rotate(0deg)} 30%{transform:rotate(5deg)} 70%{transform:rotate(-3deg)} 100%{transform:rotate(0deg)}}
-.rig.g-fidget .head{animation:gx-fidget-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-fidget .head{animation:gx-fidget-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-sigh-bob{0%{transform:translate(0,0)} 30%{transform:translate(0,-1.6px)} 55%{transform:translate(0,.8px)} 100%{transform:translate(0,0)}}
-.rig.g-sigh:not(.p-sit) .bob{animation:gx-sigh-bob 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-sigh:not(.p-sit) .bob{animation:gx-sigh-bob 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-sigh-head{0%{transform:rotate(0deg)} 30%{transform:rotate(-6deg)} 60%{transform:rotate(4deg)} 100%{transform:rotate(0deg)}}
-.rig.g-sigh .head{animation:gx-sigh-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-sigh .head{animation:gx-sigh-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-sigh-aL{0%{transform:rotate(5deg)} 30%{transform:rotate(10deg)} 100%{transform:rotate(5deg)}}
 .rig.g-sigh .aL{animation:gx-sigh-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-sigh-aR{0%{transform:rotate(-4deg)} 30%{transform:rotate(-10deg)} 100%{transform:rotate(-4deg)}}
@@ -2478,7 +2504,7 @@ svg.rig-bust{display:block}
 @keyframes gx-cover-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(136deg)} 85%{transform:rotate(136deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-cover .aR .fore{animation:gx-cover-aRf 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-cover-head{0%{transform:rotate(0deg)} 25%{transform:rotate(10deg)} 85%{transform:rotate(10deg)} 100%{transform:rotate(0deg)}}
-.rig.g-cover .head{animation:gx-cover-head 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-cover .head{animation:gx-cover-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-stomp-lR{0%{transform:rotate(0deg)} 20%{transform:rotate(-30deg)} 35%{transform:rotate(0deg)} 100%{transform:rotate(0deg)}}
 .rig.g-stomp:not(.p-sit) .lR{animation:gx-stomp-lR 2.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-stomp-lRs{0%{transform:rotate(0deg)} 20%{transform:rotate(40deg)} 35%{transform:rotate(0deg)} 100%{transform:rotate(0deg)}}
@@ -2508,13 +2534,13 @@ svg.rig-bust{display:block}
 @keyframes gx-present-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-20deg)} 80%{transform:rotate(-14deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-present .aL .fore{animation:gx-present-aLf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-present-head{0%{transform:rotate(0deg)} 30%{transform:rotate(-4deg)} 80%{transform:rotate(-4deg)} 100%{transform:rotate(0deg)}}
-.rig.g-present .head{animation:gx-present-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-present .head{animation:gx-present-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-phone-aR{0%{transform:rotate(-4deg)} 25%{transform:rotate(-44deg)} 85%{transform:rotate(-44deg)} 100%{transform:rotate(-4deg)}}
 .rig.g-phone .aR{animation:gx-phone-aR 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-phone-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-128deg)} 85%{transform:rotate(-128deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-phone .aR .fore{animation:gx-phone-aRf 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-phone-head{0%{transform:rotate(0deg)} 30%{transform:rotate(5deg)} 85%{transform:rotate(5deg)} 100%{transform:rotate(0deg)}}
-.rig.g-phone .head{animation:gx-phone-head 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-phone .head{animation:gx-phone-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hug-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-30deg)} 85%{transform:rotate(-30deg)} 100%{transform:rotate(5deg)}}
 .rig.g-hug .aL{animation:gx-hug-aL 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hug-aLf{0%{transform:rotate(-6deg)} 25%{transform:rotate(-90deg)} 85%{transform:rotate(-90deg)} 100%{transform:rotate(-6deg)}}
@@ -2524,9 +2550,9 @@ svg.rig-bust{display:block}
 @keyframes gx-hug-aRf{0%{transform:rotate(-6deg)} 25%{transform:rotate(90deg)} 85%{transform:rotate(90deg)} 100%{transform:rotate(-6deg)}}
 .rig.g-hug .aR .fore{animation:gx-hug-aRf 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hug-bob{0%{transform:translate(0,0)} 30%{transform:translate(0,.8px)} 100%{transform:translate(0,0)}}
-.rig.g-hug:not(.p-sit) .bob{animation:gx-hug-bob 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-hug:not(.p-sit) .bob{animation:gx-hug-bob 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-hug-head{0%{transform:rotate(0deg)} 30%{transform:rotate(7deg)} 85%{transform:rotate(7deg)} 100%{transform:rotate(0deg)}}
-.rig.g-hug .head{animation:gx-hug-head 3.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-hug .head{animation:gx-hug-head 2.4s cubic-bezier(.45,.05,.35,1) 1 both!important}
 /* ================= Promenade libre ================= */
 .roamg .rm-hud{display:flex;align-items:center}
 .rm-clock{display:flex;flex-direction:column;align-items:flex-end;background:#fff;border-radius:16px;padding:8px 14px;box-shadow:0 6px 18px rgba(28,34,48,.1)}
@@ -2740,7 +2766,7 @@ g.emo-sign{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-237ea641.js"></script>
-<script src="jeu-2-50555931.js"></script>
-<script src="jeu-3-3bea8df2.js"></script>
+<script src="jeu-1-5759b721.js"></script>
+<script src="jeu-2-6df4ab9a.js"></script>
+<script src="jeu-3-78ab4b45.js"></script>
 </body></html>

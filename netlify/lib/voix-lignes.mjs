@@ -1,5 +1,11 @@
 // Textes lus à voix haute dans « Les Hautes Herbes » (générés depuis le scénario).
 export const LIGNES = {
+ "2c9691305aa6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels."
+ },
  "b4224bb93fca": {
   "who": "e_maman",
   "mood": "",
@@ -3395,6 +3401,18 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "La salle des grands est vide : tout le monde est dehors."
+ },
+ "4d01bb3bf445": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La sieste est finie. Jade range les tapis ; la porte est grande ouverte."
+ },
+ "710b6a299130": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "La sieste n’a pas encore commencé : Jade installe les tapis."
  },
  "0ea0c219b540": {
   "who": "narr",

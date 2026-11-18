@@ -47,3 +47,6 @@
 
 /robots.txt
   Content-Type: text/plain; charset=utf-8
+
+/fourmiaction-vss/jeu-test.html
+  X-Robots-Tag: noindex, nofollow

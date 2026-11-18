@@ -1016,7 +1016,7 @@ const SOURCES = [{"t": "Franceinfo · Périscolaire à Paris : 132 animateurs su
 // Transitions : une phrase qui dit où l'on est et ce qui vient de se passer, lue en premier.
 const BRIDGE = {
   // Lundi
-  dbefore: "Nour vous laisse seule un moment dans la salle de réunion. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée.",
+  dbefore: "Nour vous laisse seule un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée.",
   map: "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs.",
   radio: "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans.",
   k1: "17 h 30. Votre première journée se termine. Avant que vous partiez, Nour vous laisse une page de son carnet.",
@@ -1044,7 +1044,7 @@ const BRIDGE = {
   depart: "Jeudi, 16 h. Dans la cour, les enfants jouent en attendant leurs parents.",
   lou: "Vous emmenez Lou un peu à l’écart, dans la salle d’activités libre, pour l’écouter au calme, la porte ouverte.",
   numero: "Lou a parlé. Vous l’avez écouté sans le questionner, et il est toujours à côté de vous.",
-  acts: "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter.",
+  acts: "16 h 06. Les gendarmes ont répondu : ils arrivent. D’ici 17 h, chaque minute compte.",
   ordre: "Tout s’est enchaîné très vite. Revivez maintenant ces dix premières minutes en temps réel, comme si vous y étiez : chaque seconde compte.",
   portail: "17 h. Nour vous demande de tenir le portail pendant qu’elle reste avec Lou.",
   transm: "17 h 20. Tous les enfants sont partis. Dans le bureau de la direction, vous écrivez ce que vous avez vu et entendu, pendant que c’est encore frais.",
@@ -1059,7 +1059,7 @@ const BRIDGE = {
   temoin: "13 h 20. Vous vous installez avec Sacha dans la salle des grands, au calme.",
   f3: "14 h. Maëlys attend à l’infirmerie, avec Nour. Vous allez la rejoindre.",
   k5: "La semaine touche à sa fin. Nour vous laisse la dernière page de son carnet.",
-  dafter: "Vendredi, 17 h 30. Les enfants sont partis. Au calme, en salle de réunion, les questions du premier jour vous reviennent.",
+  dafter: "Vendredi, 17 h 30. Les enfants sont partis. Seule en salle des animateurs, au calme, vous retrouvez les questions du premier jour.",
   souvenirs: "Retour en arrière. Lundi, vous arriviez aux Hautes Herbes sans rien connaître de l’équipe. Revoyons ensemble chacune de vos décisions : ce que vous avez choisi alors, et ce qu’il en est aujourd’hui.",
 };
 SCREENS.forEach((sc) => {

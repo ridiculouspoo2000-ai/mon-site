@@ -780,11 +780,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?"
  },
- "05488c98cdf7": {
+ "d68c83798af0": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour vous laisse seule un moment dans la salle de réunion. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
+  "text": "Nour vous laisse seule un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
  },
  "1b77d962ceba": {
   "who": "narr",
@@ -1818,11 +1818,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro."
  },
- "85061d71868a": {
+ "7f9d6466a549": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "16 h 10. Les gendarmes ont répondu : ils arrivent. En les attendant, il y a des choses à faire, et d’autres à éviter."
+  "text": "16 h 06. Les gendarmes ont répondu : ils arrivent. D’ici 17 h, chaque minute compte."
  },
  "074e10b00bb7": {
   "who": "narr",
@@ -2112,11 +2112,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Une prévention qui se voit Une mesure désigne un changement, une personne responsable, un moment et un indicateur observable. Créer plusieurs portes d’entrée pour parler et rendre les adultes ressources identifiables. Afficher le 119 et le 3018. Fixer des règles claires sur les échanges numériques et la vie d’équipe. L’égalité concerne aussi le recrutement, les réunions et les tâches de soin ou de rangement. Un contrôle d’honorabilité ne remplace jamais cette vigilance."
  },
- "1b0c7cb54e29": {
+ "01f2c4b393de": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Vendredi, 17 h 30. Les enfants sont partis. Au calme, en salle de réunion, les questions du premier jour vous reviennent."
+  "text": "Vendredi, 17 h 30. Les enfants sont partis. Seule en salle des animateurs, au calme, vous retrouvez les questions du premier jour."
  },
  "abbe2c6b9de5": {
   "who": "narr",

@@ -2920,7 +2920,7 @@
     const fmt = (m) => `16 h ${String(m).padStart(2, "0")}`;
     const panel = el("div", { class: "panel mn" });
     panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title || "Les minutes comptent")}</h2><p class="lead">${esc(sc.prompt)}</p>
-      <div class="mn-road" aria-hidden="true"><i class="mn-lou">${face("lou")}</i><span class="mn-track"><i class="mn-car"></i></span><b class="mn-gate">Portail</b></div>
+      <div class="mn-road" aria-hidden="true"><i class="mn-lou">${face("lou")}</i><b class="mn-gate">Portail</b><span class="mn-track"><i class="mn-car"></i></span></div>
       <div class="mn-clock" role="timer" aria-live="polite"><b>${fmt(t)}</b><small>l’adulte désigné arrive à 17 h</small></div>
       <div class="mn-cards"></div><p class="mn-log" aria-live="polite"></p>`;
     const cards = panel.querySelector(".mn-cards"), log = panel.querySelector(".mn-log"), clock = panel.querySelector(".mn-clock b"), car = panel.querySelector(".mn-car");

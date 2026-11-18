@@ -2188,7 +2188,7 @@ body.watch #stage .t-story .panel{max-width:440px;opacity:.95}
 .mn-lou{width:44px;height:44px;border-radius:50%;overflow:hidden;background:#fff;flex:0 0 auto;box-shadow:0 0 0 3px #1F8A5B33}.mn-lou svg{width:100%;height:100%}
 .mn-track{position:relative;flex:1;height:10px;border-radius:99px;background:linear-gradient(90deg,#E7ECF1,#F3D9C9)}
 .mn-car{position:absolute;top:50%;right:calc((1 - var(--p,0)) * 100% - 0px);width:30px;height:18px;translate:50% -50%;border-radius:6px 9px 4px 4px;background:#3B4A5E;box-shadow:inset -6px 0 0 #2A3646;transition:right .6s cubic-bezier(.3,.7,.3,1)}
-.mn-car{right:auto;left:calc(100% - var(--p,0) * 100%)}
+.mn-car{right:auto;left:calc((1 - var(--p,0)) * (100% - 30px));translate:0 -50%}
 .mn-gate{font:700 11px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6B7380}
 .mn-clock{display:flex;align-items:baseline;gap:10px;margin:6px 0 12px}.mn-clock b{font:700 28px/1 'Inter Display','Inter',sans-serif;font-variant-numeric:tabular-nums}.mn-clock small{color:#6B7380}
 .mn.hurry .mn-clock b{color:#D35A0B}
@@ -2211,6 +2211,9 @@ body.watch #stage .t-story .panel{max-width:440px;opacity:.95}
 /* ce qui cache un personnage devient transparent (préau, auvent, mur, panneau) */
 #world .dio-occ{transition:opacity .35s ease}
 #world .dio-occ.see{opacity:.32}
+
+#world .wsun{width:80px!important;height:80px!important}
+#world.amb-golden .wsun,#world.amb-evening .wsun{opacity:.6!important}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -2803,7 +2806,7 @@ g.emo-sign{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-728fb5b9.js"></script>
-<script src="jeu-2-8298bbdd.js"></script>
-<script src="jeu-3-236a6a8d.js"></script>
+<script src="jeu-1-9ee9e5db.js"></script>
+<script src="jeu-2-64793f98.js"></script>
+<script src="jeu-3-9c4172b8.js"></script>
 </body></html>

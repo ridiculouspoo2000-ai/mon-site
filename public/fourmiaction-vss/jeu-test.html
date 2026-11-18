@@ -2208,6 +2208,9 @@ body.watch #stage .t-story .panel{max-width:440px;opacity:.95}
 /* le soleil reste fixe dans le ciel : il ne suit ni la caméra ni les changements d'écran (seule sa lumière change) */
 #world .wsun{top:9%!important;transition:opacity 1.6s ease,background 2s ease!important}
 #world .wmoon{top:7%!important;transition:opacity 1.6s ease!important}
+/* ce qui cache un personnage devient transparent (préau, auvent, mur, panneau) */
+#world .dio-occ{transition:opacity .35s ease}
+#world .dio-occ.see{opacity:.32}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -2800,7 +2803,7 @@ g.emo-sign{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-b4b3d525.js"></script>
-<script src="jeu-2-3cd232f9.js"></script>
-<script src="jeu-3-c21876f2.js"></script>
+<script src="jeu-1-728fb5b9.js"></script>
+<script src="jeu-2-8298bbdd.js"></script>
+<script src="jeu-3-236a6a8d.js"></script>
 </body></html>

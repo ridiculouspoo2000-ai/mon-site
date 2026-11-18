@@ -375,10 +375,12 @@
     rooster() {
       if (!st.settings.sound || !this.ctx) return;
       const c = this.ctx, t = c.currentTime + .05;
-      const syl = [[.0, .13, 520, 640], [.17, .13, 640, 760], [.34, .2, 820, 940], [.58, .85, 980, 640]];
-      const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), out = c.createGain();
-      f1.type = "bandpass"; f1.frequency.value = 1300; f1.Q.value = 3; f2.type = "bandpass"; f2.frequency.value = 2600; f2.Q.value = 4;
-      out.gain.value = 0.9; f1.connect(out); f2.connect(out); out.connect(this.sfx); out.connect(this.verb);
+      // un coq au loin, au lever du jour : « co-co-ri-cooo », plus doux, avec la distance et l'écho de la campagne
+      const syl = [[.0, .12, 560, 600], [.16, .12, 660, 700], [.32, .16, 760, 880], [.54, 1.05, 930, 560]];
+      const f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), lp = c.createBiquadFilter(), out = c.createGain();
+      f1.type = "bandpass"; f1.frequency.value = 1100; f1.Q.value = 2.4; f2.type = "bandpass"; f2.frequency.value = 2300; f2.Q.value = 3.5;
+      lp.type = "lowpass"; lp.frequency.value = 2800;
+      out.gain.value = 0.55; f1.connect(lp); f2.connect(lp); lp.connect(out); out.connect(this.sfx); out.connect(this.verb);
       syl.forEach(([d, dur, fa, fb]) => {
         const o = c.createOscillator(), g = c.createGain(), v = c.createOscillator(), vg = c.createGain();
         o.type = "sawtooth"; o.frequency.setValueAtTime(fa, t + d); o.frequency.linearRampToValueAtTime(fb * (dur > .5 ? 1.12 : 1), t + d + dur * .4); o.frequency.linearRampToValueAtTime(fb, t + d + dur);
@@ -1031,7 +1033,7 @@
       this.camTo(p, z);
       // acteurs dehors
       const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
-      const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .84;
+      const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .77;   // un peu plus petits : à l’échelle des portes et du mobilier
       if (!S.room) {
         const L = [];
         const cast = S.cast || [], others = cast.filter(([w]) => w !== "you"), duo = !cast.some(([w]) => w === "you") && others.length === 2;
@@ -2981,7 +2983,7 @@
   /* ---- les chemins praticables (au sol, en mètres) ---- */
   const NODES = {
     f3: [3.2, 21], f6: [6, 21], f9: [9.2, 21], f13: [13.4, 21], f15: [15, 21.6], f17: [17, 21], f19: [19.5, 21], f21: [21.5, 21], f24: [23.8, 21], f26: [26.2, 21.2], f28: [28.4, 21.2],
-    dMain: [13.4, 19.1], dCuis: [23.8, 19.1],
+    dMain: [15.3, 19.2], dm0: [15.3, 20.4], dCuis: [23.8, 19.1],   // on entre bien en face de la porte vitrée, entre les deux jardinières
     j1: [9.2, 23.0], j2: [9.4, 25.0], j3: [6.6, 22.6], m1: [15.1, 22.8], pot: [15.2, 27.6],
     p1: [18.4, 24.5], q1: [22.3, 23.2], q2: [25.6, 24.1], pan: [24.0, 26.7], gate: [29.0, 23.4], out: [31.4, 23.4],
     e1: [28.4, 15.5], dSoins: [27.2, 15.5], e2: [28.4, 9.8],
@@ -2990,7 +2992,7 @@
     l1: [30.2, 7.5], dLoc: [33.3, 7.0], r1: [31.4, 16.6], r2: [38.1, 16.6], dRef: [37.4, 12.7],
   };
   const EDGES = [["f3", "f6"], ["f6", "f9"], ["f9", "f13"], ["f13", "f15"], ["f15", "f17"], ["f17", "f19"], ["f19", "f21"], ["f21", "f24"], ["f24", "f26"], ["f26", "f28"],
-    ["f13", "dMain"], ["f24", "dCuis"], ["f9", "j1"], ["j1", "j2"], ["j1", "j3"], ["f6", "j3"], ["f15", "m1"], ["m1", "j1"], ["m1", "pot"], ["m1", "p1"], ["p1", "f19"], ["p1", "q1"],
+    ["f13", "dm0"], ["f15", "dm0"], ["dm0", "dMain"], ["f24", "dCuis"], ["f9", "j1"], ["j1", "j2"], ["j1", "j3"], ["f6", "j3"], ["f15", "m1"], ["m1", "j1"], ["m1", "pot"], ["m1", "p1"], ["p1", "f19"], ["p1", "q1"],
     ["f21", "q1"], ["q1", "q2"], ["f26", "q2"], ["q2", "pan"], ["q2", "gate"], ["f28", "gate"], ["gate", "out"], ["p1", "pan"],
     ["f28", "e1"], ["e1", "dSoins"], ["e1", "e2"], ["e2", "b1"], ["b1", "b2"], ["b2", "b3"], ["b3", "b4"], ["b4", "b5"], ["b5", "b6"],
     ["b1", "dLib"], ["b2", "dRad"], ["b6", "dSan"], ["b4", "parc"], ["b3", "parc"], ["e2", "l1"], ["l1", "dLoc"], ["out", "r1"], ["r1", "r2"], ["r2", "dRef"]];
@@ -3061,7 +3063,7 @@
   Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
 
   /* ---- marcheurs : un personnage qui se déplace au sol (vous, les figurants, les personnes d'une scène) ---- */
-  const SZ = () => (44 / A.dio.vbw) * 100 * .84;
+  const SZ = () => (44 / A.dio.vbw) * 100 * .77;
   function Walker(who, x, y, pose = "stand", opts = {}) {
     const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
     a.classList.add("walker");
@@ -3107,10 +3109,15 @@
     loop(who, pts, opts = {}) {
       const W = this.add(Walker(who, pts[0][0], pts[0][1], "stand"));
       const g = { t: 0 }; this.agents.push(g); let i = 0;
+      // chacun son couloir : un léger décalage propre à chaque figurant, pour qu'ils ne se rentrent pas dedans
+      const off = ((this.walkers.length * 37) % 7 - 3) * .14;
       const next = () => {
         if (!this.walkers.includes(W)) return;
         i = (i + 1) % pts.length;
-        W.go([pts[i]], opts.speed || 1.3, () => { if (opts.gest && Math.random() < .6) gesture(W.el, opts.gest[Math.floor(Math.random() * opts.gest.length)]); g.t = setTimeout(next, (opts.pause || 1200) * (.5 + Math.random())); }, opts.pose);
+        // les longs trajets passent par les chemins (jamais à travers un mur ou le décor)
+        let path = [pts[i]];
+        if (dist([W.x, W.y], pts[i]) > 4) { const r = route(onGraph(W.x, W.y), onGraph(pts[i][0], pts[i][1])); if (r && r.length > 2) path = r.slice(1, -1).map((q) => [q[0] + off, q[1] - off * .6]).concat([pts[i]]); }
+        W.go(path, (opts.speed || 1.3) * (.9 + ((this.walkers.length * 13) % 5) * .05), () => { if (opts.gest && Math.random() < .6) gesture(W.el, opts.gest[Math.floor(Math.random() * opts.gest.length)]); g.t = setTimeout(next, (opts.pause || 1200) * (.5 + Math.random())); }, opts.pose);
       };
       g.t = setTimeout(next, Math.random() * 1500);
       return W;
@@ -3431,6 +3438,31 @@
     window.__roamPos = () => [you.x, you.y, busy, S.t];
     free(true);
   };
+
+/* Transparence dynamique : quand quelqu'un passe derrière un auvent, le préau, un mur ou un panneau,
+   ce qui le cache devient légèrement transparent, pour qu'on voie toujours ce qui s'y passe. */
+(function seeThrough() {
+  let last = 0;
+  function frame(t) {
+    requestAnimationFrame(frame);
+    if (t - last < 220) return; last = t;
+    const W = document.getElementById("world"); if (!W || !W.classList.contains("on")) return;
+    const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
+    const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
+    const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
+    occ.forEach((o) => {
+      const z = +o.style.zIndex || 0, r = o.getBoundingClientRect();
+      let hit = false;
+      for (const [b, za] of R) {
+        if (za >= z || !b.width) continue;
+        const ix = Math.min(r.right, b.right) - Math.max(r.left, b.left), iy = Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top);
+        if (ix > b.width * .25 && iy > b.height * .25) { hit = true; break; }
+      }
+      o.classList.toggle("see", hit);
+    });
+  }
+  requestAnimationFrame(frame);
+})();
 
   /* ======================= La vie de l'accueil : familles, voitures, jour et nuit, horloge ======================= */
   // Une voiture : copie du dessin de voiture du plan, qu'on déplace le long de la voie du parking (axe x du sol)

@@ -1285,3 +1285,35 @@ DOCS.reperes = { at: "intro", kidsOnly: true, title: "Mes repères", kind: "pann
 // Fin de semaine : Bafaël explique pourquoi une réponse passe avant les autres.
 const NUANCE = "Oui, on sait : parfois, plusieurs réponses donnent envie d’être cochées, et tout semble s’additionner. Mais la réponse à choisir en premier, c’est la démarche principale à effectuer. Chaque situation est nuancée : ce qui compte, c’est l’ordre dans lequel on agit, et ce qu’on fait d’abord pour protéger.";
 const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la première chose à faire, c’est toujours de protéger, et d’en parler à un adulte de confiance.";
+
+/* Nouvelles scènes vivantes pendant l'exploration libre : une dispute entre deux enfants (lundi),
+   et un signal faible, moins frontal (jeudi) : un cadeau et un secret demandés par un adulte. */
+(() => {
+  const DISPUTE = { id: "dispute", inRoam: true, ch: 1, type: "choice", comp: "C3", kicker: "Lundi après-midi · l’aire de jeux", title: "La dispute",
+    context: "Sacha et Léna se tiennent face à face, le ballon entre eux. Le ton monte, Léna pousse Sacha.",
+    prompt: "Que faites-vous ?",
+    opts: [
+      { t: "Je m’interpose calmement, je les sépare, puis j’écoute chacun à son tour avant de chercher une solution avec eux.", q: 1, react: { sacha: "stand", lena: "stand" }, reply: ["sacha", "C’est elle qui a commencé… Bon. D’accord, on joue chacun son tour."], cons: "Les deux enfants reprennent le jeu à tour de rôle. En fin d’après-midi, Léna vient s’excuser d’elle-même.", fb: "Vous faites cesser la violence tout de suite, sans la minimiser, puis vous redonnez la parole à chacun : on règle le conflit avec les enfants, pas à leur place." },
+      { t: "Je confisque le ballon et je les mets tous les deux au banc jusqu’au goûter.", q: 0.5, react: { sacha: "sad", lena: "upset" }, reply: ["lena", "C’est trop injuste, c’est lui qui m’a énervée !"], cons: "La bagarre s’arrête, mais personne n’a compris ce qui s’est passé. Le lendemain, ils se disputent à nouveau, plus loin des adultes.", fb: "Arrêter le conflit est nécessaire. Mais une sanction identique, sans écoute, ne règle rien et peut être vécue comme une injustice." },
+      { t: "Je les laisse régler ça entre eux : c’est comme ça qu’on apprend.", q: 0, react: { sacha: "upset", lena: "big" }, reply: ["sacha", "Arrête de me pousser !"], cons: "La dispute dégénère : Sacha tombe et s’écorche le genou. Un parent l’apprend le soir même.", fb: "Un geste violent ne se laisse jamais faire : l’adulte protège d’abord, puis aide à régler le conflit." },
+    ] };
+  const CADEAU = { id: "cadeau", inRoam: true, ch: 4, type: "choice", comp: "C1", kicker: "Jeudi après-midi · le potager", title: "Le bracelet",
+    context: "Léna, 12 ans, vous montre un bracelet tout neuf : « C’est le monsieur de l’atelier bois qui me l’a donné. Il a dit de pas le dire aux autres, sinon ils seraient jaloux. »",
+    prompt: "Que faites-vous ?",
+    opts: [
+      { t: "« Merci de me l’avoir montré. Un adulte n’a pas à te demander de garder un secret. » Je note ses mots, l’heure, et j’en parle à Nour aujourd’hui.", q: 1, react: { lena: "smile" }, reply: ["lena", "Ah bon ? D’accord… Je croyais que c’était juste gentil."], cons: "Nour croise ce signalement avec d’autres observations : l’intervenant est recadré, et ne travaille plus jamais seul avec un enfant.", fb: "Un cadeau réservé à un enfant, assorti d’un secret, est un signal faible classique d’emprise. On ne conclut rien, on ne questionne pas plus : on note et on transmet." },
+      { t: "Je vais tout de suite voir l’intervenant pour lui demander des explications.", q: 0.3, react: { lena: "concern" }, reply: ["lena", "Tu vas lui dire que je te l’ai dit ?"], cons: "L’intervenant se justifie, et sait désormais qu’on l’observe. Léna, elle, se sent coupable d’avoir parlé.", fb: "Confronter l’adulte expose l’enfant et peut compromettre la suite. Le bon réflexe : noter, puis transmettre à la direction." },
+      { t: "« Il est très joli ! C’est gentil de sa part. »", q: 0, react: { lena: "smile" }, reply: ["lena", "Oui, il est super sympa avec moi. Il dit que je suis sa préférée."], cons: "Personne n’a fait le lien. Vendredi, une autre enfant parlera du même intervenant.", fb: "Le cadeau semble anodin, mais le secret demandé change tout : c’est un signal à transmettre, même sans certitude." },
+    ] };
+  const i = SCREENS.findIndex((x) => x.id === "foot"); SCREENS.splice(i + 1, 0, DISPUTE);
+  const j = SCREENS.findIndex((x) => x.id === "jeudi-libre"); SCREENS.splice(j + 1, 0, CADEAU);
+  const L = SCREENS.find((x) => x.id === "lundi-libre"), J = SCREENS.find((x) => x.id === "jeudi-libre");
+  L.events.push({ ...DISPUTE, at: "jeux", from: "15 h", to: "16 h 45",
+    spots: [["sacha", 8.6, 25.2, "upset", ["stomp", "point", "fist"]], ["lena", 9.6, 24.6, "big", ["point", "stomp", "hips"]]],
+    cast: [["sacha", "a", "upset"], ["lena", "b", "big"], ["you", "f", "walk"]],
+    lines: [["lena", "Rends-le ! C’est mon tour, t’as déjà joué !"], ["sacha", "Non, c’est pas vrai ! Lâche-moi !"], ["narr", "Léna pousse Sacha, qui manque de tomber."]] });
+  J.events.push({ ...CADEAU, at: "potager", from: "14 h", to: "16 h 30",
+    spots: [["lena", 15.0, 27.0, "smile", ["present", "raise", "fidget"]]],
+    cast: [["lena", "a", "smile"], ["you", "b"]],
+    lines: [["lena", "Regarde ! C’est le monsieur de l’atelier bois qui me l’a donné. Il a dit de pas le dire aux autres, sinon ils seraient jaloux."]] });
+})();

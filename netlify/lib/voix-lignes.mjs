@@ -1008,6 +1008,30 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Laisser passer une exclusion fondée sur le sexe l’installe comme une règle. Les stéréotypes se construisent tôt, dans le jeu, et l’adulte qui se tait les cautionne."
  },
+ "422a3b77fb1e": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sacha et Léna se tiennent face à face, le ballon entre eux. Le ton monte, Léna pousse Sacha."
+ },
+ "ffd5ce9b6a9f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Les deux enfants reprennent le jeu à tour de rôle. En fin d’après-midi, Léna vient s’excuser d’elle-même. Vous faites cesser la violence tout de suite, sans la minimiser, puis vous redonnez la parole à chacun : on règle le conflit avec les enfants, pas à leur place."
+ },
+ "0f971bfc63d7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "La bagarre s’arrête, mais personne n’a compris ce qui s’est passé. Le lendemain, ils se disputent à nouveau, plus loin des adultes. Arrêter le conflit est nécessaire. Mais une sanction identique, sans écoute, ne règle rien et peut être vécue comme une injustice."
+ },
+ "b6978986ea69": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "La dispute dégénère : Sacha tombe et s’écorche le genou. Un parent l’apprend le soir même. Un geste violent ne se laisse jamais faire : l’adulte protège d’abord, puis aide à régler le conflit."
+ },
  "d80cb4ed45d5": {
   "who": "narr",
   "mood": "",
@@ -1589,6 +1613,36 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Jeudi après-midi. Vous circulez librement : avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30."
+ },
+ "8448971c62b3": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Léna, 12 ans, vous montre un bracelet tout neuf"
+ },
+ "95930737649f": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "C’est le monsieur de l’atelier bois qui me l’a donné. Il a dit de pas le dire aux autres, sinon ils seraient jaloux."
+ },
+ "7ad1b2075b6a": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Nour croise ce signalement avec d’autres observations : l’intervenant est recadré, et ne travaille plus jamais seul avec un enfant. Un cadeau réservé à un enfant, assorti d’un secret, est un signal faible classique d’emprise. On ne conclut rien, on ne questionne pas plus : on note et on transmet."
+ },
+ "2c422d7e0fd9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "L’intervenant se justifie, et sait désormais qu’on l’observe. Léna, elle, se sent coupable d’avoir parlé. Confronter l’adulte expose l’enfant et peut compromettre la suite. Le bon réflexe : noter, puis transmettre à la direction."
+ },
+ "933325875477": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Personne n’a fait le lien. Vendredi, une autre enfant parlera du même intervenant. Le cadeau semble anodin, mais le secret demandé change tout : c’est un signal à transmettre, même sans certitude."
  },
  "d3abe6dc647e": {
   "who": "narr",
@@ -3276,6 +3330,42 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…"
  },
+ "081c7f621d9f": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Rends-le ! C’est mon tour, t’as déjà joué !"
+ },
+ "82ea8f1f190d": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Non, c’est pas vrai ! Lâche-moi !"
+ },
+ "0bd55b0d4740": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Léna pousse Sacha, qui manque de tomber."
+ },
+ "f6daa14b06ce": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "C’est elle qui a commencé… Bon. D’accord, on joue chacun son tour."
+ },
+ "df784393df80": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "C’est trop injuste, c’est lui qui m’a énervée !"
+ },
+ "11252911a396": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Arrête de me pousser !"
+ },
  "8800be49aedf": {
   "who": "narr",
   "mood": "",
@@ -3473,6 +3563,30 @@ export const LIGNES = {
   "mood": "",
   "kind": "replique",
   "text": "Tu passes au panneau d’affichage ? Il me manque des affiches pour l’inspection de demain."
+ },
+ "1299813a42cb": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Regarde ! C’est le monsieur de l’atelier bois qui me l’a donné. Il a dit de pas le dire aux autres, sinon ils seraient jaloux."
+ },
+ "a5eca9fd7420": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ah bon ? D’accord… Je croyais que c’était juste gentil."
+ },
+ "41bef75b294b": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Tu vas lui dire que je te l’ai dit ?"
+ },
+ "be4b396c2c2a": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Oui, il est super sympa avec moi. Il dit que je suis sa préférée."
  },
  "cce1fa08952d": {
   "who": "narr",

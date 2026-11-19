@@ -267,7 +267,7 @@
   // d’après le texte, un peu courte pour que les mots s’affichent avec la voix, jamais après.
   const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const NAMES = { yanis: "Yanis", lea: "Léa", nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Garnier", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Théo", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
+  const NAMES = { yanis: "Yanis", lea: "Léa", nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "Théo", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Noé", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
   // Refonte : mise en scène corrigée. Devant la régie (« local »), les places extérieures tombent sur le toit
   // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
   // (la scène de Maëlys se joue désormais dans la cour : voir STAGE.maelys dans content.js)
@@ -1617,7 +1617,7 @@
       say(res.textContent);
     }
     function open(s, i, b) {
-      Snd.click(); Voice.say(...VOICE_TXT.spot(s));
+      Snd.click(); if (!over) Voice.say(...VOICE_TXT.spot(s));
       b.classList.add("seen"); b.classList.remove("hinted", "missed");
       if (s.real) found.add(i);
       else if (!seenDecoy.has(i)) {
@@ -1627,7 +1627,9 @@
       $("#cnt", wrap).textContent = found.size;
       card.hidden = false;
       card.className = "spotcard " + (s.real ? "real" : "decoy");
-      card.innerHTML = `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`;
+      // pendant la visite, Nour décrit les lieux, sans commentaire ; l'analyse n'apparaît qu'une fois la visite finie
+      card.innerHTML = over ? `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`
+        : `<p class="kicker">Nour vous fait visiter</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p>`;
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
       card.appendChild(c); c.focus({ preventScroll: true }); card.scrollTop = 0;   // refonte : la fiche s'ouvre par son titre
       if (s.real) { Snd.good(); burst(b, "good"); const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); } else Snd.mid();
@@ -1638,11 +1640,17 @@
   function contextBlock(sc) {
     let h = kicker(sc.kicker);
     if (sc.context) h += `<p class="ctx">${esc(sc.context)}</p>`;
-    if (sc.chat) {
-      h += `<div class="phone" role="log" aria-label="Conversation de l’équipe"><div class="phead">Équipe Hautes Herbes · 6 membres</div>` +
-        sc.chat.map((m, i) => `<div class="msg ${m.her ? "her" : ""}" style="animation-delay:${i * 0.25}s"><b>${esc(m.who)}</b><span>${esc(m.t)}</span></div>`).join("") + `</div>`;
-    }
+    if (sc.chat) h += waPhone({ title: "Équipe Hautes Herbes", sub: "Bastien, Hugo, Inès, Kévin, Yanis, vous", group: true,
+      msgs: sc.chat.map((m, i) => ({ who: m.who, t: m.t, me: false, time: `16:${String(12 + i * 7).padStart(2, "0")}` })) });
     return h;
+  }
+  // Le téléphone de la joueuse (celui qui sert aussi à appeler les secours), avec une messagerie façon WhatsApp.
+  function waPhone(o) {
+    const col = ["#1F7A5A", "#B5446E", "#2B6FD6", "#A86A1F", "#6B4FA0", "#C2412A"], cOf = (w) => col[[...(w || "")].reduce((a, c) => a + c.charCodeAt(0), 0) % col.length];
+    return `<div class="wa" role="log" aria-label="Messages : ${esc(o.title)}"><div class="wa-dev"><div class="wa-notch"></div>
+      <div class="wa-top"><span class="wa-back" aria-hidden="true">‹</span><span class="wa-av" aria-hidden="true">${o.face || esc((o.title || "?")[0])}</span><span class="wa-id"><b>${esc(o.title)}</b><small>${esc(o.sub || "en ligne")}</small></span></div>
+      <div class="wa-body">${o.msgs.map((m, i) => `<div class="wa-m ${m.me ? "me" : ""}" style="animation-delay:${(i * .35).toFixed(2)}s">${o.group && !m.me ? `<b style="color:${cOf(m.who)}">${esc(m.who)}</b>` : ""}<span>${esc(m.t)}</span><i>${m.time || ""}${m.me ? " ✓✓" : ""}</i></div>`).join("")}</div>
+      <div class="wa-in" aria-hidden="true"><span>Message</span><i></i></div></div></div>`;
   }
   function sideArt(sc) {
     return sc.npc ? portrait(sc.npc, sc.mood) : null;
@@ -2029,7 +2037,7 @@
       pending = j; Snd.mid(); const LI = liveInterrupt(ev.who, ev.t); if (!ev.who) Voice.say("narr", ev.t);
       const card = el("div", { class: "cr-pop", role: "alertdialog", "aria-label": "Nouvelle demande" }, `<p class="kicker">Interruption</p><p class="cr-q">${esc(ev.t)}</p>`);
       const row = el("div", { class: "cr-opts" });
-      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { LI.leave(); evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Bien vu : vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
+      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { LI.leave(); evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
       card.appendChild(row); evz.appendChild(card); row.querySelector(".opt").focus({ preventScroll: true });
     }
     readyGate(wrap, () => { tId = setInterval(tick, 1000); });
@@ -2214,6 +2222,23 @@
     n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Finir la journée" : "Continuer", next));
     if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
+    // Chaque idée de la page est illustrée en direct, sur le plan, par une scène de la journée rejouée par les personnages.
+    const ILL = { k1: ["radio", "foot", "radio"], k2: ["brief", "chat", "rire"], k3: ["verite", "consent", "nuit3"], k4: ["lou", "numero", "portail"], k5: ["affiche", "familles", "bilanequipe"] }[sc.id];
+    if (ILL) {
+      const lis = [...n.querySelectorAll(".pn-body li")]; let k = -1, tm = 0;
+      n.classList.add("pn-ill");
+      const show = () => {
+        if (!n.isConnected) return;
+        k = (k + 1) % Math.max(lis.length, 1);
+        lis.forEach((li, j) => li.classList.toggle("on", j === k));
+        const id = ILL[k % ILL.length], S0 = SCREENS.find((x) => x.id === id);
+        if (S0) { try { World.stage({ ...S0, type: "story" }); } catch (e) { }
+          const C = (STAGE[id] && STAGE[id].cast) || [], w = (C.find((c) => c[0] !== "you") || [])[0];
+          if (w) setTimeout(() => { if (n.isConnected) { World.talk(w); setTimeout(() => World.talk(null), 2600); } }, 900); }
+        tm = setTimeout(show, Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
+      };
+      setTimeout(show, 600);
+    }
   };
 
   // Fins multiples : ce que la semaine a changé, selon les décisions et la confiance gagnée.
@@ -2445,7 +2470,7 @@
      recueil de la parole d'un témoin, souvenirs rejoués, documents du carnet.
      (inséré dans engine.js à la construction)
      ============================================================================================= */
-  Object.assign(NAMES, { sacha: "Sacha", rey: "M. Rey", karim: "Karim", petit: "Mme Petit", zoe: "Zoé", theo: "Théo", clara: "Clara", enzo: "Enzo", lena: "Léna", intervenant: "L’intervenant", parent: "Un parent", you: "Vous" });
+  Object.assign(NAMES, { sacha: "Sacha", rey: "M. Rey", karim: "Karim", petit: "Mme Petit", zoe: "Zoé", theo: "Noé", clara: "Clara", enzo: "Enzo", lena: "Léna", intervenant: "L’intervenant", parent: "Un parent", you: "Vous" });
   const face = (w, m) => faceOf(w, m);
   const pop = (cls, html) => { const p = el("div", { class: "cr-pop " + cls, role: "dialog", "aria-live": "assertive" }, html); document.body.appendChild(p); return p; };
   const endRow = (host, label = "Continuer") => { const row = el("div", { class: "row" }); row.appendChild(btn(label, next)); host.appendChild(row); row.querySelector("button").focus({ preventScroll: true }); };
@@ -2500,17 +2525,19 @@
     show(p) {
       document.querySelectorAll(".ph-modal").forEach((x) => x.remove());
       const m = el("div", { class: "ph-modal", role: "dialog", "aria-modal": "true", "aria-label": "Téléphone" },
-        `<div class="ph"><div class="ph-top"><span class="ph-ic">${face(p.av)}</span><div><b>${esc(p.from)}</b><small>${esc(p.app)}</small></div><button type="button" class="ph-x" aria-label="Fermer le téléphone">✕</button></div>
-         <div class="ph-chat"><div class="ph-msg in">${esc(p.t)}</div></div><div class="ph-opts"></div></div>`);
+        `<div class="wa ph-wa"><div class="wa-dev"><div class="wa-notch"></div>
+           <div class="wa-top"><span class="wa-back" aria-hidden="true">‹</span><span class="wa-av">${face(p.av)}</span><span class="wa-id"><b>${esc(p.from)}</b><small>${esc(p.app === "SMS" ? "SMS" : "en ligne")}</small></span><button type="button" class="ph-x" aria-label="Fermer le téléphone">✕</button></div>
+           <div class="wa-body ph-chat"><div class="wa-m">${esc(p.t)}<i>maintenant</i></div></div>
+           <div class="ph-opts wa-opts"></div></div></div>`);
       const opts = m.querySelector(".ph-opts"), chat = m.querySelector(".ph-chat");
       p.opts.forEach((o) => {
         const b = el("button", { class: "ph-o", type: "button" }, esc(o.t));
         b.addEventListener("click", () => {
           opts.innerHTML = "";
-          chat.appendChild(el("div", { class: "ph-msg out" }, esc(o.t)));
+          chat.appendChild(el("div", { class: "wa-m me" }, `${esc(o.t)}<i>maintenant ✓✓</i>`));
           record({ id: "tel-" + p.id, comp: p.comp }, o.q);
           const v = verdict(o.q); v.s();
-          chat.appendChild(el("div", { class: "ph-fb " + v.cls }, `<b>${v.t}.</b> ${esc(o.fb)}`));
+          chat.appendChild(el("div", { class: "ph-fb wa-fb " + v.cls }, esc(o.fb))); chat.scrollTop = chat.scrollHeight;
           this.waiting = this.waiting.filter((x) => x !== p); this.badge(); save();
           opts.appendChild(btn(this.waiting.length ? "Message suivant" : "Ranger le téléphone", () => { m.remove(); if (this.waiting.length) this.show(this.waiting[0]); }));
           Voice.say("narr", o.fb);
@@ -2580,7 +2607,8 @@
       const T = sc.twist;
       // le message arrive sur votre téléphone : vous le lisez vous-même (personne ne le raconte)
       const m = /«\s*([^»]+?)\s*»/.exec(T.t), body = m ? m[1] : T.t, where = (/depuis ([^:«]+)/.exec(T.t) || [])[1];
-      const p = pop("pl-twist sms", `<div class="sms-ph"><div class="sms-top"><i>${face(T.who)}</i><div><b>${esc(NAMES[T.who])}</b><small>${where ? esc(where.trim()) : "SMS"} · à l’instant</small></div></div><p class="sms-b">${esc(body)}</p></div><p class="kicker">Que lui répondez-vous ?</p>`);
+      const hh = "14:37";
+      const p = pop("pl-twist sms", waPhone({ title: NAMES[T.who], sub: where ? where.trim() : "en ligne", face: face(T.who), msgs: [{ who: NAMES[T.who], t: body, time: hh }] }) + `<p class="kicker">Que lui répondez-vous ?</p>`);
       const o = el("div", { class: "cr-opts" });
       T.opts.forEach((x) => { const b = el("button", { class: "opt", type: "button" }, esc(x.t)); b.addEventListener("click", () => { p.remove(); end(x); }); o.appendChild(b); });
       p.appendChild(o); Snd.mid && Snd.mid(); if (navigator.vibrate) try { navigator.vibrate([160, 90, 160]); } catch (e) { }
@@ -3499,37 +3527,52 @@
   }
   // Les familles : le matin, la voiture arrive, l'enfant entre, le parent échange un mot avec l'équipe et repart ;
   // le soir, c'est l'inverse. Plusieurs familles, l'une après l'autre.
-  const FAMS = [["pa1", "k3"], ["pa2", "k6"], ["pa1", "k2"], ["pa2", "k5"]];
+  // Des familles toutes différentes, chacune avec son trajet : en voiture, à pied, un grand qui arrive seul…
+  const FAMS = [
+    { pa: "pa1", kids: ["k3"], car: 0, run: [[22.3, 23.2], [18.4, 24.5], [15.1, 22.8], [9.2, 23.0]], g: "wave" },
+    { pa: "pa2", kids: ["k6", "k8"], car: 2.2, run: [[22.6, 22.4], [20.2, 21.0], [16.2, 19.9]], g: "hug" },
+    { pa: "pa3", kids: ["k7"], foot: true, run: [[23.4, 24.6], [21.0, 26.4], [17.6, 27.6]], g: "raise" },
+    { pa: null, kids: ["t3"], foot: true, run: [[24.2, 23.0], [19.6, 22.8], [17.4, 23.6]], g: "wave" },
+    { pa: "pa4", kids: ["k5"], car: -1.6, run: [[22.0, 24.0], [12.6, 24.4], [9.6, 25.2]], g: "laugh" },
+  ];
   function families(mode, staff = "nour") {
     if (!World.el || !A.dio || reduce()) return;
-    const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9];
+    const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9], STREET = [34.6, 21.0];
     World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
     const host = Life.add(Walker(staff, 27.6, 22.6, "stand")); acts.appendChild(host.el); host.face(GATE);
     // sur le parvis, des parents s'arrêtent devant le panneau d'affichage pour lire les informations
-    [["pa3", 32.9, 20.4], ["pa4", 33.2, 21.5]].forEach(([w, x, y]) => { const R0 = Life.idle(w, x, y, ["chin", "nod", "point", "weight"], { back: true }); acts.appendChild(R0.el); });
+    [["pa3", 32.9, 20.4], ["pa4", 33.2, 21.5]].forEach(([w, x, y]) => { if (mode === "morning" && (w === "pa3" || w === "pa4")) return; const R0 = Life.idle(w, x, y, ["chin", "nod", "point", "weight"], { back: true }); acts.appendChild(R0.el); });
     const timers = [];
-    FAMS.slice(0, 3).forEach(([pa, kid], i) => timers.push(setTimeout(() => {
+    FAMS.forEach((F, i) => timers.push(setTimeout(() => {
       if (!World.el.classList.contains("on")) return;
-      const car = Car(13); if (!car) return;
-      car.drive(0, 3.2, () => {
-        const P = Life.add(Walker(pa, DOOR[0], DOOR[1], "stand")); acts.appendChild(P.el);
+      const start = (from, after) => {
+        const P = F.pa ? Life.add(Walker(F.pa, from[0], from[1], "stand")) : null; if (P) acts.appendChild(P.el);
         if (mode === "morning") {
-          const K = Life.add(Walker(kid, DOOR[0] - .5, DOOR[1] + .3, "stand")); acts.appendChild(K.el);
-          K.go([OUT, GATE, IN, [22.3, 23.2], [18.4, 24.5]], 2.2, () => { gesture(K.el, "wave"); K.go([[15.1, 22.8], [9.2, 23.0]], 2.8, null, "run"); }, "run");
-          P.go([OUT, [GATE[0] + .4, GATE[1] + .2]], 1.4, () => {
-            P.setBack(true); P.face([host.x, host.y]); gesture(host.el, "explain"); gesture(P.el, "nod");
-            setTimeout(() => { gesture(host.el, "wave"); gesture(P.el, "wave"); P.setBack(false); P.go([OUT, DOOR], 1.5, () => { P.el.remove(); car.drive(-14, 3.6, () => car.el.remove()); }); }, 3600);
+          F.kids.forEach((kid, j) => {
+            const K = Life.add(Walker(kid, from[0] - .5 - j * .4, from[1] + .3 + j * .3, "stand")); acts.appendChild(K.el);
+            const path = [OUT, GATE, IN].concat(F.run.map(([x, y]) => [x - j * .5, y + j * .4]));
+            K.go(path, 2.1 + j * .3, () => { gesture(K.el, F.g); K.el.style.transition = "opacity .8s"; setTimeout(() => { K.el.style.opacity = "0"; setTimeout(() => K.el.remove(), 900); }, 2500); }, j || F.pa ? "run" : "walk");
+          });
+          if (!P) return;
+          P.go([OUT, [GATE[0] + .4, GATE[1] + .2 + (i % 2) * .5]], 1.4, () => {
+            P.setBack(true); P.face([host.x, host.y]); gesture(host.el, i % 2 ? "welcome" : "explain"); gesture(P.el, i % 2 ? "explain" : "nod");
+            setTimeout(() => { gesture(host.el, "wave"); gesture(P.el, i % 3 ? "wave" : "watch"); P.setBack(false); P.go([OUT, from], 1.5, () => { P.el.remove(); after && after(); }); }, 3200 + (i % 3) * 600);
           });
         } else {
-          const K = Life.add(Walker(kid, 18.4, 24.5, "stand")); acts.appendChild(K.el);
-          P.go([OUT, [GATE[0] + .4, GATE[1] + .2]], 1.4, () => { P.setBack(true); gesture(host.el, "explain"); gesture(P.el, "nod"); });
-          K.go([[22.3, 23.2], IN, [GATE[0] - .3, GATE[1] - .2]], 2.4, () => {
-            gesture(K.el, "hug");
-            setTimeout(() => { P.setBack(false); gesture(host.el, "wave"); P.go([OUT, DOOR], 1.4, () => { P.el.remove(); }); K.go([GATE, OUT, [DOOR[0] - .5, DOOR[1] + .3]], 1.5, () => { K.el.remove(); car.drive(-14, 3.6, () => car.el.remove()); }); }, 2600);
-          }, "run");
+          F.kids.forEach((kid, j) => {
+            const K = Life.add(Walker(kid, F.run[F.run.length - 1][0], F.run[F.run.length - 1][1], "stand")); acts.appendChild(K.el);
+            K.go(F.run.slice().reverse().concat([IN, [GATE[0] - .3 - j * .4, GATE[1] - .2]]), 2.4, () => {
+              gesture(K.el, "hug");
+              setTimeout(() => { if (P) { P.setBack(false); gesture(host.el, "wave"); P.go([OUT, from], 1.4, () => P.el.remove()); } K.go([GATE, OUT, from], 1.5, () => { K.el.remove(); if (j === F.kids.length - 1) after && after(); }); }, 2600);
+            }, "run");
+          });
+          if (P) P.go([OUT, [GATE[0] + .4, GATE[1] + .2]], 1.4, () => { P.setBack(true); gesture(host.el, "explain"); gesture(P.el, "nod"); });
         }
-      });
-    }, 600 + i * 5200)));
+      };
+      if (F.foot) { start(STREET, null); return; }   // à pied, depuis la rue
+      const car = Car(13); if (!car) return;
+      car.drive(F.car || 0, 3.2, () => start([DOOR[0] + (F.car || 0), DOOR[1]], () => car.drive(-14, 3.6, () => car.el.remove())));
+    }, 500 + i * 4300)));
     Life.agents.push({ t: 0, clear: () => timers.forEach(clearTimeout) });
   }
 

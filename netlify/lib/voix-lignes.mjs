@@ -114,17 +114,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
  },
- "858de03d52ab": {
+ "132334d9481b": {
   "who": "nour",
   "mood": "concern",
   "kind": "replique",
-  "text": "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont cinquante-deux pour des soupçons de violences sexuelles ou sexistes. Ici aussi, les parents s’inquiètent. Et c’est pour ça que j’ai besoin de toi."
+  "text": "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi."
  },
- "512d23365eb8": {
+ "6794c6028cca": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV, apparemment, tu es calée là-dessus."
+ },
+ "c15315656aaa": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "J’ai vu sur ton CV que tu t’étais formée à la protection de l’enfance. Ce que j’attends de toi, donc, c’est de circuler dans le centre, d’aider l’équipe à réagir et à prendre les bonnes décisions. Repérer, protéger, transmettre : personne ne te demande d’être juge."
+  "text": "Ce que j’attends de toi, donc : tu es notre animatrice volante pour la semaine des vacances. Tu circules partout, tu restes vigilante, et quand quelque chose te paraît anormal, tu agis et tu me le transmets."
  },
  "d34695f4428b": {
   "who": "nour",
@@ -155,6 +161,12 @@ export const LIGNES = {
   "mood": "big",
   "kind": "replique",
   "text": "Et l’atelier vélo, Inès ? C’est toujours le club des filles qui se prennent pour des garçons ?"
+ },
+ "e8c42b2a7552": {
+  "who": "yanis",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Ha ! Avec les genouillères roses, quand même."
  },
  "d3c54773f9e4": {
   "who": "ines",
@@ -444,11 +456,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Et s’il n’a rien dit, rien fait, il est resté sans réaction ?"
  },
- "b21e595cfee9": {
+ "42baa360e554": {
   "who": "kevin",
   "mood": "smile",
   "kind": "replique",
-  "text": "Clara a 17 ans, elle est d’accord. Notre relation est autorisée, non ?"
+  "text": "Clara m’écrit tous les soirs depuis la semaine dernière. Elle est un peu perdue en ce moment, elle a besoin de parler. Elle m’a proposé qu’on se voie samedi, juste un café. Elle a 17 ans, et c’est elle qui le propose… Il n’y a rien de mal, si ?"
  },
  "df1fec311da0": {
   "who": "nour",
@@ -804,83 +816,83 @@ export const LIGNES = {
   "kind": "situation",
   "text": "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs."
  },
- "328e8bd93066": {
+ "7c7dd6e54238": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous explique à quoi il sert et ce qui s’y passe. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices."
+  "text": "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe, sans plus. À vous de juger. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices."
  },
- "59718481a1bf": {
+ "cc61b9ab4d06": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À la salle d’activités : l’atelier radio. Sur la porte de la salle, le planning de l’atelier : Garçons à la console, filles aux textes . Plusieurs filles ont demandé à apprendre le réglage des micros. La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger."
+  "text": "À la salle d’activités : l’atelier radio. Ici, la salle d’activités : cet après-midi, Bastien y anime l’atelier radio. Sur la porte, le planning de l’atelier : Garçons à la console, filles aux textes ."
  },
- "934c273d7d48": {
+ "b766ae5f5605": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Dans la salle des animateurs. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes. Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles."
+  "text": "Dans la salle des animateurs. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes."
  },
- "323e0af7aeb4": {
+ "b9a0811a1934": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À l’infirmerie. Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité. Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps."
+  "text": "À l’infirmerie. Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité."
  },
- "2003fa558890": {
+ "e39f24b978e4": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Au panneau d’affichage. Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part. L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté."
+  "text": "Au panneau d’affichage. Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part."
  },
- "1348589bb70c": {
+ "96d93b16d7a8": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "L’aire de jeux. Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble. Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, proposent des façons d’utiliser l’espace, et restent repérables."
+  "text": "L’aire de jeux. Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble."
  },
- "06906a20ea1c": {
+ "f526e0ee9580": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le potager. Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours. Rien à signaler : un accès libre aux rôles, c’est exactement ce qu’on cherche."
+  "text": "Le potager. Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours."
  },
- "7866930b3bb4": {
+ "1f128f1cbf73": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À la régie, le local du matériel. La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée. Un lieu fermé et hors de vue, où un adulte se retrouve seul avec des mineurs, crée un risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où."
+  "text": "À la régie, le local du matériel. La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée."
  },
- "d50a7f33ec78": {
+ "5bb5cefa4e6c": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le parc, derrière le bâtiment. Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte. Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage."
+  "text": "Le parc, derrière le bâtiment. Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte."
  },
- "53fb5f75fef1": {
+ "8afdd9f2aff5": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés. Rien à signaler : les tâches tournent sans distinction de sexe."
+  "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés."
  },
- "2f3198cb0621": {
+ "7a44341567cd": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Aux sanitaires. Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Dans la réalité, après les affaires de 2026, Paris a décidé qu’aucun animateur ne resterait plus seul avec un enfant, et a revu l’accompagnement aux toilettes. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc pour préserver l’intimité . Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine."
+  "text": "Aux sanitaires. Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc pour préserver l’intimité ."
  },
- "a5261af2175a": {
+ "e73d4d557551": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "L’accueil et le bureau de direction. Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé. Rien à signaler : les informations confidentielles sont protégées."
+  "text": "L’accueil et le bureau de direction. Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé."
  },
- "c75013bab061": {
+ "56e0460d43fa": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité. Rien d’inquiétant : le départ des enfants est contrôlé."
+  "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité."
  },
  "b291965ee545": {
   "who": "narr",
@@ -978,11 +990,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras. Non, t’es une fille ! Tu peux pas jouer au foot avec nous. Mais… moi je joue bien, euh… je joue tous les mercredis. Malo rigole. Zoé recule vers le banc."
  },
- "5faa34de9961": {
+ "5ef92b4880e7": {
   "who": "narr",
   "mood": "",
   "kind": "retour-bon",
-  "text": "Les équipes mélangées tournent tout l’après-midi. Zoé marque un but ; à la fin, Théo lui tape dans la main. Vous nommez la règle, sans exclusion selon le sexe, et vous agissez sur l’organisation du jeu. C’est la prévention au quotidien : on ne laisse pas un stéréotype devenir la règle du groupe."
+  "text": "Les équipes mélangées tournent tout l’après-midi. Zoé marque un but ; à la fin, Noé lui tape dans la main. Vous nommez la règle, sans exclusion selon le sexe, et vous agissez sur l’organisation du jeu. C’est la prévention au quotidien : on ne laisse pas un stéréotype devenir la règle du groupe."
  },
  "3ac035975a7f": {
   "who": "narr",
@@ -1140,11 +1152,11 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mardi, jour 2 sur 5. Les mots qui blessent. Distinguer ce qui est observé, rapporté ou supposé, et nommer le sexisme et le harcèlement."
  },
- "e6f0bf512462": {
+ "db26e8af0a6c": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Mardi, 8 h 30. Avant l’arrivée des enfants, toute l’équipe se retrouve en salle des animateurs pour le briefing du matin."
+  "text": "Mardi, 8 h 30, avant l’arrivée des enfants. Briefing du matin en salle des animateurs."
  },
  "1bbe024c521e": {
   "who": "narr",
@@ -1158,17 +1170,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Le briefing est terminé. Pendant que les autres partent préparer leurs activités, Inès reste dans la salle et vous fait signe."
  },
- "015c4b79f18d": {
+ "d7e861235021": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mardi, 12 h 15, au réfectoire."
+  "text": "Mardi, 12 h 15, à la restauration."
  },
- "c9041527a782": {
+ "ac113ae98b83": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Bastien pose son plateau et s’assoit en face de vous"
+  "text": "J’ai vu que tu as parlé à Inès ce matin. Franchement, c’était pour rire, on ne voulait pas la blesser."
  },
  "31c89b81b592": {
   "who": "narr",
@@ -1236,17 +1248,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Nour est appelée en réunion à la mairie jusqu’à 17 h. Avant de partir, elle vous confie le planning de l’après-midi : Tu connais les règles, je te fais confiance. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
- "b3fd78d06831": {
+ "97ac3d359c81": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "14 h, c’est le temps calme. Jade vous montre un dessin de Théo, 8 ans, et vous parle de lui."
+  "text": "14 h, c’est le temps calme. Jade vous montre un dessin de Noé, 8 ans, et vous parle de lui."
  },
- "75285db9168a": {
+ "3285cdf4279c": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Théo, 8 ans, a fait un dessin à contenu sexuel, puis a refusé l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique"
+  "text": "Noé, 8 ans, a dessiné pendant le temps calme deux personnages nus, couchés l’un sur l’autre, et il a vite caché sa feuille. Depuis deux jours, il refuse aussi l’atelier cirque qu’il adorait. Votre collègue Jade est catégorique"
  },
  "8be76840928a": {
   "who": "jade",
@@ -1272,11 +1284,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Quelle est la réponse la plus juste ?"
  },
- "0f96fcb2bc01": {
+ "4eb4d0cc848e": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Théo se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter. Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+  "text": "Noé se ferme. Ses réponses, influencées par la question, seront plus difficiles à exploiter. Une question fermée et suggestive peut influencer la parole de l’enfant et fragiliser une enquête future. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
  },
  "9237f11c0805": {
   "who": "narr",
@@ -1290,11 +1302,11 @@ export const LIGNES = {
   "kind": "retour-bon",
   "text": "Nour transmet une information préoccupante à la CRIP le jour même. Observer sans interpréter, écouter sans suggérer, transmettre : c’est la réponse attendue."
  },
- "165392a5e5ab": {
+ "ca6e2f4054ac": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "Le soir même, Théo ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
+  "text": "Le soir même, Noé ne revient plus à l’atelier qu’il aimait. Rien n’a été transmis. Si les violences ont lieu dans la famille, en parler aux parents peut exposer l’enfant à des pressions. Pour faire mieux : Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation."
  },
  "1588021dd4b1": {
   "who": "narr",
@@ -1386,17 +1398,17 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mercredi, jour 3 sur 5. La grosse journée. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
  },
- "d2cc39b4ec48": {
+ "ac71486a0aaa": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Monsieur Garnier, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
+  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Théo, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
  },
- "f3e1bc072749": {
+ "b26ef1db4c0d": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Monsieur Garnier vous prend à part"
+  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Théo vous prend à part"
  },
  "2dfc99e4c4bb": {
   "who": "narr",
@@ -2058,11 +2070,11 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Maëlys se fige et répète qu’elle ne veut plus en parler. On accueille la parole sans la provoquer : l’audition, ce sont les enquêteurs qui la mènent. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "3bdc6eb83019": {
+ "42acabece8b5": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Monsieur Garnier est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+  "text": "Théo est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
  "0c227e0dd9ef": {
   "who": "narr",
@@ -2160,11 +2172,11 @@ export const LIGNES = {
   "kind": "epilogue",
   "text": "Maëlys n’a plus croisé l’intervenant. Les faits ont été signalés le jour même, et l’atelier bois est suspendu pendant l’enquête."
  },
- "2c70162cc765": {
+ "98316bf8c7e3": {
   "who": "narr",
   "mood": "",
   "kind": "epilogue",
-  "text": "Maëlys a été tenue à l’écart, mais Monsieur Garnier a retardé l’alerte d’une journée. Les faits ont finalement été signalés."
+  "text": "Maëlys a été tenue à l’écart, mais Théo a retardé l’alerte d’une journée. Les faits ont finalement été signalés."
  },
  "523e334e69f5": {
   "who": "narr",
@@ -2418,11 +2430,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Grâce à tes notes, l’information préoccupante est partie le jour même. Les services ont rencontré la famille."
  },
- "2953179ddde0": {
+ "1ce3d33c6412": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Théo est aujourd’hui accompagné. Vos observations, recueillies sans questions orientées, ont pu servir."
+  "text": "Noé est aujourd’hui accompagné. Vos observations, recueillies sans questions orientées, ont pu servir."
  },
  "0d2bf840a6c2": {
   "who": "nour",
@@ -2430,23 +2442,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Tu as attendu la fin de la semaine… On a perdu cinq jours."
  },
- "d2a5f946c464": {
+ "903d7342b238": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "L’information est partie, mais tard. Pendant ce temps, Théo est resté seul avec ce qu’il vivait."
+  "text": "L’information est partie, mais tard. Pendant ce temps, Noé est resté seul avec ce qu’il vivait."
  },
- "978dd9d98894": {
+ "98dc8c1cc9cb": {
   "who": "jade",
   "mood": "",
   "kind": "replique",
-  "text": "Ses parents sont venus, furieux. Depuis, Théo ne parle plus à personne."
+  "text": "Ses parents sont venus, furieux. Depuis, Noé ne parle plus à personne."
  },
- "111627788f3d": {
+ "ce5e392c7d24": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Questionné, puis exposé à sa famille, Théo s’est fermé. Les professionnels auront bien plus de mal à l’aider."
+  "text": "Questionné, puis exposé à sa famille, Noé s’est fermé. Les professionnels auront bien plus de mal à l’aider."
  },
  "55db5b1ad87b": {
   "who": "bastien",
@@ -2976,17 +2988,17 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Rien ne justifiait de garder Zoé."
  },
- "0cf6934b4803": {
+ "28a6635b0578": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Un homme souriant : Je suis Karim, l’oncle de Théo. Sa mère m’a demandé de passer le prendre."
+  "text": "Un homme souriant : Je suis Karim, l’oncle de Noé. Sa mère m’a demandé de passer le prendre."
  },
- "3884c474b6f7": {
+ "d01d764a5bd5": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Karim n’est pas sur la fiche de Théo. Un enfant n’est remis qu’à un adulte autorisé par écrit, même s’il a l’air de connaître la famille."
+  "text": "Karim n’est pas sur la fiche de Noé. Un enfant n’est remis qu’à un adulte autorisé par écrit, même s’il a l’air de connaître la famille."
  },
  "e39ad239f8f2": {
   "who": "narr",
@@ -2994,17 +3006,17 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Une pièce d’identité prouve qui il est, pas qu’il est autorisé : Karim n’est pas sur la fiche."
  },
- "6ec9d80157e4": {
+ "e073781bdb06": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Juste : Karim n’est pas sur la fiche. Vous appelez la mère de Théo, qui confirme et envoie une autorisation écrite."
+  "text": "Karim n’est pas sur la fiche. Vous appelez la mère de Noé, qui confirme et envoie une autorisation écrite."
  },
- "5745489d0373": {
+ "7b4599b13038": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Théo n’est pas en danger : il suffit de refuser poliment et d’appeler sa mère."
+  "text": "Noé n’est pas en danger : il suffit de refuser poliment et d’appeler sa mère."
  },
  "9f59a3fd9e7b": {
   "who": "narr",
@@ -3018,11 +3030,11 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Mme Petit est bien sur la fiche, mais vous ne la connaissez pas : il fallait d’abord vérifier son identité."
  },
- "88250725798f": {
+ "c5e552d76abc": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Juste : elle est sur la fiche, et sa pièce d’identité le confirme. Départ noté."
+  "text": "Elle est sur la fiche, et sa pièce d’identité le confirme. Départ noté."
  },
  "b0901c4b6962": {
   "who": "narr",
@@ -3060,11 +3072,11 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Refuser est juste, mais sans lui expliquer quoi que ce soit : c’est aux gendarmes, présents, de lui parler."
  },
- "5aedda62ba04": {
+ "c8adb823d382": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Juste : vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
+  "text": "Vous restez calme, sans rien révéler. Lou reste à l’intérieur avec Nour, et les gendarmes reçoivent Monsieur Rey."
  },
  "0e65d7eb2dce": {
   "who": "narr",
@@ -3384,11 +3396,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle des grands, Inès aide Sacha à finir une maquette. Tout est calme."
  },
- "48f8028a6587": {
+ "e524659aadff": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Monsieur Garnier, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé."
+  "text": "Théo, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé."
  },
  "f1b379011e60": {
   "who": "narr",
@@ -3654,11 +3666,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle d’activités, Léa anime un atelier de perles avec des petits."
  },
- "8712a95c9d19": {
+ "a9607595cad1": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Monsieur Garnier prépare la visite d’inspection de demain, le nez dans les dossiers."
+  "text": "Théo, le directeur, prépare la visite d’inspection de demain, le nez dans les dossiers."
  },
  "1dc3e2e7a142": {
   "who": "narr",

@@ -2237,6 +2237,34 @@ body.roaming .emo-sign,body.roaming .actor:before,body.roaming .walker:before{di
 .rk-std{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;background:rgba(127,140,160,.18);font:700 9.5px/1.4 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase;vertical-align:middle;opacity:.85}
 .rk-fict{margin:8px 0 0;font-size:12.5px;opacity:.75}
 .kid-rep{margin:10px 0 14px;padding:12px 14px;border-radius:14px;background:#FFF7E8;border:1px solid #F2D9AE}.kid-rep ul{margin:4px 0 0;padding-left:18px}.kid-rep li{margin:3px 0;line-height:1.4}
+/* Carnet de Nour : l'idée en cours est mise en avant pendant que la scène se rejoue sur le plan */
+.pn-ill .pn-body li{transition:opacity .4s ease,background .4s ease;border-radius:10px;padding:4px 8px;margin-left:-8px}
+.pn-ill .pn-body li:not(.on){opacity:.55}
+.pn-ill .pn-body li.on{background:rgba(226,112,42,.09)}
+/* Le téléphone de la joueuse : messagerie façon WhatsApp */
+.wa{display:flex;justify-content:center;margin:12px 0 16px}
+.wa-dev{position:relative;width:min(340px,100%);border-radius:34px;background:#111;padding:10px;box-shadow:0 26px 50px -22px rgba(0,0,0,.55)}
+.wa-notch{position:absolute;top:14px;left:50%;width:84px;height:20px;margin-left:-42px;border-radius:12px;background:#000;z-index:2}
+.wa-top{display:flex;align-items:center;gap:9px;padding:38px 12px 10px;border-radius:26px 26px 0 0;background:#075E54;color:#fff}
+.wa-back{font-size:26px;line-height:1;opacity:.9}
+.wa-av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#DFE5E7;color:#075E54;display:flex;align-items:center;justify-content:center;font-weight:700}.wa-av svg{width:100%;height:100%}
+.wa-id b{display:block;font-size:15px}.wa-id small{display:block;font-size:11.5px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.wa-body{display:flex;flex-direction:column;gap:6px;padding:12px 10px 14px;background:#ECE5DD;max-height:320px;overflow:auto}
+.wa-m{align-self:flex-start;max-width:84%;padding:6px 9px 5px;border-radius:2px 10px 10px 10px;background:#fff;box-shadow:0 1px .5px rgba(0,0,0,.13);font-size:14.5px;line-height:1.38;color:#111;animation:waIn .35s ease both}
+.wa-m.me{align-self:flex-end;border-radius:10px 2px 10px 10px;background:#D9FDD3}
+.wa-m b{display:block;font-size:12.5px;margin-bottom:1px}
+.wa-m i{display:block;text-align:right;font-style:normal;font-size:10.5px;color:#667781;margin-top:1px}
+.wa-in{display:flex;align-items:center;gap:8px;padding:8px 10px 12px;border-radius:0 0 26px 26px;background:#F0F2F5}
+.wa-in span{flex:1;padding:8px 12px;border-radius:18px;background:#fff;color:#8696A0;font-size:13.5px}
+.wa-in i{width:34px;height:34px;border-radius:50%;background:#00A884}
+@keyframes waIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pl-twist.sms .wa{margin-top:0}
+.ph-modal .ph-wa{margin:0}.ph-modal .wa-dev{width:min(360px,94vw)}
+.wa-top .ph-x{margin-left:auto;appearance:none;border:0;background:rgba(255,255,255,.16);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer}
+.wa-opts{display:flex;flex-direction:column;gap:6px;padding:10px;background:#F0F2F5;border-radius:0 0 26px 26px}
+.wa-opts .ph-o{appearance:none;text-align:left;border:0;border-radius:14px;background:#fff;padding:10px 12px;font:500 14px/1.35 'Inter',sans-serif;cursor:pointer;box-shadow:0 1px .5px rgba(0,0,0,.1)}
+.wa-opts .ph-o:hover{background:#E7FCE3}
+.wa-fb{align-self:stretch;margin-top:4px;padding:8px 10px;border-radius:10px;background:#FFF8E1;font-size:13px;line-height:1.4}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -2885,7 +2913,7 @@ g.emo-sign{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-9bf07764.js"></script>
-<script src="jeu-2-a49369b0.js"></script>
-<script src="jeu-3-dcf9aaef.js"></script>
+<script src="jeu-1-eb0b9f8c.js"></script>
+<script src="jeu-2-26376ee1.js"></script>
+<script src="jeu-3-a8980e9c.js"></script>
 </body></html>

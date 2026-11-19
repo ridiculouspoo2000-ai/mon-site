@@ -26,6 +26,7 @@ const DEFAUT = {
   lou: "1A1lOhlOFIlPyxQ8NgiG",     // Solène · voix la plus aiguë de la bibliothèque française (≈ 270 Hz, hauteur d’une voix d’enfant)
   bastien: "1a3lMdKLUcfcMtvN772u", // Antoine · Audiobook Narrator
   kevin: "jfEwztGDkpbpy89xeku6",   // Steve · Soft and Calm
+  yanis: "jfEwztGDkpbpy89xeku6",   // Steve : Yanis, animateur des 9-12 ans (il ne parle jamais en même temps que Kévin)
   malo: "1A1lOhlOFIlPyxQ8NgiG",    // Solène : Malo, 7 ans (lundi, aux sanitaires)
   theo: "1A1lOhlOFIlPyxQ8NgiG",    // Solène : Théo, 8 ans (lundi, au foot)
   zoe: "Yx2a8qp2EqI9c5i8MzBo",     // Philippine : Zoé, 8 ans (lundi, au foot)

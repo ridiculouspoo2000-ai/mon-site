@@ -729,6 +729,20 @@
   // La semaine qui passe : jour, heure, avancée dans la semaine, fatigue de l'équipe
   const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"], CHDAY = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4 }, TIRED = [12, 30, 55, 68, 82];
   const DC = { d: -1, t: "8 h 30", el: null };
+  // l'heure d'un écran qui n'en donne pas : celle du dernier écran daté de la même journée
+  function heritee(sc) {
+    const i = SCREENS.findIndex((x) => x.id === sc.id);
+    for (let j = i - 1; j >= 0 && SCREENS[j].ch === sc.ch; j--) {
+      const p = SCREENS[j]; if (p.inRoam) continue;
+      if (p.type === "chapter") return "7 h 45";
+      if (p.hour) return p.hour;
+      if (p.type === "dayend" && typeof DAYEND !== "undefined" && DAYEND[p.ch]) return DAYEND[p.ch].t;
+      const lead = ((p.intro || "").match(/^\s*(?:(?:lundi|mardi|mercredi|jeudi|vendredi)[^.]{0,4})?\d{1,2} ?h ?\d{0,2}/i) || [""])[0];
+      const h = ((p.kicker || "") + " " + lead + " " + (p.bridge && /^\s*(lundi|mardi|mercredi|jeudi|vendredi|\d)/i.test(p.bridge) ? p.bridge.slice(0, 30) : "")).match(/(\d{1,2}) ?h ?(\d{2})?/);
+      if (h) return `${h[1]} h ${h[2] || "00"}`;
+    }
+    return null;
+  }
   function dayclock(sc) {
     if (!DC.el) {
       DC.el = el("div", { id: "dayclock", "aria-live": "polite" }); document.body.appendChild(DC.el);
@@ -737,15 +751,21 @@
       placeClock(); addEventListener("resize", placeClock);
     }
     const show = !["home", "avatar", "find", "hotspots"].includes(sc.type) && !!(st.rev && st.rev.clock);
-    DC.el.hidden = !show; if (!show) { DC.d = null; return; }
+    DC.el.hidden = !show;
+    if (["home", "avatar"].includes(sc.type)) { DC.d = null; return; }
     let d = CHDAY[sc.ch] != null ? CHDAY[sc.ch] : 0;
     const lead = ((sc.intro || "").match(/^\s*(?:(?:lundi|mardi|mercredi|jeudi|vendredi)[^.]{0,4})?\d{1,2} ?h ?\d{0,2}/i) || [""])[0];
     const k = (sc.kicker || "") + " " + lead + " " + (sc.bridge && /^\s*(lundi|mardi|mercredi|jeudi|vendredi|\d)/i.test(sc.bridge) ? sc.bridge.slice(0, 30) : ""), m = k.match(/(lundi|mardi|mercredi|jeudi|vendredi)/i);
     if (m) d = DAYS.findIndex((x) => x.toLowerCase() === m[1].toLowerCase());
     const h = k.match(/(\d{1,2}) ?h ?(\d{2})?/), t0 = DC.t;
+    // une seule heure par écran : celle que l'on lit et que l'on entend (bilan du soir : l'heure du bilan ; heure explicite si le texte la donne plus loin)
+    const DEt = sc.type === "dayend" && typeof DAYEND !== "undefined" && DAYEND[sc.ch] && DAYEND[sc.ch].t;
     if (sc.type === "chapter") DC.t = "7 h 45";
+    else if (sc.hour) DC.t = sc.hour;
+    else if (DEt) DC.t = DEt;
     else if (h) DC.t = `${h[1]} h ${h[2] || "00"}`;
-    else if (d !== DC.d) DC.t = "8 h 30";
+    else if (d !== DC.d || !DC.t) DC.t = heritee(sc) || "8 h 30";   // reprise de partie : l'heure du dernier écran daté de la journée
+    if (!show) { DC.d = d; return; }   // écran sans horloge (visite, recherche) : l'heure avance quand même, en coulisses
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
     const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
     const tm = /(\d+) h (\d+)/.exec(DC.t) || [0, 8, 30], hh = +tm[1], mm = +tm[2];
@@ -814,7 +834,7 @@
   const dayEndT = (d) => ((typeof DAYEND !== "undefined" && DAYEND[d.ch]) || {}).t || "17 h 15";
   function timeOf(sc) {
     if (sc && sc.type === "explain") { const d = afterDayEnd(sc); if (d) return timeOf({ kicker: dayEndT(d), ch: d.ch }); }
-    const k = String((sc && (sc.kicker || "")) || "").toLowerCase();
+    const k = String((sc && (sc.hour || sc.kicker || "")) || "").toLowerCase();
     if (/nuit/.test(k)) return "night";
     if (/soir/.test(k)) return "evening";
     if (/matin/.test(k)) return "morning";
@@ -4295,7 +4315,7 @@
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       j = norm2(j) || { adultes: [], enfants: [], total: 0 };
       rk.querySelector("#hrp-adultes .hr-list").innerHTML = hlist(j.adultes); rk.querySelector("#hrp-enfants .hr-list").innerHTML = hlist(j.enfants);
-      rk.querySelector(".hr-foot").innerHTML = (hasFict(j) ? "Premiers scores : profils fictifs, à battre. " : "") + (j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "");
+      rk.querySelector(".hr-foot").innerHTML = (j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "");
     }).catch(() => { rk.querySelectorAll(".hr-list").forEach((l) => { l.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; }); });
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);

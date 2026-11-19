@@ -325,7 +325,7 @@ const SCREENS = [
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’on n’enquête pas : on transmet des faits, d’autres évaluent.", "ok": true}, {"t": "Parce qu’il faut d’abord réunir une preuve solide avant toute transmission.", "ok": false, "no": "Aucune preuve n’est demandée : une inquiétude fondée sur des faits suffit pour transmettre."}, {"t": "Parce que seule la police a le droit de parler à un enfant d’un sujet pareil.", "ok": false, "no": "On peut écouter un enfant qui parle : ce qu’on évite, c’est de le questionner ou de l’orienter."}]},
     later: true,
     better: "Observer, écouter sans suggérer, transmettre : au responsable, puis au 119 ou à la CRIP selon la situation." },
-  { id: "parent1", ch: 2, type: "dialogue", comp: "C4", title: "Au portail : le papa de Zoé", npc: "roussel", start: "n1", parent: true,
+  { id: "parent1", hour: "17 h 50", ch: 2, type: "dialogue", comp: "C4", title: "Au portail : le papa de Zoé", npc: "roussel", start: "n1", parent: true,
     intro: "Mardi, 17 h 50. Au portail, les parents récupèrent leurs enfants et repartent vite. M. Roussel, le papa de Zoé, attend que les autres soient partis pour vous parler.",
     nodes: {
       n1: { mood: "concern", t: "Bonsoir. Hier soir, avec son tableau d’images, Zoé m’a fait comprendre qu’un animateur l’avait aidée à se changer après sa chute dans la boue. Elle avait l’air gênée. Comment ça se passe, ici, ces moments-là ?",
@@ -399,7 +399,7 @@ const SCREENS = [
         cons: "Le film calme la matinée, mais rien n’est prévu pour les sanitaires ni pour l’après-midi.",
         fb: "Réduire l’activité peut aider, mais ne règle ni l’encadrement ni l’accompagnement : il faut un renfort." },
     ] },
-  { id: "parent2", ch: 3, type: "dialogue", comp: "C4", title: "Au portail : la maman de Malo", npc: "benali", start: "n1", parent: true,
+  { id: "parent2", hour: "8 h 40", ch: 3, type: "dialogue", comp: "C4", title: "Au portail : la maman de Malo", npc: "benali", start: "n1", parent: true,
     intro: "Mercredi, 8 h 40. Les parents déposent les enfants au portail, un mot rapide, et repartent. Mme Benali, la maman de Malo, revient sur ses pas.",
     nodes: {
       n1: { mood: "concern", t: "Je peux vous parler deux minutes ? Hier soir, Malo m’a dit qu’un grand lui avait montré des vidéos « pas pour les enfants » sur un téléphone, aux toilettes. Il m’a fait promettre de ne rien dire.",

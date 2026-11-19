@@ -108,11 +108,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre."
  },
- "d2a4070e805c": {
+ "e937754217ef": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
+  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
  },
  "132334d9481b": {
   "who": "nour",
@@ -324,8 +324,8 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Merci. Ça me rassure de savoir comment vous vous organisez."
  },
- "636642c36a4d": {
-  "who": "garnier",
+ "9604147a8e3e": {
+  "who": "nour",
   "mood": "calm",
   "kind": "replique",
   "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
@@ -552,11 +552,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…D’accord."
  },
- "93eb05c58924": {
+ "a816e127a83e": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "On ne repart pas comme on est venus. Reprends un des points repérés lundi pendant le tour de l’accueil."
+  "text": "On ne repart pas comme on est venus. Reprends un des points repérés cette semaine."
  },
  "81ee9ffb405a": {
   "who": "nour",
@@ -630,11 +630,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Non… Je crois que Sacha était peut-être à côté. Il rangeait les outils. Je sais pas s’il a vu."
  },
- "b1ea2f4c85c3": {
+ "2f6a523472e0": {
   "who": "garnier",
   "mood": "concern",
   "kind": "replique",
-  "text": "Maëlys ? Elle a dû mal comprendre. Il travaille ici depuis dix ans. On verra demain avec l’organisateur, je ne veux pas de scandale."
+  "text": "Maëlys ? Elle a dû mal comprendre. Il travaille avec nous depuis dix ans. On verra demain avec Nour, je ne veux pas de scandale pour la commune."
  },
  "92369ce5e93f": {
   "who": "narr",
@@ -654,11 +654,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Voilà, c’est plus raisonnable."
  },
- "520b476fce79": {
+ "4ce38411a9b8": {
   "who": "garnier",
   "mood": "o",
   "kind": "replique",
-  "text": "Tu vas aller le voir ?"
+  "text": "Vous allez aller le voir ?"
  },
  "12587f828988": {
   "who": "garnier",
@@ -672,11 +672,11 @@ export const LIGNES = {
   "kind": "retour-moyen",
   "text": "Seules les personnes qui doivent agir reçoivent les informations nécessaires."
  },
- "a8cee89b4b80": {
+ "8c3e083f9ef2": {
   "who": "garnier",
   "mood": "calm",
   "kind": "replique",
-  "text": "C’est noté. J’appelle l’organisateur."
+  "text": "C’est noté. Je l’écarte, et je préviens le SDJES."
  },
  "06a2be462d98": {
   "who": "garnier",
@@ -816,107 +816,107 @@ export const LIGNES = {
   "kind": "situation",
   "text": "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs."
  },
- "7c7dd6e54238": {
+ "7276889c1659": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe, sans plus. À vous de juger. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices."
+  "text": "C’est l’heure de la visite. Nour, la directrice, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe. Vous avez deux minutes et deux indices."
  },
- "e742e80b06c9": {
+ "2f38cf706ffb": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Ici, c’est la salle de l’atelier radio : c’est là où les enfants et les jeunes peuvent animer une émission radio. Cet après-midi, par exemple, Bastien y anime l’émission des jeunes. Oui, on sait, c’est pas commun, ça…"
+ },
+ "fd34a114faa8": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "C’est ici que les animateurs et animatrices peuvent prendre leurs pauses. C’est aussi ici qu’on fera nos petites réunions, s’il y en a, le matin et l’après-midi."
+ },
+ "5d31602c0c9d": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À l’atelier radio. Ici, l’atelier radio : cet après-midi, Bastien y anime l’émission des jeunes. Sur la porte, le planning de l’atelier : Garçons à la console, filles aux textes ."
+  "text": "Bon, l’infirmerie, tu connais, je pense. On ne donne pas de médicament s’il n’y a pas d’ordonnance médicale d’un médecin ; Bastien est nommé assistant sanitaire. Et on a Zoé, une enfant en situation de handicap. Elle a besoin d’aide pour certains soins d’hygiène ; elle viendra peut-être te voir, et là, tu vois avec Bastien."
  },
- "b766ae5f5605": {
+ "82d5baa9b7f7": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Dans la salle des animateurs. Au tableau, la répartition annoncée par le directeur : Conflits : les hommes. Consoler les enfants : les femmes."
+  "text": "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir."
  },
- "b9a0811a1934": {
+ "8fd4e1aefc74": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Bon, l’aire de jeux, là où les enfants se défoulent. Idéalement, il faut deux animateurs : l’un joue avec les enfants, et l’autre joue avec ceux qui sont un peu à l’écart, tout en gardant un œil sur l’ensemble."
+ },
+ "eb795c8847f3": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Notre potager ! Tout le monde peut y participer, et tout le monde peut y planter des petites choses. Chacun choisit sa tâche : arroser, semer, récolter. Faut juste faire attention aux ballons, des fois, qui abîment le potager."
+ },
+ "a5c4fd57b1e5": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À l’infirmerie. Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité."
+  "text": "La régie, au fond du terrain : un local à l’écart, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes."
  },
- "e39f24b978e4": {
+ "fd1384821131": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Notre petit espace vert, pour les grands jeux et tout, c’est sympa. Il faut juste être vigilant, car les 14-17 sont à côté et, des fois, ils occupent tout l’espace."
+ },
+ "e09adefdd0d5": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "Pendant le service, les jeunes s’installent où ils veulent. Le service et le débarrassage sont faits par les enfants eux-mêmes : eh oui, ici, ils apprennent. Les adultes mangent avec les enfants, pas entre eux. On peut aussi y proposer des animations adaptées au repas, bien sûr !"
+ },
+ "949eb363e37c": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "Au panneau d’affichage. Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part."
+  "text": "Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont ici, dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Les enfants peuvent y venir quand ils veulent. Nous, animateurs, on garde un œil et une oreille, surtout entre les 14-17 et les 6-11, ce qui peut être un peu compliqué des fois."
  },
- "96d93b16d7a8": {
+ "4a99d0b7e2ce": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "L’aire de jeux. Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble."
+  "text": "La salle des 6-11 ans : des tables basses, un coin lecture avec des coussins et plein d’autres choses. Si un enfant ne veut pas faire l’activité avec l’adulte, c’est OK : il peut rester ici ou aller ailleurs, à condition qu’il prévienne l’adulte. Ah oui, aussi : dans toutes les salles, quand il n’y a pas d’adulte, on fait en sorte que la porte reste ouverte ; comme ça, on voit toute la salle depuis le couloir."
  },
- "f526e0ee9580": {
+ "6df00a5bef4d": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le potager. Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours."
+  "text": "La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. C’est marrant : ils essaient de faire les grands ados, alors que certains sont encore des petits sixièmes."
  },
- "1f128f1cbf73": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-alerte",
-  "text": "À la régie, le local du matériel. La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée."
- },
- "5bb5cefa4e6c": {
+ "54530c14f26c": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Le parc, derrière le bâtiment. Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte."
+  "text": "À côté de l’atelier radio, la salle d’activités : de grandes tables, des chevalets de peinture et des bacs de matériel en libre accès. C’est là que les groupes peuvent venir pour se séparer, pour y faire un projet, une activité. Pour information, dans notre accueil de loisirs, les pistolets à colle ainsi que les ciseaux sont en libre accès pour les enfants. Pour le pistolet à colle, il faut juste faire attention à ce que les plus jeunes aient bien une paire de gants quand ils l’utilisent. D’ailleurs, les plus jeunes passent même un permis cutter avec un anim, pour pouvoir l’utiliser seuls. Et je te rassure, on n’a jamais eu de catastrophe : c’est fou, hein ?"
  },
- "8afdd9f2aff5": {
+ "5ad8f433d7a3": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "La salle de restauration. Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés."
+  "text": "Un peu à l’écart du grand bâtiment, la salle des 14-17 ans. Bon, comme tu vois, il y a des canapés, une table de ping-pong et un tableau pour les projets : par exemple, c’est eux qui coordonnent la fête de la fin de l’été avec un anim, ils kiffent. On les a depuis petits, donc ils sont bien, en vrai."
  },
- "7a44341567cd": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-alerte",
-  "text": "Aux sanitaires. Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc pour préserver l’intimité ."
- },
- "b3c648a3af34": {
+ "0b5d18c18566": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "La salle des 6-11 ans. La salle des 6-11 ans : des tables basses, un coin lecture avec des coussins, les dessins des enfants au mur. La porte reste ouverte, et l’on voit toute la salle depuis le couloir."
+  "text": "Mon bureau, juste à côté de l’entrée. Les fiches sanitaires pour les sorties sont rangées dans l’armoire, avec aussi les trousses sanitaires. Pensez à les prendre, sinon vous serez en difficulté si un enfant se blesse. Vous pouvez même missionner certains jeunes pour les prendre, ils adorent cette responsabilité."
  },
- "3902285b8fcf": {
+ "ea29e29779b9": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "La salle des 11-14 ans. La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. Un animateur reste dans la salle avec le groupe."
- },
- "1505c49df751": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-calme",
-  "text": "La salle d’activités. À côté de l’atelier radio, la salle d’activités : de grandes tables, des chevalets de peinture et des bacs de matériel en libre accès. Léa y prépare un atelier de perles."
- },
- "3c09b173e6db": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-calme",
-  "text": "La salle des 14-17 ans. Un peu à l’écart du grand bâtiment, la salle des 14-17 ans : des canapés, une table de ping-pong et un tableau pour les projets. Les ados y ont leur espace, avec un animateur."
- },
- "e73d4d557551": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-calme",
-  "text": "L’accueil et le bureau de direction. Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé."
- },
- "56e0460d43fa": {
-  "who": "nour",
-  "mood": "",
-  "kind": "visite-calme",
-  "text": "Le portail des familles. Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité."
+  "text": "Les enfants viennent pour la plupart seuls, sauf les 6-11 ans. Le matin, leurs parents viennent les déposer au portail et repartent. Le soir, parmi ces enfants, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité."
  },
  "b291965ee545": {
   "who": "narr",
@@ -1422,17 +1422,17 @@ export const LIGNES = {
   "kind": "chapitre",
   "text": "Mercredi, jour 3 sur 5. La grosse journée."
  },
- "ac71486a0aaa": {
+ "d0493efdb913": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Théo, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
+  "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Nour, la directrice, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
  },
- "b26ef1db4c0d": {
+ "16d0497b33ce": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Théo vous prend à part"
+  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Nour vous prend à part"
  },
  "2dfc99e4c4bb": {
   "who": "narr",
@@ -2118,11 +2118,11 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Maëlys se fige et répète qu’elle ne veut plus en parler. On accueille la parole sans la provoquer : l’audition, ce sont les enquêteurs qui la mènent. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
- "42acabece8b5": {
+ "6215e96d0bf3": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Théo est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
+  "text": "Nour est en réunion à la mairie. L’atelier commence dans deux heures, Maëlys est toujours inscrite. Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre. Pour faire mieux : Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités."
  },
  "0c227e0dd9ef": {
   "who": "narr",
@@ -2147,6 +2147,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Vous êtes assis avec Sacha, 11 ans, un peu à l’écart. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+ },
+ "d9ce5eb03ce0": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "13 h 25. Nour est toujours en réunion à la mairie. Dans son bureau, vous trouvez Monsieur Lambert, le responsable enfance de la mairie, l’organisateur de l’accueil, passé déposer des dossiers. Vous lui expliquez la situation."
  },
  "b93c9594f2e2": {
   "who": "narr",
@@ -2226,11 +2232,11 @@ export const LIGNES = {
   "kind": "epilogue",
   "text": "Maëlys n’a plus croisé l’intervenant. Les faits ont été signalés le jour même, et l’atelier bois est suspendu pendant l’enquête."
  },
- "98316bf8c7e3": {
+ "41336ea8202c": {
   "who": "narr",
   "mood": "",
   "kind": "epilogue",
-  "text": "Maëlys a été tenue à l’écart, mais Théo a retardé l’alerte d’une journée. Les faits ont finalement été signalés."
+  "text": "Maëlys a été tenue à l’écart, mais Monsieur Lambert a retardé l’alerte d’une journée. Les faits ont finalement été signalés."
  },
  "523e334e69f5": {
   "who": "narr",
@@ -3318,11 +3324,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "D’accord. Et… Maëlys, elle va bien ?"
  },
- "8eeca0d22d4a": {
+ "71949663e46b": {
   "who": "narr",
   "mood": "",
   "kind": "carnet",
-  "text": "À retenir. Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine n’est jamais un passage obligé."
+  "text": "À retenir. Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine, même l’organisateur, n’est jamais un passage obligé."
  },
  "800ce52aebf6": {
   "who": "narr",
@@ -3552,11 +3558,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette. Tout est calme."
  },
- "e524659aadff": {
+ "95eb07dc6f98": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Théo, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé."
+  "text": "Le bureau de Nour est vide : elle est sur le terrain, avec les familles. Sur la porte vitrée, un mot : Je suis dans la cour, venez me voir au besoin."
  },
  "f1b379011e60": {
   "who": "narr",
@@ -3858,11 +3864,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle d’activités, Léa anime un atelier de perles avec des petits."
  },
- "a9607595cad1": {
+ "a30e8fbfeb4c": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Théo, le directeur, prépare la visite d’inspection de demain, le nez dans les dossiers."
+  "text": "Le bureau de Nour est vide : elle est au panneau d’affichage, à préparer la visite d’inspection de demain."
  },
  "1dc3e2e7a142": {
   "who": "narr",

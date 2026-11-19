@@ -71,7 +71,7 @@ const ROLE = {
   voice: "Vous êtes recrutée comme animatrice volante pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : être vigilante, et agir.",
   goalTitle: "Comment on joue",
   goal: [
-    ["Laissez-vous guider", "Nour, la directrice adjointe, vous a recrutée et vous fait confiance. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
+    ["Laissez-vous guider", "Nour, la directrice, vous a recrutée et vous fait confiance. Des enfants, des parents et des collègues viennent vous voir. À chaque étape, le jeu vous dit où vous êtes, quelle heure il est et ce qui se passe."],
     ["Réagissez, comme sur le terrain", "Quand une situation se présente, choisissez ce que vous faites. Personne ne vous dit sur le moment si c’était juste : votre décision est enregistrée, et la semaine continue."],
     ["Relevez des petites missions", "Faire le tour de l’accueil, organiser le planning, trouver un enfant qui vous cherche, composer un numéro d’urgence, vérifier les départs au portail : chaque mission entraîne un réflexe concret."],
     ["Le retour du vendredi", "En fin de semaine, vous revenez sur chacune de vos décisions : vous voyez ce qu’elle a produit chez les enfants et l’équipe, puis ce que dit le cadre. Ensuite viennent votre bilan, votre score et votre place au classement."],
@@ -84,7 +84,7 @@ const SCREENS = [
   { id: "intro", ch: 1, type: "story", scene: "welcome", kicker: "Lundi, 8 h 30",
     lines: [
       { who: null, live: "portail", t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
-      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice adjointe. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi." },
+      { who: "nour", mood: "big", t: "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi." },
       { who: "nour", mood: "concern", t: "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi." },
       { who: "nour", mood: "calm", t: "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV, apparemment, tu es calée là-dessus." },
       { who: "nour", mood: "smile", t: "Ce que j’attends de toi, donc : tu es notre animatrice volante pour la semaine des vacances. Tu circules partout, tu restes vigilante, et quand quelque chose te paraît anormal, tu agis et tu me le transmets." },
@@ -96,24 +96,24 @@ const SCREENS = [
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
     intro: "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine." },
   { id: "map", ch: 1, type: "hotspots", comp: "C1", title: "Le tour de l’accueil",
-    intro: "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe, sans plus. À vous de juger. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices.", timer: 120, hints: 2,
+    intro: "C’est l’heure de la visite. Nour, la directrice, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe. Vous avez deux minutes et deux indices.", timer: 120, hints: 2,
     spots: [
-      { x: 5.8, y: 31.1, w: 23.4, h: 38.2, key: "radio", label: "L’atelier radio", real: true, title: "À l’atelier radio", t: "Ici, l’atelier radio : cet après-midi, Bastien y anime l’émission des jeunes. Sur la porte, le planning de l’atelier : « Garçons à la console, filles aux textes ».", lesson: "La répartition dépend du sexe et ferme l’accès à un apprentissage. Ce n’est pas une infraction en soi, mais c’est une inégalité à corriger.", ref: "R01" },
-      { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "La salle des animateurs", real: true, title: "Dans la salle des animateurs", t: "Au tableau, la répartition annoncée par le directeur : « Conflits : les hommes. Consoler les enfants : les femmes. »", lesson: "Des rôles attribués à partir d’un stéréotype plutôt que des capacités et des besoins. Une équipe mixte ne garantit pas, à elle seule, l’égalité des rôles.", ref: "R01" },
-      { x: 59, y: 36.8, w: 20, h: 32.5, key: "soins", label: "L’infirmerie", real: true, title: "À l’infirmerie", t: "Zoé, en situation de handicap, communique avec un tableau d’images. Elle a besoin d’aide pour certains soins d’hygiène. Aucun accord d’équipe ne précise qui l’aide, comment recueillir son choix, ni comment respecter son intimité.", lesson: "Aucune violence n’est décrite, mais l’absence de protocole crée une vulnérabilité. Une aide nécessaire n’autorise pas un accès illimité au corps.", ref: "R10" },
-      { x: 81.8, y: 43, w: 14.4, h: 33.4, key: "panneau", label: "Le panneau d’affichage", real: true, title: "Au panneau d’affichage", t: "Le menu, le planning… et un emplacement vide. Les coordonnées du 119 ne sont affichées nulle part.", lesson: "L’affichage du 119 dans les lieux qui accueillent habituellement des mineurs est prévu par la loi (CASF, art. L226-8). Le 3018 a aussi sa place à côté.", ref: "R10" },
-            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "Deux animateurs sont sur l’aire de jeux : l’un lance un jeu de relais autour du toboggan, l’autre joue au ballon avec les petits près des balançoires, tout en gardant un œil sur l’ensemble.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, proposent des façons d’utiliser l’espace, et restent repérables." },
-      { x: 69.2, y: 75, w: 13.6, h: 14.3, key: "potager", label: "Le potager", real: false, title: "Le potager", t: "Chacun choisit sa tâche : arroser, semer, récolter. Les rôles changent tous les jours.", lesson: "Rien à signaler : un accès libre aux rôles, c’est exactement ce qu’on cherche." },
-      { x: 80, y: 18, w: 10, h: 18, key: "local", label: "La régie", real: true, title: "À la régie, le local du matériel", t: "La régie, au fond du terrain : un local à l’écart, sans fenêtre, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes, porte fermée.", lesson: "Un lieu fermé et hors de vue, où un adulte se retrouve seul avec des mineurs, crée un risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où." },
-            { x: 40, y: 70, w: 10, h: 8, key: "parc", label: "Le parc", real: false, title: "Le parc, derrière le bâtiment", t: "Ce parc public n’appartient pas à l’accueil de loisirs : d’autres personnes s’y promènent. Les groupes y passent l’après-midi. Un adulte ouvre la marche, un autre la ferme ; on compte les enfants au départ et au retour, et chacun reste dans le champ de vision d’un adulte.", lesson: "Rien d’inquiétant : un lieu ouvert, des adultes repérables et un comptage." },
-      { x: 45, y: 20, w: 18, h: 18, key: "refectoire", label: "La salle de restauration", real: false, title: "La salle de restauration", t: "Les jeunes s’installent où ils veulent. Le service et le débarrassage tournent chaque jour, filles et garçons mélangés.", lesson: "Rien à signaler : les tâches tournent sans distinction de sexe." },
-            { x: 35, y: 20, w: 10, h: 12, key: "sanitaires", label: "Les sanitaires", real: true, title: "Aux sanitaires", t: "Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc « pour préserver l’intimité ».", lesson: "Un adulte seul avec un enfant dans un lieu clos et hors de vue : c’est ce que les plans de prévention adoptés en 2026 cherchent à supprimer. On organise l’accompagnement pour rester visible, porte du bloc ouverte, et on respecte l’intimité de l’enfant dans sa cabine." },
-      { x: 8, y: 40, w: 12, h: 18, key: "petits", label: "La salle des 6-11 ans", real: false, title: "La salle des 6-11 ans", t: "La salle des 6-11 ans : des tables basses, un coin lecture avec des coussins, les dessins des enfants au mur. La porte reste ouverte, et l’on voit toute la salle depuis le couloir.", lesson: "Rien à signaler : un lieu ouvert et visible, pensé pour cet âge." },
-      { x: 20, y: 40, w: 12, h: 18, key: "grands", label: "La salle des 11-14 ans", real: false, title: "La salle des 11-14 ans", t: "La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. Un animateur reste dans la salle avec le groupe.", lesson: "Rien à signaler : les jeunes participent aux choix, sous le regard de l’équipe." },
-      { x: 70, y: 30, w: 10, h: 12, key: "libre", label: "La salle d’activités", real: false, title: "La salle d’activités", t: "À côté de l’atelier radio, la salle d’activités : de grandes tables, des chevalets de peinture et des bacs de matériel en libre accès. Léa y prépare un atelier de perles.", lesson: "Rien à signaler : un lieu ouvert, où chacun choisit son activité." },
-      { x: 4, y: 20, w: 10, h: 12, key: "ados", label: "La salle des 14-17 ans", real: false, title: "La salle des 14-17 ans", t: "Un peu à l’écart du grand bâtiment, la salle des 14-17 ans : des canapés, une table de ping-pong et un tableau pour les projets. Les ados y ont leur espace, avec un animateur.", lesson: "Rien à signaler : un espace adapté à leur âge, encadré par l’équipe." },
-      { x: 50, y: 45, w: 16, h: 22, key: "direction", label: "L’accueil et le bureau", real: false, title: "L’accueil et le bureau de direction", t: "Le bureau, juste à côté de l’entrée, est vitré. Les informations médicales des jeunes sont rangées dans une armoire fermée à clé.", lesson: "Rien à signaler : les informations confidentielles sont protégées." },
-            { x: 52, y: 62, w: 10, h: 10, key: "cour", label: "Le portail des familles", real: false, title: "Le portail des familles", t: "Le matin, les parents déposent leurs enfants au portail et repartent. Le soir, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité.", lesson: "Rien d’inquiétant : le départ des enfants est contrôlé." },
+      { x: 5.8, y: 31.1, w: 23.4, h: 38.2, key: "radio", label: "L’atelier radio", real: false, title: "À l’atelier radio", t: "Ici, c’est la salle de l’atelier radio : c’est là où les enfants et les jeunes peuvent animer une émission radio. Cet après-midi, par exemple, Bastien y anime l’émission des jeunes. Oui, on sait, c’est pas commun, ça…", lesson: "Rien à signaler : un atelier ouvert aux enfants comme aux jeunes. Reste à voir, cet après-midi, qui touche vraiment à la console.", ref: "R01" },
+      { x: 31.8, y: 31.8, w: 24.4, h: 37.5, key: "equipe", label: "La salle des animateurs", real: false, title: "Dans la salle des animateurs", t: "C’est ici que les animateurs et animatrices peuvent prendre leurs pauses. C’est aussi ici qu’on fera nos petites réunions, s’il y en a, le matin et l’après-midi.", lesson: "Rien à signaler : un lieu pour l’équipe, et pour se coordonner.", ref: "R01" },
+      { x: 59, y: 36.8, w: 20, h: 32.5, key: "soins", label: "L’infirmerie", real: true, title: "À l’infirmerie", t: "Bon, l’infirmerie, tu connais, je pense. On ne donne pas de médicament s’il n’y a pas d’ordonnance médicale d’un médecin ; Bastien est nommé assistant sanitaire. Et on a Zoé, une enfant en situation de handicap. Elle a besoin d’aide pour certains soins d’hygiène ; elle viendra peut-être te voir, et là, tu vois avec Bastien.", lesson: "Les soins d’hygiène de Zoé touchent à son intimité : « tu vois avec Bastien » ne suffit pas. L’équipe doit convenir de qui l’aide, de comment recueillir son choix (avec son tableau d’images) et de comment respecter son intimité. Une aide nécessaire n’autorise pas un accès illimité au corps.", ref: "R10" },
+      { x: 81.8, y: 43, w: 14.4, h: 33.4, key: "panneau", label: "Le panneau d’affichage", real: true, title: "Au panneau d’affichage", t: "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir.", lesson: "Le menu et les affiches d’activités, oui ; mais rien n’indique le 119, ni les autres numéros utiles. Leur affichage est prévu par la loi dans les lieux qui accueillent des mineurs (CASF, art. L226-8), et le 3018 a sa place à côté.", ref: "R10" },
+            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "Bon, l’aire de jeux, là où les enfants se défoulent. Idéalement, il faut deux animateurs : l’un joue avec les enfants, et l’autre joue avec ceux qui sont un peu à l’écart, tout en gardant un œil sur l’ensemble.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, y compris ceux qui restent à l’écart, et gardent un œil sur l’ensemble." },
+      { x: 69.2, y: 75, w: 13.6, h: 14.3, key: "potager", label: "Le potager", real: false, title: "Le potager", t: "Notre potager ! Tout le monde peut y participer, et tout le monde peut y planter des petites choses. Chacun choisit sa tâche : arroser, semer, récolter. Faut juste faire attention aux ballons, des fois, qui abîment le potager.", lesson: "Rien à signaler : chacun choisit son rôle." },
+      { x: 80, y: 18, w: 10, h: 18, key: "local", label: "La régie", real: true, title: "À la régie, le local du matériel", t: "La régie, au fond du terrain : un local à l’écart, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes.", lesson: "Un local à l’écart, où un adulte range le matériel seul avec un ou deux jeunes : c’est une situation à risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où." },
+            { x: 40, y: 70, w: 10, h: 8, key: "parc", label: "Le parc", real: false, title: "Le parc, derrière le bâtiment", t: "Notre petit espace vert, pour les grands jeux et tout, c’est sympa. Il faut juste être vigilant, car les 14-17 sont à côté et, des fois, ils occupent tout l’espace.", lesson: "Rien d’inquiétant : un espace partagé, où l’équipe veille à ce que chaque groupe ait sa place." },
+      { x: 45, y: 20, w: 18, h: 18, key: "refectoire", label: "La salle de restauration", real: false, title: "La salle de restauration", t: "Pendant le service, les jeunes s’installent où ils veulent. Le service et le débarrassage sont faits par les enfants eux-mêmes : eh oui, ici, ils apprennent. Les adultes mangent avec les enfants, pas entre eux. On peut aussi y proposer des animations adaptées au repas, bien sûr !", lesson: "Rien à signaler : les enfants participent, et les adultes mangent avec eux." },
+            { x: 35, y: 20, w: 10, h: 12, key: "sanitaires", label: "Les sanitaires", real: true, title: "Aux sanitaires", t: "Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont ici, dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Les enfants peuvent y venir quand ils veulent. Nous, animateurs, on garde un œil et une oreille, surtout entre les 14-17 et les 6-11, ce qui peut être un peu compliqué des fois.", lesson: "Un bloc hors de vue de la cour, où se croisent des 6-11 ans et des 14-17 ans sans adulte à proximité : c’est un lieu à risque. On organise la présence d’un adulte à proximité, porte du bloc ouverte, des moments ou des espaces distincts selon les âges, et l’on respecte l’intimité de chacun dans sa cabine." },
+      { x: 8, y: 40, w: 12, h: 18, key: "petits", label: "La salle des 6-11 ans", real: false, title: "La salle des 6-11 ans", t: "La salle des 6-11 ans : des tables basses, un coin lecture avec des coussins et plein d’autres choses. Si un enfant ne veut pas faire l’activité avec l’adulte, c’est OK : il peut rester ici ou aller ailleurs, à condition qu’il prévienne l’adulte. Ah oui, aussi : dans toutes les salles, quand il n’y a pas d’adulte, on fait en sorte que la porte reste ouverte ; comme ça, on voit toute la salle depuis le couloir.", lesson: "Rien à signaler : on respecte le choix de l’enfant, et les portes restent ouvertes." },
+      { x: 20, y: 40, w: 12, h: 18, key: "grands", label: "La salle des 11-14 ans", real: false, title: "La salle des 11-14 ans", t: "La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. C’est marrant : ils essaient de faire les grands ados, alors que certains sont encore des petits sixièmes.", lesson: "Rien à signaler : les jeunes participent aux choix, sous le regard de l’équipe." },
+      { x: 70, y: 30, w: 10, h: 12, key: "libre", label: "La salle d’activités", real: false, title: "La salle d’activités", t: "À côté de l’atelier radio, la salle d’activités : de grandes tables, des chevalets de peinture et des bacs de matériel en libre accès. C’est là que les groupes peuvent venir pour se séparer, pour y faire un projet, une activité. Pour information, dans notre accueil de loisirs, les pistolets à colle ainsi que les ciseaux sont en libre accès pour les enfants. Pour le pistolet à colle, il faut juste faire attention à ce que les plus jeunes aient bien une paire de gants quand ils l’utilisent. D’ailleurs, les plus jeunes passent même un permis cutter avec un anim, pour pouvoir l’utiliser seuls. Et je te rassure, on n’a jamais eu de catastrophe : c’est fou, hein ?", lesson: "Rien à signaler côté violences : du matériel en libre accès, avec des règles de sécurité adaptées à l’âge." },
+      { x: 4, y: 20, w: 10, h: 12, key: "ados", label: "La salle des 14-17 ans", real: false, title: "La salle des 14-17 ans", t: "Un peu à l’écart du grand bâtiment, la salle des 14-17 ans. Bon, comme tu vois, il y a des canapés, une table de ping-pong et un tableau pour les projets : par exemple, c’est eux qui coordonnent la fête de la fin de l’été avec un anim, ils kiffent. On les a depuis petits, donc ils sont bien, en vrai.", lesson: "Rien à signaler : les jeunes sont acteurs de leurs projets, avec un animateur." },
+      { x: 50, y: 45, w: 16, h: 22, key: "direction", label: "L’accueil et le bureau", real: false, title: "Le bureau de Nour", t: "Mon bureau, juste à côté de l’entrée. Les fiches sanitaires pour les sorties sont rangées dans l’armoire, avec aussi les trousses sanitaires. Pensez à les prendre, sinon vous serez en difficulté si un enfant se blesse. Vous pouvez même missionner certains jeunes pour les prendre, ils adorent cette responsabilité.", lesson: "Rien à signaler : les informations médicales sont rangées, et les trousses partent avec les groupes." },
+            { x: 52, y: 62, w: 10, h: 10, key: "cour", label: "Le portail des familles", real: false, title: "Le portail des familles", t: "Les enfants viennent pour la plupart seuls, sauf les 6-11 ans. Le matin, leurs parents viennent les déposer au portail et repartent. Le soir, parmi ces enfants, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité.", lesson: "Rien d’inquiétant : le départ des enfants est contrôlé." },
     ] },
   // Lundi après-midi : promenade libre. On circule dans l'accueil, on tombe sur des scènes, on réagit, on repart.
   { id: "lundi-libre", ch: 1, type: "roam", kicker: "Lundi, 13 h 30 · temps libre", bridge: "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe.", title: "Votre après-midi, en volant",
@@ -202,7 +202,7 @@ const SCREENS = [
       petits: { cast: [["you", "b"]], room: "petits", t: "La salle des 6-11 ans est vide : le groupe de Jade est dehors, entre le parc et l’aire de jeux. Le goûter, elle le prendra ici avec eux, à 16 h 30." },
       ados: { cast: [["kevin", "d", "talk"], ["t1", "a"], ["t2", "f"], ["t3", "s1"], ["you", "b"]], room: "ados", t: "Dans la salle des 14-17 ans, Kévin anime un tournoi de ping-pong. Sur le canapé, un jeune prépare le programme de la soirée de vendredi." },
       grands: { cast: [["ines", "a", "talk"], ["you", "b"], ["sacha", "s1"]], room: "grands", t: "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette. Tout est calme." },
-      direction: { cast: [["garnier", "a", "talk"], ["you", "b"]], room: "direction", t: "Théo, le directeur, est au téléphone avec la mairie. Il vous fait signe qu’il est occupé." },
+      direction: { cast: [["you", "b"]], room: "direction", t: "Le bureau de Nour est vide : elle est sur le terrain, avec les familles. Sur la porte vitrée, un mot : « Je suis dans la cour, venez me voir au besoin. »" },
       soins: { cast: [["you", "a"]], room: "soins", t: "L’infirmerie est vide. Le registre des soins est rangé à sa place, dans l’armoire." },
       cuisine: { cast: [["yanis", "a", "talk"], ["k1", "c"], ["k2", "d"], ["you", "b"]], room: "cuisine", t: "Dans la cuisine pédagogique, Yanis et trois enfants préparent le goûter de leur groupe : salade de fruits pour tout le monde." },
       libre: { cast: [["lea", "a", "talk"], ["k9", "c"], ["t5", "d"], ["you", "b"]], room: "libre", t: "Dans la salle d’activités, Léa fait un jeu de mime avec les plus jeunes. Ça rit beaucoup." },
@@ -385,8 +385,8 @@ const SCREENS = [
       "Enfant en danger ou en risque de l’être : 119 ou CRIP, la cellule départementale qui recueille les informations préoccupantes.",
     ], refs: ["R03", "R10", "Code pénal 222-33", "Code du travail L1153-5"] } },
   { id: "c3", ch: 3, type: "chapter" },
-  { id: "sousef", ch: 3, type: "choice", npc: "garnier", mood: "calm", comp: "C4", timer: 30, kicker: "Mercredi, 8 h 05 · le milieu de la semaine",
-    context: "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Théo vous prend à part : « On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires. »",
+  { id: "sousef", ch: 3, type: "choice", npc: "nour", mood: "calm", comp: "C4", timer: 30, kicker: "Mercredi, 8 h 05 · le milieu de la semaine",
+    context: "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Nour vous prend à part : « On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires. »",
     prompt: "Que lui répondez-vous ?",
     opts: [
       { t: "Pas seul aux sanitaires : on regroupe des activités et on demande un renfort à l’organisateur.", q: 1, mood: "calm",
@@ -600,7 +600,7 @@ const SCREENS = [
       ados: { cast: [["hugo", "a", "talk"], ["t1", "s1"], ["t4", "s2"], ["t2", "d"], ["you", "b"]], room: "ados", t: "Dans la salle des 14-17 ans, Hugo et les ados répètent le sketch qu’ils joueront vendredi à la fête. On rit beaucoup." },
       cuisine: { cast: [["yanis", "a", "talk"], ["k2", "c"], ["k9", "d"], ["you", "b"]], room: "cuisine", t: "Dans la cuisine pédagogique, Yanis prépare la pâte à crêpes du goûter avec deux enfants de son groupe." },
       libre: { cast: [["lea", "a", "talk"], ["k7", "c"], ["k8", "d"], ["you", "b"]], room: "libre", t: "Dans la salle d’activités, Léa anime un atelier de perles avec des petits." },
-      direction: { cast: [["garnier", "a", "talk"], ["you", "b"]], room: "direction", t: "Théo, le directeur, prépare la visite d’inspection de demain, le nez dans les dossiers." },
+      direction: { cast: [["you", "b"]], room: "direction", t: "Le bureau de Nour est vide : elle est au panneau d’affichage, à préparer la visite d’inspection de demain." },
       refectoire: { cast: [["you", "a"]], room: "refectoire", t: "La salle de restauration est vide. Les tables sont déjà dressées pour demain midi." },
       radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["clara", "s1", "sit"], ["you", "a"]], room: "radio", t: "À l’atelier radio, Léna et Clara sont à la console. Elles enregistrent la météo de la semaine." },
       sanitaires: { cast: [["you", "b"]], room: "sanitaires", t: "Aux sanitaires, la porte du bloc est ouverte, et un planning de passages est affiché." },
@@ -717,7 +717,7 @@ const SCREENS = [
   { id: "c5", ch: 5, type: "chapter" },
   { id: "bilanequipe", ch: 5, type: "story", scene: "S17", kicker: "Vendredi, 8 h 30 · réunion d’équipe",
     lines: [
-      { who: "nour", mood: "smile", t: "On ne repart pas comme on est venus. Reprends un des points repérés lundi pendant le tour de l’accueil." },
+      { who: "nour", mood: "smile", t: "On ne repart pas comme on est venus. Reprends un des points repérés cette semaine." },
       { who: "nour", mood: "calm", t: "Propose une mesure qu’on pourra vraiment vérifier : un changement, une personne responsable, un moment, un indicateur." },
     ] },
   { id: "build", ch: 5, type: "build", comp: "C4", title: "Concevoir une prévention qui se voit" },
@@ -761,7 +761,7 @@ const SCREENS = [
       {t:  "Tout de suite, Maëlys ne croise plus l’intervenant : un adulte reste avec elle.", q:  1, cons:  "Maëlys reste avec Inès, loin du local. Vous pouvez alerter.", fb:  "Protéger d’abord : éviter toute nouvelle exposition, puis alerter.", mood:  "calm"},
       {t:  "Aller voir l’intervenant pour entendre sa version des faits avant de prendre une décision.", q:  0, cons:  "L’intervenant est prévenu. Il passe voir Maëlys « pour s’expliquer ».", fb:  "Confronter la personne mise en cause expose la victime et peut compromettre l’enquête."},
       {t:  "Lui demander de raconter précisément ce qui s’est passé, pour transmettre sans erreur.", q:  0, cons:  "Maëlys se fige et répète qu’elle ne veut plus en parler.", fb:  "On accueille la parole sans la provoquer : l’audition, ce sont les enquêteurs qui la mènent."},
-      {t:  "Prévenir Théo tout de suite et le laisser gérer : c’est lui le directeur.", q:  0.5, cons:  "Théo est en réunion. L’atelier commence dans deux heures, Maëlys est toujours inscrite.", fb:  "Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre."},
+      {t:  "Prévenir Nour tout de suite et la laisser gérer : c’est elle la directrice.", q:  0.5, cons:  "Nour est en réunion à la mairie. L’atelier commence dans deux heures, Maëlys est toujours inscrite.", fb:  "Informer la direction est nécessaire, mais la mise à l’abri immédiate de Maëlys ne peut pas attendre."},
     ],
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’on protège d’abord : aucune nouvelle exposition, puis on alerte.", "ok": true}, {"t": "Parce qu’on doit d’abord vérifier que son récit est crédible et cohérent.", "ok": false, "no": "Ce n’est pas à l’équipe d’évaluer la crédibilité : on protège et on alerte."}, {"t": "Parce que l’intervenant n’est pas salarié de l’accueil, il dépend d’une association.", "ok": false, "no": "Son statut ne change rien : toute personne mise en cause est tenue à l’écart."}]},
     timer: 25,
@@ -792,25 +792,26 @@ const SCREENS = [
       { t: "Je te promets que je ne le répéterai à personne.", kind: "promesse", a: "D’accord…", trust: -6, fb: "Vous ne pouvez pas tenir cette promesse : vous allez devoir transmettre." },
     ],
     close: { t: "Merci Sacha, tu as bien fait de me le dire. Je vais en parler à des adultes dont c’est le rôle.", a: "D’accord. Et… Maëlys, elle va bien ?" } },
-  { id: "garnier", ch: 5, type: "dialogue", comp: "C3", title: "Le bureau du directeur", npc: "garnier", start: "n1",
+  { id: "garnier", ch: 5, type: "dialogue", comp: "C3", title: "L’organisateur", npc: "garnier", start: "n1",
+    intro: "13 h 25. Nour est toujours en réunion à la mairie. Dans son bureau, vous trouvez M. Lambert, le responsable enfance de la mairie, l’organisateur de l’accueil, passé déposer des dossiers. Vous lui expliquez la situation.",
     nodes: {
-      n1: { mood: "concern", t: "Maëlys ? Elle a dû mal comprendre. Il travaille ici depuis dix ans. On verra demain avec l’organisateur, je ne veux pas de scandale.",
+      n1: { mood: "concern", t: "Maëlys ? Elle a dû mal comprendre. Il travaille avec nous depuis dix ans. On verra demain avec Nour, je ne veux pas de scandale pour la commune.",
         opts: [
           { t: "D’accord, on attend demain matin, après avoir entendu l’intervenant et sa version.", to: "nwait", q: 0, note: "Attendre laisse l’intervenant au contact des jeunes. Rien ne justifie ce délai." },
           { t: "On ne peut pas attendre : ces faits vont aux autorités aujourd’hui, sinon j’appelle moi-même.", to: "n2", q: 1 },
           { t: "Je vais régler ça directement avec l’intervenant, pour qu’il ne revienne plus à l’atelier.", to: "nconf", q: 0, flag: "enquete", note: "Une confrontation peut exposer Maëlys et compromettre l’enquête." },
         ] },
       nwait: { mood: "calm", narr: "L’atelier bois commence dans moins de deux heures.", t: "Voilà, c’est plus raisonnable.",
-        opts: [{ t: "Non. Une information interne ne remplace pas les démarches externes. Si la direction empêche d’agir, je contacte directement les services.", to: "n2", q: 0.5 }] },
-      nconf: { mood: "o", t: "Tu vas aller le voir ?",
-        opts: [{ t: "Non, tu as raison de t’inquiéter : l’enquête appartient aux services compétents. On alerte maintenant.", to: "n2", q: 0.5 }] },
+        opts: [{ t: "Non. Une information interne ne remplace pas les démarches externes. Si l’on m’empêche d’agir, je contacte directement les services.", to: "n2", q: 0.5 }] },
+      nconf: { mood: "o", t: "Vous allez aller le voir ?",
+        opts: [{ t: "Non, vous avez raison de vous inquiéter : l’enquête appartient aux services compétents. On alerte maintenant.", to: "n2", q: 0.5 }] },
       n2: { mood: "o", t: "…Bon. Qui appelle qui ?",
         opts: [
-          { t: "J’appelle la gendarmerie, tu préviens l’organisateur, et l’intervenant est écarté.", to: "end", q: 1 },
+          { t: "J’appelle la gendarmerie, je préviens Nour, et vous écartez l’intervenant dès maintenant.", to: "end", q: 1 },
           { t: "J’envoie un message à toute l’équipe pour que chacun reste vigilant avec l’intervenant.", to: "endb", q: 0, note: "Seules les personnes qui doivent agir reçoivent les informations nécessaires." },
         ] },
-      end: { end: true, mood: "calm", t: "C’est noté. J’appelle l’organisateur.",
-        lesson: "Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine n’est jamais un passage obligé." },
+      end: { end: true, mood: "calm", t: "C’est noté. Je l’écarte, et je préviens le SDJES.",
+        lesson: "Plusieurs démarches peuvent coexister, sans attendre l’une pour l’autre : protection, mesures de l’organisateur, signalement judiciaire, signalement au SDJES. Le responsable qui freine, même l’organisateur, n’est jamais un passage obligé." },
       endb: { end: true, mood: "concern", t: "Toute l’équipe ? Et Maëlys, dans tout ça ?",
         lesson: "L’alerte va aux autorités judiciaires et, par l’organisateur, au SDJES. L’intervenant est écarté. Le reste de l’équipe sait seulement qu’une situation est prise en charge." } } },
   { id: "f3", ch: 5, type: "multi", comp: "C3", npc: "maelys", mood: "calm", kicker: "14 h",
@@ -870,16 +871,16 @@ const BUILD = {
         { t: "L’ambiance est meilleure.", q: 0, fb: "Une impression, pas un indicateur." },
         { t: "Les jeunes disent que c’est bien.", q: 0.5, fb: "Un retour utile, mais qui ne montre pas qui a eu accès au matériel." },
       ] },
-    { id: "planning", scene: "S17", title: "La répartition de l’équipe",
+    { id: "regie", scene: "S17", room: "local", title: "La régie, en fin d’atelier",
       change: [
-        { t: "Répartir les tâches selon les compétences, avec des relais explicites et révisables.", q: 1, fb: "C’est ce que proposait déjà une collègue en réunion d’installation." },
-        { t: "Garder la répartition, mais en discuter un jour.", q: 0, fb: "Rien ne change dans les faits." },
-        { t: "Tirer les rôles au sort chaque matin.", q: 0.5, fb: "Casse le stéréotype, mais ignore les compétences et les besoins." },
+        { t: "Le rangement se fait à plusieurs, porte ouverte, avec un animateur présent jusqu’à la fin.", q: 1, fb: "Un changement concret : plus jamais un adulte seul avec un ou deux jeunes, hors de vue." },
+        { t: "Une affiche « Porte ouverte » sur la régie.", q: 0.5, fb: "Utile comme rappel, mais personne n’est chargé de la faire respecter." },
+        { t: "Supprimer l’atelier bois.", q: 0, fb: "On supprime une activité au lieu d’organiser sa sécurité." },
       ],
       ind: [
-        { t: "Vérifier en réunion qui prend effectivement en charge conflits et consolations.", q: 1, fb: "On regarde la pratique réelle, pas l’intention." },
-        { t: "Avoir autant d’hommes que de femmes dans l’équipe.", q: 0, fb: "Une présence équilibrée ne garantit pas, à elle seule, l’égalité des rôles." },
-        { t: "Demander si tout le monde est content.", q: 0.5, fb: "Un ressenti, pas une observation." },
+        { t: "Chaque jour, le cahier de l’atelier indique qui était présent au rangement.", q: 1, fb: "Observable, vérifiable, au jour le jour." },
+        { t: "L’intervenant dit que tout se passe bien.", q: 0, fb: "La parole de la personne concernée par la règle ne suffit pas à la vérifier." },
+        { t: "Les jeunes ne se plaignent pas.", q: 0.5, fb: "Un silence n’est pas un indicateur." },
       ] },
     { id: "soins", scene: "S14", title: "L’aide aux soins de Zoé",
       change: [
@@ -909,7 +910,7 @@ const BUILD = {
 const REFLEXES = [
   { id: "protect", label: "Protéger d’abord : éviter toute nouvelle exposition", ch: 5, from: [["f1", 1]] },
   { id: "listen", label: "Écouter sans promettre le secret ni enquêter", ch: 4, from: [["lou", 0.8]] },
-  { id: "alert", label: "Alerter les autorités adaptées, même si la direction freine", ch: 4, from: [["numero", 1], ["garnier", 0.75]] },
+  { id: "alert", label: "Alerter les autorités adaptées, même si la hiérarchie freine", ch: 4, from: [["numero", 1], ["garnier", 0.75]] },
   { id: "note", label: "Séparer faits observés, paroles rapportées et suppositions", ch: 2, from: [["theo", 0.8], ["transm", 0.8]] },
   { id: "prev", label: "Prévenir avec une mesure vérifiable", ch: 5, from: [["build", 0.75]] },
 ];
@@ -923,7 +924,7 @@ const NUMBERS = [
 /* Textes lus à voix haute en plus des répliques (même logique pour le jeu et pour la génération des voix). */
 const EPILOGUE = {
   lou: { who: "Lou", good: "La patrouille est arrivée avant 17 h : Lou n’a pas été remis à l’adulte qu’il désignait. Une enquête est ouverte, et Lou est accompagné par des professionnels.", mid: "L’alerte est partie avec un quart d’heure de retard. Lou a été protégé de justesse : l’enquête suit son cours.", low: "L’alerte est partie trop tard : Lou est rentré avec l’adulte. Le signalement envoyé le soir a déclenché l’intervention des services le lendemain." },
-  maelys: { who: "Maëlys", good: "Maëlys n’a plus croisé l’intervenant. Les faits ont été signalés le jour même, et l’atelier bois est suspendu pendant l’enquête.", mid: "Maëlys a été tenue à l’écart, mais Théo a retardé l’alerte d’une journée. Les faits ont finalement été signalés.", low: "Maëlys a recroisé l’intervenant avant que l’alerte ne parte. Elle a été mise à l’abri le lendemain, et un signalement a été fait." },
+  maelys: { who: "Maëlys", good: "Maëlys n’a plus croisé l’intervenant. Les faits ont été signalés le jour même, et l’atelier bois est suspendu pendant l’enquête.", mid: "Maëlys a été tenue à l’écart, mais M. Lambert a retardé l’alerte d’une journée. Les faits ont finalement été signalés.", low: "Maëlys a recroisé l’intervenant avant que l’alerte ne parte. Elle a été mise à l’abri le lendemain, et un signalement a été fait." },
   ines: { who: "Inès", good: "Inès est restée dans l’équipe. À la rentrée, c’est elle qui présente la règle du groupe de messagerie aux nouveaux animateurs.", mid: "Inès termine les vacances, mais ne s’est réinscrite que pour l’été.", low: "Inès a quitté l’accueil à la fin des vacances, sans dire pourquoi." },
   parents: { who: "Les parents", good: "M. Roussel et Mme Benali ont été écoutés et rappelés. Au portail, les familles savent désormais à qui parler, et elles le font.", mid: "Les parents ont eu une réponse, mais ont dû relancer. Une permanence au portail est prévue à la rentrée.", low: "Mme Benali a écrit à la mairie : elle estime ne pas avoir été entendue. La direction la reçoit la semaine suivante." },
   familles: { who: "Les familles", good: "Le livret des familles est distribué : règles de non-isolement, accompagnement aux toilettes, adulte référent. Deux parents ont rejoint le comité de suivi.", mid: "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion." },
@@ -1059,7 +1060,7 @@ const BRIDGE = {
   chat: "18 h. Le papa de Zoé est reparti. Vous rejoignez la salle des animateurs pour le point du soir. En sortant votre téléphone, vous découvrez la conversation de groupe de l’équipe, écrite pendant l’après-midi.",
   k2: "Fin de la deuxième journée. Avant que vous rentriez chez vous, Nour vous laisse une nouvelle page de son carnet.",
   // Mercredi
-  sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, Théo, le directeur, réunit l’équipe dans son bureau : il manque du monde aujourd’hui.",
+  sousef: "Mercredi, 8 h 05. Avant l’ouverture du portail, Nour, la directrice, réunit l’équipe dans son bureau : il manque du monde aujourd’hui.",
   parent2: "La réunion est finie. Le portail ouvre, et vous prenez votre poste d’accueil.",
   ronde: "Mercredi, 9 h. Les familles sont reparties. Dans la cour, Jade lance la ronde du matin, et vous la rejoignez.",
   chercher: "La matinée et le repas sont passés. Mercredi, 15 h : c’est le temps libre, les enfants sont partout sur le terrain.",
@@ -1114,7 +1115,7 @@ const STAGE = {
   chat: { at: "equipe", room: "equipe", cast: [["you", "a"], ["ines", "s2"], ["jade", "d"]] }, chatact: "keep",
   theo: { at: "petits", room: "petits", cast: [["jade", "a", "talk"], ["you", "b"], ["theo", "s1"], ["zoe", "s2"]] }, theo2: "keep",
   parent1: { at: "entree", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
-  sousef: { at: "direction", room: "direction", cast: [["garnier", "s1", "talk"], ["you", "b"]] },
+  sousef: { at: "direction", room: "direction", cast: [["nour", "s1", "talk"], ["you", "b"]] },
   chercher: { at: "ensemble", cast: [] },
   ronde: { at: "cour", cast: [["jade", "a", "talk"], ["you", "b"], ["malo", "c"], ["zoe", "d"], ["petit", "e"], ["theo", "f"]] },
   consent: { at: "petits", room: "petits", cast: [["nour", "c", "talk"], ["you", "a"], ["zoe", "s1"], ["malo", "s2"], ["sacha", "f"]] },
@@ -1144,7 +1145,7 @@ const STAGE = {
 };
 // Qui parle dans un texte du récit : les citations « … » sont dites par le personnage nommé juste avant (même phrase),
 // le reste par la narratrice ou le narrateur. On entend ainsi un maximum les personnages eux-mêmes.
-const SPEAKERS = [["Théo", "garnier"], ["M. Roussel", "roussel"], ["Mme Benali", "benali"], ["Nour", "nour"], ["Bastien", "bastien"], ["Inès", "ines"], ["Jade", "jade"], ["Kévin", "kevin"],
+const SPEAKERS = [["M. Lambert", "garnier"], ["M. Roussel", "roussel"], ["Mme Benali", "benali"], ["Nour", "nour"], ["Bastien", "bastien"], ["Inès", "ines"], ["Jade", "jade"], ["Kévin", "kevin"],
   ["Lou", "lou"], ["Malo", "malo"], ["Maëlys", "maelys"], ["Léna", "lena"], ["Sacha", "sacha"], ["Noé", "theo"], ["Zoé", "zoe"], ["Clara", "clara"], ["Enzo", "enzo"]];
 const VOICE_TXT = {
   split(t, fb) {
@@ -1176,7 +1177,7 @@ const VOICE_TXT = {
     if (sc.prompt) P.push(["narr", sc.prompt]);
     return P;
   },
-  spot(s) { return ["nour", `${s.title}. ${s.t}`]; },
+  spot(s) { return ["nour", s.t]; },
   fb(sc, o) { return ["narr", [o.cons, o.fb, o.q < 1 && sc.better ? "Pour faire mieux : " + sc.better : ""].filter(Boolean).join(" ")]; },
 };
 
@@ -1242,7 +1243,7 @@ Object.entries({
   nuit3: { 1: "Non : on le rassure ensemble, assis près de son lit, et je reste avec vous.", 3: "Si ça ne passe pas, on appelle ses parents pour qu’ils viennent le chercher." },
   affiche: { 0: "Elle peut aider, mais il faut aussi une mesure concrète, et un moyen de vérifier qu’elle tient.", 1: "Oui : afficher la règle, c’est déjà s’engager publiquement devant les familles et les jeunes.", 2: "Une affiche seule ne changera rien : il faut surtout des sanctions claires et connues de tous.", 3: "Oui, et on la fait signer à chaque jeune, pour qu’il s’engage personnellement à la respecter." },
   familles: { 0: "Des règles qu’on peut vérifier : jamais un adulte seul hors de vue, toilettes organisées, contrôles, et à qui parler.", 1: "Rassurer : l’équipe est expérimentée, contrôlée, et aucun incident n’a jamais eu lieu chez nous.", 2: "Proscrire tout contact physique entre adultes et enfants, même pour consoler ou pour soigner." },
-  f1: { 0: "Je fais en sorte, tout de suite, que Maëlys ne croise plus l’intervenant : un adulte reste avec elle.", 1: "Je vais entendre la version de l’intervenant avant de décider quoi que ce soit.", 2: "Je lui demande de me raconter précisément ce qui s’est passé, pour transmettre sans erreur.", 3: "Je préviens Théo tout de suite et je le laisse gérer : c’est lui le directeur." },
+  f1: { 0: "Je fais en sorte, tout de suite, que Maëlys ne croise plus l’intervenant : un adulte reste avec elle.", 1: "Je vais entendre la version de l’intervenant avant de décider quoi que ce soit.", 2: "Je lui demande de me raconter précisément ce qui s’est passé, pour transmettre sans erreur.", 3: "Je préviens Nour tout de suite et je la laisse gérer : c’est elle la directrice." },
 }).forEach(([id, o]) => { HARD[id] = { ...(HARD[id] || {}), ...o }; });
 
 // Niveau Expert : des situations affinées, des réponses toutes professionnelles en apparence ; seule la nuance départage.
@@ -1260,7 +1261,7 @@ const EXPERT = {
   sieste: { 0: "Je rouvre la porte, j’installe Malo sur un tapis près de moi, je reparle de la règle à Kévin et j’informe Nour.", 1: "Je referme sans bruit pour préserver la sieste : Kévin gère, je repasserai plus tard.", 2: "Je dis à Kévin que ce n’est pas autorisé, et je pars aussitôt chercher Nour." },
   affiche: { 0: "Une affiche peut accompagner, à condition d’y adosser une mesure concrète et un indicateur pour vérifier qu’elle tient.", 1: "Afficher la règle, c’est s’engager publiquement : c’est la première mesure à prendre, visible par les familles.", 2: "Une affiche ne suffit pas : seules des sanctions graduées et connues font évoluer les comportements.", 3: "On la fait signer par chaque jeune : l’engagement personnel rend la règle plus forte." },
   familles: { 0: "Présenter des règles vérifiables : jamais un adulte seul hors de vue, sanitaires organisés, contrôles, et à qui parler.", 1: "Rassurer : l’équipe est expérimentée, contrôlée, et aucun incident n’a été signalé chez nous.", 2: "Proscrire tout contact physique, même pour consoler ou soigner, afin d’écarter tout risque.", 3: "Proposer des caméras à l’entrée des sanitaires et dans les couloirs, au nom de la transparence." },
-  f1: { 0: "Je mets Maëlys à l’abri de tout contact avec l’intervenant : un adulte reste avec elle.", 1: "Je recueille la version de l’intervenant avant de prendre une mesure, pour être équitable.", 2: "Je lui demande un récit détaillé, pour transmettre une information exacte.", 3: "Je saisis Théo sans délai et je lui laisse la main : c’est sa responsabilité de directeur." },
+  f1: { 0: "Je mets Maëlys à l’abri de tout contact avec l’intervenant : un adulte reste avec elle.", 1: "Je recueille la version de l’intervenant avant de prendre une mesure, pour être équitable.", 2: "Je lui demande un récit détaillé, pour transmettre une information exacte.", 3: "Je saisis Nour sans délai et je lui laisse la main : c’est sa responsabilité de directrice." },
 };
 
 // Niveau enfants : la même semaine, racontée simplement. On apprend à repérer ce qui n’est pas normal,
@@ -1306,7 +1307,7 @@ const KID = {
     ["Elle reste avec un adulte de confiance et ne revoit plus cet adulte.", "Oui : d’abord, on protège Maëlys. Elle a bien fait de parler."],
     ["On va d’abord demander à l’adulte si c’est vrai.", "Non : d’abord, on protège Maëlys. Ce sont des professionnels qui vérifient."],
     ["On lui demande de tout raconter en détail.", "Non : on l’écoute, sans la forcer. Des professionnels s’en occuperont."],
-    ["On laisse le directeur s’en occuper tout seul.", "Prévenir le directeur, c’est utile, mais il faut d’abord protéger Maëlys."]] },
+    ["On laisse la directrice s’en occuper toute seule.", "Prévenir la directrice, c’est utile, mais il faut d’abord protéger Maëlys."]] },
 };
 DOCS.reperes = { at: "intro", kidsOnly: true, title: "Mes repères", kind: "panneau", icon: "★",
   notes: ["Mon corps m’appartient : personne n’a le droit de le toucher si je ne veux pas.", "J’ai le droit de dire non, même à un adulte.", "Un secret qui fait peur ou qui fait mal, ça se dit.",

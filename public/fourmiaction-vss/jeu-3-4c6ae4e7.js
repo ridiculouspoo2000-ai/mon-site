@@ -267,7 +267,7 @@
   // d’après le texte, un peu courte pour que les mots s’affichent avec la voix, jamais après.
   const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const NAMES = { yanis: "Yanis", lea: "Léa", nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "Théo", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Noé", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
+  const NAMES = { yanis: "Yanis", lea: "Léa", nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Lambert", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Noé", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
   // Refonte : mise en scène corrigée. Devant la régie (« local »), les places extérieures tombent sur le toit
   // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
   // (la scène de Maëlys se joue désormais dans la cour : voir STAGE.maelys dans content.js)
@@ -2263,10 +2263,10 @@
 
   R.build = (sc, n) => {
     const wrap = el("div", { class: "solo wide" });
-    wrap.innerHTML = `<h2 id="h-${sc.id}" class="prompt">${esc(sc.title)}</h2><p class="lead">Étape 1 : choisissez le point repéré lundi que vous voulez améliorer.</p>`;
+    wrap.innerHTML = `<h2 id="h-${sc.id}" class="prompt">${esc(sc.title)}</h2><p class="lead">Étape 1 : choisissez le point repéré cette semaine que vous voulez améliorer.</p>`;
     const g = el("div", { class: "sits" });
     BUILD.sits.forEach((s) => {
-      const b = el("button", { class: "sit", type: "button" }, `<div class="sart">${(A.rooms[{ S01: "radio", S17: "equipe", S14: "soins", S15: "direction" }[s.scene]] || A.rooms.equipe).svg}</div><b>${esc(s.title)}</b>`);
+      const b = el("button", { class: "sit", type: "button" }, `<div class="sart">${(A.rooms[s.room || { S01: "radio", S17: "equipe", S14: "soins", S15: "direction" }[s.scene]] || A.rooms.equipe).svg}</div><b>${esc(s.title)}</b>`);
       b.addEventListener("click", () => { Snd.click(); step2(s); });
       g.appendChild(b);
     });
@@ -3863,7 +3863,7 @@
     { pa: null, kids: ["t3"], foot: [37.4, 29.8], run: [[24.2, 23.0], [19.6, 22.8], [17.4, 23.6]], g: "wave" },
     { pa: "pa3", kids: ["k7"], foot: [35.2, 29.8], stop: [28.7, 24.2], run: [[23.4, 24.6], [21.0, 26.4], [17.6, 27.6]], g: "raise" },
     { pa: "pa2", kids: ["k6", "k8"], car: 1.3, stop: [29.3, 24.0], run: [[22.6, 22.4], [20.2, 21.0], [16.2, 19.9]], g: "hug" },
-    { pa: null, kids: ["k9"], foot: [36.4, 29.8], run: [[24.8, 24.8], [22.0, 25.6], [18.8, 27.0]], g: "raise" },
+    { pa: null, kids: ["t4"], foot: [36.4, 29.8], run: [[24.8, 24.8], [22.0, 25.6], [18.8, 27.0]], g: "raise" },   // les jeunes viennent seuls ; les 6-11 ans, avec un parent
     { pa: null, kids: ["t5"], foot: [37.6, 29.8], run: [[25.2, 22.4], [21.6, 22.0], [19.0, 22.6]], g: "laugh" },
     { pa: "pa4", kids: ["k5"], car: .6, stop: [28.4, 22.4], run: [[22.0, 24.0], [12.6, 24.4], [9.6, 25.2]], g: "laugh" },
   ];

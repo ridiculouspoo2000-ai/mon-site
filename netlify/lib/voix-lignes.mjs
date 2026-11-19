@@ -3534,11 +3534,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Arrête de me pousser !"
  },
- "638f253c3e95": {
+ "ec5906fd2587": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la salle des 6-11 ans, Jade termine une histoire. Les enfants sont assis, captivés. À 16 h 30, Jade prendra le goûter ici, avec son groupe."
+  "text": "La salle des 6-11 ans est vide : le groupe de Jade est dehors, entre le parc et l’aire de jeux. Le goûter, elle le prendra ici avec eux, à 16 h 30."
  },
  "520b735b05cd": {
   "who": "narr",
@@ -3588,11 +3588,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Sous le préau, quelques grands discutent à l’ombre."
  },
- "d9bc8126958b": {
+ "8ca5ff37c739": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Au potager, Inès et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler."
+  "text": "Au potager, Tom et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler."
  },
  "162f8e3f30d2": {
   "who": "narr",
@@ -3798,17 +3798,17 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Oui, il est super sympa avec moi. Il dit que je suis sa préférée."
  },
- "cce1fa08952d": {
+ "cd9d3439ba4a": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "À l’aire de jeux, Jade, l’animatrice des petits, joue au chat avec les enfants. Tout le monde court, tout va bien."
+  "text": "À l’aire de jeux, Samia, une animatrice des 6-11 ans, joue au chat avec les enfants. Tout le monde court, tout va bien."
  },
- "382aac288d6c": {
+ "a94d243a1850": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Au potager, Inès et les enfants récoltent les premières courgettes."
+  "text": "Au potager, Tom et les enfants récoltent les premières courgettes."
  },
  "87711951758e": {
   "who": "narr",
@@ -3816,11 +3816,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Sous le préau, deux grands révisent une chorégraphie pour la fête de vendredi."
  },
- "e06aa66cd343": {
+ "73b43f10a0a0": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la cour, Bastien prépare les ballons pour le temps libre."
+  "text": "Dans la cour, deux enfants gonflent les ballons pour le temps libre. Tout est calme."
  },
  "9ca0e7483b59": {
   "who": "narr",

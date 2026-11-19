@@ -503,6 +503,9 @@
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
+      // garde-fou : jamais plus de 40 voix en 10 s (une boucle imprévue ne doit pas inonder le serveur)
+      const now = Date.now(); this._h = (this._h || []).filter((t) => now - t < 10000); this._h.push(now);
+      if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
       World.talk(it.w, it.t);
       clearTimeout(this._show); if (it.e) this._show = setTimeout(() => it.e && it.e.classList.remove("vpend"), 1500);   // si la voix tarde, le texte paraît quand même
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
@@ -526,7 +529,7 @@
     },
     _done() { World.talk(null); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
-    prefetch(list) { if (!this.ready || !st.settings.voice) return; list.forEach(([w, t]) => { const u = this.url(w, t); if (u) fetch(u).catch(() => { }); }); },
+    prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
     stop() { (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
@@ -1535,8 +1538,9 @@
     if (prev && !calm()) { n.dataset.novoice = "1"; setTimeout(() => { if (n.isConnected) Voice.seq(VOICE_TXT.parts(sc)); }, 4200); }
     // la nuit tombe sur la veille (sur le plan : soleil couchant, fenêtres qui s'allument, lune), puis le jour se lève :
     // les familles arrivent au portail
-    const morning = () => { if (!n.isConnected) return; World.show({ at: "cour", cast: [], z: 2.1 }, { type: "chapter", kicker: "8 h 20" }); families("morning"); n.querySelector(".chap").classList.remove("wait"); };
-    if (prev && !calm() && !n.dataset.nf) { n.dataset.nf = "1"; n.querySelector(".chap").classList.add("wait"); setTimeout(() => duskToDawn(c.day, morning, prev.n), 300); }
+    const go1 = n.querySelector(".chap > button");
+    const morning = () => { if (!n.isConnected) return; World.show({ at: "cour", cast: [], z: 2.1 }, { type: "chapter", kicker: "8 h 20" }); families("morning"); n.querySelector(".chap").classList.remove("wait"); if (go1) go1.disabled = false; };
+    if (prev && !calm() && !n.dataset.nf) { n.dataset.nf = "1"; n.querySelector(".chap").classList.add("wait"); if (go1) go1.disabled = true; setTimeout(() => duskToDawn(c.day, morning, prev.n, () => n.isConnected), 300); }
     else setTimeout(morning, 200);
   };
 
@@ -3336,6 +3340,8 @@
     // animateurs des autres groupes : pour que les salles vivent pendant les temps libres
     yanis: { age: 23, sex: "m", skin: "mate", hair: "noir", hairStyle: "curly", top: "#2E9C8A", bottom: "#33405C", badge: true },
     lea: { age: 25, sex: "f", skin: "claire", hair: "blond", hairStyle: "ponytail", top: "#C2412A", bottom: "#2E3A4E", badge: true },
+    tom: { age: 24, sex: "m", skin: "claire", hair: "roux", hairStyle: "short", top: "#4E7D3A", bottom: "#33405C", badge: true },
+    samia: { age: 26, sex: "f", skin: "olive", hair: "noir", hairStyle: "bun", top: "#C2418A", bottom: "#2E3A4E", badge: true },
     hugo: { age: 28, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#2F6D6A", bottom: "#2E3A4E", badge: true },
   };
   Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
@@ -3896,7 +3902,7 @@
 
   // La nuit, entre deux journées. Sur le plan, le soleil se couche et les lumières s'allument dans les salles ;
   // puis la nuit prend toute la page, la lune se lève, l'heure file ; enfin le soleil se lève, un coq chante : c'est le matin.
-  function duskToDawn(dayLabel, done, prevCh) {
+  function duskToDawn(dayLabel, done, prevCh, alive = () => true) {
     World.init(); if (!World.el) return done();
     Life.clear();
     const PB = (typeof DAYEND !== "undefined" && DAYEND[prevCh]) || {}, t0 = st.nuitee && SCREENS.some((x) => x.ch === prevCh && x.nuitee) ? "23 h 40" : (PB.t || "17 h 30");   // après la nuitée, il fait déjà nuit
@@ -3918,7 +3924,10 @@
       [T + 6000, () => { page.classList.add("dawn"); page.querySelector(".np-t").textContent = `${dayLabel}, 7 h 45. Le jour se lève.`; Snd.rooster && Snd.rooster(); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
       [T + 8600, () => { page.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => { page.remove(); pill.remove(); }, 900); done(); }],
     ];
-    steps.forEach(([t, f]) => setTimeout(f, t));
+    // si l'on quitte l'écran en cours de route, la nuit s'efface tout de suite (elle ne déborde jamais sur l'écran suivant)
+    const clean = () => { document.body.classList.remove("dusk"); page.remove(); pill.remove(); document.querySelectorAll(".bigclock.night").forEach((x) => x.remove()); };
+    let gone = false;
+    steps.forEach(([t, f]) => setTimeout(() => { if (gone) return; if (!alive()) { gone = true; clean(); return; } f(); }, t));
   }
 
   // La grande horloge : entre deux moments de la journée, on voit le temps passer

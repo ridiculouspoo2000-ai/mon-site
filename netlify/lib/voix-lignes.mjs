@@ -882,6 +882,18 @@ export const LIGNES = {
   "kind": "visite-alerte",
   "text": "Aux sanitaires. Les sanitaires de l’accueil, pour tous les enfants et les jeunes, sont dans un bloc extérieur, derrière le bâtiment, hors de vue de la cour. Un animateur y accompagne souvent un petit seul et ferme la porte du bloc pour préserver l’intimité ."
  },
+ "b3c648a3af34": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La salle des 6-11 ans. La salle des 6-11 ans : des tables basses, un coin lecture avec des coussins, les dessins des enfants au mur. La porte reste ouverte, et l’on voit toute la salle depuis le couloir."
+ },
+ "3902285b8fcf": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La salle des 11-14 ans. La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. Un animateur reste dans la salle avec le groupe."
+ },
  "e73d4d557551": {
   "who": "nour",
   "mood": "",

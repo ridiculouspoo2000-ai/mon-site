@@ -132,11 +132,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Ce que j’attends de toi, donc : tu es notre animatrice volante pour la semaine des vacances. Tu circules partout, tu restes vigilante, et quand quelque chose te paraît anormal, tu agis et tu me le transmets."
  },
- "d34695f4428b": {
+ "ff18092eaa23": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Il y a trois groupes : les 6-8 ans avec Jade, les 9-12 ans avec Inès et Yanis, les 13-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où on a besoin de toi."
+  "text": "Il y a trois groupes : les 6-11 ans avec Jade, les 11-14 ans avec Inès et Yanis, les 14-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où on a besoin de toi."
  },
  "5e9c77ef12b8": {
   "who": "nour",
@@ -786,11 +786,11 @@ export const LIGNES = {
   "kind": "systeme",
   "text": "Relisez le déroulé : dans l’urgence, l’ordre des actions protège."
  },
- "9f44f34b8ee9": {
+ "beb6eedec28b": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Lundi, jour 1 sur 5. L’arrivée. Découvrir l’accueil et repérer ce qui, dans l’organisation, peut créer des inégalités ou des risques de violences."
+  "text": "Lundi, jour 1 sur 5. L’arrivée."
  },
  "436f4b84cdd1": {
   "who": "narr",
@@ -822,11 +822,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "C’est l’heure de la visite. Nour, la directrice adjointe, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe, sans plus. À vous de juger. Six lieux méritent votre attention, cachés parmi d’autres sans problème : trouvez-les tous. Vous avez deux minutes et deux indices."
  },
- "cc61b9ab4d06": {
+ "e742e80b06c9": {
   "who": "nour",
   "mood": "",
   "kind": "visite-alerte",
-  "text": "À la salle d’activités : l’atelier radio. Ici, la salle d’activités : cet après-midi, Bastien y anime l’atelier radio. Sur la porte, le planning de l’atelier : Garçons à la console, filles aux textes ."
+  "text": "À l’atelier radio. Ici, l’atelier radio : cet après-midi, Bastien y anime l’émission des jeunes. Sur la porte, le planning de l’atelier : Garçons à la console, filles aux textes ."
  },
  "b766ae5f5605": {
   "who": "nour",
@@ -893,6 +893,18 @@ export const LIGNES = {
   "mood": "",
   "kind": "visite-calme",
   "text": "La salle des 11-14 ans. La salle des 11-14 ans : un baby-foot, des jeux de société, et un tableau où les jeunes proposent leurs projets de la semaine. Un animateur reste dans la salle avec le groupe."
+ },
+ "1505c49df751": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La salle d’activités. À côté de l’atelier radio, la salle d’activités : de grandes tables, des chevalets de peinture et des bacs de matériel en libre accès. Léa y prépare un atelier de perles."
+ },
+ "3c09b173e6db": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La salle des 14-17 ans. Un peu à l’écart du grand bâtiment, la salle des 14-17 ans : des canapés, une table de ping-pong et un tableau pour les projets. Les ados y ont leur espace, avec un animateur."
  },
  "e73d4d557551": {
   "who": "nour",
@@ -1158,11 +1170,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Sexisme ou discrimination ? Un stéréotype attribue des aptitudes ou des rôles à tout un groupe. Il devient un levier d’inégalité quand il guide les décisions. Une discrimination, c’est une décision défavorable liée à un critère interdit (sexe, orientation sexuelle, identité de genre, handicap…), par exemple un refus d’embauche. Repérer un fonctionnement sexiste ne suffit pas à fixer une qualification pénale. On agit sur l’organisation : rôles, accès au matériel, affichage."
  },
- "fa3c7e2cbfeb": {
+ "8082aaa28574": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Mardi, jour 2 sur 5. Les mots qui blessent. Distinguer ce qui est observé, rapporté ou supposé, et nommer le sexisme et le harcèlement."
+  "text": "Mardi, jour 2 sur 5. Les mots qui blessent."
  },
  "db26e8af0a6c": {
   "who": "narr",
@@ -1404,11 +1416,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Harcèlement, faits et hypothèses Le harcèlement sexuel peut résulter de propos ou comportements sexuels ou sexistes répétés, même sans proposition sexuelle. Plusieurs personnes peuvent y contribuer, même si chacune n’agit qu’une fois, quand elles savent que leurs propos s’ajoutent à une répétition. Je décris les faits et ce qui manque. Je sépare observations et hypothèses. Je n’attends pas d’être certain pour demander de l’aide. Enfant en danger ou en risque de l’être : 119 ou CRIP, la cellule départementale qui recueille les informations préoccupantes."
  },
- "58aec353f482": {
+ "583b7eb3ccf6": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Mercredi, jour 3 sur 5. La grosse journée. Comprendre et expliquer le consentement, y compris face à l’autorité d’un adulte."
+  "text": "Mercredi, jour 3 sur 5. La grosse journée."
  },
  "ac71486a0aaa": {
   "who": "narr",
@@ -1554,11 +1566,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Mercredi, 20 h 30. Ce soir, douze enfants de 8 à 11 ans dorment à l’accueil : c’est la nuitée prévue dans le projet de la semaine."
  },
- "d03cdf066937": {
+ "b0b99230d2e6": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Pour la nuit, la salle des petits est devenue un dortoir. Bastien a apporté sa guitare, Jade distribue les lampes de poche."
+  "text": "Pour la nuit, la salle des 6-11 ans est devenue un dortoir. Bastien a apporté sa guitare, Jade distribue les lampes de poche."
  },
  "3befb4c4975a": {
   "who": "narr",
@@ -1626,11 +1638,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Le consentement Sans pression, avec compréhension, pour ce qui est proposé, avant l’acte, et avec le droit de changer d’avis. Le silence ou l’absence de réaction ne suffisent pas. Une personne endormie ne peut pas donner son accord. L’âge et l’autorité comptent : un accord exprimé ne suffit pas à rendre licite tout acte entre un adulte et un mineur. Dans les gestes ordinaires : proposer des alternatives sans contact, laisser un refus possible sans humiliation."
  },
- "bd6ebf22bc95": {
+ "4c7759a3ed1b": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Jeudi, jour 4 sur 5. La parole d’un enfant. Accueillir une révélation, protéger et alerter les bons relais à temps."
+  "text": "Jeudi, jour 4 sur 5. La parole d’un enfant."
  },
  "a5eb54a82946": {
   "who": "narr",
@@ -1926,11 +1938,11 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "Agir face à une révélation Protéger et écouter : faire cesser l’exposition, écouter sans suggérer, ne pas promettre le secret. Noter sans enquêter : contexte, mots entendus, faits observés. Pas d’aveux, pas de confrontation. Danger immédiat : 17 ou 112 (114 par SMS). Urgence médicale : 15. Enfant en danger : 119 ou CRIP. Violences sexuelles sur un mineur : autorités judiciaires. En ACM, l’organisateur signale aussi sans délai au SDJES. L’information des parents s’organise avec les autorités lorsqu’un risque l’impose."
  },
- "2b129367786e": {
+ "ff407d2dbd6a": {
   "who": "narr",
   "mood": "",
   "kind": "chapitre",
-  "text": "Vendredi, jour 5 sur 5. Ce qu’on change. Concevoir une prévention concrète, puis tout mobiliser quand la direction freine."
+  "text": "Vendredi, jour 5 sur 5. Ce qu’on change."
  },
  "69df29617091": {
   "who": "narr",
@@ -2100,11 +2112,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Repensez à ce qu’elle vous a dit : quelqu’un d’autre était là, hier, au local. Trouvez cette personne dans le centre, sans attirer l’attention."
  },
- "b3d5f12e0f2e": {
+ "e04cf9062bfe": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "13 h 20. Vous vous installez avec Sacha dans la salle des grands, au calme."
+  "text": "13 h 20. Vous vous installez avec Sacha dans la salle des 11-14 ans, au calme."
  },
  "63ae849a886e": {
   "who": "narr",
@@ -2244,17 +2256,23 @@ export const LIGNES = {
   "kind": "epilogue",
   "text": "Les familles ont reçu une réponse, mais pas encore de règles concrètes : la question reviendra à la prochaine réunion."
  },
- "3b96e3799f08": {
+ "cbbc68a68824": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous entrez dans la salle des petits, celle des 6-8 ans."
+  "text": "Vous entrez dans la salle des 6-11 ans."
  },
- "a74f77962058": {
+ "2aeef47d3e36": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Vous êtes dans la salle des grands."
+  "text": "Vous êtes dans la salle des 11-14 ans."
+ },
+ "cabe4d099024": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous entrez dans la salle des 14-17 ans, à l’écart du grand bâtiment."
  },
  "19d0980fc229": {
   "who": "narr",
@@ -3396,17 +3414,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Arrête de me pousser !"
  },
- "8800be49aedf": {
+ "638f253c3e95": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la salle des petits, Jade termine une histoire. Les enfants sont assis, captivés. Le goûter, ici, se prend tous ensemble à 16 h 30."
+  "text": "Dans la salle des 6-11 ans, Jade termine une histoire. Les enfants sont assis, captivés. À 16 h 30, Jade prendra le goûter ici, avec son groupe."
  },
- "bd4fc2bca14d": {
+ "520b735b05cd": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la salle des grands, Inès aide Sacha à finir une maquette. Tout est calme."
+  "text": "Dans la salle des 14-17 ans, Kévin anime un tournoi de ping-pong. Sur le canapé, un jeune prépare le programme de la soirée de vendredi."
+ },
+ "1c0ab5ddb260": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette. Tout est calme."
  },
  "e524659aadff": {
   "who": "narr",
@@ -3462,11 +3486,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La salle de restauration est vide : elle ne sert qu’au repas de midi. Le goûter, chaque animateur le prend avec son groupe, dans sa salle."
  },
- "b76a006103b2": {
+ "15342f3b711e": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "En salle des animateurs, Kévin, assis à la table, prépare le matériel de demain. Il vous fait un signe de la main."
+  "text": "La salle des animateurs est calme. Tous les animateurs semblent être avec leur groupe."
  },
  "25e58f56f882": {
   "who": "narr",
@@ -3642,11 +3666,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la cour, Bastien prépare les ballons pour le temps libre."
  },
- "2009c1cece95": {
+ "9ca0e7483b59": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la salle des grands, Inès aide Sacha et un autre jeune à finir leurs maquettes. Les autres sont dehors."
+  "text": "Dans la salle des 11-14 ans, Inès aide Sacha et un autre jeune à finir leurs maquettes. Les autres sont dehors."
  },
  "4d01bb3bf445": {
   "who": "narr",
@@ -3660,11 +3684,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La sieste n’a pas encore commencé : Jade installe les tapis."
  },
- "15342f3b711e": {
+ "a1e8c3fa9da3": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La salle des animateurs est calme. Tous les animateurs semblent être avec leur groupe."
+  "text": "Dans la salle des 14-17 ans, Hugo et les ados répètent le sketch qu’ils joueront vendredi à la fête. On rit beaucoup."
  },
  "724e89ec4dd0": {
   "who": "narr",
@@ -3720,6 +3744,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Lou vous demande tout bas"
  },
+ "890ed7e6b478": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Aujourd’hui, vous avez découvert l’accueil et repéré ce qui, dans l’organisation, peut créer des inégalités ou des risques de violences."
+ },
  "88a9861a68b6": {
   "who": "narr",
   "mood": "",
@@ -3731,6 +3761,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "carnet",
   "text": "À retenir. L’organisation fait partie de la prévention : qui va où, avec qui, et à quel moment, surtout aux sanitaires. Les stéréotypes s’installent dans le jeu et dans la répartition des rôles : c’est à l’adulte de garantir à chacun le même accès. Repérer, c’est d’abord observer et noter des faits, sans juger."
+ },
+ "1ad9fcf7fa75": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Aujourd’hui, vous avez appris à distinguer ce que l’on voit, ce que l’on rapporte et ce que l’on suppose, et à nommer le sexisme et le harcèlement."
  },
  "5170455aad03": {
   "who": "narr",
@@ -3744,6 +3780,12 @@ export const LIGNES = {
   "kind": "carnet",
   "text": "À retenir. Distinguez ce que vous avez vu, ce qu’on vous a rapporté et ce que vous supposez. Le sexisme et le harcèlement se nomment : une remarque qui se répète n’est pas une blague. Une parole recueillie se transmet à la direction, le jour même."
  },
+ "ba74fe184742": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Aujourd’hui, vous avez vu ce qu’est le consentement, y compris face à l’autorité d’un adulte."
+ },
  "d96f53842a47": {
   "who": "narr",
   "mood": "",
@@ -3755,6 +3797,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "carnet",
   "text": "À retenir. Le consentement est libre et réversible : un enfant peut dire non, même à un adulte. Un adulte ne force jamais un contact, même affectueux : ni bisou, ni câlin imposés. Jamais seul avec un enfant, hors de la vue des autres."
+ },
+ "cc094cf6646c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "carnet",
+  "text": "Aujourd’hui, vous avez vu comment accueillir la parole d’un enfant, le protéger, et alerter les bons relais à temps."
  },
  "cf6e235c30b5": {
   "who": "narr",

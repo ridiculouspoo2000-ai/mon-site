@@ -748,7 +748,7 @@
     // l'heure défile jusqu'à la nouvelle heure
     const toMin = (x) => { const m = /(\d+) h (\d+)/.exec(x || ""); return m ? +m[1] * 60 + +m[2] : null; };
     const a0 = toMin(t0), a1 = toMin(DC.t), sp = DC.el.querySelector(".dc-top span");
-    if (a0 != null && a1 != null && a1 - a0 >= 40 && d === DCprev && sc.type !== "roam") bigClock(a0, a1, DAYS[d]);   // le temps passe : la grande horloge
+    if (a0 != null && a1 != null && a1 - a0 >= 30 && d === DCprev && sc.type !== "roam") bigClock(a0, a1, DAYS[d]);   // le temps passe : la grande horloge
     if (sp && a0 != null && a1 != null && a1 > a0 && d === DCprev && !calm()) {
       const T0 = performance.now(), dur = Math.min(2200, 300 + (a1 - a0) * 6);
       const H = DC.el.querySelector(".hh"), M = DC.el.querySelector(".mh");
@@ -796,7 +796,15 @@
   /* ---------- éléments communs ---------- */
   const kicker = (t) => (t ? `<p class="kicker">${esc(t)}</p>` : "");
   // Heure de la scène, lue dans l'indication de temps (« Lundi, 8 h 30 », « Jeudi soir »…).
+  // une page du carnet lue juste après le bilan du soir : on reste à la lumière du soir (pas de retour en plein jour)
+  function afterDayEnd(sc) {
+    const i = sc && sc.id ? SCREENS.findIndex((x) => x.id === sc.id) : -1;
+    for (let j = i - 1; j >= 0; j--) { const p = SCREENS[j]; if (p.type === "dayend") return p; if (p.type !== "explain") return null; }
+    return null;
+  }
+  const dayEndT = (d) => ((typeof DAYEND !== "undefined" && DAYEND[d.ch]) || {}).t || "17 h 15";
   function timeOf(sc) {
+    if (sc && sc.type === "explain") { const d = afterDayEnd(sc); if (d) return timeOf({ kicker: dayEndT(d), ch: d.ch }); }
     const k = String((sc && (sc.kicker || "")) || "").toLowerCase();
     if (/nuit/.test(k)) return "night";
     if (/soir/.test(k)) return "evening";
@@ -1028,9 +1036,9 @@
       this.el.classList.add("on"); document.body.classList.add("live");
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
-      const gateOpen = sc && (sc.type === "chapter" || sc.type === "dayend" || sc.type === "bilan" || sc.type === "replay" || ["intro", "parent1", "parent2", "portail", "aurevoir", "dafter"].includes(sc.id));   // le portail est ouvert à l’arrivée, aux départs et aux bilans
+      const gateOpen = sc && (sc.endday || (sc.type === "explain" && afterDayEnd(sc)) || sc.type === "chapter" || sc.type === "dayend" || sc.type === "bilan" || sc.type === "replay" || ["intro", "parent1", "parent2", "portail", "aurevoir", "dafter"].includes(sc.id));   // le portail est ouvert à l’arrivée, aux départs et aux bilans
       this.lights(LIT[amb] || 0); this.glows();
-      this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "");
+      this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "") + (S.meal ? " meal" : "");
       { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
       // caméra extérieure
@@ -1154,6 +1162,31 @@
       requestAnimationFrame(() => veil.classList.add("in"));
       host.appendChild(w);
       requestAnimationFrame(() => w.classList.add("in"));
+      if (room === "sanitaires" && (S.cast || []).some((c) => c[0] !== "you")) this.passage(w, svg, IN, S);
+    },
+    // aux sanitaires, pendant la scène, des enfants vont et viennent : on entre, on ressort, la vie continue
+    passage(w, svg, IN, S) {
+      if (calm()) return;
+      const NS = "http://www.w3.org/2000/svg", busy = new Set((S.cast || []).map((c) => c[0]));
+      const pool = ["k1", "k2", "k4", "k5", "k7", "k8", "k9", "k6"].filter((k) => !busy.has(k));
+      let n = 0;
+      const one = () => {
+        if (!w.isConnected || !pool.length) return;
+        const who = pool[n % pool.length], inn = n++ % 2 === 0;
+        const A0 = IN.sp[inn ? "e" : "c"], B0 = IN.sp[inn ? "c" : "f"], R0 = A0 && B0 && rigMini(who, "walk", { chair: false });
+        if (R0) {
+          const g = document.createElementNS(NS, "g");
+          g.setAttribute("class", "ractor rpass"); g.dataset.who = who;
+          g.style.transform = `translate(${A0.x}px,${A0.y}px)`; g.style.opacity = "0";
+          g.innerHTML = `<g class="rbody${B0.x < A0.x ? " flip" : ""}"><g transform="scale(.9)">${R0}</g></g>`;
+          const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > Math.max(A0.d, B0.d));
+          svg.insertBefore(g, after || null);
+          requestAnimationFrame(() => requestAnimationFrame(() => { g.style.opacity = "1"; g.style.transform = `translate(${B0.x}px,${B0.y - (inn ? 8 : 0)}px)`; }));
+          setTimeout(() => { g.style.opacity = "0"; setTimeout(() => g.remove(), 600); }, 2300);
+        }
+        setTimeout(one, 3200 + Math.random() * 2200);
+      };
+      setTimeout(one, 1400);
     },
     // lève le toit du bâtiment de la salle « room » ; room = null : on referme
     roof(room, S) {
@@ -1497,7 +1530,7 @@
     // la nuit tombe sur la veille (sur le plan : soleil couchant, fenêtres qui s'allument, lune), puis le jour se lève :
     // les familles arrivent au portail
     const morning = () => { if (!n.isConnected) return; World.show({ at: "cour", cast: [], z: 2.1 }, { type: "chapter", kicker: "8 h 20" }); families("morning"); n.querySelector(".chap").classList.remove("wait"); };
-    if (prev && !calm() && !n.dataset.nf) { n.dataset.nf = "1"; n.querySelector(".chap").classList.add("wait"); setTimeout(() => duskToDawn(c.day, morning), 300); }
+    if (prev && !calm() && !n.dataset.nf) { n.dataset.nf = "1"; n.querySelector(".chap").classList.add("wait"); setTimeout(() => duskToDawn(c.day, morning, prev.n), 300); }
     else setTimeout(morning, 200);
   };
 
@@ -1601,6 +1634,7 @@
     });
     const mapbox = el("div", { class: "mapbox" });
     mapbox.append(map, card);
+    const tour = dio && typeof tourGuide === "function" ? tourGuide(map) : null;   // Nour et vous, à pied sur le plan
     pannable(mapbox, map);
     // refonte : la fiche d'un lieu se referme d'un clic sur le plan (hors lieux) ou avec Échap, pour dégager les lieux qu'elle recouvre
     mapbox.addEventListener("click", (e) => { if (!card.hidden && !e.target.closest(".spot, .spotcard")) card.hidden = true; });
@@ -1651,6 +1685,7 @@
     }
     function open(s, i, b) {
       Snd.click(); if (!over) Voice.say(...VOICE_TXT.spot(s));
+      if (tour) tour.go(s.key);
       b.classList.add("seen"); b.classList.remove("hinted", "missed");
       if (s.real) found.add(i);
       else if (!seenDecoy.has(i)) {
@@ -2258,6 +2293,7 @@
     // Chaque idée de la page est illustrée en direct, sur le plan, par une scène de la journée rejouée par les personnages.
     const ILL = { k1: ["radio", "foot", "radio"], k2: ["brief", "chat", "rire"], k3: ["verite", "consent", "nuit3"], k4: ["lou", "numero", "portail"], k5: ["affiche", "familles", "bilanequipe"] }[sc.id];
     if (ILL) {
+      const DE = afterDayEnd(sc);   // après le bilan du soir, les scènes rejouées gardent la lumière du soir
       const lis = [...n.querySelectorAll(".pn-body li")]; let k = -1, tm = 0;
       n.classList.add("pn-ill");
       const show = () => {
@@ -2265,7 +2301,7 @@
         k = (k + 1) % Math.max(lis.length, 1);
         lis.forEach((li, j) => li.classList.toggle("on", j === k));
         const id = ILL[k % ILL.length], S0 = SCREENS.find((x) => x.id === id);
-        if (S0) { try { World.stage({ ...S0, type: "story" }); } catch (e) { }
+        if (S0) { try { World.stage(DE ? { ...S0, type: "story", kicker: dayEndT(DE), endday: true } : { ...S0, type: "story" }); } catch (e) { }
           const C = (STAGE[id] && STAGE[id].cast) || [], w = (C.find((c) => c[0] !== "you") || [])[0];
           if (w) setTimeout(() => { if (n.isConnected) { World.talk(w); setTimeout(() => World.talk(null), 2600); } }, 900); }
         tm = setTimeout(show, Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
@@ -3048,7 +3084,7 @@
      des animateurs encadrent, des parents passent. */
   const toMin = (t) => { const m = /(\d+) ?h ?(\d+)?/.exec(t || ""); return m ? +m[1] * 60 + +(m[2] || 0) : 0; };
   const fmtMin = (m) => `${Math.floor(m / 60)} h ${String(Math.round(m) % 60).padStart(2, "0")}`;
-  const PLACE = { jeux: "L’aire de jeux", radio: "L’atelier radio", sanitaires: "Les sanitaires", potager: "Le potager", parc: "Le parc", refectoire: "La restauration", equipe: "La salle des animateurs", cour: "La cour", direction: "Le bureau de la direction", soins: "L’infirmerie", local: "La régie", libre: "La salle d’activités", petits: "La salle des petits", grands: "La salle des grands", panneau: "Le panneau d’affichage", cuisine: "La cuisine pédagogique", preau: "Le préau", main: "Le bâtiment principal" };
+  const PLACE = { jeux: "L’aire de jeux", radio: "L’atelier radio", sanitaires: "Les sanitaires", potager: "Le potager", parc: "Le parc", refectoire: "La restauration", equipe: "La salle des animateurs", cour: "La cour", direction: "Le bureau de la direction", soins: "L’infirmerie", local: "La régie", libre: "La salle d’activités", petits: "La salle des 6-11 ans", grands: "La salle des 11-14 ans", ados: "La salle des 14-17 ans", panneau: "Le panneau d’affichage", cuisine: "La cuisine pédagogique", preau: "Le préau", main: "Le bâtiment principal" };
 
   /* ---- les chemins praticables (au sol, en mètres) ---- */
   const NODES = {
@@ -3058,16 +3094,16 @@
     p1: [18.4, 24.5], q1: [22.3, 23.2], q2: [25.6, 24.1], pan: [24.0, 26.7], gate: [29.0, 23.4],   // le portail : on ne sort pas du centre (le parking est réservé aux familles)
     e1: [28.4, 15.5], dSoins: [27.2, 15.5], e2: [28.4, 9.8],
     b1: [26.4, 9.8], b2: [22.6, 9.8], b3: [18.2, 9.8], b4: [14.2, 9.8], b5: [10, 9.8], b6: [5.8, 9.8],
-    dLib: [26.4, 8.5], dRad: [22.6, 8.5], dSan: [5.8, 8.8], parc: [14.2, 7.4],
+    dLib: [26.4, 8.5], dRad: [22.6, 8.5], dSan: [5.8, 8.8], parc: [14.2, 7.4], a0: [8.25, 9.8], a1: [8.25, 5.4], dAdo: [7.85, 4.6],
     l1: [30.2, 7.5], dLoc: [33.3, 7.0], e3: [28.4, 16.5], r1: [31.0, 16.5], r2: [34.95, 16.5], dRef: [34.95, 15.6],
   };
   const EDGES = [["f3", "f6"], ["f6", "f9"], ["f9", "f13"], ["f13", "f15"], ["f15", "f17"], ["f17", "f19"], ["f19", "f21"], ["f21", "f24"], ["f24", "f26"], ["f26", "f28"],
     ["f13", "dm0"], ["f15", "dm0"], ["dm0", "dMain"], ["f24", "dCuis"], ["f9", "j1"], ["j1", "j2"], ["j1", "j3"], ["f6", "j3"], ["f15", "m1"], ["m1", "j1"], ["m1", "pot"], ["m1", "p1"], ["p1", "f19"], ["p1", "q1"],
     ["f21", "q1"], ["q1", "q2"], ["f26", "q2"], ["q2", "pan"], ["q2", "gate"], ["f28", "gate"], ["p1", "pan"],
-    ["f28", "e3"], ["e3", "e1"], ["e1", "dSoins"], ["e1", "e2"], ["e2", "b1"], ["b1", "b2"], ["b2", "b3"], ["b3", "b4"], ["b4", "b5"], ["b5", "b6"],
+    ["f28", "e3"], ["e3", "e1"], ["e1", "dSoins"], ["e1", "e2"], ["e2", "b1"], ["b1", "b2"], ["b2", "b3"], ["b3", "b4"], ["b4", "b5"], ["b5", "a0"], ["a0", "b6"], ["a0", "a1"], ["a1", "dAdo"],
     ["b1", "dLib"], ["b2", "dRad"], ["b6", "dSan"], ["b4", "parc"], ["b3", "parc"], ["e2", "l1"], ["l1", "dLoc"], ["e3", "r1"], ["r1", "r2"], ["r2", "dRef"]];
   // portes : on entre dans le bâtiment (la salle s'ouvre) ; lieux de plein air : on y passe
-  const DOORS = { dMain: "main", dCuis: "cuisine", dSoins: "soins", dLib: "libre", dRad: "radio", dSan: "sanitaires", dLoc: "local", dRef: "refectoire" };
+  const DOORS = { dMain: "main", dCuis: "cuisine", dSoins: "soins", dLib: "libre", dRad: "radio", dSan: "sanitaires", dLoc: "local", dRef: "refectoire", dAdo: "ados" };
   const SPOTS = { jeux: [9.4, 24.6], potager: [15.4, 27.4], parc: [14.2, 7.6], cour: [26.6, 23.4], panneau: [24.0, 26.6], preau: [14.9, 24.1] };
   const MAIN_ROOMS = ["petits", "grands", "direction", "equipe"];
   const ADJ = {}; EDGES.forEach(([a, b]) => { (ADJ[a] = ADJ[a] || []).push(b); (ADJ[b] = ADJ[b] || []).push(a); });
@@ -3112,6 +3148,31 @@
     return out;
   }
 
+  // La visite du début : Nour et vous marchez vraiment sur le plan. À chaque lieu touché, Nour s'y rend par les chemins
+  // (vous la suivez) ; derrière un bâtiment, il devient transparent, comme pendant les promenades.
+  const TOUR_AT = { petits: "dMain", grands: "dMain", direction: "dMain", equipe: "dMain", cuisine: "dCuis", soins: "dSoins", radio: "dRad", libre: "dLib",
+    sanitaires: "dSan", local: "dLoc", refectoire: "dRef", ados: "dAdo", entree: "gate" };
+  function tourGuide(map) {
+    if (!A.dio || reduce()) return null;
+    map.classList.add("tourlive");
+    const lay = el("div", { class: "wacts tour-acts", "aria-hidden": "true" }); map.appendChild(lay);
+    const N = Life.add(Walker("nour", 15.9, 20.5, "stand")), Y = Life.add(Walker("you", 15.0, 21.0, "stand", { back: false }));
+    N.ev = Y.ev = true; lay.append(N.el, Y.el); N.face([14, 22]);
+    const target = (key) => { const d = TOUR_AT[key]; if (d) return NODES[d]; return SPOTS[key] || null; };
+    const walk = (W, tgt, sp, side, done) => {
+      const a = onGraph(W.x, W.y), b = onGraph(tgt[0] + side * .5, tgt[1] + side * .3); if (!a || !b) return;
+      const R0 = route(a, b); if (!R0) return; R0[0] = [W.x, W.y];
+      W.go(R0.slice(1).map((q) => [q[0] + side * .35, q[1] + side * .25]), sp, () => { done && done(); });
+    };
+    return {
+      go(key) {
+        const t = target(key); if (!t || !map.isConnected) return;
+        walk(N, t, 5.6, 0, () => N.face([Y.x, Y.y]));
+        setTimeout(() => walk(Y, t, 5.6, 1, () => Y.face([N.x, N.y])), 350);
+      },
+    };
+  }
+
   // fondu au noir bref : on passe d'un lieu à l'autre (dehors → salle, salle → dehors)
   function blackout(fn) {
     if (reduce() || st.settings.calm) return fn();
@@ -3145,6 +3206,7 @@
     // animateurs des autres groupes : pour que les salles vivent pendant les temps libres
     yanis: { age: 23, sex: "m", skin: "mate", hair: "noir", hairStyle: "curly", top: "#2E9C8A", bottom: "#33405C", badge: true },
     lea: { age: 25, sex: "f", skin: "claire", hair: "blond", hairStyle: "ponytail", top: "#C2412A", bottom: "#2E3A4E", badge: true },
+    hugo: { age: 28, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#2F6D6A", bottom: "#2E3A4E", badge: true },
   };
   Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
 
@@ -3230,7 +3292,7 @@
     const mustLeft = () => sc.events.filter((e) => e.must && !S.done[e.id]);
     const guideOnly = () => !S.guided && !!sc.guided;
     const wide = () => innerWidth >= 761;
-    let you = null, busy = false, moving = false, sceneLock = false, card = null, ring = null, mark = null;
+    let you = null, timeUp = false, busy = false, moving = false, sceneLock = false, card = null, ring = null, mark = null;
 
     /* -- le plan vivant -- */
     function free(first) {
@@ -3242,7 +3304,8 @@
       const acts = World.cam.querySelector(".wacts"); acts.innerHTML = "";
       you = Life.add(Walker("you", S.x, S.y, "stand"));
       acts.appendChild(you.el);
-      you.onMove = (d) => { S.t += d * PER_M; };
+      // l'heure tourne en marchant : dès qu'elle est passée, on s'arrête là, la promenade est finie
+      you.onMove = (d) => { S.t += d * PER_M; tickClock(); if (S.t >= END && !timeUp) { timeUp = true; you.stop(); you.onDone = null; moving = false; busy = true; ring.classList.remove("moving"); drawCard(); } };
       you.onStep = () => checkSpots();
       // l'accueil vit autour de vous
       (sc.life || []).forEach((L) => {
@@ -3501,6 +3564,7 @@
       World.stage({ id: "roam-calm-" + key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
       S.t += 8; save();
+      if (S.t >= END) setTimeout(() => { if (n.isConnected && !timeUp) { timeUp = true; Voice.stop(); finish(); } }, 4200);   // l’heure est passée pendant la visite de la salle
       const wrap = el("div", { class: "duo roamscene calm" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
       const row = el("div", { class: "row" });
@@ -3511,8 +3575,10 @@
       setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 700);
       row.querySelector("button").focus({ preventScroll: true });
     }
+    let finished = false;
     function finish() {
-      if (mustLeft().length && S.t < END) return;
+      if (finished || (mustLeft().length && S.t < END)) return;
+      finished = true;
       // le temps est écoulé : on ne se promène plus. Ce qui n'a pas été vu compte comme une situation manquée.
       mustLeft().forEach((e) => { const E0 = SCREENS.find((x) => x.id === e.id); if (E0 && st.res[e.id] == null) { st.res[e.id] = 0; st.missed = st.missed || {}; st.missed[e.id] = 1; } S.done[e.id] = 1; });
       busy = true; if (you) { you.stop(); you.onDone = null; }
@@ -3542,7 +3608,13 @@
   function frame(t) {
     requestAnimationFrame(frame);
     if (t - last < 220) return; last = t;
-    const W = document.getElementById("world"); if (!W || !W.classList.contains("on")) return;
+    // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
+    const W0 = document.getElementById("world"), roots = [];
+    if (W0 && W0.classList.contains("on")) roots.push(W0);
+    document.querySelectorAll(".map.dio.tourlive").forEach((m) => roots.push(m));
+    roots.forEach(see);
+  }
+  function see(W) {
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,
@@ -3670,35 +3742,43 @@
     Life.agents.push({ t: 0, clear: () => timers.forEach(clearTimeout) });
   }
 
-  // Le soir tombe sur le plan : le soleil descend, les fenêtres s'allument, la lune apparaît ; puis le jour se lève.
-  function duskToDawn(dayLabel, done) {
+  // La nuit, entre deux journées. Sur le plan, le soleil se couche et les lumières s'allument dans les salles ;
+  // puis la nuit prend toute la page, la lune se lève, l'heure file ; enfin le soleil se lève, un coq chante : c'est le matin.
+  function duskToDawn(dayLabel, done, prevCh) {
     World.init(); if (!World.el) return done();
     Life.clear();
-    World.show({ at: "ensemble", cast: [] }, { type: "chapter", kicker: "18 h 30" });
+    const PB = (typeof DAYEND !== "undefined" && DAYEND[prevCh]) || {}, t0 = st.nuitee && SCREENS.some((x) => x.ch === prevCh && x.nuitee) ? "23 h 40" : (PB.t || "17 h 30");   // après la nuitée, il fait déjà nuit
+    World.show({ at: "ensemble", cast: [] }, { type: "chapter", kicker: t0 });   // on repart de la lumière du bilan d'hier soir
+    if (calm()) return done();
     document.body.classList.add("dusk");
-    const pill = el("div", { class: "dusk-pill", "aria-live": "polite" }, "La nuit tombe sur les Hautes Herbes…");
+    const W = World.el, golden = W.classList.contains("amb-golden");
+    const pill = el("div", { class: "dusk-pill", "aria-live": "polite" }, golden ? "Le soleil se couche sur les Hautes Herbes…" : "La nuit tombe sur les Hautes Herbes…");
     document.body.appendChild(pill); requestAnimationFrame(() => pill.classList.add("on"));
-    const W = World.el, steps = [
-      [0, () => { W.classList.remove("amb-morning", "amb-day", "amb-night"); W.classList.add("amb-golden"); World.lights(1); }],
-      [1300, () => { W.classList.replace("amb-golden", "amb-evening"); World.lights(2); Snd.night(); }],
-      [2600, () => { W.classList.replace("amb-evening", "amb-night"); }],
-      [4300, () => { pill.textContent = `${dayLabel}, 7 h 45. Le jour se lève.`; W.classList.replace("amb-night", "amb-morning"); World.lights(0); }],
-      [5800, () => { pill.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => pill.remove(), 600); done(); }],
+    const stars = Array.from({ length: 70 }, () => `<i style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 62).toFixed(1)}%;--d:${(Math.random() * 3).toFixed(2)}s;--s:${(1 + Math.random() * 2).toFixed(1)}px"></i>`).join("");
+    const page = el("div", { class: "nightpage", "aria-hidden": "true" }, `<div class="np-dawn"></div><div class="np-stars">${stars}</div><div class="np-moon"></div><div class="np-sun"></div>
+      <svg class="np-land" viewBox="0 0 1200 260" preserveAspectRatio="none"><path class="np-far" d="M0,150 C160,90 300,120 430,95 C560,70 700,130 860,100 C990,78 1100,110 1200,92 L1200,260 L0,260 Z"/><path class="np-near" d="M0,200 C180,160 320,190 520,170 C700,152 860,200 1040,176 C1110,168 1160,172 1200,170 L1200,260 L0,260 Z"/>
+      <g class="np-house"><rect x="770" y="150" width="120" height="44"/><path d="M760,152 L830,118 L900,152 Z"/><rect class="np-win" x="788" y="164" width="16" height="13"/><rect class="np-win" x="818" y="164" width="16" height="13"/><rect class="np-win" x="848" y="164" width="16" height="13"/></g></svg>
+      <p class="np-t">La nuit</p>`);
+    const T = (golden ? 1500 : 0), steps = [
+      [T, () => { W.classList.remove("amb-golden", "amb-morning", "amb-day", "amb-night"); W.classList.add("amb-evening"); World.lights(2); pill.textContent = "Les lumières s’allument dans les salles…"; }],
+      [T + 1700, () => { pill.classList.remove("on"); document.body.appendChild(page); requestAnimationFrame(() => page.classList.add("on")); Snd.night(); }],
+      [T + 2300, () => bigClock(19 * 60, 31 * 60 + 45, "La nuit", { night: true, dur: 3300 })],
+      [T + 6000, () => { page.classList.add("dawn"); page.querySelector(".np-t").textContent = `${dayLabel}, 7 h 45. Le jour se lève.`; Snd.rooster && Snd.rooster(); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
+      [T + 8600, () => { page.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => { page.remove(); pill.remove(); }, 900); done(); }],
     ];
-    if (calm()) { pill.remove(); document.body.classList.remove("dusk"); return done(); }
     steps.forEach(([t, f]) => setTimeout(f, t));
   }
 
   // La grande horloge : entre deux moments de la journée, on voit le temps passer
-  function bigClock(a0, a1, label) {
-    if (calm() || a1 - a0 < 40 || document.querySelector(".bigclock")) return;
-    const k = el("div", { class: "bigclock", "aria-hidden": "true" }, `<svg viewBox="-60 -60 120 120"><circle r="56" class="bf"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-48" x2="0" y2="${i % 3 ? -43 : -39}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="6" x2="0" y2="-26"/><line class="mh" x1="0" y1="8" x2="0" y2="-40"/><circle r="3.2" class="bc"/></svg><p></p>`);
+  function bigClock(a0, a1, label, o = {}) {
+    if (calm() || a1 - a0 < 30 || document.querySelector(".bigclock")) return;
+    const k = el("div", { class: "bigclock" + (o.night ? " night" : ""), "aria-hidden": "true" }, `<svg viewBox="-60 -60 120 120"><circle r="56" class="bf"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-48" x2="0" y2="${i % 3 ? -43 : -39}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="6" x2="0" y2="-26"/><line class="mh" x1="0" y1="8" x2="0" y2="-40"/><circle r="3.2" class="bc"/></svg><p></p>`);
     document.body.appendChild(k); requestAnimationFrame(() => k.classList.add("on"));
-    const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = 1700;
+    const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = o.dur || 2100;
     const f = (now) => {
       const t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3), m = a0 + (a1 - a0) * e;
       hh.setAttribute("transform", `rotate(${(m / 60 % 12) * 30})`); mh.setAttribute("transform", `rotate(${(m % 60) * 6})`);
-      p.textContent = `${label ? label + " · " : ""}${Math.floor(m / 60)} h ${String(Math.floor(m % 60)).padStart(2, "0")}`;
+      p.textContent = `${label ? label + " · " : ""}${Math.floor(m / 60) % 24} h ${String(Math.floor(m % 60)).padStart(2, "0")}`;
       if (t < 1) requestAnimationFrame(f); else setTimeout(() => { k.classList.remove("on"); setTimeout(() => k.remove(), 500); }, 650);
     };
     requestAnimationFrame(f); Snd.tick && Snd.tick();
@@ -3713,11 +3793,12 @@
     const items = L.map((x) => `<li><b>${esc((x.kicker || "").split("·").pop().trim() || "")}</b><span>${esc(x.title || x.prompt || "")}</span></li>`).join("");
     n.innerHTML = `<div class="panel dayend">${kicker(`${c.day}, ${B.t || "17 h 15"} · fin de journée`)}<h2 id="h-${sc.id}">Bilan de la journée</h2>
       <p class="lead">${esc(B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée.")}</p>
+      ${B.vu ? `<p class="de-vu">${esc(B.vu)}</p>` : ""}
       ${items ? `<p class="kicker">Ce que vous avez vécu aujourd’hui</p><ul class="de-list">${items}</ul><p class="de-note">Vos décisions sont enregistrées : vous verrez vendredi ce qu’elles ont produit.</p>` : ""}
       <p class="kicker">À retenir</p><ul class="de-learn">${B.learn.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
     n.querySelector(".panel").appendChild(btn("Continuer", next));
     n.dataset.novoice = "1";
-    setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."], ["narr", "À retenir. " + B.learn.join(" ")]]); }, 900);
+    setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."]].concat(B.vu ? [["narr", B.vu]] : [], [["narr", "À retenir. " + B.learn.join(" ")]])); }, 900);
   };
 
   // Une interruption qu'on voit vraiment : la personne arrive en marchant jusqu'à vous, vous fait signe ou vous tire par
@@ -4103,5 +4184,5 @@
   applySettings();
   home();
   soundGate();
-  window.__game = { st: () => st, go, SCREENS };
+  window.__game = { st: () => st, go, SCREENS, World, A: () => A };
 })();

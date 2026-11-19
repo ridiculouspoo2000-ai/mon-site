@@ -547,7 +547,7 @@
   $("#btn-level").addEventListener("click", () => {
     st.level = ((st.level || 2) % 3) + 1; save(); Snd.click();
     $("#btn-level .lbl").textContent = LV().name;
-    toastMsg(`Niveau ${LV().name} : ${["", "des mots simples, sans chrono (dès 9 ans).", "le rythme du terrain, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`);
+    toastMsg(`Niveau ${LV().name} : ${["", "des mots simples, sans chrono (dès 9 ans).", "niveau standard, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`);
   });
   $("#btn-home").addEventListener("click", () => { Snd.click(); home(); });
   // Refonte : les réglages (niveau, son, voix, animations) quittent la barre et se rangent dans un menu « Réglages ».
@@ -649,7 +649,7 @@
 
   // Niveau de difficulté : Découverte (1), Standard (2), Expert (3). Il se change à tout moment depuis la barre du haut.
   const LEVELS = [null, { name: "Enfants", t: 1.6, hints: 4, pen: 0, speed: 1.5, crisis: 1.35, help: true },
-    { name: "Moyen", t: 1, hints: 2, pen: 5, speed: 1, crisis: 1 }, { name: "Expert", t: .7, hints: 1, pen: 8, speed: .7, crisis: .8, timeAll: 25 }];
+    { name: "Adulte", t: 1, hints: 2, pen: 5, speed: 1, crisis: 1 }, { name: "Expert", t: .7, hints: 1, pen: 8, speed: .7, crisis: .8, timeAll: 25 }];
   const LV = () => LEVELS[st.level || 2];
   function tune(sc) {
     const L = LV(), x = { ...sc };
@@ -880,7 +880,7 @@
   };
   // Le plan est sous l'interface : on retrouve l'affiche sous le pointeur quand on clique dans le vide
   {
-    const affAt = (x, y) => { const e = document.elementsFromPoint(x, y).find((n) => n.closest && n.closest(".inroom-w .aff")); return e ? e.closest(".aff") : null; };
+    const affAt = (x, y) => { const e = document.elementsFromPoint(x, y).find((n) => n.closest && n.closest(".inroom-w .aff, #world .aff")); return e ? e.closest(".aff") : null; };
     const free = (t) => !t.closest("button,a,input,textarea,select,label,.panel,.side,.solo,.affview,#hud,#dayclock,.phone,.carnet,[role=dialog]");
     document.addEventListener("click", (e) => { if (!free(e.target)) return; const a = affAt(e.clientX, e.clientY); if (a) Aff.open(a.dataset.aff); });
     let raf = 0;
@@ -1434,7 +1434,7 @@
         <div class="su-grid goal"><ol class="goals">${ROLE.goal.map(([t, d], i) => `<li style="--i:${i}"><span>${i + 1}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></li>`).join("")}</ol><div class="su-form"></div></div>`;
       const form = su.querySelector(".su-form");
       const fmt = seg("Format de l’accueil", [[false, "Sans hébergement", "ALSH · les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement", "ALAH · une nuit sur place le mercredi, un parcours en plus sur les risques de la nuit."]], () => !!st.nuitee, (v) => { st.nuitee = v; }, "two");
-      const lvl = seg("Niveau de difficulté", [[1, "Enfants", "Dès 9 ans, idéalement avec un adulte : des mots simples, sans chrono."], [2, "Moyen", "Adultes : le rythme du terrain, des choix nuancés."], [3, "Expert", "Adultes : des situations fines, tout est chronométré."]], () => st.level || 2, (v) => { st.level = v; }, "three");
+      const lvl = seg("Niveau de difficulté", [[1, "Enfants", "Repérer les situations et réagir en sécurité, avec les documents de référence."], [2, "Adulte", "Niveau standard : des choix nuancés, on hésite vraiment."], [3, "Expert", "Pour affiner : des situations très précises et nuancées."]], () => st.level || 2, (v) => { st.level = v; }, "three");
       form.append(el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl,
         btn("Commencer la semaine", () => { save(); next(); }), btn("Revenir à mon personnage", () => { Voice.stop(); stepLook(); }, "linkb"));
       su.querySelector("h2").focus({ preventScroll: true }); n.scrollIntoView({ block: "start" });
@@ -1655,6 +1655,11 @@
     if (side) wrap.appendChild(el("div", { class: "side" })).appendChild(side);
     const panel = el("div", { class: "panel" });
     panel.innerHTML = contextBlock(sc) + `<h2 id="h-${sc.id}" class="prompt">${esc(sc.prompt)}</h2>`;
+    // niveau enfants : on s'appuie sur les documents de référence (« Mes repères ») pour choisir
+    if (st.level === 1 && typeof DOCS !== "undefined" && DOCS.reperes) {
+      const N = DOCS.reperes.notes, k = [...sc.id].reduce((h, c) => h + c.charCodeAt(0), 0);
+      panel.insertAdjacentHTML("beforeend", `<aside class="kid-rep" aria-label="Mes repères"><p class="kicker">Mes repères</p><ul><li>${esc(N[k % N.length])}</li><li>${esc(N[(k + 3) % N.length])}</li></ul></aside>`);
+    }
     const opts = el("div", { class: "opts" });
     const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
     let done = false, tId = 0;
@@ -1731,11 +1736,9 @@
       if (!sc.later && !deferred(sc) && q < 0.5 && sc.npc) { World.upset(sc.npc); setMood(n, sc.npc, "angry"); }
       // Conséquences cachées : le verdict n'apparaît qu'au débrief de fin de chapitre.
       if ((sc.later || deferred(sc)) && first) {
-        b.classList.add("picked", "neutral");
-        fbz.innerHTML = `<div class="fb later"><p class="vt">Choix enregistré</p><p>Vous découvrirez à la fin de la semaine ce que ce choix a produit, et ce que dit le cadre.</p></div>`;
-        const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); fbz.appendChild(row);
-        Snd.click(); Voice.say("narr", "Choix enregistré. Vous découvrirez plus tard ce qu’il a produit.");
-        fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus({ preventScroll: false });
+        // pas de « choix enregistré » : on passe directement à la suite
+        b.classList.add("picked", "neutral"); Snd.click(); Voice.stop();
+        setTimeout(next, 450);
         return;
       }
       b.classList.add("picked", verdict(o.q).cls);
@@ -1855,9 +1858,8 @@
       save();
       if (deferred(sc)) {
         if (firstTry) { st.later = st.later || {}; st.later[sc.id] = { ...(st.later[sc.id] || {}), end: cur }; save(); }
-        const box = el("div", { class: "fb later" }, `<p class="vt">Échange terminé</p><p>Vous découvrirez à la fin de la semaine ce que cet échange a produit.</p>`);
-        const row = el("div", { class: "row" }); row.append(btn("Continuer", next)); box.appendChild(row); opts.appendChild(box);
-        box.setAttribute("tabindex", "-1"); box.focus(); Snd.click(); return;
+        const row = el("div", { class: "row" }); row.append(btn("Continuer", next)); opts.appendChild(row);   // pas de message « enregistré » : on continue
+        row.querySelector("button").focus({ preventScroll: true }); Snd.click(); return;
       }
       const v = verdict(q >= 0.9 ? 1 : q >= 0.5 ? 0.5 : 0); v.s();
       if (q >= 0.9) setTimeout(() => burst(log.lastElementChild, "good"), 100);
@@ -2135,9 +2137,7 @@
       if (deferred(sc)) {   // pas de correction maintenant : on garde ce qui a été coché
         st.later = st.later || {}; if (st.later[sc.id] == null) { st.later[sc.id] = { sel: [...sel] }; save(); }
         opts.querySelectorAll(".opt").forEach((b) => { b.classList.remove("isok", "isno", "miss"); b.querySelector(".why")?.remove(); });
-        fbz.innerHTML = `<div class="fb later"><p class="vt">Décision enregistrée</p><p>Vous découvrirez à la fin de la semaine ce qu’elle a produit.</p></div>`;
-        row.innerHTML = ""; row.appendChild(btn("Continuer", next)); Snd.click();
-        fbz.querySelector(".fb").setAttribute("tabindex", "-1"); fbz.querySelector(".fb").focus(); return;
+        Snd.click(); setTimeout(next, 450); return;   // on passe directement à la suite
       }
       const v = verdict(q >= 1 ? 1 : q >= 0.5 ? 0.5 : 0); v.s();
       if (q >= 1) setTimeout(() => burst(fbz.querySelector(".fb"), "good"), 50);
@@ -2239,12 +2239,15 @@
   function finalScore(defi) {
     const v = SCREENS.filter((x) => x.comp && st.res[x.id] != null).map((x) => st.res[x.id]);
     const m = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
-    return Math.min(1100, Math.round(m * 1000 * ({ 1: .85, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
+    return Math.min(1700, Math.round(m * 1500 * ({ 1: .7, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
   }
-  const LVN = { 1: "Enfants", 2: "Adultes", 3: "Adultes · expert" };
+  const LVN = { 1: "Enfants", 2: "Adulte", 3: "Expert" };
   const GRP = (n) => (Number(n) === 1 ? "enfants" : "adultes");
   const GRPN = { enfants: "Niveau enfants", adultes: "Niveau adultes" };
-  const expTag = (e) => (Number(e.niveau) === 3 ? ' <small class="rk-exp" title="Mode expert activé">expert</small>' : "");
+  // la mention du mode : « expert » s'il a été activé, sinon « standard » (podium adultes)
+  const expTag = (e) => (Number(e.niveau) === 3 ? ' <small class="rk-exp" title="Mode expert activé">expert</small>' : Number(e.niveau) === 2 ? ' <small class="rk-std" title="Mode expert non activé">standard</small>' : "");
+  const FICTIF = `<p class="rk-fict">Les premiers scores sont des profils fictifs, pour lancer le classement : à vous de les battre !</p>`;
+  const hasFict = (j) => [...(j.adultes || []), ...(j.enfants || [])].some((e) => e.fictif);
   // Un podium : les 10 premiers joueurs qui ont inscrit leur score (aucune partie fictive).
   function boardList(top, me) {
     top = (top || []).slice(0, 10);
@@ -2268,14 +2271,14 @@
   function rankBox(defi) {
     const score = finalScore(defi);
     const box = el("section", { class: "rank", "aria-labelledby": "rk-h" });
-    box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>/ 1 000</small></h3>
-      <p class="small">Moyenne de vos décisions, ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Inscrivez-vous sur le podium ${st.level === 1 ? "des enfants" : "des adultes"} avec un pseudo : pas votre nom complet.</p></div></div>
+    box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>points</small></h3>
+      <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Inscrivez-vous sur le podium ${st.level === 1 ? "des enfants" : "des adultes"} avec un pseudo : pas votre nom complet.</p></div></div>
       <form class="rk-form"><label class="sr-only" for="rk-pseudo">Votre pseudo</label><input id="rk-pseudo" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" value="${esc((st.name || "").slice(0, 16))}"><button class="cta" type="submit">M’inscrire sur le podium</button></form>
       <p class="rk-msg" role="status"></p><div class="rk-board"></div>`;
     const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
     if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
     wireTabs(board);
-    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang, GRP(st.level || 2)) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang, GRP(st.level || 2)) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const pseudo = box.querySelector("#rk-pseudo").value.trim(); const sb = form.querySelector("button");
@@ -2293,12 +2296,12 @@
   }
   function openBoard() {
     const d = el("div", { class: "rk-pop", role: "dialog", "aria-modal": "true", "aria-labelledby": "rkp-h" });
-    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Les 10 premiers de chaque niveau. Score sur 1 000 à la fin de la semaine, selon vos décisions et le niveau choisi.</p></div>`;
+    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Les 10 premiers de chaque niveau. Le score, calculé à la fin de la semaine, dépend de vos décisions et du niveau choisi.</p></div>`;
     const close = () => { d.remove(); document.removeEventListener("keydown", esc2); };
     const esc2 = (e) => { if (e.key === "Escape") close(); };
     d.addEventListener("click", (e) => { if (e.target === d || e.target.closest(".rk-x")) close(); });
     document.addEventListener("keydown", esc2); document.body.appendChild(d); wireTabs(d); d.querySelector(".rk-x").focus();
-    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); d.querySelector(".rk-board").innerHTML = j ? boards(j) + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); d.querySelector(".rk-board").innerHTML = j ? boards(j) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
       .catch(() => { d.querySelector(".rk-board").innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
   }
 
@@ -2905,7 +2908,7 @@
       const o = el("div", { class: "opts" });
       sc.opts.forEach((x, j) => {
         const bb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
-        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); const r = el("div"); fbz.appendChild(r); r.innerHTML = `<div class="fb later"><p class="vt">Réponse enregistrée</p><p>Vous découvrirez à la fin de la semaine ce qu’elle a produit.</p></div>`; endRow(r); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler." : `Trouvée en ${sc.timer - left} s.`} ${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
+        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); Snd.click(); setTimeout(next, 450); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler." : `Trouvée en ${sc.timer - left} s.`} ${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
         o.appendChild(bb);
       });
       fbz.appendChild(o);
@@ -3398,7 +3401,7 @@
         const react = o.react || (ev.reacts && ev.reacts[k]) || {}, reply = o.reply || (ev.replies && ev.replies[k]);
         Object.entries(react).forEach(([w, p]) => document.querySelectorAll(`#world .actor[data-who="${w}"] .rig, #world .ractor[data-who="${w}"] .rig`).forEach((r) => { if (!r.classList.contains("p-sit")) r.setAttribute("class", "rig " + (RIG.POSE[p] || "p-idle")); }));
         if (reply) { const r = line(reply[0], reply[1]); log.appendChild(r); Voice.seq([[reply[0], reply[1], r]]); }
-        fbz.innerHTML = `<div class="fb later"><p class="vt">Décision enregistrée</p><p>Vous découvrirez vendredi ce qu’elle a produit, et ce que dit le cadre.</p></div>`;
+        fbz.innerHTML = "";
         const row = el("div", { class: "row" });
         if (ev.room && MAIN_ROOMS.includes(ev.room)) row.appendChild(btn("Une autre salle du bâtiment", () => { Snd.click(); Voice.stop(); hall(); }, "ghost"));
         row.appendChild(btn("Repartir", () => { Snd.click(); Voice.stop(); if (!ev.room) { S.x = you.x; S.y = you.y; } outside(); })); fbz.appendChild(row);
@@ -3884,9 +3887,9 @@
       <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
       <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
       <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
-      <p class="hsound" aria-hidden="false"><span class="hs-ic" aria-hidden="true"><i></i><i></i><i></i></span><span>Activez le son pour une expérience ultime.</span></p>
+
       <div class="hbtns"></div>
-      <p class="small warn">Situations fictives, sans aucune représentation de violence : niveaux Moyen et Expert pour les adultes en formation, niveau Enfants dès 9 ans, idéalement avec un adulte. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
+      <p class="small warn">Situations fictives, sans aucune représentation de violence : niveaux Adulte et Expert pour les adultes en formation, niveau Enfants dès 9 ans, idéalement avec un adulte. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
 `;
     const hb = n.querySelector(".hbtns");
@@ -3913,7 +3916,7 @@
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
       j = norm2(j) || { adultes: [], enfants: [], total: 0 };
       rk.querySelector("#hrp-adultes .hr-list").innerHTML = hlist(j.adultes); rk.querySelector("#hrp-enfants .hr-list").innerHTML = hlist(j.enfants);
-      rk.querySelector(".hr-foot").innerHTML = j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "";
+      rk.querySelector(".hr-foot").innerHTML = (hasFict(j) ? "Premiers scores : profils fictifs, à battre. " : "") + (j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "");
     }).catch(() => { rk.querySelectorAll(".hr-list").forEach((l) => { l.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; }); });
     stage.appendChild(n);
     setTimeout(() => n.querySelector(".hbtns button").focus({ preventScroll: true }), 50);
@@ -3941,7 +3944,27 @@
   try { if (navigator.getAutoplayPolicy && navigator.getAutoplayPolicy("audiocontext") === "disallowed") { /* le premier geste s’en chargera */ } else autoStart(); } catch (e) { autoStart(); }
   function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
+  // Consigne plein écran à l'arrivée : activer le son (à l'écran et à l'oral). Le bouton sert aussi de « geste » pour lancer la musique.
+  function soundGate() {
+    if (sessionStorage.getItem("hh-son")) return;
+    const g = el("div", { class: "sgate", role: "dialog", "aria-modal": "true", "aria-labelledby": "sg-h" },
+      `<div class="sg-in"><span class="sg-ic" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="sg-h">Activez le son</h2><p>${esc(ECHOES.son)}</p><p class="sg-small">Un casque ou des écouteurs, c’est encore mieux.</p>
+       <div class="sg-b"><button type="button" class="cta sg-on">Activer le son</button><button type="button" class="btn ghost sg-off">Continuer sans le son</button></div></div>`);
+    const close = () => { sessionStorage.setItem("hh-son", "1"); g.classList.add("out"); setTimeout(() => g.remove(), 600); const b = document.querySelector(".hbtns button"); if (b) b.focus({ preventScroll: true }); };
+    g.querySelector(".sg-on").addEventListener("click", () => {
+      st.settings.sound = true; st.settings.voice = true; save(); applySettings && applySettings();
+      begin(); Voice.say("narr", ECHOES.son);
+      g.querySelector(".sg-on").textContent = "Le son est activé"; setTimeout(close, 1400);
+    });
+    g.querySelector(".sg-off").addEventListener("click", () => { close(); });
+    document.body.appendChild(g); requestAnimationFrame(() => g.classList.add("in"));
+    g.querySelector(".sg-on").focus();
+    // si le navigateur autorise déjà le son, la consigne est aussi dite tout de suite
+    setTimeout(() => { if (Snd.ctx && Snd.ctx.state === "running") { const pr = Voice.say("narr", ECHOES.son); } }, 600);
+  }
+
   applySettings();
   home();
+  soundGate();
   window.__game = { st: () => st, go, SCREENS };
 })();

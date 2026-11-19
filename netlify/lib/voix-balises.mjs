@@ -41,6 +41,7 @@ export const BALISES = {
 "a8cee89b4b80": "[serious] C’est noté. J’appelle l’organisateur.",
 "06a2be462d98": "[surprised] Toute l’équipe ? [concerned] Et Maëlys, dans tout ça ?",
 "2c9691305aa6": "[calm, warm narrator] Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels.",
+"e530e612b10b": "[calm, warm narrator] Pour vivre une expérience ultime, activez le son de votre appareil. Voix, musique et ambiances font partie du jeu.",
 "5fea3eea43c9": "[calm, warm narrator] Oui, on sait : parfois, plusieurs réponses donnent envie d’être cochées, et tout semble s’additionner. Mais la réponse à choisir en premier, c’est la démarche principale à effectuer. Chaque situation est nuancée : ce qui compte, c’est l’ordre dans lequel on agit, et ce qu’on fait d’abord pour protéger.",
 "ba178c21b169": "[calm, warm narrator] Parfois, plusieurs réponses avaient l’air bien. Mais la première chose à faire, c’est toujours de protéger, et d’en parler à un adulte de confiance.",
 "b4224bb93fca": "[casual, insistent, a bit impatient] Allez, fais un bisou à tonton, ne fais pas ta timide.",

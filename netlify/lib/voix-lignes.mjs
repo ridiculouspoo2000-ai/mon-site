@@ -6,6 +6,12 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels."
  },
+ "e530e612b10b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Pour vivre une expérience ultime, activez le son de votre appareil. Voix, musique et ambiances font partie du jeu."
+ },
  "5fea3eea43c9": {
   "who": "narr",
   "mood": "",

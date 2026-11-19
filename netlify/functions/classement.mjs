@@ -15,7 +15,14 @@ const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, header
 const GARDER = 300, AFFICHER = 10, PAR_JOUR = 6;
 // Deux podiums : niveau enfants (1) et niveau adultes (2 = moyen, 3 = expert).
 const groupe = (n) => (Number(n) === 1 ? "enfants" : "adultes");
-const du = (L, g) => L.filter((e) => groupe(e.n) === g);
+// Profils fictifs de départ (jamais enregistrés) : ils donnent un objectif à battre. Ils sont signalés comme tels à l'affichage.
+const T0 = "2026-11-01T00:00:00.000Z";
+const SEEDS = {
+  adultes: [["VSSKILLER", 1480, 3], ["Marie", 1320, 3], ["Safia", 1190, 2], ["Arthur", 1050, 2], ["jojo45", 890, 2], ["Moumou", 740, 2]],
+  enfants: [["Léo_75", 960, 1], ["Chloé", 880, 1], ["Yaniss", 810, 1], ["Camille", 750, 1], ["Nolan", 690, 1], ["Ambre", 620, 1], ["Timéo", 540, 1]],
+};
+const seeds = (g) => SEEDS[g].map(([p, s, n]) => ({ p, s, n, d: false, t: T0, f: true }));
+const du = (L, g) => L.filter((e) => groupe(e.n) === g).concat(seeds(g)).sort((a, c) => c.s - a.s || a.t.localeCompare(c.t));
 
 // Mots refusés dans les pseudos (insultes, termes sexuels ou haineux). Comparaison sans accents ni chiffres déguisés.
 const INTERDITS = ["con", "conne", "connard", "connasse", "salop", "salope", "pute", "putain", "encule", "enculer", "bite", "couille", "chatte", "nique", "niquer", "ntm", "fdp",
@@ -36,7 +43,7 @@ function pseudoOk(p) {
 }
 const store = () => getStore({ name: "classement-jeu", consistency: "strong" });
 async function lire(s) { try { const v = await s.get("scores", { type: "json" }); return Array.isArray(v) ? v : []; } catch { return []; } }
-const publique = (L) => L.slice(0, AFFICHER).map((e, i) => ({ rang: i + 1, pseudo: e.p, score: e.s, niveau: e.n, defi: !!e.d, date: e.t.slice(0, 10) }));
+const publique = (L) => L.slice(0, AFFICHER).map((e, i) => ({ rang: i + 1, pseudo: e.p, score: e.s, niveau: e.n, defi: !!e.d, date: e.t.slice(0, 10), ...(e.f ? { fictif: true } : {}) }));
 
 export default async (req) => {
   const s = store();
@@ -49,7 +56,7 @@ export default async (req) => {
   const [pseudo, err] = pseudoOk(b.pseudo);
   if (!pseudo) return json({ ok: false, error: err }, 400);
   const score = Math.round(Number(b.score));
-  if (!Number.isFinite(score) || score < 0 || score > 1100) return json({ ok: false, error: "Score invalide." }, 400);
+  if (!Number.isFinite(score) || score < 0 || score > 1700) return json({ ok: false, error: "Score invalide." }, 400);
   const niveau = [1, 2, 3].includes(Number(b.niveau)) ? Number(b.niveau) : 2;
   // limite anonyme : empreinte salée de la connexion, valable un jour
   const ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "?";

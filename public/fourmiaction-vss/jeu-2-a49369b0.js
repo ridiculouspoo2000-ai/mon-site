@@ -47,6 +47,8 @@ const DQ = [
 // Elles paraissent anodines ; chacune touche aux violences sexistes et sexuelles (consentement, stéréotypes,
 // minimisation, culpabilisation de la victime, silence, secret, doute). Voix : e_* (voir voix.mjs).
 const ECHOES = {
+  // consigne de l'accueil, en plein écran et à l'oral
+  son: "Pour vivre une expérience ultime, activez le son de votre appareil. Voix, musique et ambiances font partie du jeu.",
   // Le narrateur se présente, puis annonce la semaine, juste avant les citations.
   intro: "Bonjour. Je serai votre narrateur pendant toute cette semaine : appelez-moi Bafaël. Cette semaine, à l’accueil de loisirs des Hautes Herbes, vous allez pouvoir proposer vos solutions face à certaines situations, inspirées de faits réels.",
   lines: [

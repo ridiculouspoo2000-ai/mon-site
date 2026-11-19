@@ -624,11 +624,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "…D’accord."
  },
- "8b5f30bd7976": {
+ "1015d0761c3a": {
   "who": "maelys",
   "mood": "calm",
   "kind": "replique",
-  "text": "Non… Sacha était à côté. Il rangeait les outils. Je crois qu’il a vu."
+  "text": "Non… Je crois que Sacha était peut-être à côté. Il rangeait les outils. Je sais pas s’il a vu."
  },
  "b1ea2f4c85c3": {
   "who": "garnier",
@@ -690,23 +690,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je… je vais avoir des problèmes ?"
  },
- "ec75482fcd0d": {
+ "c3e3a396a85e": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
-  "text": "Voilà, la semaine est finie. Merci, vraiment : tu as été là quand les enfants et l’équipe en avaient besoin."
+  "text": "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt."
  },
- "bdc4859b4cee": {
+ "1846e4f5b55a": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "Je t’ai envoyé par mail le bilan à faire, me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan, avec tes points de valorisation et d’amélioration."
+  "text": "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration."
  },
- "81d9e0e7c1e3": {
+ "675215dc306f": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
-  "text": "On se fait une visio pour le bilan du projet pédagogique. Merci encore pour la semaine… et au revoir !"
+  "text": "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi. Merci encore pour la semaine…"
  },
  "48a34342df10": {
   "who": "narr",
@@ -1686,6 +1686,30 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Personne n’a fait le lien. Vendredi, une autre enfant parlera du même intervenant. Le cadeau semble anodin, mais le secret demandé change tout : c’est un signal à transmettre, même sans certitude."
  },
+ "5ce29ec5e476": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Sous le préau, Enzo commente le corps de Clara devant ses copains et lui barre le passage. Sacha s’interpose : les deux garçons en viennent aux coups."
+ },
+ "fb7e5b83cd6b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-bon",
+  "text": "Les coups cessent net. Nour reçoit Enzo et prévient ses parents ; Sacha est écouté aussi : défendre quelqu’un ne passe pas par les coups. Clara sait désormais vers qui se tourner. Vous faites cesser la violence physique sans perdre de vue ce qui l’a déclenchée : commenter le corps de Clara et lui imposer un geste, c’est du harcèlement sexiste. On protège la victime, on nomme les faits, on transmet à la direction."
+ },
+ "de30894602a9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Les coups s’arrêtent, mais ce qu’a vécu Clara passe à la trappe. Le lendemain, Enzo recommence, plus discrètement. Séparer est indispensable. Mais la bagarre cache une violence sexiste : sans la nommer ni protéger Clara, rien ne change."
+ },
+ "7e3cb20f4fc6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "Enzo tombe et se cogne contre un poteau du préau. Clara, elle, n’a été protégée par aucun adulte. Un conflit physique ne se règle jamais entre jeunes, et protéger Clara est le rôle de l’adulte, pas celui de Sacha."
+ },
  "d3abe6dc647e": {
   "who": "narr",
   "mood": "",
@@ -2106,11 +2130,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 15. Maëlys est avec Inès, loin du local."
  },
- "c23447e8d6b3": {
+ "45ffd054f3d8": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Repensez à ce qu’elle vous a dit : quelqu’un d’autre était là, hier, au local. Trouvez cette personne dans le centre, sans attirer l’attention."
+  "text": "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Elle a parlé de Sacha. À vous de décider : vous pouvez aller le voir, sans enquêter, ou simplement transmettre son nom. Personne ne vous dit où il est : demandez autour de vous, discrètement."
  },
  "e04cf9062bfe": {
   "who": "narr",
@@ -2165,6 +2189,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
+ },
+ "587601f13e65": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin."
  },
  "8f4cb18c5d97": {
   "who": "narr",
@@ -2333,6 +2363,60 @@ export const LIGNES = {
   "mood": "",
   "kind": "recit",
   "text": "C’est la nuitée : vous entrez dans le dortoir."
+ },
+ "46afcdb236fe": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "C’est moi, Bafaël, votre narrateur. Avant de nous quitter, revenons ensemble sur votre semaine."
+ },
+ "2dd4928ff42b": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous avez pris cette décision."
+ },
+ "be790cfb1a9d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Voilà ce qu’il en est aujourd’hui."
+ },
+ "770023189513": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Voilà votre semaine. Merci de l’avoir vécue avec nous."
+ },
+ "4578f16dd1b6": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le lundi, vous découvriez l’accueil."
+ },
+ "89c10c1a9550": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le mardi, les mots ont commencé à blesser."
+ },
+ "030bed8891b4": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le mercredi, c’était la grosse journée."
+ },
+ "73c2586f1d00": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le jeudi, un enfant vous a confié sa parole."
+ },
+ "217b38460b66": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Et ce vendredi, il a fallu tout mobiliser."
  },
  "2b72e8002e8e": {
   "who": "narr",
@@ -3120,11 +3204,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Sacha range des ballons sous le préau. Il vous voit arriver et baisse les yeux, l’air embêté."
  },
- "7c76360d8333": {
+ "70da6717811e": {
   "who": "narr",
   "mood": "",
   "kind": "retour-moyen",
-  "text": "Vous le prenez à part, au calme, sans évoquer les faits devant les autres : il pourra parler librement."
+  "text": "Vous le prenez à part, au calme, sans évoquer les faits devant les autres. Vous ne menez pas d’enquête : s’il veut parler, vous l’écoutez, vous notez ses mots, et vous transmettez."
  },
  "88e4b842e1c0": {
   "who": "narr",
@@ -3137,6 +3221,42 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "La question suggère déjà ce qui se serait passé : préférez une invitation ouverte, à l’écart des autres."
+ },
+ "fef7cd11db17": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Sacha ? Je l’ai vu partir vers le préau avec le sac de ballons."
+ },
+ "fcedcb4624c0": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Aucune idée. Pourquoi, il a fait quoi ?"
+ },
+ "6999cb179f30": {
+  "who": "lena",
+  "mood": "",
+  "kind": "replique",
+  "text": "Il était au parc tout à l’heure… Non, attends, au préau, je crois."
+ },
+ "0b8af902ba71": {
+  "who": "zoe",
+  "mood": "",
+  "kind": "replique",
+  "text": "Sacha, il range toujours le matériel, lui."
+ },
+ "fdbbe62b21a5": {
+  "who": "theo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Je sais pas. Tu joues avec nous ?"
+ },
+ "ad0a658d5fcf": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "C’est une réponse juste : vous signalez un témoin possible, sans mener d’enquête. Ce sont les enquêteurs qui l’entendront, s’ils le jugent utile. Si Sacha vient vous parler de lui-même, vous l’écouterez."
  },
  "2e04a089b50e": {
   "who": "sacha",
@@ -3618,6 +3738,42 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Tu passes au panneau d’affichage ? Il me manque des affiches pour l’inspection de demain."
  },
+ "62c78d101b70": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Eh, Clara, fais un tour sur toi, qu’on te mette une note !"
+ },
+ "e6efe929832a": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Arrête. Je t’ai dit d’arrêter. Laisse-moi passer."
+ },
+ "95bba1640862": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Enzo lui attrape le bras. Sacha fonce sur lui et le pousse ; Enzo le repousse. Ils se battent sous le préau."
+ },
+ "a1d5722f1206": {
+  "who": "clara",
+  "mood": "",
+  "kind": "replique",
+  "text": "Merci… Il fait ça tout le temps, devant tout le monde."
+ },
+ "61bcf4e71fb1": {
+  "who": "sacha",
+  "mood": "",
+  "kind": "replique",
+  "text": "Mais c’est lui ! Il embêtait Clara !"
+ },
+ "5940977249ea": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Lâche-moi ! T’es malade !"
+ },
  "1299813a42cb": {
   "who": "lena",
   "mood": "",
@@ -3737,6 +3893,24 @@ export const LIGNES = {
   "mood": "",
   "kind": "replique",
   "text": "Tu viens arbitrer le match ? Ils trichent !"
+ },
+ "63b46270dbf5": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Bastien passe la tête"
+ },
+ "020f46a0fc55": {
+  "who": "bastien",
+  "mood": "",
+  "kind": "replique",
+  "text": "Qu’est-ce qui se passe avec Lou ? Tout le monde se demande."
+ },
+ "d5b41f38250d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Deux enfants accourent : le ballon est coincé sur le toit du préau, ils veulent que vous veniez."
  },
  "4ca866d90e02": {
   "who": "narr",

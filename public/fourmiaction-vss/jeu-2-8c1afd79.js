@@ -142,6 +142,7 @@ const SCREENS = [
       { id: "foot", at: "jeux", from: "13 h 30", to: "15 h", comp: "C2",
         spots: [["theo", 8.9, 24.9, "point", ["point", "stomp", "hips", "laugh"]], ["zoe", 10.0, 24.1, "sad", ["downcast", "fidget", "hug"]], ["malo", 8.2, 24.4, "stand", ["laugh", "point"]]], kicker: "Lundi après-midi · l’aire de jeux", title: "Le foot",
         cast: [["theo", "a", "point"], ["zoe", "b", "sad"], ["malo", "c", "stand"], ["you", "f", "walk"]],
+        act: [[200, "zoe", "mv", [-.5, .3, 1.4]], [900, "theo", "g", "stop"], [1500, "malo", "g", "laugh"], [2100, "zoe", "g", "downcast"], [2300, "zoe", "mv", [.9, -.4, 1.2]]],
         lines: [["narr", "Une partie de foot s’organise. Zoé, 8 ans, s’approche avec le ballon sous le bras."], ["theo", "Non, t’es une fille ! Tu peux pas jouer au foot avec nous."], ["zoe", "Mais… moi je joue bien, euh… je joue tous les mercredis."], ["narr", "Malo rigole. Zoé recule vers le banc."]],
         prompt: "Que faites-vous ?",
         opts: [
@@ -164,6 +165,8 @@ const SCREENS = [
       { id: "photo", at: "preau", from: "14 h 40", to: "16 h 30", comp: "C2", kicker: "Lundi après-midi · le préau", title: "La photo",
         spots: [["enzo", 15.3, 23.5, "point", ["point", "laugh", "shrug"]], ["clara", 14.1, 24.5, "sad", ["cover", "stop", "hug"]]],
         cast: [["enzo", "a", "point"], ["clara", "b", "sad"], ["you", "f", "walk"]],
+        act: [[200, "enzo", "g", "phone"], [700, "clara", "g", "cover"], [1100, "clara", "mv", [-.5, .4, 1.6]], [1500, "enzo", "mv", [-.4, .3, 1.6]], [1900, "enzo", "g", "phone"], [2500, "clara", "g", "stop"]],
+        crowd: [["t1", 16.4, 23.4], ["t2", 16.8, 24.4]],
         lines: [["narr", "Sous le préau, Enzo, 14 ans, tend son téléphone vers Clara, 17 ans, qui se cache le visage. Deux autres jeunes rigolent."], ["clara", "Arrête, Enzo ! Efface ça tout de suite, je t’ai dit non !"], ["enzo", "Ça va, c’est pour rigoler… Je la mets juste sur le groupe, personne verra."]],
         prompt: "Que faites-vous ?",
         opts: [
@@ -655,7 +658,11 @@ const SCREENS = [
     ok: ["17", "112"], near: { "119": "Le 119 conseille et transmet, mais ne se déplace pas : le danger est immédiat, il faut le 17 ou le 112.", "15": "Le 15, c’est l’urgence médicale. Ici, il faut empêcher que Lou soit remis à cet adulte : 17 ou 112.", "114": "Le 114 est le numéro d’urgence par SMS, pour les personnes qui ne peuvent pas parler. Vous pouvez appeler : 17 ou 112.", "3018": "Le 3018 concerne le harcèlement en ligne. Ici, le danger est immédiat : 17 ou 112." },
     interrupt: { who: "clara", t: "Clara vous tire par la manche : « Tu viens arbitrer le match ? Ils trichent ! »" },
     done: "Très bien. Une patrouille arrive. Restez avec l’enfant, ne le remettez à personne, ne prévenez pas cet adulte, et informez votre direction." },
-  { id: "acts", ch: 4, type: "minutes", comp: "C3", kicker: "16 h 06 · après l’appel", title: "Les minutes comptent",
+  { id: "acts", ch: 4, type: "swipe", comp: "C3", kicker: "16 h 06 · après l’appel", title: "Décider sous pression",
+    interrupts: [
+      { who: "bastien", t: "Bastien passe la tête : « Qu’est-ce qui se passe avec Lou ? Tout le monde se demande. »", ok: "« Nour s’en occupe, je ne peux pas t’en dire plus. » Je reste avec Lou.", ko: "Je lui raconte ce que Lou m’a confié, il est de l’équipe.", why: "Seules les personnes qui doivent agir reçoivent l’information : Lou n’a pas à devenir le sujet de conversation de l’équipe." },
+      { who: "k1", t: "Deux enfants accourent : le ballon est coincé sur le toit du préau, ils veulent que vous veniez.", ok: "« Allez voir Jade, elle va vous aider. » Je reste avec Lou.", ko: "J’y vais deux minutes, Lou m’attend ici.", why: "Lou ne reste jamais seul après avoir parlé : un collègue peut s’occuper du ballon." },
+    ],
     prompt: "Il est 16 h 06. L’adulte désigné par Lou doit venir le chercher à 17 h. Chaque action prend du temps : faites celles qui protègent Lou, et seulement celles-là.",
     cats: [{ id: "eng", label: "À engager" }, { id: "eca", label: "À écarter" }, { id: "dur", label: "Dans la durée" }],
     items: [
@@ -740,12 +747,13 @@ const SCREENS = [
       n2: { mood: "concern", t: "Je veux plus aller là-bas. Et… y a atelier bois à 15 h.",
         opts: [
           { t: "Tu n’iras pas. Je reste avec toi. Hier, au local, tu étais seule avec lui ?", to: "n3", q: 1 },
+          { t: "Tu n’iras pas. Je reste avec toi. Est-ce qu’il y avait quelqu’un d’autre, pas loin ?", to: "n3", q: 1 },
           { t: "Tu n’iras pas, promis. Et je ne le dirai à personne.", to: "n2b", q: 0, note: "Vous ne pouvez pas promettre le secret : vous allez devoir transmettre. Dites-le-lui simplement." },
           { t: "On verra. Peut-être que ce n’est qu’un malentendu.", to: "n2b", q: 0, note: "Minimiser l’expose à nouveau. Elle ne doit plus croiser l’intervenant." },
         ] },
       n2b: { mood: "sad", t: "…D’accord.",
         opts: [{ t: "Je me suis mal exprimée. Tu n’iras pas, je reste avec toi, et je vais en parler à des adultes dont c’est le rôle. Hier, tu étais seule avec lui ?", to: "n3", q: 0.5 }] },
-      n3: { end: true, mood: "calm", t: "Non… Sacha était à côté. Il rangeait les outils. Je crois qu’il a vu.",
+      n3: { end: true, mood: "calm", t: "Non… Je crois que Sacha était peut-être à côté. Il rangeait les outils. Je sais pas s’il a vu.",
         lesson: "Accueillir sans questionner sur les faits : remercier, déculpabiliser, protéger. Une question sur le contexte (qui était là ?) aide à transmettre sans orienter le récit." } } },
   { id: "f1", ch: 5, type: "choice", comp: "C3", kicker: "13 h 05",
     prompt: "Votre toute première décision ?",
@@ -758,12 +766,14 @@ const SCREENS = [
     why: {"q": "Et pourquoi ?", "opts": [{"t": "Parce qu’on protège d’abord : aucune nouvelle exposition, puis on alerte.", "ok": true}, {"t": "Parce qu’on doit d’abord vérifier que son récit est crédible et cohérent.", "ok": false, "no": "Ce n’est pas à l’équipe d’évaluer la crédibilité : on protège et on alerte."}, {"t": "Parce que l’intervenant n’est pas salarié de l’accueil, il dépend d’une association.", "ok": false, "no": "Son statut ne change rien : toute personne mise en cause est tenue à l’écart."}]},
     timer: 25,
     better: "Éviter toute nouvelle exposition, puis alerter : responsable sûr et autorités." },
-  { id: "trouver", ch: 5, type: "find", comp: "C1", kicker: "Vendredi, 13 h 15 · temps libre", title: "Qui d’autre a vu ?",
-    intro: "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Repensez à ce qu’elle vous a dit : quelqu’un d’autre était là, hier, au local. Trouvez cette personne dans le centre, sans attirer l’attention.",
+  { id: "trouver", ch: 5, type: "find", free: true, comp: "C1", kicker: "Vendredi, 13 h 15 · temps libre", title: "Sacha était peut-être là",
+    intro: "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Elle a parlé de Sacha. À vous de décider : vous pouvez aller le voir, sans enquêter, ou simplement transmettre son nom. Personne ne vous dit où il est : demandez autour de vous, discrètement.",
+    clues: { clara: "Sacha ? Je l’ai vu partir vers le préau avec le sac de ballons.", enzo: "Aucune idée. Pourquoi, il a fait quoi ?", lena: "Il était au parc tout à l’heure… Non, attends, au préau, je crois.", zoe: "Sacha, il range toujours le matériel, lui.", theo: "Je sais pas. Tu joues avec nous ?" },
+    skip: { t: "Je ne vais pas le chercher : je transmets à Nour que Sacha était peut-être là", q: 1, fb: "C’est une réponse juste : vous signalez un témoin possible, sans mener d’enquête. Ce sont les enquêteurs qui l’entendront, s’ils le jugent utile. Si Sacha vient vous parler de lui-même, vous l’écouterez." },
     who: "sacha", at: [18.2, 24.6], decoys: [["clara", 9.0, 25.0], ["enzo", 24.4, 21.0], ["lena", 16.6, 6.2], ["zoe", 2.6, 21.2], ["theo", 12.2, 20.6]], timer: 60,
     found: "Sacha range des ballons sous le préau. Il vous voit arriver et baisse les yeux, l’air embêté.",
     opts: [
-      { t: "« Sacha, tu as deux minutes ? Viens, on va s’asseoir un peu à l’écart. »", q: 1, fb: "Vous le prenez à part, au calme, sans évoquer les faits devant les autres : il pourra parler librement." },
+      { t: "« Sacha, tu as deux minutes ? Viens, on va s’asseoir un peu à l’écart. »", q: 1, fb: "Vous le prenez à part, au calme, sans évoquer les faits devant les autres. Vous ne menez pas d’enquête : s’il veut parler, vous l’écoutez, vous notez ses mots, et vous transmettez." },
       { t: "« Maëlys dit que tu as tout vu hier. C’est vrai ? »", q: 0, fb: "Vous lui révélez ce que Maëlys a confié, et vous orientez sa réponse : son témoignage risque de ne plus être le sien." },
       { t: "« Tu as vu ce que le monsieur de l’atelier a fait à Maëlys ? Raconte-moi tout. »", q: 0.3, fb: "La question suggère déjà ce qui se serait passé : préférez une invitation ouverte, à l’écart des autres." },
     ] },
@@ -826,9 +836,10 @@ const SCREENS = [
     intro: "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez." },
   { id: "aurevoir", ch: 5, type: "story", scene: "S17", kicker: "Vendredi, 18 h · au portail",
     lines: [
-      { who: "nour", mood: "big", t: "Voilà, la semaine est finie. Merci, vraiment : tu as été là quand les enfants et l’équipe en avaient besoin." },
-      { who: "nour", mood: "smile", t: "Je t’ai envoyé par mail le bilan à faire, me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan, avec tes points de valorisation et d’amélioration." },
-      { who: "nour", mood: "smile", t: "On se fait une visio pour le bilan du projet pédagogique. Merci encore pour la semaine… et au revoir !" },
+      { who: null, t: "Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin." },
+      { who: "nour", mood: "big", t: "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt." },
+      { who: "nour", mood: "smile", t: "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration." },
+      { who: "nour", mood: "smile", t: "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi. Merci encore pour la semaine…" },
     ] },
   { id: "souvenirs", ch: 5, type: "replay", kicker: "Vendredi, 18 h · fin de la semaine", title: "Vous vous souvenez ?" },
   { id: "bilan", ch: 5, type: "bilan" }
@@ -1010,6 +1021,14 @@ const REPLAY = {
 };
 
 // Ce que dit la narration en entrant dans une salle (pour toujours savoir où l'on est).
+// Retour sur la semaine, raconté par le narrateur, en flash-backs
+const FLASH = {
+  intro: "C’est moi, Bafaël, votre narrateur. Avant de nous quitter, revenons ensemble sur votre semaine.",
+  days: { 1: "Le lundi, vous découvriez l’accueil.", 2: "Le mardi, les mots ont commencé à blesser.", 3: "Le mercredi, c’était la grosse journée.", 4: "Le jeudi, un enfant vous a confié sa parole.", 5: "Et ce vendredi, il a fallu tout mobiliser." },
+  chose: "Vous avez pris cette décision.", now: "Voilà ce qu’il en est aujourd’hui.",
+  end: "Voilà votre semaine. Merci de l’avoir vécue avec nous.",
+};
+
 const ROOM_SAY = {
   petits: "Vous entrez dans la salle des 6-11 ans.", grands: "Vous êtes dans la salle des 11-14 ans.", ados: "Vous entrez dans la salle des 14-17 ans, à l’écart du grand bâtiment.", direction: "Vous êtes à l’accueil, dans le bureau de la direction.",
   equipe: "Vous êtes dans la salle des animateurs.", cuisine: "Vous entrez dans la cuisine pédagogique.", refectoire: "Vous êtes à la restauration.",
@@ -1091,7 +1110,7 @@ const STAGE = {
   brief: { at: "equipe", room: "equipe", cast: [["nour", "c", "talk"], ["you", "a"], ["bastien", "s1"], ["ines", "s2"], ["yanis", "d"], ["jade", "f"]] },
   planning: { at: "equipe", room: "equipe", cast: [["nour", "board", "point"], ["you", "a"], ["jade", "c"], ["bastien", "d"], ["ines", "e"], ["kevin", "f"]] },
   ines: { at: "equipe", room: "equipe", cast: [["ines", "b", "talk"], ["you", "a"]] },
-  rire: { at: "refectoire", room: "refectoire", meal: true, cast: [["bastien", "a", "talk"], ["you", "b"], ["kevin", "c"], ["theo", "s1"], ["enzo", "s2"], ["clara", "s3"], ["k1", "s8"], ["k2", "s4"], ["k4", "s5"], ["k5", "s6"], ["t3", "s7"]] },
+  rire: { at: "refectoire", room: "refectoire", meal: true, cast: [["bastien", "a", "talk"], ["you", "b"], ["kevin", "c"], ["theo", "s1"], ["enzo", "s2"], ["clara", "s3"], ["k1", "s8"], ["k2", "s4"], ["k4", "s5"], ["k5", "s6"], ["t3", "s7"], ["k3", "t1"], ["k6", "t2"], ["k7", "t3"], ["k8", "t4"], ["k9", "t5"], ["t5", "t6"], ["t1", "t7"], ["t2", "t8"]] },
   chat: { at: "equipe", room: "equipe", cast: [["you", "a"], ["ines", "s2"], ["jade", "d"]] }, chatact: "keep",
   theo: { at: "petits", room: "petits", cast: [["jade", "a", "talk"], ["you", "b"], ["theo", "s1"], ["zoe", "s2"]] }, theo2: "keep",
   parent1: { at: "entree", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
@@ -1117,7 +1136,7 @@ const STAGE = {
   temoin: { at: "grands", room: "grands", cast: [["sacha", "a", "talk"], ["you", "b"]] },
   trouver: { at: "cour", cast: [] },
   souvenirs: { at: "ensemble", cast: [] },
-  aurevoir: { at: "entree", z: 3.0, cast: [["nour", "a", "wave"], ["you", "b"]] },
+  aurevoir: { at: "entree", z: 3.2, cast: [["nour", "c", "wave"], ["you", "b"]] },   // au même endroit que lundi matin
   garnier: { at: "direction", room: "direction", cast: [["garnier", "s1", "talk"], ["you", "b"]] },
   f3: { at: "soins", room: "soins", cast: [["maelys", "c"], ["nour", "a", "talk"], ["you", "b"]] },
   dafter: { at: "equipe", room: "equipe", cast: [["you", "a"]] },
@@ -1315,8 +1334,16 @@ const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la p
       { t: "Je vais tout de suite voir l’intervenant pour lui demander des explications.", q: 0.3, react: { lena: "concern" }, reply: ["lena", "Tu vas lui dire que je te l’ai dit ?"], cons: "L’intervenant se justifie, et sait désormais qu’on l’observe. Léna, elle, se sent coupable d’avoir parlé.", fb: "Confronter l’adulte expose l’enfant et peut compromettre la suite. Le bon réflexe : noter, puis transmettre à la direction." },
       { t: "« Il est très joli ! C’est gentil de sa part. »", q: 0, react: { lena: "smile" }, reply: ["lena", "Oui, il est super sympa avec moi. Il dit que je suis sa préférée."], cons: "Personne n’a fait le lien. Vendredi, une autre enfant parlera du même intervenant.", fb: "Le cadeau semble anodin, mais le secret demandé change tout : c’est un signal à transmettre, même sans certitude." },
     ] };
+  const BAGARRE = { id: "bagarre", inRoam: true, ch: 4, type: "choice", comp: "C2", kicker: "Jeudi après-midi · le préau", title: "La bagarre",
+    context: "Sous le préau, Enzo commente le corps de Clara devant ses copains et lui barre le passage. Sacha s’interpose : les deux garçons en viennent aux coups.",
+    prompt: "Que faites-vous ?",
+    opts: [
+      { t: "Je sépare tout de suite les deux garçons et je mets Clara à l’abri avec un collègue. Puis j’écoute Clara, et je reprends avec Enzo ce qu’il lui a fait : ce n’est pas une blague.", q: 1, react: { clara: "calm", enzo: "sad", sacha: "stand" }, reply: ["clara", "Merci… Il fait ça tout le temps, devant tout le monde."], cons: "Les coups cessent net. Nour reçoit Enzo et prévient ses parents ; Sacha est écouté aussi : défendre quelqu’un ne passe pas par les coups. Clara sait désormais vers qui se tourner.", fb: "Vous faites cesser la violence physique sans perdre de vue ce qui l’a déclenchée : commenter le corps de Clara et lui imposer un geste, c’est du harcèlement sexiste. On protège la victime, on nomme les faits, on transmet à la direction." },
+      { t: "Je les sépare et je les punis tous les deux pour la bagarre : on ne se bat pas, point.", q: 0.5, react: { sacha: "upset", clara: "sad" }, reply: ["sacha", "Mais c’est lui ! Il embêtait Clara !"], cons: "Les coups s’arrêtent, mais ce qu’a vécu Clara passe à la trappe. Le lendemain, Enzo recommence, plus discrètement.", fb: "Séparer est indispensable. Mais la bagarre cache une violence sexiste : sans la nommer ni protéger Clara, rien ne change." },
+      { t: "Je laisse Sacha régler ça : Enzo l’a bien cherché.", q: 0, react: { enzo: "upset", clara: "concern" }, reply: ["enzo", "Lâche-moi ! T’es malade !"], cons: "Enzo tombe et se cogne contre un poteau du préau. Clara, elle, n’a été protégée par aucun adulte.", fb: "Un conflit physique ne se règle jamais entre jeunes, et protéger Clara est le rôle de l’adulte, pas celui de Sacha." },
+    ] };
   const i = SCREENS.findIndex((x) => x.id === "foot"); SCREENS.splice(i + 1, 0, DISPUTE);
-  const j = SCREENS.findIndex((x) => x.id === "jeudi-libre"); SCREENS.splice(j + 1, 0, CADEAU);
+  const j = SCREENS.findIndex((x) => x.id === "jeudi-libre"); SCREENS.splice(j + 1, 0, CADEAU, BAGARRE);
   const L = SCREENS.find((x) => x.id === "lundi-libre"), J = SCREENS.find((x) => x.id === "jeudi-libre");
   // devant les sanitaires, ça va et vient : des petits y vont, deux grands traînent devant la porte
   L.life.push({ who: "k7", loop: [[8.4, 10.4], [6.2, 9.4], [9.8, 10.2]], speed: 1.6, pause: 2200, from: "14 h 30", to: "16 h 30", gest: ["wave", "laugh"] },
@@ -1327,7 +1354,17 @@ const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la p
   L.events.push({ ...DISPUTE, at: "jeux", from: "15 h", to: "16 h 45",
     spots: [["sacha", 8.6, 25.2, "upset", ["stomp", "point", "fist"]], ["lena", 9.6, 24.6, "big", ["point", "stomp", "hips"]]],
     cast: [["sacha", "a", "upset"], ["lena", "b", "big"], ["you", "f", "walk"]],
+    act: [[200, "lena", "face", "sacha"], [200, "sacha", "face", "lena"], [400, "lena", "g", "point"], [1100, "sacha", "g", "fist"], [1800, "lena", "g", "stomp"], [2500, "lena", "g", "push"], [2900, "sacha", "hit"], [2900, "sacha", "g", "stagger"], [2900, "sacha", "mv", [-.8, .4, 4]], [3700, "sacha", "g", "point"]],
+    crowd: [["k5", 7.4, 24.0], ["k9", 10.6, 25.8]],
     lines: [["lena", "Rends-le ! C’est mon tour, t’as déjà joué !"], ["sacha", "Non, c’est pas vrai ! Lâche-moi !"], ["narr", "Léna pousse Sacha, qui manque de tomber."]] });
+  J.events.push({ ...BAGARRE, at: "preau", from: "14 h", to: "16 h 30", tense: true,
+    spots: [["enzo", 15.6, 24.6, "big", ["laugh", "point", "hips"]], ["clara", 16.6, 24.0, "upset", ["cover", "stepback", "stop"]], ["sacha", 14.2, 23.4, "upset", ["fist", "stomp"]]],
+    cast: [["enzo", "a", "big"], ["clara", "b", "upset"], ["sacha", "c", "upset"], ["you", "f", "walk"]],
+    act: [[200, "enzo", "face", "clara"], [300, "enzo", "g", "point"], [900, "clara", "g", "stepback"], [1300, "enzo", "mv", [.5, -.3, 1.6]], [1800, "enzo", "g", "stop"], [2200, "clara", "g", "cover"],
+      [2600, "sacha", "mv", [1.0, .7, 4.2]], [3300, "sacha", "face", "enzo"], [3400, "sacha", "g", "push"], [3800, "enzo", "hit"], [3800, "enzo", "g", "stagger"], [3800, "enzo", "mv", [.6, .5, 4]],
+      [4500, "enzo", "face", "sacha"], [4600, "enzo", "g", "push"], [5000, "sacha", "hit"], [5000, "sacha", "g", "stagger"], [5000, "sacha", "mv", [-.6, -.3, 4]], [5700, "sacha", "g", "fist"], [5900, "enzo", "g", "fist"]],
+    crowd: [["t1", 17.6, 25.2], ["t2", 13.8, 25.4], ["k8", 18.2, 23.4]],
+    lines: [["enzo", "Eh, Clara, fais un tour sur toi, qu’on te mette une note !"], ["clara", "Arrête. Je t’ai dit d’arrêter. Laisse-moi passer."], ["narr", "Enzo lui attrape le bras. Sacha fonce sur lui et le pousse ; Enzo le repousse. Ils se battent sous le préau."]] });
   J.events.push({ ...CADEAU, at: "potager", from: "14 h", to: "16 h 30",
     spots: [["lena", 15.0, 27.0, "smile", ["present", "raise", "fidget"]]],
     cast: [["lena", "a", "smile"], ["you", "b"]],

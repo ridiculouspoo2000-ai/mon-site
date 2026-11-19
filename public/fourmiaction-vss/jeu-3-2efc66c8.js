@@ -307,7 +307,9 @@
     // gravité : lent, sombre, très peu de notes (une parole d'enfant, une révélation)
     grave: { bpm: 52, chords: [[45, 48, 52], [41, 45, 48], [43, 47, 50], [40, 43, 47]], arp: 0.04, oct: 0, wave: "sine", cut: 650, nature: "wind", pulse: true },
     // fin de semaine : nostalgique, lent, quelques notes qui reviennent
-    nostalgie: { bpm: 58, chords: [[53, 57, 60, 64], [52, 55, 59, 64], [50, 53, 57, 60], [48, 52, 55, 59]], arp: 0.3, oct: 12, wave: "sine", cut: 1400, nature: "birds" },
+    nostalgie: { bpm: 54, chords: [[53, 57, 60, 64], [52, 55, 59, 64], [50, 53, 57, 60], [48, 52, 55, 59]], arp: 0.12, oct: 12, wave: "sine", cut: 1300, nature: "birds",
+      // une petite mélodie de boîte à musique, qui revient : la semaine qui se termine
+      mel: [[[0, 81, 1.5], [1.5, 79, .5], [2, 77, 1], [3, 76, 1]], [[0, 79, 1.5], [1.5, 76, .5], [2, 71, 2]], [[0, 77, 1], [1, 76, .5], [1.5, 74, .5], [2, 69, 2]], [[0, 76, 1], [1, 74, 1], [2, 72, 2]]] },
     end:   { bpm: 66, chords: [[53, 57, 60, 65], [48, 52, 55, 60], [50, 53, 57, 62], [46, 50, 53, 58]], arp: 0.5, oct: 12, wave: "triangle", cut: 2000, nature: "birds" },
   };
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -402,6 +404,10 @@
       // battement de cœur (deux coups rapprochés) et ostinato de croches : l'adrénaline monte
       if (m.heart) for (let k = 0; k < 4; k++) { this.voice(52, t0 + k * beat, 0.18, { wave: "sine", gain: 0.05, attack: 0.005, release: 0.16, cut: 160 }); this.voice(48, t0 + k * beat + 0.16, 0.16, { wave: "sine", gain: 0.035, attack: 0.005, release: 0.14, cut: 150 }); }
       if (m.ost) for (let k = 0; k < 8; k++) this.voice(mtof(ch[(k % 2) ? 2 : 0] + 12), t0 + k * beat / 2, 0.16, { wave: "triangle", gain: 0.009 + (k % 4 === 0 ? 0.004 : 0), attack: 0.004, release: 0.12, cut: 1800 });
+      if (m.mel) m.mel[this.bar % m.mel.length].forEach(([b, n, d]) => {
+        this.voice(mtof(n), t0 + b * beat, d * beat + 1.4, { wave: "sine", gain: 0.022, attack: 0.006, release: 1.3, cut: 4200 });
+        this.voice(mtof(n + 12), t0 + b * beat, d * beat + .8, { wave: "triangle", gain: 0.004, attack: 0.004, release: .8, cut: 5200 });
+      });
       const scale = ch.map((n) => n + m.oct).concat(ch.map((n) => n + m.oct + 12));
       for (let k = 0; k < 8; k++) if (Math.random() < m.arp) {
         const n = scale[Math.floor(Math.random() * scale.length)];
@@ -640,7 +646,7 @@
   function go(i, dir = 1) {
     i = Math.max(0, Math.min(SCREENS.length - 1, i));
     const kidSkip = (x) => st.level === 1 && typeof KID_SKIP !== "undefined" && KID_SKIP.has(x.id);   // niveau enfants : les situations réservées aux adultes ne sont pas jouées
-    while (SCREENS[i] && ((SCREENS[i].nuitee && !st.nuitee) || SCREENS[i].inRoam || kidSkip(SCREENS[i])) && i > 0 && i < SCREENS.length - 1) i += dir < 0 ? -1 : 1;   // les scènes d’une promenade se vivent dans la promenade
+    while (SCREENS[i] && ((SCREENS[i].nuitee && !st.nuitee) || SCREENS[i].inRoam || kidSkip(SCREENS[i]) || (SCREENS[i].id === "temoin" && st.flags && st.flags.noTemoin)) && i > 0 && i < SCREENS.length - 1) i += dir < 0 ? -1 : 1;   // Sacha : on a choisi de transmettre sans aller le voir   // les scènes d’une promenade se vivent dans la promenade
     st.idx = i;
     save();
     render(dir);
@@ -770,7 +776,7 @@
     Voice.stop();
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
-    Snd.setMood(sc.type === "replay" || sc.id === "aurevoir" || sc.id === "dafter" ? "nostalgie" : sc.type === "bilan" ? "end" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
+    Snd.setMood(sc.type === "replay" || sc.id === "aurevoir" || sc.id === "dafter" || sc.type === "bilan" ? "nostalgie" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     camera(sc);
@@ -1143,7 +1149,7 @@
         const P = IN.sp[slot] || IN.sp.a; if (!P) return;
         const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose || "stand");
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
-        const R0 = rigMini(who, ps, { back: who === "you" && (S.cast || []).length > 1 && !P.sit, chair: false }); if (!m && !R0) return;
+        const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g"), off = P.sit ? (window.__sitOff != null ? window.__sitOff : SIT_OFF) : [0, 0];
         g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x + off[0]},${P.y + off[1]})`);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
@@ -1287,7 +1293,7 @@
       document.querySelectorAll(`.portrait.chip[data-who="${who}"]`).forEach((a) => a.classList.add("talking"));
     },
   };
-  const GESTS = ["explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  const GESTS = ["push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
@@ -2820,13 +2826,14 @@
       Voice.say("narr", c.t);
       // M. Rey, pressé : une grosse barre de temps sous pression oblige à choisir vite
       if (c.press && !calm()) {
-        const secs = Math.max(8, Math.round(c.press * (LV().t || 1))), bar = el("div", { class: "mt-press", role: "timer", "aria-label": `${secs} secondes pour décider` }, `<i></i><span>${c.pressT || "M. Rey s’impatiente"} · ${secs} s</span>`);
-        k.after(bar); Snd.setMood("stress");
+        const secs = Math.max(8, Math.round(c.press * (LV().t || 1))), bar = el("div", { class: "mt-press", role: "timer", "aria-label": `${secs} secondes pour décider` }, `<i></i><span><em>${c.pressT || "M. Rey s’impatiente"}</em><b>${secs} s</b></span>`);
+        k.before(bar); Snd.setMood("stress"); bar.scrollIntoView({ block: "nearest", behavior: "smooth" });
         let left = secs, started = false;
         c._tm = setInterval(() => {
           if (Voice.busy() && st.settings.voice && !started) return;   // la barre part quand la phrase est dite
           if (!started) { started = true; bar.querySelector("i").style.animationDuration = secs + "s"; bar.classList.add("go"); }
-          left--; bar.querySelector("span").textContent = `${c.pressT || "M. Rey s’impatiente"} · ${Math.max(0, left)} s`; bar.classList.toggle("hurry", left <= 4);
+          left--; bar.querySelector("span b").textContent = `${Math.max(0, left)} s`; bar.classList.toggle("hurry", left <= 4);
+          Snd.tone && Snd.tone(left <= 4 ? 880 : 520, .08, "square", left <= 4 ? .03 : .018);   // le temps qui presse : un battement à chaque seconde
           if (left <= 0) { clearInterval(c._tm); const give = [...acts.querySelectorAll(".opt")][sc.actions.findIndex(([a]) => a === "give")]; if (give && !give.disabled) { toastMsg("Trop tard : sous la pression, Lou est parti avec M. Rey."); pick(c, "give", acts, give); } }
         }, 1000);
       }
@@ -2916,7 +2923,11 @@
     const stageOf = (id) => { let i = SCREENS.findIndex((x) => x.id === id), S = STAGE[id]; while (S === "keep" && i > 0) S = STAGE[SCREENS[--i].id]; const s0 = SCREENS.find((x) => x.id === id); return S && S !== "keep" ? S : { at: LOC[id] || "ensemble", cast: s0 && s0.npc ? [[s0.npc, "a", "talk"], ["you", "b"]] : [] }; };
     const ids = SCREENS.filter((x) => DEFER.has(x.type) && st.res[x.id] != null && (!x.nuitee || st.nuitee)).map((x) => x.id);
     const panel = el("div", { class: "panel replay" });
-    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2><p class="lead">Pendant la semaine, vos décisions ont été enregistrées sans verdict. Revenez sur chacune : ce qu’elle a produit, puis ce que dit le cadre.</p>`;
+    const FL = typeof FLASH !== "undefined" ? FLASH : null;
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2><p class="lead">${FL ? esc(FL.intro) + " " : ""}Jour après jour, revivez vos décisions : ce que vous avez choisi, puis ce qu’il en est aujourd’hui.</p>`;
+    // flash-back : le plan prend la couleur des souvenirs
+    document.body.classList.add("flashback");
+    const mo = new MutationObserver(() => { if (!n.isConnected) { document.body.classList.remove("flashback"); mo.disconnect(); } }); mo.observe(document.body, { childList: true, subtree: true });
     const body = el("div", { class: "rp-body", "aria-live": "polite" });
     const row = el("div", { class: "row" });
     n.dataset.novoice = "1";
@@ -2924,7 +2935,7 @@
     let i = 0;
     const tierOf = (id) => (st.res[id] >= 0.95 ? "excellent" : st.res[id] >= 0.45 ? "moyen" : "catastrophe");
     const LBL = { excellent: ["Ce que votre décision a permis", "good"], moyen: ["Ce que votre décision a laissé passer", "mid"], catastrophe: ["Ce que votre décision a provoqué", "low"] };
-    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else next(); });
+    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else { if (FL) Voice.say("narr", FL.end); document.body.classList.remove("flashback"); setTimeout(next, FL && Voice.ok && Voice.ready && st.settings.voice ? 2600 : 300); } });
     const li = (t, cls = "") => `<li class="${cls}">${esc(t)}</li>`;
     function play() {
       const id = ids[i], S0 = tune(SCREENS.find((s) => s.id === id)), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
@@ -2948,18 +2959,24 @@
         if (nd.t) effet.push([S0.npc, nd.t]);
         cadre = nd.lesson ? `<p><b>À retenir.</b> ${esc(nd.lesson)}</p>` : "";
         if (nd.lesson) V.push(["narr", "À retenir. " + nd.lesson]);
+      } else if (S0.type === "find" && L.skip && S0.skip) {
+        choix = `<p class="rp-choice">Vous aviez choisi : ${esc(S0.skip.t)}</p>`;
+        cadre = `<p>${esc(S0.skip.fb)}</p>`; V.push(["narr", S0.skip.fb]);
       } else if (S0.type === "find") {
         const o = S0.opts[L.k != null ? L.k : 0];
-        choix = `<p class="rp-choice">Vous aviez répondu à Léna : ${esc(o.t)}</p>`;
+        choix = `<p class="rp-choice">Vous aviez répondu à ${esc(NAMES[S0.who] || "Léna")} : ${esc(o.t)}</p>`;
         cadre = `<p>${esc(o.fb)}</p>`; V.push(["narr", o.fb]);
       }
-      body.innerHTML = `<p class="kicker">${i + 1} sur ${ids.length} · ${esc(S0.kicker || S0.title || "")}</p>${choix}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]} · ${v.t}</p><div class="rp-lines"></div><div class="rp-cadre"><p class="kicker">Le cadre</p>${cadre}</div>`;
+      const newDay = FL && (i === 0 || SCREENS.find((x) => x.id === ids[i - 1]).ch !== S0.ch), dayT = FL && FL.days[S0.ch];
+      body.innerHTML = `${newDay && dayT ? `<p class="rp-day">${esc(CHAPTERS[S0.ch - 1].day)}</p>` : ""}<p class="kicker">${i + 1} sur ${ids.length} · ${esc(S0.kicker || S0.title || "")}</p>${FL ? `<p class="rp-narr">${esc(FL.chose)}</p>` : ""}${choix}${FL ? `<p class="rp-narr">${esc(FL.now)}</p>` : ""}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]} · ${v.t}</p><div class="rp-lines"></div><div class="rp-cadre"><p class="kicker">Le cadre</p>${cadre}</div>`;
       const box = body.querySelector(".rp-lines"), seq = [];
       effet.forEach(([w, tx], j) => {
         const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w] || ""}</b><p>${words(tx)}</p>`);
         box.appendChild(r); seq.push([w, tx, r.querySelector("p")]);
       });
-      setTimeout(() => Voice.seq(seq.concat(V)), 500);
+      // le narrateur raconte : « Le lundi… Vous avez pris cette décision. Voilà ce qu'il en est aujourd'hui. »
+      const N0 = FL ? [].concat(i === 0 ? [["narr", FL.intro]] : [], newDay && dayT ? [["narr", dayT]] : [], [["narr", FL.chose], ["narr", FL.now]]) : [];
+      setTimeout(() => Voice.seq(N0.concat(seq, V)), 500);
       nb.textContent = i < ids.length - 1 ? "Décision suivante" : "Voir le bilan";
       Snd[t === "excellent" ? "good" : t === "moyen" ? "mid" : "low"]();
     }
@@ -2970,20 +2987,25 @@
   /* ---------- retrouver quelqu'un sur le plan ---------- */
   const isoPct = (x, y) => { const [OX, OY, C, S, v0, v1, vw, vh] = A.dio.proj; return [((OX + (x - y) * C - v0) / vw) * 100, ((OY + (x + y) * S - v1) / vh) * 100]; };
   R.find = (sc, n) => {
-    const wrap = el("div", { class: "mapwrap lynx findg" });
+    const free = !!sc.free;   // enquête libre : pas de chrono, on circule et on interroge qui l'on veut
+    const wrap = el("div", { class: "mapwrap lynx findg" + (free ? " free" : "") });
     wrap.innerHTML = `<div class="maphead"><div>${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div>
       <div class="lx-hud"><div class="lx-clock" role="timer"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b>${sc.timer}</b></div></div></div>`;
     const box = el("div", { class: "mapbox" }), map = el("div", { class: "map dio" }, dioHTML());
     box.appendChild(map);
     const people = [[sc.who, sc.at[0], sc.at[1], true]].concat(sc.decoys.map(([w, x, y]) => [w, x, y, false]));
-    let left = sc.timer, misses = 0, done = false, tId = 0;
+    let left = sc.timer, misses = 0, done = false, tId = 0; const asked = new Set();
     const size = (44 / A.dio.vbw) * 100 * .84;
     people.forEach(([w, x, y, ok]) => {
       const p = isoPct(x, y);
       const b = el("button", { class: "fperson", type: "button", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%;z-index:${Math.round((x + y) * 10) + 10}`, "aria-label": ok ? "Une jeune fille près du parc" : "Un enfant" },
         `<svg viewBox="-22 -60 44 64" overflow="visible">${(() => { const ps = ok ? "stand" : (["walk", "wave", "talk"][Math.floor(Math.random() * 3)]); return rigMini(w, ps) || A.minis[w][ps]; })()}</svg>`);
       b.addEventListener("click", () => {
-        if (done || !tId) return;
+        if (done || (!tId && !free)) return;
+        if (!ok && free) {   // on demande autour de soi : chacun répond à sa façon, sans que l'on dise pourquoi on cherche
+          const c = (sc.clues || {})[w] || "Je sais pas.";
+          b.classList.add("asked"); Snd.click(); toastMsg(`${NAMES[w]} : ${c}`); Voice.say(w, c); asked.add(w); return;
+        }
         if (!ok) { misses++; b.classList.remove("nope"); void b.offsetWidth; b.classList.add("nope"); Snd.low(); toastMsg(`Ce n’est pas Léna, c’est ${NAMES[w]}.`); left = Math.max(1, left - 5); return; }
         found(b);
       });
@@ -2996,23 +3018,32 @@
       if (left <= 0) { clearInterval(tId); const b = map.querySelector(".fperson"); b.classList.add("hint"); found(b, true); }
     };
     function found(b, late) {
-      if (done) return; done = true; clearInterval(tId);
+      if (done) return; done = true; clearInterval(tId); if (free && st.flags) st.flags.noTemoin = 0;
       b.classList.add("found"); Snd.good();
-      const speed = late ? 0.4 : Math.max(0.5, Math.min(1, left / sc.timer + 0.35)) - misses * 0.08;
+      const speed = free ? 1 : late ? 0.4 : Math.max(0.5, Math.min(1, left / sc.timer + 0.35)) - misses * 0.08;
       const q0 = Math.max(0.3, Math.round(speed * 100) / 100);
-      fbz.innerHTML = `<div class="say npc"><b>Léna</b><p>${words(sc.found)}</p></div>`;
+      fbz.innerHTML = `<div class="say npc"><b>${esc(free ? "Vous le trouvez" : NAMES[sc.who] || "Léna")}</b><p>${words(sc.found)}</p></div>`;
       { const S = VOICE_TXT.split(sc.found); Voice.seq(S.map(([w, x]) => [w, x, S.length === 1 ? fbz.querySelector("p") : null])); }   // Léna parle avec sa propre voix
       const o = el("div", { class: "opts" });
       sc.opts.forEach((x, j) => {
         const bb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
-        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); Snd.click(); setTimeout(next, 450); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler." : `Trouvée en ${sc.timer - left} s.`} ${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
+        bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); Snd.click(); setTimeout(next, 450); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${free ? "" : late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler. " : `Trouvée en ${sc.timer - left} s. `}${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
         o.appendChild(bb);
       });
       fbz.appendChild(o);
       setTimeout(() => fbz.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
     }
     wrap.append(box, fbz); n.appendChild(wrap);
-    autoGate(wrap.querySelector(".maphead"), () => { tId = setInterval(tick, 1000); });
+    if (free) {
+      wrap.querySelector(".lx-hud").remove();
+      // l'autre choix, tout aussi juste : ne pas aller le voir, et transmettre simplement son nom
+      const alt = el("div", { class: "row fd-alt" }), skip = btn(sc.skip.t, () => {
+        if (done) return; done = true; st.flags = st.flags || {}; st.flags.noTemoin = 1; const first = st.res[sc.id] == null; record(sc, sc.skip.q); Snd.click();
+        if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { skip: true }; save(); } alt.remove(); setTimeout(next, 450); return; }
+        const r = el("div"); fbz.appendChild(r); result(r, sc.skip.q, sc.skip.fb); alt.remove(); Voice.say("narr", sc.skip.fb);
+      }, "ghost");
+      alt.appendChild(skip); wrap.insertBefore(alt, fbz);
+    } else autoGate(wrap.querySelector(".maphead"), () => { tId = setInterval(tick, 1000); });
     pannable(box, map);
     requestAnimationFrame(() => { if (box.scrollWidth > box.clientWidth) box.scrollLeft = (box.scrollWidth - box.clientWidth) / 2; });
   };
@@ -3020,6 +3051,105 @@
   /* ---------- « Les minutes comptent » (Lou) : avant 17 h, choisir ce qu'on fait vraiment ----------
      Une horloge de 16 h 06 à 17 h ; au bout de la route, la voiture de l'adulte désigné approche.
      Chaque action prend du temps. Celles qui protègent s'engagent ; celles qui exposent Lou ont un effet immédiat. */
+  /* ---------- Lou : « Décider sous pression » ----------
+     Une pile de cartes mélangée à chaque partie, présentée une par une : on la garde (je le fais) ou on l'écarte,
+     d'un glissement ou d'un bouton. L'horloge tourne en continu, chaque action prend du temps, trois jauges montrent
+     ce qui protège Lou, et des interruptions tombent au milieu de la pile. */
+  R.swipe = (sc, n) => {
+    const T0 = 6, T1 = 60, fmt = (m) => `16 h ${String(Math.min(59, Math.floor(m))).padStart(2, "0")}`;
+    let t = T0, over = false, k = 0, tId = 0;
+    const G = { abri: 0, alerte: 0, parole: 0 }, GL = { abri: "Lou à l’abri", alerte: "Alerte donnée", parole: "Parole recueillie" };
+    const GOF = { A01: { abri: 1 }, A02: { parole: .5 }, A03: { parole: .5 }, A04: { alerte: 1 }, A05: { parole: -.5 }, A06: { abri: -.5 }, A09: { abri: -.5 }, A10: { parole: -.5 } };
+    const mix = (L) => { const a = L.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    // la pile : les actions mélangées, et deux interruptions glissées au hasard après la deuxième carte
+    let deck = mix(sc.items.filter((x) => x.cat !== "dur"));
+    (sc.interrupts || []).forEach((x) => { const at = 2 + Math.floor(Math.random() * Math.max(1, deck.length - 2)); deck.splice(at, 0, { ...x, intr: true }); });
+    const kept = new Set(), bad = new Set(), intrOk = [];
+    const panel = el("div", { class: "panel swp" });
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">${esc(sc.title || "Les minutes comptent")}</h2><p class="lead">${esc(sc.prompt)}</p>
+      <div class="sw-top"><div class="sw-clock" role="timer" aria-live="off"><b>${fmt(t)}</b><small>l’adulte désigné arrive à 17 h</small></div>
+        <div class="mn-road" aria-hidden="true"><i class="mn-lou">${face("lou")}</i><b class="mn-gate">Portail</b><span class="mn-track"><i class="mn-car"></i></span></div></div>
+      <div class="sw-gauges">${Object.keys(G).map((g) => `<div class="sw-g" data-g="${g}"><span>${GL[g]}</span><i><b></b></i></div>`).join("")}</div>
+      <div class="sw-deck" aria-live="polite"></div>
+      <div class="sw-btns"><button type="button" class="sw-no">← J’écarte</button><span class="sw-left"></span><button type="button" class="sw-yes">Je le fais →</button></div>
+      <p class="sw-log" aria-live="polite"></p>`;
+    const deckEl = panel.querySelector(".sw-deck"), log = panel.querySelector(".sw-log"), clock = panel.querySelector(".sw-clock b"), car = panel.querySelector(".mn-car"), left = panel.querySelector(".sw-left");
+    const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
+    const yes = panel.querySelector(".sw-yes"), no = panel.querySelector(".sw-no");
+    function paint() {
+      clock.textContent = fmt(Math.min(t, T1)); car.style.setProperty("--p", Math.min(1, (t - T0) / (T1 - T0)).toFixed(3));
+      panel.classList.toggle("hurry", t >= 45);
+      Object.keys(G).forEach((g) => { const v = Math.max(0, Math.min(1, G[g])); panel.querySelector(`.sw-g[data-g="${g}"] b`).style.width = (v * 100) + "%"; panel.querySelector(`.sw-g[data-g="${g}"]`).classList.toggle("full", v >= 1); });
+      left.textContent = over ? "" : `${Math.max(0, deck.length - k)} carte${deck.length - k > 1 ? "s" : ""}`;
+    }
+    function show() {
+      deckEl.innerHTML = "";
+      if (k >= deck.length || t >= T1) return finish();
+      const c = deck[k];
+      const card = el("div", { class: "sw-card" + (c.intr ? " sw-intr" : ""), tabindex: "0" }, c.intr
+        ? `<p class="sw-k">Interruption</p><div class="sw-who">${face(c.who)}</div><p class="sw-t">${esc(c.t)}</p><div class="opts sw-iopts"></div>`
+        : `<p class="sw-k">Action possible · ${c.min} min</p><p class="sw-t">${esc(c.t.replace(/^A\d+ · /, ""))}</p><p class="sw-hint">Glissez à droite pour le faire, à gauche pour l’écarter.</p>`);
+      deckEl.appendChild(card); requestAnimationFrame(() => card.classList.add("in"));
+      yes.disabled = no.disabled = !!c.intr;
+      if (c.intr) {
+        if (c.who && World.talk) { World.talk(c.who); setTimeout(() => World.talk(null), 2400); }
+        Voice.seq(VOICE_TXT.split(c.t, c.who)); Snd.mid && Snd.mid();
+        const o = card.querySelector(".sw-iopts");
+        mix([[c.ok, true], [c.ko, false]]).forEach(([tx, good], i) => {
+          const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${"AB"[i]}</span><span>${esc(tx)}</span>`);
+          b.addEventListener("click", () => { if (over) return; intrOk.push(good); t += good ? 1 : 6; if (!good) { G.abri -= .25; Snd.low(); } log.textContent = `${fmt(t)} · ${good ? "Vous gardez votre attention sur Lou." : c.why}`; out(card, good ? 1 : -1); });
+          o.appendChild(b);
+        });
+        return;
+      }
+      // glisser la carte
+      let x0 = null, dx = 0;
+      card.addEventListener("pointerdown", (e) => { x0 = e.clientX; dx = 0; card.setPointerCapture(e.pointerId); card.classList.add("drag"); });
+      card.addEventListener("pointermove", (e) => { if (x0 == null) return; dx = e.clientX - x0; card.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`; card.classList.toggle("toYes", dx > 40); card.classList.toggle("toNo", dx < -40); });
+      card.addEventListener("pointerup", () => { if (x0 == null) return; x0 = null; card.classList.remove("drag"); if (dx > 90) decide(true); else if (dx < -90) decide(false); else { card.style.transform = ""; card.classList.remove("toYes", "toNo"); } });
+      card.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") decide(true); else if (e.key === "ArrowLeft") decide(false); });
+    }
+    function out(card, dir) { card.classList.add(dir > 0 ? "goYes" : "goNo"); k++; paint(); setTimeout(show, 380); }
+    function decide(doIt) {
+      if (over) return; const c = deck[k]; if (!c || c.intr) return;
+      const card = deckEl.querySelector(".sw-card"), id = (c.t.match(/^(A\d+)/) || [])[1], eff = GOF[id] || {};
+      Snd.click();
+      if (doIt) {
+        t += c.min || 0;
+        if (c.cat === "eng") { kept.add(c); log.textContent = `${fmt(t)} · ${c.now || c.why}`; Snd.good && Snd.good(); }
+        else { bad.add(c); t += c.cost || 0; log.textContent = `${fmt(t)} · ${c.effect || c.why}`; Snd.low(); }
+        Object.entries(eff).forEach(([g, v]) => (G[g] += v));
+      } else log.textContent = c.cat === "eng" ? `${fmt(t)} · Vous l’écartez… ${c.why}` : `${fmt(t)} · Écarté, à raison.`;
+      out(card, doIt ? 1 : -1);
+    }
+    yes.addEventListener("click", () => decide(true)); no.addEventListener("click", () => decide(false));
+    // l'horloge avance aussi toute seule : on ne réfléchit pas indéfiniment
+    tId = setInterval(() => { if (over || !n.isConnected) return clearInterval(tId); if (Voice.busy && Voice.busy()) return; t += .5; paint(); if (t >= T1) finish(); }, 1500);
+    function finish() {
+      if (over) return; over = true; clearInterval(tId); deckEl.innerHTML = ""; deckEl.hidden = true; panel.querySelector(".sw-btns").hidden = true; paint();
+      const eng = sc.items.filter((x) => x.cat === "eng"), got = eng.filter((x) => kept.has(x)).length, late = t >= T1;
+      const iq = intrOk.length ? intrOk.filter(Boolean).length / intrOk.length : 1;
+      const q0 = Math.max(0, (got - bad.size * .6) / eng.length) * (late ? .8 : 1) * (.85 + .15 * iq);
+      const dur = sc.items.find((x) => x.cat === "dur");
+      const ask = el("div", { class: "mn-after" }, `<p class="kicker">${late ? "17 h : la voiture est là." : `${fmt(t)} : Lou est protégé.`} Les gendarmes arrivent. Et ensuite ?</p>`);
+      const o = el("div", { class: "opts" });
+      mix([[dur.t.replace(/^A\d+ · /, ""), 1], ["Plus rien : l’alerte est donnée, la suite ne nous regarde plus.", 0]]).forEach(([tx, v], i) => {
+        const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${"AB"[i]}</span><span>${esc(tx)}</span>`);
+        b.addEventListener("click", () => {
+          o.querySelectorAll("button").forEach((x) => (x.disabled = true)); b.classList.add("picked", "neutral");
+          const q = Math.round(Math.min(1, q0 * .85 + v * .15) * 100) / 100;
+          record(sc, q);
+          const missed = eng.filter((x) => !kept.has(x)).map((x) => x.t.replace(/^A\d+ · /, ""));
+          result(fbz, q, `${got} action${got > 1 ? "s" : ""} protectrice${got > 1 ? "s" : ""} sur ${eng.length} avant 17 h${bad.size ? `, ${bad.size} qui exposai${bad.size > 1 ? "ent" : "t"} Lou` : ""}${intrOk.length ? `, ${intrOk.filter(Boolean).length} interruption${intrOk.length > 1 ? "s" : ""} sur ${intrOk.length} bien gérée${intrOk.length > 1 ? "s" : ""}` : ""}.`
+            + (missed.length ? ` Il manquait : ${esc(missed.join(", "))}.` : "") + ` ${esc(dur.why)}`);
+        });
+        o.appendChild(b);
+      });
+      ask.appendChild(o); panel.insertBefore(ask, fbz);
+    }
+    panel.appendChild(fbz); n.appendChild(panel); paint(); show();
+  };
+
   R.minutes = (sc, n) => {
     const T0 = 6, T1 = 60;   // minutes après 16 h
     let t = T0, done = new Set(), bad = new Set(), over = false;
@@ -3444,7 +3574,28 @@
     function outside() { blackout(() => free()); }
 
     /* -- une scène sur laquelle on tombe : on voit, on entend, on réagit -- */
+    // La scène se joue vraiment sous vos yeux avant qu'on en parle : gestes, bousculade, curieux qui accourent.
+    // ev.act = [[ms, qui, "g" geste | "mv" [dx, dy, vitesse] | "hit" | "face" qui], …] ; ev.crowd = [[qui, x, y], …]
+    let actT = 0;
+    function play(sp) {
+      actT = 0; if (!ev0 || reduce()) return;
+      const ev = ev0, who = (w) => sp.find((W) => W.who === w);
+      if (ev.crowd) ev.crowd.forEach(([w, x, y], i) => {
+        const C = Life.add(Walker(w, x + (i % 2 ? 2.4 : -2.4), y + 1.6, "stand")); World.cam.querySelector(".wacts").appendChild(C.el);
+        setTimeout(() => C.go([[x, y]], 3.2, () => { C.face([sp[0].x, sp[0].y]); gesture(C.el, i % 2 ? "cover" : "point"); }, "run"), 300 + i * 450);
+      });
+      (ev.act || []).forEach(([t, w, k, a]) => setTimeout(() => {
+        const W = who(w); if (!W || !n.isConnected) return;
+        if (k === "g") gesture(W.el, a);
+        else if (k === "mv") W.go([[W.x + a[0], W.y + a[1]]], a[2] || 3, () => W.setPose("stand"), (a[2] || 3) > 2.4 ? "run" : "walk");
+        else if (k === "face") { const O = who(a); if (O) W.face([O.x, O.y]); }
+        else if (k === "hit") { const f = el("i", { class: "hitfx" }); W.el.appendChild(f); setTimeout(() => f.remove(), 700); Snd.low && Snd.low(); }
+      }, t));
+      actT = ev.act ? Math.max(...ev.act.map((x) => x[0])) + 900 : 0;
+    }
+    let ev0 = null;
     function scene(ev) {
+      ev0 = ev;
       if (n._scene === ev.id && n.querySelector(".roamscene")) return;   // déjà en cours
       n._scene = ev.id;
       const E = tune(SCREENS.find((x) => x.id === ev.id));   // niveau Moyen et plus : réponses plus nuancées
@@ -3466,6 +3617,7 @@
           aim(first.x + .3, first.y + .5, 3.0, wide() ? .3 : .5, wide() ? .62 : .3, 1500);   // la scène à gauche, le texte à droite
           sp.forEach((W) => W.face([tx, ty]));
         }
+        play(sp);
       }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
@@ -3475,7 +3627,7 @@
       if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
-      setTimeout(() => Voice.seq(seq), ev.room ? 1000 : 450);
+      setTimeout(() => Voice.seq(seq), (ev.room ? 1000 : 450) + actT);
       // son coupé : les personnes jouent quand même leurs répliques (gestes, visage, émotion)
       if (!(Voice.ok && Voice.ready && st.settings.voice)) { const L0 = seq.filter(([w]) => w !== "narr"); L0.forEach(([w, t], i) => setTimeout(() => n.isConnected && World.talk(w, t), (ev.room ? 2600 : 1800) + i * 3000)); setTimeout(() => World.talk(null), (ev.room ? 2600 : 1800) + L0.length * 3000); }
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });

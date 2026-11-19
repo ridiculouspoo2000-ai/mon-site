@@ -83,7 +83,7 @@
       ${!spec.back && spec.cut === "chemise" ? `<path d="M${-sw * .36},${shY - 3.6} L0,${shY + 4} L${sw * .36},${shY - 3.6} L${sw * .14},${shY + 2.5} L0,${shY + 4} L${-sw * .14},${shY + 2.5} Z" fill="${tone(top, .5)}"/>${[0, 1, 2, 3].map((i) => `<circle cx="0" cy="${(shY + 7 + i * (B.H * .05)).toFixed(1)}" r=".75" fill="${tone(top, .55)}"/>`).join("")}` : ""}
       ${!spec.back && spec.cut === "cardigan" ? `<path d="M${-sw * .3},${shY - 3.6} L${-2.2},${waist + 2} L${2.2},${waist + 2} L${sw * .3},${shY - 3.6} Q0,${shY + 2} ${-sw * .3},${shY - 3.6} Z" fill="#F1EDE6"/><path d="M${-sw * .3},${shY - 3.6} L-2.2,${waist + 2} M${sw * .3},${shY - 3.6} L2.2,${waist + 2}" stroke="${topD}" stroke-width="1"/>` : ""}
       ${spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .6},${shY - 3} C${-sw * .7},${shY + B.H * .1} ${-sw * .25},${shY + B.H * .14} 0,${shY + B.H * .14} C${sw * .25},${shY + B.H * .14} ${sw * .7},${shY + B.H * .1} ${sw * .6},${shY - 3} Z" fill="${topD}"/><path d="M${-sw * .38},${shY} C${-sw * .4},${shY + B.H * .08} ${sw * .4},${shY + B.H * .08} ${sw * .38},${shY}" stroke="${tone(top, -.35)}" stroke-width="1.2" fill="none" opacity=".6"/>` : ""}
-      ${spec.badge && !spec.back ? `<g transform="translate(${(sw * .45).toFixed(1)},${(shY + B.H * .07).toFixed(1)}) rotate(-6) scale(.7)"><rect x="-4" y="0" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="2" width="5.2" height="1.6" fill="#E07E12"/><rect x="-1.4" y="-1.2" width="2.8" height="1.6" rx=".5" fill="#9AA6B2"/></g>` : ""}
+      ${false && spec.badge && !spec.back ? `<g transform="translate(${(sw * .45).toFixed(1)},${(shY + B.H * .07).toFixed(1)}) rotate(-6) scale(.7)"><rect x="-4" y="0" width="8" height="10" rx="1.4" fill="#fff" stroke="#C9D3DD" stroke-width=".6"/><rect x="-2.6" y="2" width="5.2" height="1.6" fill="#E07E12"/><rect x="-1.4" y="-1.2" width="2.8" height="1.6" rx=".5" fill="#9AA6B2"/></g>` : ""}
       <path d="M${sw * .55},${shY + 2} C${sw * .9},${(shY + waist) / 2} ${hw * .9},${waist - 6} ${hw * .8},${waist}" stroke="${topD}" stroke-width="2" fill="none" opacity=".35"/>`;
     // tête : cou, oreilles, visage, cheveux, traits
     const ex = R * .36, ey = headY + R * .05, look = R * .08;
@@ -181,7 +181,7 @@
         <ellipse cx="${-ex - R * .05}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/><ellipse cx="${ex + R * .15}" cy="${ey + R * .42}" rx="${R * .17}" ry="${R * .09}" fill="#E8826F" opacity=".28"/>
         <g class="mouth"><path class="m-closed" d="${MOUTH[mood] || MOUTH.smile}" stroke="${tone(sk, -.45)}" stroke-width="${(R * .065).toFixed(2)}" fill="none" stroke-linecap="round"/>
           <ellipse class="m-open" cx="${look + R * .02}" cy="${ey + R * .63}" rx="${R * .15}" ry="${R * .1}" fill="#7A3B33"/></g>
-        ${mood === "angry" ? `<ellipse class="flush" cx="${look}" cy="${ey + R * .32}" rx="${R * .82}" ry="${R * .5}" fill="#E0442B" opacity=".26"/><path d="M${-ex - R * .28},${ey - R * .5} l${R * .16},${R * .1} M${ex + R * .28},${ey - R * .5} l${-R * .16},${R * .1}" stroke="${tone(sk, -.4)}" stroke-width="${(R * .04).toFixed(2)}"/>` : ""}
+        ${mood === "angry" ? `<ellipse class="flush" cx="${look - R * .48}" cy="${ey + R * .36}" rx="${R * .2}" ry="${R * .13}" fill="#E0442B" opacity=".42"/><ellipse class="flush" cx="${look + R * .48}" cy="${ey + R * .36}" rx="${R * .2}" ry="${R * .13}" fill="#E0442B" opacity=".42"/><path d="M${-ex - R * .28},${ey - R * .5} l${R * .16},${R * .1} M${ex + R * .28},${ey - R * .5} l${-R * .16},${R * .1}" stroke="${tone(sk, -.4)}" stroke-width="${(R * .04).toFixed(2)}"/>` : ""}
         ${mood === "sad" ? `<path class="tear" d="M${-ex + look},${ey + R * .2} q${-R * .08},${R * .2} 0,${R * .26} q${R * .08},${-R * .06} 0,${-R * .26} Z" fill="#7EC8F2" opacity=".9"/>` : ""}
         ${mood === "o" ? `<ellipse cx="${-ex + look}" cy="${ey}" rx="${R * .2}" ry="${R * .24}" fill="none" stroke="#fff" stroke-width="${(R * .03).toFixed(2)}" opacity=".6"/>` : ""}
         ${spec.glasses ? `<g fill="none" stroke="${spec.glasses}" stroke-width="${(R * .065).toFixed(2)}">${spec.glassShape === "square"
@@ -927,7 +927,13 @@
     sad: `<svg viewBox="-10 -10 20 20"><path d="M-7,-4 q2,-5 4,0 M3,-4 q2,-5 4,0" stroke="#5B8FD6" stroke-width="1.8" fill="none"/><path d="M0,1 q-3,5 0,7 q3,-2 0,-7 Z" fill="#7EC8F2"/></svg>`,
     o: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 l2,5 M0,-8 v6 M6,-6 l-2,5" stroke="#F2B33D" stroke-width="2.4" stroke-linecap="round"/></svg>`,
     big: `<svg viewBox="-10 -10 20 20"><path d="M-6,-4 l1.2,2.4 2.4,1.2 -2.4,1.2 -1.2,2.4 -1.2,-2.4 -2.4,-1.2 2.4,-1.2 Z M5,-7 l.9,1.8 1.8,.9 -1.8,.9 -.9,1.8 -.9,-1.8 -1.8,-.9 1.8,-.9 Z" fill="#F2B33D"/></svg>`,
-    concern: `<svg viewBox="-10 -10 20 20"><path d="M2,-7 q4,4 0,7 q-3,-3 0,-7 Z" fill="#9CD3F0"/></svg>` };
+    concern: `<svg viewBox="-10 -10 20 20"><path d="M2,-7 q4,4 0,7 q-3,-3 0,-7 Z" fill="#9CD3F0"/></svg>`,
+    // nouveaux dessins d'expression
+    q: `<svg viewBox="-10 -10 20 20"><path d="M-3,-5 q0,-4 4,-4 q4,0 4,3.4 q0,2.4 -3,3.4 q-1,.4 -1,2.6" stroke="#6B7A90" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="1" cy="5.6" r="1.4" fill="#6B7A90"/></svg>`,
+    shy: `<svg viewBox="-10 -10 20 20"><path d="M-7,-2 l3,-3 M-3,-2 l3,-3 M1,-2 l3,-3" stroke="#F08AA0" stroke-width="2" stroke-linecap="round"/></svg>`,
+    heart: `<svg viewBox="-10 -10 20 20"><path d="M0,6 C-8,0 -6,-7 0,-3 C6,-7 8,0 0,6 Z" fill="#F07A8E"/></svg>`,
+    idea: `<svg viewBox="-10 -10 20 20"><path d="M0,-9 v3 M-7,-6 l2,2 M7,-6 l-2,2" stroke="#F2B33D" stroke-width="2" stroke-linecap="round"/><circle cy="1" r="4.4" fill="#FFD66B"/><rect x="-2" y="5" width="4" height="2.6" rx="1" fill="#C9A24A"/></svg>`,
+    tired: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 h5 l-5,5 h5 M2,-2 h4 l-4,4 h4" stroke="#8C9BB0" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>` };
   function emote(who, emo) {
     if (!World.el) return;
     World.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`).forEach((a) => {
@@ -958,11 +964,17 @@
   // l'émotion d'une réplique, d'après ce qui est dit
   function emoOf(who, t) {
     const low = (t || "").toLowerCase();
-    if (/(arrête|efface|dégage|t’as pas le droit|laisse-moi|tais-toi|c’est pas juste|ils trichent|n’importe quoi|ça suffit)/.test(low) || (/!.*!/.test(t) && /(non|pas)/.test(low))) return "angry";
+    // la colère (signe rouge, joues rouges) seulement pour une vraie colère : insulte ou cri, avec un point d'exclamation
+    if (/!/.test(t) && /(dégage|tais-toi|t’es nul|t’es trop nul|ça suffit|lâche-moi|c’est pas juste|ils trichent|n’importe quoi)/.test(low)) return "angry";
     if (/(peur|veux pas|pleur|personne veut|j’ose pas|n’ose|tout le monde l’a vue|laisse tomber)/.test(low) || (KIDS.has(who) && /…/.test(t) && /(euh|je sais pas|j’sais pas|d’accord…)/.test(low))) return "sad";
     if (/\?!|quoi \?|sérieux \?|comment ça/.test(low)) return "o";
-    if (/(trop bien|super|génial|youpi|merci|bravo|t’es trop forte|c’est vrai \?)/.test(low)) return "big";
-    if (/(inquiet|inquiète|bizarre|pas normal|démissionné|gêné)/.test(low)) return "concern";
+    if (/(je sais pas|j’sais pas|je comprends pas|c’est-à-dire|tu crois \?|tu en penses quoi)/.test(low)) return "q";
+    if (/(merci|t’es gentille|c’est gentil|je t’aime bien|ma préférée)/.test(low)) return "heart";
+    if (/(trop bien|super|génial|youpi|bravo|t’es trop forte|c’est vrai \?)/.test(low)) return "big";
+    if (/(j’ai une idée|on pourrait|et si on|je propose)/.test(low)) return "idea";
+    if (/(gêné|gênée|désolé|désolée|pardon|c’était pour rire|franchement)/.test(low)) return "shy";
+    if (/(fatigué|fatiguée|épuisé|crevé|j’en peux plus)/.test(low)) return "tired";
+    if (/(arrête|inquiet|inquiète|bizarre|pas normal|démissionné)/.test(low)) return "concern";
     return null;
   }
   // Projection du plan : coordonnées au sol (mètres) <-> position en % du plan, et profondeur (qui passe devant qui)
@@ -990,7 +1002,7 @@
       if (from && !reduce()) {
         a.style.setProperty("--fx", from[0] + "%"); a.style.setProperty("--fy", from[1] + "%");
         a.classList.add("arriving"); setPose("walk");
-        a.addEventListener("animationend", (e) => { if (e.animationName !== "walkin") return; a.style.animation = "none"; a.classList.remove("arriving"); setPose(pose || "stand"); }, { once: false });
+        a.addEventListener("animationend", (e) => { if (e.animationName !== "walkin") return; a.style.animation = "none"; a.classList.remove("arriving"); setPose(a._final || (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose) || "stand"); }, { once: false });
       }
       return a;
     },
@@ -998,7 +1010,7 @@
     faceGroup(list) {
       if (list.length < 2) return;
       const cx = list.reduce((t, [, p]) => t + p[0], 0) / list.length;
-      list.forEach(([a, p]) => a.classList.toggle("flip", p[0] > cx + .5));
+      list.forEach(([a, p]) => { if (!a.dataset.faced) a.classList.toggle("flip", p[0] > cx + .5); });
     },
     stage(sc) {
       this.init(); if (!this.el) return;
@@ -1040,12 +1052,21 @@
         const anchor = others[0] && (stand[others[0][1]] || stand.a);
         cast.forEach(([w, slot, pose], k) => {
           let p = stand[slot] || stand.a; const from = [k % 2 ? 260 : -260, 110];
-          // deux personnes qui se parlent : face à face, l'une de dos. Vous êtes de dos, juste devant la personne qui vous parle.
-          const back = (w === "you" && others.length) || (duo && w === others[1][0]);
-          if (back && anchor && w === "you" && !S.keepSlots) { const [ax, ay] = f2w(anchor[0], anchor[1]); p = w2f(ax + .75, ay + 1.05); }
+          // Vous êtes à côté de la personne qui vous parle, de dos, tournée vers elle.
+          // Deux personnes qui discutent entre elles : côte à côte, tournées l'une vers l'autre.
+          const back = !!(w === "you" && others.length);
+          let face = 0;
+          if (anchor && !S.keepSlots) {
+            const [ax, ay] = f2w(anchor[0], anchor[1]);
+            if (w === "you" && others.length) { p = w2f(ax + .95, ay + .55); face = -1; }
+            else if (duo && w === others[1][0]) { p = w2f(ax + 1.0, ay + .15); face = -1; }
+            else if (others[0] && w === others[0][0]) face = 1;
+          }
           const a = this.actor(w, pose, p, sz, false, k < 3 ? from : null, { back });
+          if (a && face) { a.classList.toggle("flip", face < 0); a.dataset.faced = "1"; }
           // personne ne marche sur place : une fois arrivé, on se tient debout
-          if (a && (pose === "walk" || pose === "run")) setTimeout(() => { if (a.isConnected && a._pose && !a.classList.contains("walker")) a._pose("stand"); }, (k < 3 ? 1900 : 300) + k * 180);
+          if (a && (pose === "walk" || pose === "run") && a._pose && !a.classList.contains("walker")) a._pose("stand");
+          if (a && pose === "wave" && a._pose) { a._pose("stand"); setTimeout(() => a.isConnected && gesture(a, "wave"), 800 + k * 250); }   // un salut bref, pas une main levée qui dure
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
@@ -1104,6 +1125,7 @@
     },
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
     people(room, S) {
+      const SIT_OFF = [0, 5];   // assis : les hanches sur l’assise de la chaise du décor
       const IN = A.dio.inner[room], host = this.cam.querySelector(".wlids");
       const old = host.querySelector(".inroom-w"); if (old) old.remove();
       const w = el("div", { class: "inroom-w", style: `left:${IN.l}%;top:${IN.t}%;width:${IN.w}%;aspect-ratio:${IN.r};z-index:${IN.z}` }, IN.svg);
@@ -1111,10 +1133,11 @@
       let youLab = null;
       (S.cast || []).forEach(([who, slot, pose], k) => {
         const P = IN.sp[slot] || IN.sp.a; if (!P) return;
-        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" ? "stand" : pose || "stand");
-        const R0 = rigMini(who, ps, { back: who === "you" && (S.cast || []).length > 1 && !P.sit, chair: P.sit && !P.bench }); if (!m && !R0) return;
-        const g = document.createElementNS(NS, "g");
-        g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${P.y})`);
+        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose || "stand");
+        // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
+        const R0 = rigMini(who, ps, { back: who === "you" && (S.cast || []).length > 1 && !P.sit, chair: false }); if (!m && !R0) return;
+        const g = document.createElementNS(NS, "g"), off = P.sit ? (window.__sitOff != null ? window.__sitOff : SIT_OFF) : [0, 0];
+        g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x + off[0]},${P.y + off[1]})`);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
@@ -1193,7 +1216,9 @@
       if (who && who !== "narr") this.gaze(who);
       clearTimeout(this._gi); clearTimeout(this._li);
       // fin de réplique : la bouche s'arrête net et le geste en cours se termine tout de suite (plus de gestes inutiles)
-      this.el.querySelectorAll(".talking").forEach((a) => { a.classList.remove("talking"); const r = a.querySelector(".rig"); if (r) { clearTimeout(r._gt); GESTS.forEach((x) => r.classList.remove("g-" + x)); } });
+      this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking"));
+      // plus personne ne parle : tous les gestes de la scène (orateur et auditeurs) s'arrêtent tout de suite
+      this.el.querySelectorAll(".rig").forEach((r) => { if ([...r.classList].some((c) => c.startsWith("g-"))) { clearTimeout(r._gt); GESTS.forEach((x) => r.classList.remove("g-" + x)); } });
       document.querySelectorAll(".portrait.chip.talking").forEach((a) => a.classList.remove("talking"));
       if (!who || who === "narr") return;
       const els = [...this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`)];
@@ -1205,10 +1230,14 @@
       let last = "", n = 0;
       const step = () => {
         if (!els.some((a) => a.classList.contains("talking"))) return;
-        let g, k = 0; do { g = pool[Math.floor(Math.random() * pool.length)]; } while (g === last && ++k < 6); last = g;
+        // jamais deux fois de suite le même geste pour une même personne, même d'une réplique à l'autre
+        const H = (World._gh = World._gh || {}), hist = (H[who] = H[who] || []);
+        const P2 = pool.concat(KIDS.has(who) ? ["scratch", "fidget", "tilt", "lookaway"] : ["tilt", "note", "open", "calm", "weight", "chin", "neck"]);
+        let g, k = 0; do { g = P2[Math.floor(Math.random() * P2.length)]; } while ((g === last || hist.includes(g)) && ++k < 12); last = g;
+        hist.push(g); if (hist.length > 5) hist.shift();
         els.forEach((a) => gesture(a, g));
         // un ou deux gestes courts par réplique, espacés : jamais d'enchaînement mécanique
-        if (++n < 2) this._gi = setTimeout(step, 4200 + Math.random() * 1800);
+        if (++n < 3) this._gi = setTimeout(step, 2600 + Math.random() * 1400);   // un geste (2 s) puis une pause : plusieurs gestes différents sur une longue réplique
       };
       this._gi = setTimeout(step, 250);
       const listen = () => {
@@ -1250,7 +1279,7 @@
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
     GESTS.forEach((x) => r.classList.remove("g-" + x)); void r.getBoundingClientRect();
     r.classList.add("g-" + g);
-    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 2500);   // un geste dure 2 à 3 secondes au plus
+    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 2050);   // un geste dure 2 secondes au plus
   }
   function reduce() { return matchMedia("(prefers-reduced-motion: reduce)").matches || calm(); }
   function camera(sc) { World.stage(sc); }
@@ -3108,7 +3137,7 @@
   function Walker(who, x, y, pose = "stand", opts = {}) {
     const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
     a.classList.add("walker");
-    const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null };
+    const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null }; a._w = W;
     W.place = () => { const f = w2f(W.x, W.y); a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; a.style.zIndex = zOf(W.x, W.y) + 1; };
     W.set = (px, py) => { W.x = px; W.y = py; W.place(); };
     W.setPose = (ps) => { if (W.pose === ps) return; W.pose = ps; a._pose(ps); };
@@ -3495,6 +3524,18 @@
     const W = document.getElementById("world"); if (!W || !W.classList.contains("on")) return;
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
+    // derrière un bâtiment, une personne disparaît (vous restez visible en transparence) ; elle réapparaît en ressortant
+    const B = (A.dio && A.dio.blds) || [], K = PJ[2] / .8660254, zp = (z) => z * K / PJ[7] * 100;
+    const P2 = (x, y, z) => { const f = w2f(x, y); return [f[0], f[1] - zp(z)]; };
+    const inPoly = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+    const SIL = W._sil || (W._sil = B.map(([x0, y0, x1, y1, h]) => ({ d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] })));
+    W.querySelectorAll(".wacts .walker").forEach((a) => {
+      const w = a._w; if (!w) return;
+      const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
+      const mid = P2(w.x, w.y, .9);
+      const hid = SIL.some((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(mid, b.poly));
+      a.classList.toggle("behind", hid);
+    });
     const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
     occ.forEach((o) => {
       const z = +o.style.zIndex || 0, r = o.getBoundingClientRect();
@@ -3539,6 +3580,8 @@
     if (!World.el || !A.dio || reduce()) return;
     const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9], STREET = [34.6, 21.0];
     World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
+    // jamais deux fois la même personne à l'écran : si Nour est déjà dans la scène, c'est Jade qui accueille au portail
+    if (World.cam.querySelector(`.actor[data-who="${staff}"], .walker[data-who="${staff}"]`)) staff = staff === "jade" ? "kevin" : "jade";
     const host = Life.add(Walker(staff, 27.6, 22.6, "stand")); acts.appendChild(host.el); host.face(GATE);
     // sur le parvis, des parents s'arrêtent devant le panneau d'affichage pour lire les informations
     [["pa3", 32.9, 20.4], ["pa4", 33.2, 21.5]].forEach(([w, x, y]) => { if (mode === "morning" && (w === "pa3" || w === "pa4")) return; const R0 = Life.idle(w, x, y, ["chin", "nod", "point", "weight"], { back: true }); acts.appendChild(R0.el); });
@@ -3789,8 +3832,8 @@
       else if (cut === "chemise") s += P(`M${hx - 13},${shY - 4} L${hx},${shY + 12} L${hx - 4},${shY + 16} L${hx - 16},${shY + 2}Z`, tone(top, .12)) + P(`M${hx + 13},${shY - 4} L${hx},${shY + 12} L${hx + 4},${shY + 16} L${hx + 16},${shY + 2}Z`, tone(top, .12));
       else if (cut === "cardigan") { s += P(`M${hx - 4},${shY + 4} L${hx - 2},160 L${hx + 2},160 L${hx + 4},${shY + 4}Z`, tone(top, -.2)) + P(`M${hx - 12},${shY - 3} Q${hx},${shY + 9} ${hx + 12},${shY - 3} Q${hx},${shY + 3} ${hx - 12},${shY - 3}Z`, "#F1ECE4"); for (let i = 0; i < 3; i++) s += E(hx + 6, shY + 18 + i * 12, 1.9, 1.9, tone(top, -.3)); }
       else if (cut === "sweat") s += P(`M${hx - 20},${shY - 2} Q${hx},${shY + 16} ${hx + 20},${shY - 2} Q${hx + 14},${shY + 10} ${hx},${shY + 10} Q${hx - 14},${shY + 10} ${hx - 20},${shY - 2}Z`, tone(top, -.1)) + `<path d="M${hx - 5},${shY + 10} l-1,16 M${hx + 5},${shY + 10} l1,16" stroke="#F2EEE8" stroke-width="2" stroke-linecap="round"/>`;
-      // badge d’animateur (toujours : c’est votre rôle)
-      s += `<path d="M${hx - 15},${shY - 1} Q${hx - 8},${shY + 26} ${hx},${shY + 34} Q${hx + 8},${shY + 26} ${hx + 15},${shY - 1}" fill="none" stroke="#0B4F84" stroke-width="3" stroke-linecap="round"/>`
+      // plus de badge d’animateur
+      if (false) s += `<path d="M${hx - 15},${shY - 1} Q${hx - 8},${shY + 26} ${hx},${shY + 34} Q${hx + 8},${shY + 26} ${hx + 15},${shY - 1}" fill="none" stroke="#0B4F84" stroke-width="3" stroke-linecap="round"/>`
         + `<g transform="rotate(-4,${hx},${shY + 44})"><rect x="${hx - 9}" y="${shY + 33}" width="18" height="23" rx="3" fill="${fill("#F7F7F5", "r", .04, -.1)}"/><rect x="${hx - 9}" y="${shY + 33}" width="18" height="6" rx="2" fill="#E2702A"/><rect x="${hx - 6}" y="${shY + 42}" width="12" height="2" rx="1" fill="#9AA3AB"/><rect x="${hx - 6}" y="${shY + 46}" width="8" height="2" rx="1" fill="#C3CAD0"/></g>`;
       for (const sg of [-1, 1]) {
         s += E(hx + sg * (R - 1), hy + 2, 5.4, 7.6, fill(skin, "r", .08, -.16)) + E(hx + sg * (R - 1.4), hy + 2.5, 2.2, 3.6, tone(skin, -.16));

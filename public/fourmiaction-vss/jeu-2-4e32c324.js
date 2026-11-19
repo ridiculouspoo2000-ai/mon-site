@@ -1308,6 +1308,12 @@ const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la p
   const i = SCREENS.findIndex((x) => x.id === "foot"); SCREENS.splice(i + 1, 0, DISPUTE);
   const j = SCREENS.findIndex((x) => x.id === "jeudi-libre"); SCREENS.splice(j + 1, 0, CADEAU);
   const L = SCREENS.find((x) => x.id === "lundi-libre"), J = SCREENS.find((x) => x.id === "jeudi-libre");
+  // devant les sanitaires, ça va et vient : des petits y vont, deux grands traînent devant la porte
+  L.life.push({ who: "k7", loop: [[8.4, 10.6], [6.2, 9.2], [8.8, 11.6]], speed: 1.6, pause: 2200, from: "14 h 30", to: "16 h 30", gest: ["wave", "laugh"] },
+    { who: "k8", loop: [[6.4, 9.4], [9.2, 11.0], [7.4, 12.2]], speed: 1.4, pause: 2800, from: "14 h 30", to: "16 h 30" },
+    { who: "t3", at: [6.9, 9.9], from: "14 h 30", to: "16 h 30", gest: ["laugh", "point", "hips"] },
+    { who: "t4", at: [7.3, 10.5], from: "14 h 30", to: "16 h 30", gest: ["laugh", "lean", "phone"] });
+  const San = L.events.find((x) => x.id === "sanit"); if (San) San.cast = [["malo", "d", "sad"], ["t3", "a", "laugh"], ["t4", "b", "point"], ["you", "e"]];
   L.events.push({ ...DISPUTE, at: "jeux", from: "15 h", to: "16 h 45",
     spots: [["sacha", 8.6, 25.2, "upset", ["stomp", "point", "fist"]], ["lena", 9.6, 24.6, "big", ["point", "stomp", "hips"]]],
     cast: [["sacha", "a", "upset"], ["lena", "b", "big"], ["you", "f", "walk"]],

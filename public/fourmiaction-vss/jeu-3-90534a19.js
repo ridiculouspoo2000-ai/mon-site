@@ -1221,8 +1221,8 @@
       document.querySelectorAll(`.portrait.chip[data-who="${who}"]`).forEach((a) => a.classList.add("talking"));
     },
   };
-  const GESTS = ["explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug"];
-  const LISTEN = ["nod", "nod", "weight", "chin", "lookaway", "cross", "sigh", "lean", "hips"];
+  const GESTS = ["explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
   function gestPool(who, t) {
@@ -1237,6 +1237,12 @@
     if (/premièrement|d’abord|trois|deux|ensuite|règle/.test(low)) P.push("count", "count");
     if (/téléphone|appel|sms|message/.test(low)) P.push("phone");
     if (/viens|venez|par ici|regarde/.test(low)) P.push("beckon", "present");
+    if (/bienvenue|bonjour|salut|au revoir|bonne soirée/.test(low)) P.push("welcome", "wave");
+    if (/pressé|vite|j’ai pas le temps|il est où|en retard|dépêche/.test(low)) P.push("watch", "hips", "watch");
+    if (/désolé|pardon|gêné|j’aurais pas dû|c’était pour rire|franchement/.test(low)) P.push("neck", "neck", "shrug");
+    if (/je note|j’écris|noter|carnet|fiche/.test(low)) P.push("note", "note");
+    // un adulte qui parle à un petit se met à sa hauteur
+    if (!KIDS.has(who) && /(ma puce|mon grand|ma grande|petit|n’aie pas peur|t’inquiète)/.test(low)) P.push("crouch");
     P.push(...(KIDS.has(who) ? ["fidget", "lookaway", "explain", "weight", "scratch", "open"] : ["explain", "explain2", "calm", "present", "lean", "weight", "chin", "nod", "open"]));
     return P;
   }
@@ -3050,6 +3056,10 @@
     k4: { age: 10, sex: "f", skin: "olive", hair: "chatain", hairStyle: "ponytail", top: "#F2B33D", bottom: "#4E6A8E" },
     k5: { age: 11, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#4F79C2", bottom: "#2F4058" },
     k6: { age: 6, sex: "f", skin: "rosee", hair: "roux", hairStyle: "bob", top: "#8A6BC4", bottom: "#45506A", skirt: "#8A6BC4" },
+    k7: { age: 8, sex: "m", skin: "brune", hair: "noir", hairStyle: "curly", top: "#4FA3D9", bottom: "#3B4A63" },
+    k8: { age: 7, sex: "f", skin: "claire", hair: "chatain", hairStyle: "braids", top: "#E85D75", bottom: "#4A5675", skirt: "#E85D75" },
+    t3: { age: 14, sex: "m", skin: "olive", hair: "brun", hairStyle: "spiky", top: "#6B4FA0", bottom: "#2E3A4E" },
+    t4: { age: 15, sex: "m", skin: "claire", hair: "blond", hairStyle: "short", top: "#D9822B", bottom: "#33405C" },
     t1: { age: 15, sex: "f", skin: "mate", hair: "noir", hairStyle: "long", top: "#3B3F48", bottom: "#2E3A4E" },
     t2: { age: 16, sex: "m", skin: "doree", hair: "brun", hairStyle: "spiky", top: "#1F8A5B", bottom: "#33405C" },
     pa1: { age: 42, sex: "f", skin: "claire", hair: "chatain", hairStyle: "bob", top: "#C2412A", bottom: "#2E3A4E" },
@@ -3279,8 +3289,13 @@
       const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
       const g = el("div", { class: "opts" });
       MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); }); g.appendChild(b); });
+      // le couloir, vu de dessus : les portes des salles de part et d'autre, l'entrée vitrée au bout
+      const plan = el("div", { class: "hall-plan", "aria-hidden": "true" });
+      const D = MAIN_ROOMS.map((k, i) => { const top = i % 2 === 0, x = 60 + Math.floor(i / 2) * 150; return `<g class="hp-door" data-i="${i}" transform="translate(${x},${top ? 22 : 118})"><rect x="-58" y="${top ? -16 : 0}" width="116" height="16" rx="4" class="hp-room"/><rect x="-16" y="${top ? -3 : 0}" width="32" height="5" rx="2" class="hp-gap"/><text x="0" y="${top ? -24 : 34}">${esc(PLACE[k])}</text></g>`; }).join("");
+      plan.innerHTML = `<svg viewBox="0 -20 380 190"><rect x="6" y="30" width="368" height="80" rx="14" class="hp-floor"/><path d="M14 70 H366" class="hp-line"/>${D}<g transform="translate(366,70)"><rect x="-6" y="-22" width="10" height="44" rx="3" class="hp-entry"/><text x="-14" y="-30" class="hp-small">Entrée</text></g><g class="hp-you" transform="translate(330,70)"><circle r="9"/><text y="26" class="hp-small">Vous</text></g></svg>`;
+      plan.querySelectorAll(".hp-door").forEach((d) => d.addEventListener("click", () => { const b = g.querySelectorAll(".opt")[+d.dataset.i]; if (b) b.click(); }));
       const row = el("div", { class: "row" }); row.appendChild(btn("Ressortir", () => { Snd.click(); outside(); }, "ghost"));
-      p.append(g, row); wrap.appendChild(p); n.appendChild(wrap);
+      p.append(plan, g, row); wrap.appendChild(p); n.appendChild(wrap);
     }
     function outside() { free(); }
 

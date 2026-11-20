@@ -504,6 +504,61 @@
   };
 
 
+  /* ---------- bouche : synchronisée sur le volume réel de la voix ----------
+     On décode la voix (déjà en cache) pour en tirer son enveloppe (volume toutes les 25 ms) ; à chaque image, la bouche
+     de la personne qui parle s'ouvre selon ce volume : sur le plan, dans le visage à côté de sa réplique et dans sa pastille.
+     Silence = bouche fermée. Fin de réplique = bouche fermée tout de suite. Sans voix : un mouvement de parole le temps
+     de lire la réplique. */
+  const Lip = {
+    env: new Map(), els: [], FR: .025,
+    envelope(u) {
+      if (this.env.has(u)) return this.env.get(u);
+      const slot = { a: null }; this.env.set(u, slot);
+      try {
+        const C = window.OfflineAudioContext || window.webkitOfflineAudioContext; if (!C) return slot;
+        fetch(u).then((r) => r.arrayBuffer()).then((b) => new Promise((ok, ko) => { const c = new C(1, 2, 22050); const p = c.decodeAudioData(b, ok, ko); if (p && p.then) p.then(ok, ko); }))
+          .then((buf) => {
+            const d = buf.getChannelData(0), n = Math.max(1, Math.round(buf.sampleRate * this.FR)), m = Math.ceil(d.length / n), a = new Float32Array(m);
+            let mx = 0; for (let i = 0; i < m; i++) { let q = 0; const e = Math.min(d.length, (i + 1) * n); for (let j = i * n; j < e; j++) q += d[j] * d[j]; a[i] = Math.sqrt(q / Math.max(1, e - i * n)); if (a[i] > mx) mx = a[i]; }
+            const ref = mx * .72 || 1; for (let i = 0; i < m; i++) a[i] = Math.min(1, a[i] / ref);
+            slot.a = a;
+          }).catch(() => { });
+      } catch (e) { }
+      return slot;
+    },
+    // les bouches de « who » : sur le plan, dans sa pastille, et le visage à côté de sa réplique
+    targets(w, e) {
+      const T = [...document.querySelectorAll(`#world .actor[data-who="${w}"], #world .ractor[data-who="${w}"], .portrait.chip[data-who="${w}"]`)];
+      const row = e && (e.closest(".line, .said, .bubble, .npcline, .nl, .msg") || e);
+      if (row) row.querySelectorAll(".mini, .rig-bust").forEach((m) => { if (!T.includes(m)) T.push(m); });
+      return T;
+    },
+    on(it) { this.off(); if (!it || !it.w || it.w === "narr") return; this.cur = it; this.slot = this.envelope(it.u); this.els = this.targets(it.w, it.e); this.els.forEach((x) => { x.classList.add("lip"); x.style.setProperty("--mo", "0"); }); this.mo = 0; },
+    frame(it, t) {
+      if (this.cur !== it || !this.els.length) return;
+      const a = this.slot && this.slot.a; let v;
+      if (a) { const i = Math.floor(t / this.FR); v = Math.max(a[i] || 0, (a[i + 1] || 0) * .8); v = v < .12 ? 0 : Math.min(1, (v - .12) / .7); }
+      else v = .35 + .35 * Math.sin(t * 17) * Math.sin(t * 5.3 + 1);           // voix pas encore analysée : mouvement de parole
+      this.mo += (v - this.mo) * (v > this.mo ? .65 : .4);                      // la bouche s'ouvre vite, se referme un peu moins vite
+      const m = this.mo.toFixed(2); this.els.forEach((x) => x.style.setProperty("--mo", m));
+    },
+    off() { this.cur = null; this.els.forEach((x) => { x.classList.remove("lip", "lipsim"); x.style.removeProperty("--mo"); }); this.els = []; },
+    // sans voix : on fait parler chaque personne le temps de lire sa réplique, l'une après l'autre
+    silent(list) {
+      clearTimeout(this._st); this._sk = (this._sk || 0) + 1; const k = this._sk;
+      if (!list) { if (this._sl) { this._sl = 0; World.talk(null); this.off(); } return; }
+      const L = list.filter(([w, t]) => t && /[A-Za-zÀ-ÿ]/.test(String(t))); let i = 0; this._sl = 1;
+      const next = () => {
+        if (k !== this._sk) return; World.talk(null); this.off();
+        if (i >= L.length || calm()) { this._sl = 0; return; }
+        const [w, t, e] = L[i++], d = Math.min(7000, Math.max(1200, String(t).length * 48));
+        if (w && w !== "narr") { World.talk(w, t); this.els = this.targets(w, e); this.els.forEach((x) => x.classList.add("lipsim")); }
+        this._st = setTimeout(next, d + 250);
+      };
+      next();
+    },
+  };
+
   /* ---------- voix des personnages : enregistrements naturels (ElevenLabs), désactivables ---------- */
   const VOIX = window.VOIX || {};
   const Voice = {
@@ -519,7 +574,9 @@
       const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
     say(who, text, target) { this.seq([[who, text, target instanceof Element ? target : null]]); },
     seq(list) {
-      if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
+      if (!list || !list.length) return;
+      if (!this.ok || !this.ready || !st.settings.voice) { Lip.silent(list); return; }
+      Lip.silent(null);
       const items = list.map(([w, t, e]) => ({ u: t && this.url(w, t), e: e || null, w, t })).filter((x) => x.u); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
@@ -527,7 +584,9 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => { clearTimeout(this._wd); if (this._cur && this._cur.e) this._cur.e.classList.remove("vpend"); });
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) c.e.classList.remove("vpend");
+          // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
+          if (c && !c.on) { c.on = 1; World.talk(c.w, c.t); Lip.on(c); } this._tick(); });
       }
       try { this.el.pause(); } catch (e) { }
       this._done();
@@ -539,7 +598,7 @@
       // garde-fou : jamais plus de 40 voix en 10 s (une boucle imprévue ne doit pas inonder le serveur)
       const now = Date.now(); this._h = (this._h || []).filter((t) => now - t < 10000); this._h.push(now);
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
-      World.talk(it.w, it.t);
+      World.talk(null); Lip.off();
       clearTimeout(this._show); if (it.e) this._show = setTimeout(() => it.e && it.e.classList.remove("vpend"), 1500);   // si la voix tarde, le texte paraît quand même
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
@@ -551,8 +610,9 @@
     _tick() {
       cancelAnimationFrame(this._raf);
       const f = () => {
-        const it = this._cur; if (!it || !it.e || !this.el || this.el.paused) return;
-        const d = audDur(this.el, it.e.textContent); if (d) {
+        const it = this._cur; if (!it || !this.el || this.el.paused) return;
+        if (it.on) Lip.frame(it, this.el.currentTime);
+        const d = it.e && audDur(this.el, it.e.textContent); if (d) {
           const ws = it.e.querySelectorAll(".wd"), k = Math.min(ws.length, Math.ceil((this.el.currentTime / d) * ws.length * 1.04));
           for (let i = 0; i < k; i++) if (!ws[i].classList.contains("sp")) ws[i].classList.add("sp");
         }
@@ -560,11 +620,11 @@
       };
       this._raf = requestAnimationFrame(f);
     },
-    _done() { World.talk(null); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
+    _done() { World.talk(null); Lip.off(); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { Lip.silent(null); (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
 
@@ -1356,6 +1416,12 @@
         a.style.setProperty("--lk", String(flipped ? -d : d)); a.classList.add("gaze");
       });
     },
+    // un geste seul, sans parole (souvenir muet, carte lue par le narrateur)
+    mime(who, text) {
+      if (!this.el || !who || who === "narr") return;
+      const P = gestPool(who, text || ""), g = P[Math.floor(Math.random() * P.length)];
+      this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`).forEach((a) => gesture(a, g));
+    },
     // La personne qui parle enchaîne des gestes courts (2 à 3 s) choisis selon ce qu'elle dit ; les autres écoutent
     // (hochent la tête, croisent les bras, regardent ailleurs…). Jamais deux fois de suite le même geste.
     talk(who, text) {
@@ -1373,18 +1439,20 @@
       const emo = emoOf(who, text || ""); emote(who, emo);
       if (emo === "angry") els.forEach((a) => gesture(a, Math.random() < .5 ? "fist" : "stomp"));
       if (emo && emo !== "concern") { clearTimeout(this._emoT); this._emoT = setTimeout(() => emote(who, null), 6500); }
-      const pool = emo === "angry" ? ["fist", "point", "stomp", "hips", "fist"] : emo === "sad" ? ["downcast", "cover", "hug", "fidget", "lookaway"] : emo === "big" ? ["raise", "laugh", "thumb", "open"] : emo === "o" ? ["stepback", "raise", "open"] : gestPool(who, text || ""), others = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== who);
+      const pool = emo === "angry" ? ["fist", "point", "stomp", "hips", "chop", "wag"] : emo === "sad" ? ["downcast", "cover", "hug", "fidget", "lookaway", "chest"] : emo === "big" ? ["raise", "laugh", "thumb", "open", "clap", "lift", "spread"] : emo === "o" ? ["stepback", "raise", "open", "earcup"] : gestPool(who, text || ""), others = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== who);
       let last = "", n = 0;
       const step = () => {
         if (!els.some((a) => a.classList.contains("talking"))) return;
         // jamais deux fois de suite le même geste pour une même personne, même d'une réplique à l'autre
         const H = (World._gh = World._gh || {}), hist = (H[who] = H[who] || []);
         const P2 = pool.concat(KIDS.has(who) ? ["scratch", "fidget", "tilt", "lookaway"] : ["tilt", "note", "open", "calm", "weight", "chin", "neck"]);
-        let g, k = 0; do { g = P2[Math.floor(Math.random() * P2.length)]; } while ((g === last || hist.includes(g)) && ++k < 12); last = g;
+        // le premier geste va avec ce qui est dit (s'il y a un indice dans la réplique), les suivants varient
+        const C0 = n === 0 && pool.cue ? pool.slice(0, pool.cue) : P2;
+        let g, k = 0; do { g = C0[Math.floor(Math.random() * C0.length)]; } while ((g === last || hist.includes(g)) && ++k < 12); last = g;
         hist.push(g); if (hist.length > 5) hist.shift();
         els.forEach((a) => gesture(a, g));
-        // un ou deux gestes courts par réplique, espacés : jamais d'enchaînement mécanique
-        if (++n < 3) this._gi = setTimeout(step, 2600 + Math.random() * 1400);   // un geste (2 s) puis une pause : plusieurs gestes différents sur une longue réplique
+        // un geste (2 à 3 s) entier, puis une pause : plusieurs gestes différents sur une longue réplique, jamais mécanique
+        if (++n < 4) this._gi = setTimeout(step, (GDUR[g] || 2000) + 500 + Math.random() * 1300);
       };
       this._gi = setTimeout(step, 250);
       const listen = () => {
@@ -1397,7 +1465,9 @@
       document.querySelectorAll(`.portrait.chip[data-who="${who}"]`).forEach((a) => a.classList.add("talking"));
     },
   };
-  const GESTS = ["push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  // 20 gestes de conversation (gest2.css, générés par tools/gest2.py) : leur durée propre, de 2,2 à 2,8 s
+  const GDUR = { push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
+  const GESTS = ["weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
@@ -1417,16 +1487,48 @@
     if (/pressé|vite|j’ai pas le temps|il est où|en retard|dépêche/.test(low)) P.push("watch", "hips", "watch");
     if (/désolé|pardon|gêné|j’aurais pas dû|c’était pour rire|franchement/.test(low)) P.push("neck", "neck", "shrug");
     if (/je note|j’écris|noter|carnet|fiche/.test(low)) P.push("note", "note");
+    // les gestes de conversation : chacun va avec une façon de parler
+    if (/d’un côté|de l’autre|\bmais\b|pourtant|\bentre\b|ou bien|\bsoit\b/.test(low)) P.push("weigh", "weigh");
+    if (/et puis|ainsi de suite|tout ça|en général|souvent|tous les jours|chaque/.test(low)) P.push("roll");
+    if (/il faut|on doit|tu dois|toujours|obligatoire|la règle|interdit|clairement/.test(low)) P.push("chop", "chop");
+    if (/tout le monde|\btous\b|\btoutes\b|ensemble|l’équipe|les enfants|groupe|quarante-huit/.test(low)) P.push("spread");
+    if (/exactement|précis|mot pour mot|ses mots|détail|\bjuste\b/.test(low)) P.push("pinch", "pinch");
+    if (/pas question|on ne |ne fais pas|n’oublie pas|surtout pas|\bnon\b/.test(low)) P.push("wag");
+    if (/calme|doucement|t’inquiète|ça va aller|respire|tranquille|rassur/.test(low)) P.push("pat", "pat");
+    if (/je ne sais pas|peut-être|on verra|pourquoi pas|je crois|j’imagine|sans doute/.test(low)) P.push("palmup", "palmup");
+    if (/je te propose|je vous propose|\btiens\b|si tu veux|on peut|je peux|tu peux/.test(low)) P.push("offer", "offer");
+    if (/\ballez\b|vas-y|allez-y|par là|dehors|la cour|le parc|à côté|là-bas/.test(low)) P.push("sweep");
+    if (/c’est parti|on y va|parfait|génial|super !|bon !/.test(low)) P.push("clap");
+    if (/\balors\b|\bbon,|voyons|on commence|programme|aujourd’hui/.test(low)) P.push("rub");
+    if (/sincèrement|honnêtement|je te promets|confiance|\bmoi,|je suis/.test(low)) P.push("chest", "chest");
+    if (/\bhier\b|avant|tout à l’heure|derrière|la semaine dernière|\bdéjà\b|depuis/.test(low)) P.push("thumbk");
+    if (/laisse tomber|c’est rien|oublie|tant pis|pas grave/.test(low)) P.push("brush", "brush");
+    if (/réfléchi|\bpense|idée|projet|comprend|en fait|à mon avis/.test(low)) P.push("steeple");
+    if (/\boui\b|d’accord|\bok\b|voilà|c’est ça|exact/.test(low)) P.push("nodhand", "nodhand");
+    if (/courage|on va y arriver|bravo|fier|fière|réussi/.test(low)) P.push("lift");
+    if (/premier|deuxième|troisième|d’abord|ensuite|enfin|\bpoint/.test(low)) P.push("tap", "tap");
+    if (/pardon \?|quoi \?|hein \?|tu dis|pas entendu|répète|écoute/.test(low)) P.push("earcup");
+    if (/les filles|les garçons|vous rangez|vous portez/.test(low)) P.push("point", "sweep");
+    if (/ce n’est rien|c’est parce qu/.test(low)) P.push("brush", "pat");
+    if (/on fait avec|tu gères/.test(low)) P.push("shrug", "palmup");
+    if (/\bici\b/.test(low)) P.push("present", "sweep");
+    if (/naturel|préfèr/.test(low)) P.push("palmup", "shrug");
+    if (/agress|violence|sa famille/.test(low)) P.push("downcast", "chest");
+    if (/grâce à|rencontré/.test(low)) P.push("nodhand", "offer");
+    if (/raison/.test(low)) P.push("nodhand");
+    if (/une autre fois/.test(low)) P.push("pat");
+    if (/important/.test(low)) P.push("chop");
     // un adulte qui parle à un petit se met à sa hauteur
     if (!KIDS.has(who) && /(ma puce|mon grand|ma grande|petit|n’aie pas peur|t’inquiète)/.test(low)) P.push("crouch");
-    P.push(...(KIDS.has(who) ? ["fidget", "lookaway", "explain", "weight", "scratch", "open"] : ["explain", "explain2", "calm", "present", "lean", "weight", "chin", "nod", "open"]));
+    P.cue = P.length;   // les gestes tirés de la réplique elle-même (avant les gestes génériques)
+    P.push(...(KIDS.has(who) ? ["fidget", "lookaway", "explain", "weight", "scratch", "open", "palmup", "rub", "brush"] : ["explain", "explain2", "calm", "present", "lean", "weight", "chin", "nod", "open", "weigh", "roll", "offer", "steeple", "nodhand", "palmup"]));
     return P;
   }
   function gesture(a, g) {
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
     GESTS.forEach((x) => r.classList.remove("g-" + x)); void r.getBoundingClientRect();
     r.classList.add("g-" + g);
-    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), 2050);   // un geste dure 2 secondes au plus
+    clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), (GDUR[g] || 2000) + 50);   // un geste dure de 2 à 3 secondes
   }
   function reduce() { return matchMedia("(prefers-reduced-motion: reduce)").matches || calm(); }
   function camera(sc) { World.stage(sc); }
@@ -2415,7 +2517,7 @@
         if (S0) { try { World.stage(DE ? { ...S0, type: "story", kicker: dayEndT(DE), endday: true } : { ...S0, type: "story" }); } catch (e) { }
           Flash.on(String(S0.kicker || CHAPTERS[S0.ch - 1].day).split("·")[0].trim(), S0.title || (lis[k] && lis[k].textContent.slice(0, 60)) || "");
           const C = (STAGE[id] && STAGE[id].cast) || [], w = (C.find((c) => c[0] !== "you") || [])[0];
-          if (w) setTimeout(() => { if (n.isConnected) { World.talk(w); setTimeout(() => World.talk(null), 2600); } }, 900); }
+          if (w) setTimeout(() => { if (n.isConnected) World.mime(w); }, 900); }   // souvenir muet : un geste, sans bouche (c'est le narrateur qui parle)
         tm = setTimeout(show, Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
       };
       setTimeout(show, 600);
@@ -2928,7 +3030,7 @@
       const k = el("div", { class: "mt-card" }, `<div class="mt-who">${face(c.who)}</div><div><p class="mt-t">${esc(c.t)}</p><p class="mt-kid">Enfant demandé : <b>${esc(c.kid)}</b></p></div>`);
       const acts = el("div", { class: "opts mt-acts" });
       sc.actions.forEach(([a, t], j) => { const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(t)}</span>`); b.addEventListener("click", () => pick(c, a, acts, b)); acts.appendChild(b); });
-      box.append(k, acts); World.talk(c.who); setTimeout(() => World.talk(null), 2500);
+      box.append(k, acts); if (World.mime) World.mime(c.who);   // c'est le narrateur qui lit la carte : la personne fait un geste, sa bouche ne bouge pas
       Voice.say("narr", c.t);
       // M. Rey, pressé : une grosse barre de temps sous pression oblige à choisir vite
       if (c.press && !calm()) {
@@ -3205,7 +3307,6 @@
       deckEl.appendChild(card); requestAnimationFrame(() => card.classList.add("in"));
       yes.disabled = no.disabled = !!c.intr;
       if (c.intr) {
-        if (c.who && World.talk) { World.talk(c.who); setTimeout(() => World.talk(null), 2400); }
         Voice.seq(VOICE_TXT.split(c.t, c.who)); Snd.mid && Snd.mid();
         const o = card.querySelector(".sw-iopts");
         mix([[c.ok, true], [c.ko, false]]).forEach(([tx, good], i) => {
@@ -3744,8 +3845,7 @@
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
       setTimeout(() => Voice.seq(seq), (ev.room ? 1000 : 450) + actT);
-      // son coupé : les personnes jouent quand même leurs répliques (gestes, visage, émotion)
-      if (!(Voice.ok && Voice.ready && st.settings.voice)) { const L0 = seq.filter(([w]) => w !== "narr"); L0.forEach(([w, t], i) => setTimeout(() => n.isConnected && World.talk(w, t), (ev.room ? 2600 : 1800) + i * 3000)); setTimeout(() => World.talk(null), (ev.room ? 2600 : 1800) + L0.length * 3000); }
+      // son coupé : Voice.seq fait quand même jouer les répliques (bouche, gestes, visage, émotion), le temps de les lire
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
       E.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11)).forEach((k, pos) => {
@@ -3755,7 +3855,6 @@
       panel.append(q, opts, fbz); wrap.appendChild(panel); n.appendChild(wrap);
       // « J'interviens » : la scène se déroule sous vos yeux ; c'est à vous de choisir le moment d'agir
       function vigil() {
-        const voiced = Voice.ok && Voice.ready && st.settings.voice;
         panel.insertBefore(el("p", { class: "narr vg-intro" }, words(ev.intro)), log);
         const go = el("button", { class: "cta vg-btn", type: "button" }, "J’interviens"); const bar = el("div", { class: "vg-bar" }, "<i></i>");
         panel.append(go, bar, fbz); wrap.appendChild(panel); n.appendChild(wrap);
@@ -3766,8 +3865,7 @@
           if (i >= ev.beats.length) { tm = setTimeout(() => !over && finishV(-1), 4500); return; }
           const [w, t, lv] = ev.beats[i++]; level = lv;
           const r = line(w, t); log.appendChild(r); r.scrollIntoView({ block: "nearest", behavior: "smooth" });
-          if (w !== "narr") World.talk(w, t);
-          if (voiced) Voice.say(w, t, r);
+          Voice.say(w, t, r);   // avec voix : bouche sur la voix ; sans voix : le temps de lire la réplique
           bar.querySelector("i").style.width = (i / ev.beats.length * 100) + "%";
           tm = setTimeout(step, Math.max(2600, 900 + t.length * 52));
         };
@@ -3785,8 +3883,8 @@
       }
       // « Le panneau » : épingler les trois bonnes affiches
       function board() {
-        const voiced = Voice.ok && Voice.ready && st.settings.voice;
-        ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); if (w !== "narr") setTimeout(() => World.talk(w, t), 900); if (voiced) setTimeout(() => Voice.say(w, t, r), 900); });
+        const S0 = []; ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); S0.push([w, t, r]); });
+        setTimeout(() => n.isConnected && Voice.seq(S0), 900);   // avec ou sans voix : bouche et gestes le temps de chaque réplique
         const grid = el("div", { class: "bd-grid" }), sel = new Set();
         const seed = [...ev.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
         ev.posters.map((p, k) => k).sort((x, y) => ((x * 29 + seed) % 13) - ((y * 29 + seed) % 13)).forEach((k) => {

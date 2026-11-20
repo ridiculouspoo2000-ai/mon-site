@@ -109,7 +109,7 @@ function explique(status, raw) {
 // ---------- Distribution : voix françaises à l’accent parisien de la bibliothèque ElevenLabs ----------
 // Les extraits d’écoute sont fournis gratuitement par la bibliothèque : aucun crédit n’est consommé ici.
 export const PROFILS = {
-  nour: { nom: "Nour", role: "Directrice adjointe et référente VSS, posée et chaleureuse", gender: "female", ages: ["middle_aged", "young"] },
+  nour: { nom: "Nour", role: "Directrice et référente VSS, posée et chaleureuse", gender: "female", ages: ["middle_aged", "young"] },
   ines: { nom: "Inès", role: "Jeune animatrice", gender: "female", ages: ["young"] },
   jade: { nom: "Jade", role: "Animatrice dynamique, sûre d’elle", gender: "female", ages: ["young"] },
   maelys: { nom: "Maëlys (14 ans)", role: "Adolescente de 14 ans, hésitante : « Je… je peux te parler ? »", gender: "female", ages: ["young"], enfant: ["child", "kid", "childlike", "kid character", "kid narrator", "enfant", "cute", "innocent", "young girl", "petite fille", "petit garçon", "cartoon"] },
@@ -212,8 +212,8 @@ export default async (req) => {
     return json({ ok: true, total: L.length, caracteres: L.reduce((a, x) => a + x.n, 0), lignes: L });
   }
   if (u.searchParams.get("a") === "test") {
-    const k = env("ELEVENLABS_API_KEY");
-    if (!k) return json({ ok: false, detail: "La variable ELEVENLABS_API_KEY n’est pas visible par cette version du site." });
+    const k = env(u.searchParams.get("cle") === "2" ? "ELEVENLABS_API_KEY_2" : "ELEVENLABS_API_KEY");
+    if (!k) return json({ ok: false, detail: `La variable ${u.searchParams.get("cle") === "2" ? "ELEVENLABS_API_KEY_2" : "ELEVENLABS_API_KEY"} n’est pas visible par cette version du site.` });
     try {
       const r = await fetch("https://api.elevenlabs.io/v1/user/subscription", { headers: { "xi-api-key": k.trim() } });
       const raw = await r.text();
@@ -274,13 +274,20 @@ export default async (req) => {
   const apiKey = env("ELEVENLABS_API_KEY");
   if (!apiKey) return json({ ok: false, error: "Voix non configurées." }, 503);
   try {
+    // deuxième clé facultative (ELEVENLABS_API_KEY_2) : prend le relais quand les crédits de la première sont épuisés
+    let cleApi = apiKey.trim();
     const tts = (vid) => fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}?output_format=mp3_44100_96`, {
       method: "POST",
-      headers: { "xi-api-key": apiKey.trim(), "Content-Type": "application/json", Accept: "audio/mpeg" },
+      headers: { "xi-api-key": cleApi, "Content-Type": "application/json", Accept: "audio/mpeg" },
       body: JSON.stringify({ text: (avecBalises() && BALISES[id]) || L.text, model_id: modele(), language_code: "fr", voice_settings: REGLAGES[L.who] || REGLAGES.defaut }),
     });
     const vid = voix()[L.who] || DEFAUT.nour;
     let r = await tts(vid), cle = key, repli = false;
+    const k2 = env("ELEVENLABS_API_KEY_2").trim();
+    if (!r.ok && k2 && [401, 402, 403, 429].includes(r.status)) {
+      const raw1 = (await r.clone().text()).slice(0, 400);
+      if (/quota|credit|limit|exceed|insufficient/i.test(raw1)) { cleApi = k2; r = await tts(vid); console.warn("voix : crédits épuisés sur la clé 1, relais par la clé 2"); }
+    }
     // Voix d’enfant pas encore ajoutée au compte : on garde l’ancienne voix pour cette réplique, en attendant.
     if (!r.ok && [400, 404].includes(r.status) && REPLI[L.who] && REPLI[L.who] !== vid) {
       const raw0 = (await r.text()).slice(0, 300);

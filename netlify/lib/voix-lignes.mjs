@@ -1710,11 +1710,11 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Enzo tombe et se cogne contre un poteau du préau. Clara, elle, n’a été protégée par aucun adulte. Un conflit physique ne se règle jamais entre jeunes, et protéger Clara est le rôle de l’adulte, pas celui de Sacha."
  },
- "d3abe6dc647e": {
+ "1c093b7b6718": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Allez, on joue à action ou vérité ! Zoé, action ou vérité ? Euh… action ? Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée ! J’ai pas envie… Je veux pas. Les autres se mettent à crier Bisou ! Bisou ! et poussent Zoé vers Malo. Vas-y, t’as pas le choix, c’est la règle du jeu !"
+  "text": "Allez, on joue à action ou vérité ! Zoé, action ou vérité ? Euh… je prends action. Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée ! J’ai pas envie… Je veux pas. Les autres se mettent à crier Bisou ! Bisou ! et poussent Zoé vers Malo. Vas-y, t’as pas le choix, c’est la règle du jeu !"
  },
  "cdf9435bd38e": {
   "who": "narr",
@@ -3654,11 +3654,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Allez, on joue à action ou vérité ! Zoé, action ou vérité ?"
  },
- "f1e94963fdaa": {
+ "c427ed9ddfc6": {
   "who": "zoe",
   "mood": "",
   "kind": "replique",
-  "text": "Euh… action ?"
+  "text": "Euh… je prends action."
  },
  "4e8c4b3750f5": {
   "who": "sacha",

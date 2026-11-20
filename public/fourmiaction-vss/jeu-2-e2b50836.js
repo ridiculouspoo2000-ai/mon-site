@@ -525,7 +525,7 @@ const SCREENS = [
         intro: "Au parc, un petit groupe joue à l’écart des animateurs. Observez. Intervenez au moment où il le faut : ni trop tôt pour rien, ni trop tard.",
         beats: [
           ["sacha", "Allez, on joue à action ou vérité ! Zoé, action ou vérité ?", 0],
-          ["zoe", "Euh… action ?", 0],
+          ["zoe", "Euh… je prends action.", 0],
           ["sacha", "Action : tu fais un bisou sur la bouche à Malo. Sinon t’es une poule mouillée !", 1],
           ["zoe", "J’ai pas envie… Je veux pas.", 1],
           ["narr", "Les autres se mettent à crier « Bisou ! Bisou ! » et poussent Zoé vers Malo.", 1],

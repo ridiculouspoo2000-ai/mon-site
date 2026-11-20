@@ -326,18 +326,19 @@
   if (st.settings.voice === undefined) st.settings.voice = true;
 
   /* ---------- son : musique générative par chapitre + ambiances (désactivable) ---------- */
+  const WIND_AT = new Set(["nuit1", "nuit3", "aurevoir"]);
   const MOODS = {
     home:  { bpm: 68, chords: [[53, 57, 60, 64], [50, 53, 57, 62], [46, 50, 53, 57], [48, 52, 55, 60]], arp: 0.34, oct: 12, wave: "triangle", cut: 1500, nature: "birds" },
     1:     { bpm: 72, chords: [[60, 64, 67, 71], [57, 60, 64, 67], [53, 57, 60, 64], [55, 59, 62, 65]], arp: 0.42, oct: 12, wave: "triangle", cut: 1800, nature: "birds" },
-    2:     { bpm: 62, chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]], arp: 0.2, oct: 12, wave: "sine", cut: 1100, nature: "room" },
+    2:     { bpm: 62, chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]], arp: 0.2, oct: 12, wave: "sine", cut: 1100, nature: null },
     3:     { bpm: 76, chords: [[55, 59, 62, 66], [52, 55, 59, 62], [48, 52, 55, 59], [50, 54, 57, 60]], arp: 0.46, oct: 12, wave: "triangle", cut: 1900, nature: "birds" },
-    4:     { bpm: 56, chords: [[50, 53, 57], [46, 50, 53], [48, 51, 55], [45, 48, 52]], arp: 0.08, oct: 0, wave: "sine", cut: 800, nature: "wind", pulse: true },
-    5:     { bpm: 70, chords: [[53, 57, 60, 64], [48, 52, 55, 59], [50, 53, 57, 60], [46, 50, 53, 57]], arp: 0.36, oct: 12, wave: "triangle", cut: 1600, nature: "room" },
+    4:     { bpm: 56, chords: [[50, 53, 57], [46, 50, 53], [48, 51, 55], [45, 48, 52]], arp: 0.08, oct: 0, wave: "sine", cut: 800, nature: null, pulse: true },
+    5:     { bpm: 70, chords: [[53, 57, 60, 64], [48, 52, 55, 59], [50, 53, 57, 60], [46, 50, 53, 57]], arp: 0.36, oct: 12, wave: "triangle", cut: 1600, nature: "birds" },
     6:     { bpm: 60, chords: [[52, 55, 59, 62], [48, 52, 55, 59], [45, 48, 52, 55], [47, 50, 54, 57]], arp: 0.22, oct: 12, wave: "sine", cut: 1200, nature: "crickets" },
     // tension : tempo rapide, accords mineurs graves, pulsation cardiaque et ostinato (moments d'urgence, scènes difficiles)
-    stress: { bpm: 104, chords: [[45, 48, 52], [45, 48, 53], [44, 47, 52], [43, 46, 50]], arp: 0.05, oct: 0, wave: "sawtooth", cut: 700, nature: "wind", pulse: true, heart: true, ost: true },
+    stress: { bpm: 104, chords: [[45, 48, 52], [45, 48, 53], [44, 47, 52], [43, 46, 50]], arp: 0.05, oct: 0, wave: "sawtooth", cut: 700, nature: null, pulse: true, heart: true, ost: true },
     // gravité : lent, sombre, très peu de notes (une parole d'enfant, une révélation)
-    grave: { bpm: 52, chords: [[45, 48, 52], [41, 45, 48], [43, 47, 50], [40, 43, 47]], arp: 0.04, oct: 0, wave: "sine", cut: 650, nature: "wind", pulse: true },
+    grave: { bpm: 52, chords: [[45, 48, 52], [41, 45, 48], [43, 47, 50], [40, 43, 47]], arp: 0.04, oct: 0, wave: "sine", cut: 650, nature: null, pulse: true },
     // fin de semaine : nostalgique, lent, quelques notes qui reviennent
     nostalgie: { bpm: 54, chords: [[53, 57, 60, 64], [52, 55, 59, 64], [50, 53, 57, 60], [48, 52, 55, 59]], arp: 0.12, oct: 12, wave: "sine", cut: 1300, nature: "birds",
       // une petite mélodie de boîte à musique, qui revient : la semaine qui se termine
@@ -466,13 +467,14 @@
       const c = this.ctx, old = this.nat;
       if (old) { try { old.g.gain.setTargetAtTime(0.0001, c.currentTime, 0.8); clearTimeout(old.t); setTimeout(() => { try { old.src && old.src.stop(); } catch (e) { } }, 3500); } catch (e) { } }
       this.natKind = kind;
+      if (!kind) { this.nat = null; return; }   // pas d'ambiance : le silence
       const g = c.createGain(); g.gain.value = 0.0001; g.connect(this.natBus);
       const n = { g, t: null, src: null };
       if (kind === "wind" || kind === "room") {
         const s = this.noise("brown"), f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = kind === "wind" ? 600 : 220;
         if (kind === "wind") { const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = 0.07; lg.gain.value = 260; l.connect(lg).connect(f.frequency); l.start(); }
         s.connect(f).connect(g); s.start(); n.src = s;
-        g.gain.setTargetAtTime(kind === "wind" ? 0.07 : 0.05, c.currentTime, 1.2);
+        g.gain.setTargetAtTime(kind === "wind" ? 0.045 : 0.05, c.currentTime, 1.2);
       } else {
         g.gain.setTargetAtTime(1, c.currentTime, 0.5);
         const chirp = () => {
@@ -485,6 +487,8 @@
       }
       this.nat = n;
     },
+    // le vent n'est plus un fond permanent : seulement la nuit de la nuitée et le soir de l'au revoir
+    windAt(id) { if (!this.on || !this.ctx) return; this.setNature(WIND_AT.has(id) ? "wind" : (MOODS[this.mood] || MOODS.home).nature); },
     setMood(key) {
       if (key === this.mood && this.on) return;
       this.mood = key;
@@ -606,11 +610,14 @@
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
           if (c && !c.on) { c.on = 1; World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
-      try { this.el.pause(); } catch (e) { }
-      (this._q || []).concat(this._cur ? [this._cur] : []).forEach((x) => x.e && x.e.classList.remove("vpend"));   // la séquence interrompue reste lisible
-      this._done();
-      // texte et voix ensemble : une réplique pas encore dite reste cachée, puis apparaît au moment où on l'entend
+      // personne ne se fait couper la parole : la phrase en cours se termine, puis on enchaîne sur la nouvelle
+      // (ce qui restait de l'ancienne séquence, pas encore dit, est abandonné et reste lisible)
+      (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend"));
       items.forEach((x) => { if (x.e) x.e.classList.add("vpend"); });
+      if (this.speaking()) { this._q = items; return; }
+      try { this.el.pause(); } catch (e) { }
+      if (this._cur && this._cur.e) this._cur.e.classList.remove("vpend");
+      this._done();
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
@@ -645,7 +652,15 @@
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { Lip.silent(null); Mise.stop(); (this._q || []).concat(this._cur ? [this._cur] : []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    // une réplique en train d'être dite (le son a démarré et n'est pas fini)
+    speaking() { return !!(this.el && this._cur && this._cur.on && !this.el.paused && !this.el.ended); },
+    // stop() : on laisse finir la phrase en cours, on abandonne la suite ; stop(true) : silence immédiat (voix coupée, nouvelle partie)
+    stop(hard) {
+      Lip.silent(null);
+      (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = [];
+      if (!hard && this.speaking()) return;
+      Mise.stop(); if (this._cur && this._cur.e) this._cur.e.classList.remove("vpend"); this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false);
+    },
   };
   Voice.check();
 
@@ -677,7 +692,7 @@
     const bv = $("#btn-voice");
     if (bv) { bv.hidden = !(Voice.ok && Voice.ready); bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
   }
-  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(); applySettings(); save(); });
+  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(true); applySettings(); save(); });
   $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); } else Snd.stopAmb(); applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
   $("#btn-carnet").addEventListener("click", () => openCarnet());
@@ -946,6 +961,7 @@
     const nx = SCREENS[st.idx + 1];
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
     Snd.setMood(sc.type === "replay" || sc.id === "aurevoir" || sc.id === "dafter" || sc.type === "bilan" ? "nostalgie" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
+    Snd.windAt(sc.id);
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     camera(sc);
@@ -3015,7 +3031,7 @@
   function prelude(done) {
     if (DC.el) DC.el.hidden = true;
     document.querySelectorAll(".roomfade").forEach((f) => f.classList.remove("on"));
-    hud(false); Voice.stop();
+    hud(false); Voice.stop(true);
     if (World.el) { World.el.classList.remove("on"); World.cur = null; }
     document.body.classList.remove("athome", "live", "grave", "scene");
     stage.innerHTML = "";
@@ -3031,7 +3047,7 @@
     const finish = () => {
       if (!alive) return; alive = false; clearTimeout(timer); cancelAnimationFrame(raf);
       if (audio) { try { audio.pause(); } catch (e) { } audio.removeAttribute("src"); }
-      Voice.stop(); Snd.duck(false); Snd.click(); done();
+      Voice.stop(true); Snd.duck(false); Snd.click(); done();
     };
     stage.appendChild(n);
     // positions éparpillées (en % de la zone), en alternance gauche / droite
@@ -4671,14 +4687,19 @@
   // La grande horloge : entre deux moments de la journée, on voit le temps passer
   function bigClock(a0, a1, label, o = {}) {
     if (calm() || a1 - a0 < 30 || document.querySelector(".bigclock")) return;
+    // pendant un passage au noir (on change de lieu), l'horloge attend : elle paraît une fois le nouveau lieu affiché
+    if (document.querySelector(".roomfade.on") && (o.tries || 0) < 16) { setTimeout(() => bigClock(a0, a1, label, { ...o, tries: (o.tries || 0) + 1 }), 250); return; }
     const k = el("div", { class: "bigclock" + (o.night ? " night" : ""), "aria-hidden": "true" }, `<svg viewBox="-60 -60 120 120"><circle r="56" class="bf"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-48" x2="0" y2="${i % 3 ? -43 : -39}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="6" x2="0" y2="-26"/><line class="mh" x1="0" y1="8" x2="0" y2="-40"/><circle r="3.2" class="bc"/></svg><p></p>`);
-    document.body.appendChild(k); requestAnimationFrame(() => k.classList.add("on"));
-    const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = o.dur || 2100;
+    // en grand, au centre, sur un fond flouté (sauf la nuit, qui a déjà sa propre page)
+    const veil = o.night ? null : el("div", { class: "bc-veil", "aria-hidden": "true" });
+    if (veil) document.body.appendChild(veil);
+    document.body.appendChild(k); requestAnimationFrame(() => { k.classList.add("on"); if (veil) veil.classList.add("on"); });
+    const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = o.dur || 2600;
     const f = (now) => {
       const t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3), m = a0 + (a1 - a0) * e;
       hh.setAttribute("transform", `rotate(${(m / 60 % 12) * 30})`); mh.setAttribute("transform", `rotate(${(m % 60) * 6})`);
       p.textContent = `${label ? label + " · " : ""}${Math.floor(m / 60) % 24} h ${String(Math.floor(m % 60)).padStart(2, "0")}`;
-      if (t < 1) requestAnimationFrame(f); else setTimeout(() => { k.classList.remove("on"); setTimeout(() => k.remove(), 500); }, 650);
+      if (t < 1) requestAnimationFrame(f); else setTimeout(() => { k.classList.remove("on"); if (veil) veil.classList.remove("on"); setTimeout(() => { k.remove(); if (veil) veil.remove(); }, 600); }, 900);
     };
     requestAnimationFrame(f); Snd.tick && Snd.tick();
   }

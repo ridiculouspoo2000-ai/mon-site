@@ -2459,6 +2459,9 @@ svg.rig-bust{display:block}
 /* vu de dos, assis : les mains rejoignent les cuisses, qui partent vers la table (aucune main ne dépasse sous l'assise) */
 .ractor.sitback .p-sit .aL{transform:rotate(-30deg)}.ractor.sitback .p-sit .aL .fore{transform:rotate(-8deg)}
 .ractor.sitback .p-sit .aR{transform:rotate(-12deg)}.ractor.sitback .p-sit .aR .fore{transform:rotate(-26deg)}
+/* assis de dos : jambe gauche sous la chaise (calque « legL » : rien d'autre), le personnage lui-même sans elle */
+.ractor.legL .rig .bob>*:not(.lL){visibility:hidden}.ractor.legL .emo-sign{display:none}
+.ractor.seated.sitback:not(.legL) .lL{visibility:hidden}
 /* ============ Gestes (environ 35) : courts (2 à 3 s), joués une fois pendant qu’une personne parle ou écoute ============ */
 @keyframes gx-explain-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-28deg)} 70%{transform:rotate(-24deg)} 100%{transform:rotate(5deg)}}
 .rig.g-explain .aL{animation:gx-explain-aL 2.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
@@ -3045,5 +3048,5 @@ body.dusk #dayclock{visibility:hidden}
 </div>
 <script src="jeu-1-0dfa4666.js"></script>
 <script src="jeu-2-6eeb918f.js"></script>
-<script src="jeu-3-7029fd52.js"></script>
+<script src="jeu-3-7d6a3a9b.js"></script>
 </body></html>

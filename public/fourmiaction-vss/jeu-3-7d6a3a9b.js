@@ -1252,6 +1252,13 @@
         if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
+        // assis de dos : la jambe gauche passe derrière l'assise et les pieds de la chaise (calque glissé sous la chaise),
+        // la droite reste devant, comme sur le modèle
+        if (seat && /sitback/.test(g.getAttribute("class"))) {
+          const lg = g.cloneNode(true); lg.setAttribute("class", g.getAttribute("class") + " legL"); lg.setAttribute("aria-hidden", "true");
+          const under = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d >= P.d - .0051);
+          svg.insertBefore(lg, under || g);
+        }
         L.push([g, [P.x, 0], P, seat]);
       });
       // l'étiquette « Vous » est posée au-dessus de tout le décor de la salle : un meuble devant les pieds ne la coupe plus

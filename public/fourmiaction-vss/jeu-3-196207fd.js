@@ -198,7 +198,7 @@
     const shadow = `<ellipse cx="0" cy="1" rx="${(B.H * .14).toFixed(1)}" ry="${(B.H * .035).toFixed(1)}" fill="#1B2A22" opacity=".18"/>`;
     const ex0 = (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? R * .6 : 0), vb = `${-H * .32} ${-H * 1.02 - ex0} ${H * .64} ${H * 1.06 + ex0}`;
     return `<svg class="rig" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" overflow="visible">${defs}${shadow}
-      <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(1, false)}${leg(-1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}`}</g></g></svg>`;
+      <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(-1, false)}${leg(1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}`}</g></g></svg>`;
   }
   // La distribution du jeu : âge, sexe, coiffure, vêtements (couleurs reprises des anciens personnages)
   const HS = { chignon: "bun", court: "short", ondule: "wavy", carre: "bob", rase: "buzz", chauve: "bald", boucles: "curly", herisse: "spiky", couettes: "pigtails", tresses: "braids", long: "long", queue: "ponytail", afro: "afro" };
@@ -988,7 +988,8 @@
     // la droite ; face en bas à gauche (+y ou dos tourné vers -x), le personnage est retourné en miroir autour du bassin.
     const c30 = Math.cos(Math.PI / 6), flip = P.fc === "+y" || P.fc === "-x";
     // vu de dos, les jambes partent dans le même sens que le dos : vers l'avant du personnage (la table), donc vers le fond
-    const away = P.fc === "-y" || P.fc === "-x", th = away ? -120 : -60, sk = Math.min(1.15, Math.max(.6, hip / Sh));
+    // tibias : jusqu'au sol, à hauteur du pied de la chaise (vu de dos, les genoux sont plus haut à l'écran : tibia plus long)
+    const away = P.fc === "-y" || P.fc === "-x", th = away ? -120 : -60, sk = Math.min(1.6, Math.max(.6, (hip + (away ? .5 * T : 0)) / Sh));
     // écart des deux jambes : le long de l'autre axe du plan
     const h = B.hipW * .55, ex = (1 - c30) * h, ey = .5 * h * 1.15 * (away ? -1 : 1);
     const dy = -(hip + B.hipY * k);                                       // pieds (origine du personnage) → bassin sur l'assise

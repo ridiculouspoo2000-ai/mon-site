@@ -726,17 +726,23 @@ export const LIGNES = {
   "kind": "systeme",
   "text": "Temps écoulé. Vous avez hésité trop longtemps : sur le terrain, l’hésitation laisse l’enfant seul face au danger."
  },
- "93c209a5361e": {
+ "e1a7b00005e8": {
   "who": "narr",
   "mood": "",
   "kind": "systeme",
-  "text": "Œil de lynx ! Tous les points repérés, sans perdre de temps."
+  "text": "Œil de lynx ! Tous les points repérés."
  },
  "125738c9369e": {
   "who": "narr",
   "mood": "",
   "kind": "systeme",
   "text": "Le temps est écoulé. Regardez les points que vous avez manqués."
+ },
+ "e27b9da06728": {
+  "who": "narr",
+  "mood": "",
+  "kind": "systeme",
+  "text": "La visite est terminée. Regardez les points que vous avez manqués."
  },
  "9037178b6f8a": {
   "who": "narr",
@@ -816,11 +822,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "9 h 30. Pendant que les groupes sont en activité, Nour revient vous chercher en salle des animateurs."
  },
- "7276889c1659": {
+ "a524a0fcf830": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "C’est l’heure de la visite. Nour, la directrice, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe. Vous avez deux minutes et deux indices."
+  "text": "C’est l’heure de la visite. Nour, la directrice, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe. Vous avez quatre minutes, et le temps s’arrête pendant qu’elle parle."
  },
  "2f38cf706ffb": {
   "who": "nour",
@@ -3540,11 +3546,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle des 14-17 ans, Kévin anime un tournoi de ping-pong. Sur le canapé, un jeune prépare le programme de la soirée de vendredi."
  },
- "1c0ab5ddb260": {
+ "e23ac6ebb96b": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette. Tout est calme."
+  "text": "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette."
  },
  "95eb07dc6f98": {
   "who": "narr",
@@ -3570,11 +3576,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Dans la salle d’activités, Léa fait un jeu de mime avec les plus jeunes. Ça rit beaucoup."
  },
- "ab390fe7b77d": {
+ "84a673126e6f": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "La régie est fermée à clé, comme il se doit. Rien à signaler."
+  "text": "La régie est fermée à clé."
  },
  "0b5d4ff0f005": {
   "who": "narr",
@@ -3582,11 +3588,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Sous le préau, quelques grands discutent à l’ombre."
  },
- "8ca5ff37c739": {
+ "371266a6c5e1": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Au potager, Tom et quelques enfants arrosent les tomates. Tout va bien : ici, rien à signaler."
+  "text": "Au potager, Tom et quelques enfants arrosent les tomates."
  },
  "162f8e3f30d2": {
   "who": "narr",
@@ -3606,11 +3612,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "La salle des animateurs est calme. Tous les animateurs semblent être avec leur groupe."
  },
- "25e58f56f882": {
+ "e56c9e51dd11": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la cour, Nour discute avec un parent. Elle vous fait signe : tout va bien de son côté."
+  "text": "Dans la cour, Nour discute avec un parent. Elle vous fait un signe de la main."
  },
  "a4b0d79c28d0": {
   "who": "narr",
@@ -3636,11 +3642,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Les sanitaires sont calmes."
  },
- "f6eedd8f6ad2": {
+ "0e23983b91da": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Les sanitaires sont vides et propres. Rien à signaler pour l’instant."
+  "text": "Les sanitaires sont vides pour l’instant."
  },
  "6030d41add2b": {
   "who": "narr",
@@ -3792,11 +3798,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Oui, il est super sympa avec moi. Il dit que je suis sa préférée."
  },
- "cd9d3439ba4a": {
+ "c1c89569348d": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "À l’aire de jeux, Samia, une animatrice des 6-11 ans, joue au chat avec les enfants. Tout le monde court, tout va bien."
+  "text": "À l’aire de jeux, Samia, une animatrice des 6-11 ans, joue au chat avec les enfants. Tout le monde court."
  },
  "a94d243a1850": {
   "who": "narr",
@@ -3810,11 +3816,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Sous le préau, deux grands révisent une chorégraphie pour la fête de vendredi."
  },
- "73b43f10a0a0": {
+ "52057972df18": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "Dans la cour, deux enfants gonflent les ballons pour le temps libre. Tout est calme."
+  "text": "Dans la cour, deux enfants gonflent les ballons pour le temps libre."
  },
  "9ca0e7483b59": {
   "who": "narr",

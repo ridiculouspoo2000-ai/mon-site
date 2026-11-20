@@ -2027,7 +2027,7 @@
     const need = sc.spots.filter((s) => s.real).length, maxHints = sc.hints == null ? 99 : sc.hints;
     const wrap = el("div", { class: "mapwrap lynx" });
     wrap.innerHTML = `<div class="maphead"><div><p class="kicker">Œil de lynx</p><h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div>
-      <div class="lx-hud"><div class="counter" aria-live="polite"><span id="cnt">0</span> / ${need} trouvés</div>${left ? `<div class="lx-clock" role="timer" aria-label="Temps restant"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b id="lx-t">${left}</b></div>` : ""}</div></div>`;
+      <div class="lx-hud"><div class="counter" aria-live="polite"><span id="cnt">0</span> / ${sc.spots.length} lieux visités</div>${left ? `<div class="lx-clock" role="timer" aria-label="Temps restant"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b id="lx-t">${left}</b></div>` : ""}</div></div>`;
     const map = el("div", { class: "map" + (dio ? " dio" : "") }, dio ? dioHTML() : A.map);
     if (dio) map.style.aspectRatio = String(dio.ratio);
     const card = el("div", { class: "spotcard", hidden: true, role: "dialog", "aria-modal": "false", "aria-labelledby": "spot-t" });
@@ -2054,16 +2054,19 @@
       const idx = sc.spots.findIndex((s, i) => s.real && !found.has(i));
       if (idx >= 0) { const b = map.querySelectorAll(".spot")[idx]; b.classList.add("hinted"); b.focus(); say("Regardez du côté de : " + sc.spots[idx].label); }
     }, "ghost");
-    const nb = btn("Continuer", () => { stop(); next(); });
-    nb.disabled = true;
+    const nb = btn("Terminer la visite", () => { if (!over) { Voice.stop(); finish(false); return; } stop(); next(); });
     bar.append(hb, nb);
     wrap.append(mapbox, el("p", { class: "lx-swipe", "aria-hidden": "true" }, "Faites glisser le plan pour voir tout l’accueil."), bar);
     n.appendChild(wrap);
     requestAnimationFrame(() => { if (mapbox.scrollWidth > mapbox.clientWidth) mapbox.scrollLeft = (mapbox.scrollWidth - mapbox.clientWidth) / 2; });
-    coach(dio ? "Vous faites la visite avec Nour : touchez un bâtiment ou un lieu, elle vous explique à quoi il sert et ce qui s’y passe. Les points à risque ne sont pas signalés, et chaque lieu sans problème vous coûte 5 secondes." : "Sélectionnez un lieu du plan (ou Tab puis Entrée) : Nour vous l’explique.", wrap);
+    coach(dio ? "Vous faites la visite avec Nour : touchez un bâtiment ou un lieu, elle vous explique à quoi il sert et ce qui s’y passe. Prenez le temps de l’écouter jusqu’au bout." : "Sélectionnez un lieu du plan (ou Tab puis Entrée) : Nour vous l’explique.", wrap);
     const clock = wrap.querySelector(".lx-clock");
     const tick = () => {
-      if (over) return; left = Math.max(0, left - 1);
+      if (over) return;
+      // pendant que Nour parle, le temps de la visite s'arrête : on peut l'écouter jusqu'au bout
+      if (Voice.busy()) { if (clock) clock.classList.add("wait"); return; }
+      if (clock) clock.classList.remove("wait");
+      left = Math.max(0, left - 1);
       const t = wrap.querySelector("#lx-t"); if (t) t.textContent = left;
       if (clock) { clock.querySelector(".t1").style.strokeDashoffset = (100 - (left / sc.timer) * 100).toFixed(1); clock.classList.toggle("hurry", left <= 20); }
       if (left <= 0) finish(true);
@@ -2074,18 +2077,20 @@
       if (over && !timeout) return;
       stop();
       const nf = found.size;
-      const stars = nf < need ? (nf >= need - 1 ? 1 : 0) : (hints === 0 && decoys <= 2 && left >= 30 ? 3 : hints <= 1 && decoys <= 4 ? 2 : 1);
-      const q = Math.max(0, Math.min(1, nf / need - hints * 0.1 - Math.max(0, decoys - 3) * 0.05));
+      const stars = nf < need ? (nf >= need - 1 ? 1 : 0) : (hints === 0 ? 3 : hints <= 1 ? 2 : 1);
+      const q = Math.max(0, Math.min(1, nf / need - hints * 0.1));
       record(sc, Math.round(q * 100) / 100);
       // révèle ce qui a été manqué
       sc.spots.forEach((s, i) => { if (s.real && !found.has(i)) map.querySelectorAll(".spot")[i].classList.add("missed"); });
       const res = el("div", { class: "lx-res", role: "status" }, `<div class="lx-stars" aria-label="${stars} étoile${stars > 1 ? "s" : ""} sur 3">${[1, 2, 3].map((k) => `<i class="${k <= stars ? "on" : ""}" style="--k:${k}"></i>`).join("")}</div>
-        <div><b>${timeout && nf < need ? "Temps écoulé" : stars === 3 ? "Œil de lynx !" : "Tous les points sont repérés"}</b><p>${nf} point${nf > 1 ? "s" : ""} sur ${need} · ${hints} indice${hints > 1 ? "s" : ""} · ${decoys} lieu${decoys > 1 ? "x" : ""} sans problème ouvert${decoys > 1 ? "s" : ""}${sc.timer ? ` · ${sc.timer - left} s` : ""}${nf < need ? ". Les points manqués sont entourés en orange : ouvrez-les avant de continuer." : ""}</p></div>`);
+        <div><b>${nf >= need ? (stars === 3 ? "Œil de lynx !" : "Tous les points sont repérés") : timeout ? "Temps écoulé" : "Visite terminée"}</b><p>${nf} point${nf > 1 ? "s" : ""} d’attention visité${nf > 1 ? "s" : ""} sur ${need} · ${hints} indice${hints > 1 ? "s" : ""}${sc.timer ? ` · ${sc.timer - left} s` : ""}${nf < need ? ". Les points manqués sont entourés en orange." : ""}</p></div>`);
       wrap.querySelector(".maphead").after(res);
       if (stars === 3) burst(res, "good");
-      nb.disabled = false; hb.disabled = true;
+      nb.textContent = "Continuer"; hb.disabled = true;
+      // l'analyse des lieux, une fois la visite finie (jamais dans la bulle d'un lieu)
+      res.appendChild(el("div", { class: "lx-lessons" }, `<p class="kicker">Ce qu’il fallait remarquer</p><ul>${sc.spots.filter((x) => x.real).map((x) => `<li><b>${esc(x.label)}</b> : ${esc(x.lesson)}</li>`).join("")}</ul>`));
       // l’annonce finale attend la fin de la description du dernier lieu (elle ne la coupe plus)
-      const endLine = stars === 3 ? "Œil de lynx ! Tous les points repérés, sans perdre de temps." : nf < need ? "Le temps est écoulé. Regardez les points que vous avez manqués." : "Tous les points sont repérés.";
+      const endLine = stars === 3 ? "Œil de lynx ! Tous les points repérés." : nf < need ? (timeout ? "Le temps est écoulé. " : "La visite est terminée. ") + "Regardez les points que vous avez manqués." : "Tous les points sont repérés.";
       const sayEnd = () => { if (wrap.isConnected) Voice.say("narr", endLine); };
       if (!timeout && Voice.busy()) { document.addEventListener("voice-idle", sayEnd, { once: true }); } else sayEnd();
       say(res.textContent);
@@ -2097,18 +2102,17 @@
       if (s.real) found.add(i);
       else if (!seenDecoy.has(i)) {
         seenDecoy.add(i); decoys++;
-        if (!over && sc.timer && LV().pen) { left = Math.max(1, left - LV().pen); const f = el("span", { class: "lx-pen", "aria-hidden": "true" }, `−${LV().pen} s`); b.appendChild(f); setTimeout(() => f.remove(), 1200); }
       }
-      $("#cnt", wrap).textContent = found.size;
+      $("#cnt", wrap).textContent = map.querySelectorAll(".spot.seen").length;
       card.hidden = false;
-      card.className = "spotcard " + (s.real ? "real" : "decoy");
+      card.className = "spotcard";
       // pendant la visite, Nour décrit les lieux, sans commentaire ; l'analyse n'apparaît qu'une fois la visite finie
-      card.innerHTML = over ? `<p class="kicker">${s.real ? "Point d’attention" : "Rien d’inquiétant"}${s.ref ? " · " + s.ref : ""}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p><p class="lesson">${esc(s.lesson)}</p>`
-        : `<p class="kicker">Nour vous fait visiter</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p>`;
+      // la bulle d'un lieu ne dit jamais s'il y a un risque ou non : seulement ce qu'est le lieu (l'analyse vient au bilan de la visite)
+      card.innerHTML = `<p class="kicker">${over ? "Le lieu" : "Nour vous fait visiter"}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p>`;
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
       card.appendChild(c); c.focus({ preventScroll: true }); card.scrollTop = 0;   // refonte : la fiche s'ouvre par son titre
-      if (s.real) { Snd.good(); burst(b, "good"); const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); } else Snd.mid();
-      if (found.size >= need && !over) finish(false);
+      { const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); }
+      // la visite ne s'arrête plus d'elle-même : on écoute Nour jusqu'au bout, puis on la termine quand on veut
     }
   };
 
@@ -3428,6 +3432,7 @@
     });
     const clock = wrap.querySelector(".lx-clock"), fbz = el("div", { class: "fbzone", "aria-live": "polite" });
     const tick = () => {
+      if (Voice.busy()) return;   // on écoute d’abord la réplique en cours
       left--; clock.querySelector("b").textContent = Math.max(0, left);
       clock.querySelector(".t1").style.strokeDashoffset = (100 - (left / sc.timer) * 100).toFixed(1); clock.classList.toggle("hurry", left <= 15);
       if (left <= 0) { clearInterval(tId); const b = map.querySelector(".fperson"); b.classList.add("hint"); found(b, true); }
@@ -3985,11 +3990,16 @@
       const k = Object.keys(SPOTS).find((s) => dist([you.x, you.y], SPOTS[s]) < 2.6), slot = k + Math.floor(S.t / 45);
       if (!k || S.seen[slot]) return;
       const C = (sc.calm || {})[k]; if (!C) return;
+      if (Object.keys(DOORS).some((d) => NODES[d] && dist([you.x, you.y], NODES[d]) < 1.6)) return;   // au seuil d'une salle : on va entrer
       S.seen[slot] = 1;
+      n.querySelectorAll(".rm-bub").forEach((x) => x.remove());
       const b = el("div", { class: "rm-bub" }, `${kicker(`${fmtMin(S.t)} · ${PLACE[k] || ""}`)}<p>${words(C.t)}</p>`);
       n.appendChild(b); requestAnimationFrame(() => b.classList.add("on"));
       Voice.say("narr", C.t, b.querySelector("p"));
-      setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 500); }, 7000);
+      // elle reste tant qu'on l'écoute, puis le temps de finir de la lire
+      const t0 = Date.now(), minT = Math.max(7000, 1500 + C.t.length * 60);
+      const hide = () => { if (!b.isConnected) return; if (Date.now() - t0 < minT || (Voice.busy() && Date.now() - t0 < 40000)) return setTimeout(hide, 400); b.classList.remove("on"); setTimeout(() => b.remove(), 500); };
+      setTimeout(hide, 1500);
     }
 
     /* -- entrer : on disparaît par la porte, puis on plonge dans la salle -- */
@@ -4004,8 +4014,8 @@
       };
       if (reduce() || st.settings.calm) { you.el.classList.add("indoor"); return go(); }
       aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 700);
-      setTimeout(() => you.el.classList.add("indoor"), 300);
-      setTimeout(() => blackout(go), 560);
+      setTimeout(() => you.el.classList.add("indoor"), 200);
+      setTimeout(() => blackout(go), 380);
     }
     // le couloir du bâtiment principal : on choisit la salle
     function hall(fromMap) {
@@ -4017,7 +4027,7 @@
       MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { g.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
         const into = () => blackout(() => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); });
         // depuis le plan : un zoom vers le bâtiment, puis le noir, puis la salle ; depuis une salle : le noir, puis la salle
-        if (fromMap && !reduce() && !st.settings.calm) { aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 600); setTimeout(into, 480); } else into(); }); g.appendChild(b); });
+        if (fromMap && !reduce() && !st.settings.calm) { aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 600); setTimeout(into, 380); } else into(); }); g.appendChild(b); });
       // le couloir, vu de dessus : les portes des salles de part et d'autre, l'entrée vitrée au bout
       const plan = el("div", { class: "hall-plan", "aria-hidden": "true" });
       const D = MAIN_ROOMS.map((k, i) => { const top = i % 2 === 0, x = 60 + Math.floor(i / 2) * 150; return `<g class="hp-door" data-i="${i}" transform="translate(${x},${top ? 22 : 118})"><rect x="-58" y="${top ? -16 : 0}" width="116" height="16" rx="4" class="hp-room"/><rect x="-16" y="${top ? -3 : 0}" width="32" height="5" rx="2" class="hp-gap"/><text x="0" y="${top ? -24 : 34}">${esc(PLACE[k])}</text></g>`; }).join("");
@@ -4082,7 +4092,7 @@
       if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
-      setTimeout(() => Voice.seq(seq), (ev.room ? 1000 : 450) + actT);
+      setTimeout(() => n.isConnected && Voice.seq(seq), ev.room ? 150 : 450 + actT);   // en salle : la scène se lance dès l’entrée
       // son coupé : Voice.seq fait quand même jouer les répliques (bouche, gestes, visage, émotion), le temps de les lire
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
@@ -4100,14 +4110,17 @@
         let i = 0, level = 0, over = false, tm = 0;
         const step = () => {
           if (over || !n.isConnected) return;
-          if (i >= ev.beats.length) { tm = setTimeout(() => !over && finishV(-1), 4500); return; }
+          if (i >= ev.beats.length) { tm = setTimeout(() => !over && finishV(-1), 6500); return; }
           const [w, t, lv] = ev.beats[i++]; level = lv;
           const r = line(w, t); log.appendChild(r); r.scrollIntoView({ block: "nearest", behavior: "smooth" });
           Voice.say(w, t, r);   // avec voix : bouche sur la voix ; sans voix : le temps de lire la réplique
           bar.querySelector("i").style.width = (i / ev.beats.length * 100) + "%";
-          tm = setTimeout(step, Math.max(2600, 900 + t.length * 52));
+          // la réplique suivante attend la fin de celle-ci (on a le temps d'écouter), puis un court silence
+          const t1 = Date.now(), minT = Math.max(2600, 900 + t.length * 52);
+          const wait = () => { if (over || !n.isConnected) return; if (Date.now() - t1 < minT || (Voice.busy() && Date.now() - t1 < 30000)) { tm = setTimeout(wait, 250); return; } tm = setTimeout(step, 700); };
+          tm = setTimeout(wait, 600);
         };
-        setTimeout(step, 1400);
+        setTimeout(step, 400);
         go.addEventListener("click", () => finishV(level));
         function finishV(lv) {
           if (over) return; over = true; clearTimeout(tm); Voice.stop(); World.talk(null); go.remove(); bar.remove();
@@ -4122,7 +4135,7 @@
       // « Le panneau » : épingler les trois bonnes affiches
       function board() {
         const S0 = []; ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); S0.push([w, t, r]); });
-        setTimeout(() => n.isConnected && Voice.seq(S0), 900);   // avec ou sans voix : bouche et gestes le temps de chaque réplique
+        setTimeout(() => n.isConnected && Voice.seq(S0), ev0 && ev0.room ? 150 : 600);   // avec ou sans voix : bouche et gestes le temps de chaque réplique
         const grid = el("div", { class: "bd-grid" }), sel = new Set();
         const seed = [...ev.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
         ev.posters.map((p, k) => k).sort((x, y) => ((x * 29 + seed) % 13) - ((y * 29 + seed) % 13)).forEach((k) => {
@@ -4160,7 +4173,7 @@
     }
     // une salle calme : on y entre, on regarde, on ressort
     function calm(key) {
-      const C = (sc.calm || {})[key] || { cast: [["you", "a", "stand"]], t: `${PLACE[key]} : rien à signaler.` };
+      const C = (sc.calm || {})[key] || { cast: [["you", "a", "stand"]], t: `${PLACE[key]}.` };
       const evH = sc.events.find((e) => e.room === key), txt = C.before && evH && !S.done[evH.id] && S.t < toMin(evH.from) ? C.before : C.t;
       document.body.classList.remove("roaming"); Life.clear();
       const room = C.room || (A.dio.inner && A.dio.inner[key] ? key : null);
@@ -4176,7 +4189,7 @@
       if (MAIN_ROOMS.includes(key)) row.appendChild(btn("Une autre salle du bâtiment", () => { Snd.click(); Voice.stop(); hall(); }, "ghost"));
       row.appendChild(btn("Ressortir", () => { Snd.click(); Voice.stop(); outside(); }));
       panel.appendChild(row); wrap.appendChild(panel); n.appendChild(wrap);
-      setTimeout(() => Voice.say("narr", txt, panel.querySelector(".narr")), 700);
+      setTimeout(() => n.isConnected && Voice.say("narr", txt, panel.querySelector(".narr")), 150);   // la salle se raconte dès l’entrée
       row.querySelector("button").focus({ preventScroll: true });
     }
     let finished = false;

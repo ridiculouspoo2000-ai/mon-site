@@ -546,11 +546,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Euh… en prison ?!"
  },
- "c65c155ad5a6": {
+ "dc08251630f0": {
   "who": "lou",
   "mood": "calm",
   "kind": "replique",
-  "text": "…D’accord."
+  "text": "…D’accord. Merci."
  },
  "a816e127a83e": {
   "who": "nour",
@@ -3306,11 +3306,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Ben… je crois. Laisse tomber."
  },
- "4a65d0076d3d": {
+ "f2a98bbdce93": {
   "who": "sacha",
   "mood": "",
   "kind": "replique",
-  "text": "D’accord…"
+  "text": "D’accord… merci."
  },
  "a2def1371cd0": {
   "who": "sacha",
@@ -3372,11 +3372,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "C’est vrai ? Euh… je peux être goal ?"
  },
- "f13aaa7c45d3": {
+ "471575b680a2": {
   "who": "zoe",
   "mood": "",
   "kind": "replique",
-  "text": "D’accord…"
+  "text": "D’accord… je vais voir."
  },
  "ef404576a6a8": {
   "who": "theo",
@@ -3714,11 +3714,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Merci !"
  },
- "b1e40d721d69": {
+ "42bafd538f52": {
   "who": "malo",
   "mood": "",
   "kind": "replique",
-  "text": "J’ai fait une bêtise ?"
+  "text": "J’ai fait une bêtise, moi ?"
  },
  "f861cd82a18e": {
   "who": "nour",

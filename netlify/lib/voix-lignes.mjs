@@ -324,11 +324,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Merci. Ça me rassure de savoir comment vous vous organisez."
  },
- "9604147a8e3e": {
+ "564e0b7b1c97": {
   "who": "nour",
   "mood": "calm",
   "kind": "replique",
-  "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
+  "text": "On fait avec. Ce matin, tu gères seule les petits, et l’accompagnement aux sanitaires."
  },
  "f491780644aa": {
   "who": "benali",
@@ -924,17 +924,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 30. La visite est finie et vous avez déjeuné avec l’équipe."
  },
- "cc1da1712f7a": {
+ "f32f644f0190": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Après le repas, vous circulez dans l’accueil, en volante. Avancez sur les chemins, entrez dans les salles, et restez attentive à ce qui se passe autour de vous."
+  "text": "Vous circulez dans l’accueil, en volante. Avancez sur les chemins, entrez dans les salles, et restez attentive à ce qui se passe autour de vous."
  },
- "5d24c034d9c5": {
+ "0b3633233e94": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Lundi, 14 h. La visite est finie et vous avez déjeuné avec l’équipe. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
+  "text": "Lundi, 14 h. Nour vous envoie en renfort à l’atelier radio de Bastien, avec des jeunes du groupe des 13-17 ans."
  },
  "6f7a982b074b": {
   "who": "narr",
@@ -1266,17 +1266,17 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 30. Retour en salle des animateurs. Nour enfile sa veste : elle doit partir en réunion."
  },
- "f3da663accc5": {
+ "7d4d7e43b16a": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Nour est appelée en réunion à la mairie jusqu’à 17 h. Avant de partir, elle vous confie le planning de l’après-midi : Tu connais les règles, je te fais confiance. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
+  "text": "Sa réunion à la mairie dure jusqu’à 17 h. Avant de partir, elle vous confie le planning de l’après-midi : Tu connais les règles, je te fais confiance. Placez chaque animateur sur un poste, en respectant les règles de l’équipe affichées en salle d’équipe : elles sont dans votre carnet."
  },
- "97ac3d359c81": {
+ "39ecb176d5ae": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "14 h, c’est le temps calme. Jade vous montre un dessin de Noé, 8 ans, et vous parle de lui."
+  "text": "14 h, c’est le temps calme. Jade vous montre un dessin et vous parle de l’enfant qui l’a fait."
  },
  "3285cdf4279c": {
   "who": "narr",
@@ -1428,11 +1428,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mercredi, 8 h 05. Avant l’ouverture du portail, Nour, la directrice, réunit l’équipe dans son bureau : il manque du monde aujourd’hui."
  },
- "16d0497b33ce": {
+ "ed56bbdf1518": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mercredi, c’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Nour vous prend à part"
+  "text": "C’est la grosse journée : 52 enfants attendus du matin au soir. Trois jours de suite, la fatigue se voit sur tous les visages, et deux animateurs viennent d’appeler : malades. Nour vous prend à part"
  },
  "2dfc99e4c4bb": {
   "who": "narr",
@@ -1440,11 +1440,11 @@ export const LIGNES = {
   "kind": "retour-bon",
   "text": "L’organisateur envoie une animatrice remplaçante à 10 h. Jusque-là, deux groupes sont réunis dans la grande salle. La fatigue et le sous-effectif sont précisément les moments où les règles tiennent ou cèdent : on adapte l’organisation, pas la sécurité."
  },
- "a7f0e777b06f": {
+ "1940d838e57e": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
-  "text": "À 9 h 40, vous êtes seul aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
+  "text": "À 9 h 40, vous êtes seule aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
  },
  "342bbad24edd": {
   "who": "narr",
@@ -1650,11 +1650,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Jeudi, 13 h 30. Après le repas, Nour vous laisse à nouveau circuler dans l’accueil jusqu’à 16 h."
  },
- "0fec55965999": {
+ "c4cbac7b05ad": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Jeudi après-midi. Vous circulez librement : avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30."
+  "text": "Avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30."
  },
  "8448971c62b3": {
   "who": "narr",
@@ -1878,23 +1878,23 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Lou a parlé. Vous l’avez écouté sans le questionner, et il est toujours à côté de vous."
  },
- "0eb446a99338": {
+ "edd08abf71e5": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Lou est à côté de vous. L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro."
+  "text": "L’adulte qu’il désigne doit venir le chercher dans moins d’une heure. Il faut appeler quelqu’un, tout de suite. Qui appelez-vous ? Composez le numéro."
  },
- "7f9d6466a549": {
+ "4a72e2d189d1": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "16 h 06. Les gendarmes ont répondu : ils arrivent. D’ici 17 h, chaque minute compte."
+  "text": "16 h 06. Les gendarmes ont répondu : ils arrivent."
  },
- "074e10b00bb7": {
+ "44b1c80f75b4": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Il est 16 h 06. L’adulte désigné par Lou doit venir le chercher à 17 h. Chaque action prend du temps : faites celles qui protègent Lou, et seulement celles-là."
+  "text": "L’adulte désigné par Lou doit venir le chercher à 17 h. Chaque action prend du temps : faites celles qui protègent Lou, et seulement celles-là."
  },
  "ce0cb94ede41": {
   "who": "narr",
@@ -1902,11 +1902,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Tout s’est enchaîné très vite. Revivez maintenant ces dix premières minutes en temps réel, comme si vous y étiez : chaque seconde compte."
  },
- "ad9b3c52ae4d": {
+ "afb978a5be69": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver."
+  "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentrée : d’autres demandes vont arriver."
  },
  "56bcdd6d86f9": {
   "who": "narr",
@@ -2130,11 +2130,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 15. Maëlys est avec Inès, loin du local."
  },
- "45ffd054f3d8": {
+ "05a54bb74582": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Maëlys est à l’abri avec Inès, et l’alerte est lancée. Elle a parlé de Sacha. À vous de décider : vous pouvez aller le voir, sans enquêter, ou simplement transmettre son nom. Personne ne vous dit où il est : demandez autour de vous, discrètement."
+  "text": "L’alerte est lancée. Maëlys a parlé de Sacha. À vous de décider : vous pouvez aller le voir, sans enquêter, ou simplement transmettre son nom. Personne ne vous dit où il est : demandez autour de vous, discrètement."
  },
  "e04cf9062bfe": {
   "who": "narr",
@@ -2142,11 +2142,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "13 h 20. Vous vous installez avec Sacha dans la salle des 11-14 ans, au calme."
  },
- "63ae849a886e": {
+ "b2480843517e": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Vous êtes assis avec Sacha, 11 ans, un peu à l’écart. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
+  "text": "Sacha, 11 ans, a peut-être vu quelque chose. Il ne s’agit pas d’enquêter : accueillez ce qu’il dit, notez ses mots exacts, puis remerciez-le et transmettez."
  },
  "d9ce5eb03ce0": {
   "who": "narr",

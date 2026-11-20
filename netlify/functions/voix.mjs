@@ -256,6 +256,26 @@ export default async (req) => {
     return json({ ok: true });
   }
   if (u.searchParams.get("a") === "apercu") return apercu(u.searchParams.get("u"));
+  // Contrôle de langue : on fait réécouter une réplique déjà générée par la reconnaissance vocale d'ElevenLabs
+  // (langue détectée + texte entendu), pour repérer une voix partie en anglais. Aucun crédit de voix consommé.
+  if (u.searchParams.get("a") === "ecoute") {
+    const id0 = String(u.searchParams.get("id") || "").replace(/[^a-f0-9]/g, "").slice(0, 12), L0 = LIGNES[id0];
+    if (!L0) return json({ ok: false, error: "Réplique inconnue." }, 404);
+    const b64 = await store().get(ckey(id0, L0.who)); if (!b64) return json({ ok: false, id: id0, absente: true });
+    const k = (env("ELEVENLABS_API_KEY_2") || env("ELEVENLABS_API_KEY")).trim();
+    const fd = new FormData(); fd.append("model_id", "scribe_v1"); fd.append("file", new Blob([Buffer.from(b64, "base64")], { type: "audio/mpeg" }), "r.mp3");
+    const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", { method: "POST", headers: { "xi-api-key": k }, body: fd });
+    const raw = await r.text(); if (!r.ok) return json({ ok: false, id: id0, detail: explique(r.status, raw.slice(0, 300)) }, 502);
+    let j = {}; try { j = JSON.parse(raw); } catch {}
+    return json({ ok: true, id: id0, who: L0.who, langue: j.language_code, proba: j.language_probability, entendu: String(j.text || "").slice(0, 400), attendu: L0.text.slice(0, 400) });
+  }
+  // Refaire une réplique (après un contrôle raté) : on efface la version enregistrée et on la régénère.
+  if (u.searchParams.get("a") === "refaire" && req.method === "POST") {
+    const id0 = String(u.searchParams.get("id") || "").replace(/[^a-f0-9]/g, "").slice(0, 12), L0 = LIGNES[id0];
+    if (!L0) return json({ ok: false, error: "Réplique inconnue." }, 404);
+    await store().delete(ckey(id0, L0.who));
+    return json({ ok: true, id: id0 });
+  }
   const id = String(u.searchParams.get("id") || "").replace(/[^a-f0-9]/g, "").slice(0, 12);
   const L = LIGNES[id];
   if (!L) return json({ ok: false, error: "Réplique inconnue." }, 404);

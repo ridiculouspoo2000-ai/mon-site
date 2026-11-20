@@ -200,7 +200,7 @@ const SCREENS = [
     ],
     calm: {
       petits: { cast: [["you", "b"]], room: "petits", t: "La salle des 6-11 ans est vide : le groupe de Jade est dehors, entre le parc et l’aire de jeux. Le goûter, elle le prendra ici avec eux, à 16 h 30." },
-      ados: { cast: [["kevin", "d", "talk"], ["t1", "a"], ["t2", "f"], ["t3", "s1"], ["you", "b"]], room: "ados", t: "Dans la salle des 14-17 ans, Kévin anime un tournoi de ping-pong. Sur le canapé, un jeune prépare le programme de la soirée de vendredi." },
+      ados: { cast: [["kevin", "d", "talk"], ["t1", "p1", "pingpong"], ["t2", "p2", "pingpong"], ["t3", "s1"], ["you", "b"]], room: "ados", t: "Dans la salle des 14-17 ans, Kévin anime un tournoi de ping-pong. Sur le canapé, un jeune prépare le programme de la soirée de vendredi." },
       grands: { cast: [["ines", "a", "talk"], ["you", "b"], ["sacha", "s1"]], room: "grands", t: "Dans la salle des 11-14 ans, Inès aide Sacha à finir une maquette." },
       direction: { cast: [["you", "b"]], room: "direction", t: "Le bureau de Nour est vide : elle est sur le terrain, avec les familles. Sur la porte vitrée, un mot : « Je suis dans la cour, venez me voir au besoin. »" },
       soins: { cast: [["you", "a"]], room: "soins", t: "L’infirmerie est vide. Le registre des soins est rangé à sa place, dans l’armoire." },

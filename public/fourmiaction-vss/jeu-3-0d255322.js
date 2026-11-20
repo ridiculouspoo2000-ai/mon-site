@@ -89,7 +89,7 @@
             ${limb(B.upArm * .9, B.foreArm, B.foreLen, sleeveLong ? sl : skin)}
             ${sleeveLong ? `<rect x="${(-B.foreArm / 2).toFixed(1)}" y="${(B.foreLen - 2.2).toFixed(1)}" width="${B.foreArm.toFixed(1)}" height="2.4" rx="1" fill="${back ? tone(top, -.3) : topD}"/>` : ""}
             <g class="hand"><ellipse cx="0" cy="${(B.foreLen + B.foreArm * .55).toFixed(1)}" rx="${(B.foreArm * .62).toFixed(1)}" ry="${(B.foreArm * .72).toFixed(1)}" fill="${skin}"/>
-            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/></g>
+            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? `<g class="prop-paddle"><rect x="${(-B.foreArm * .22).toFixed(1)}" y="${(B.foreLen + B.foreArm * .3).toFixed(1)}" width="${(B.foreArm * .44).toFixed(1)}" height="${(B.foreArm * 1.5).toFixed(1)}" rx=".6" fill="#B07A4E"/><ellipse cx="0" cy="${(B.foreLen + B.foreArm * 2.9).toFixed(1)}" rx="${(B.foreArm * 1.25).toFixed(1)}" ry="${(B.foreArm * 1.45).toFixed(1)}" fill="#C62828" stroke="#1F1F1F" stroke-width=".5"/></g>` : ""}</g>
           </g></g></g></g>`;
     };
     // buste : vêtement qui suit l'épaule et la taille
@@ -975,7 +975,7 @@
   }
   // Refonte : fenêtres éclairées en fin de journée. Le plan est une image : on en fait trois versions (éteinte, en train de
   // s'allumer, allumée) en ajoutant une règle de style au dessin, une seule fois chacune.
-  const LIT_CSS = ["", ".dio-win{fill:#F3D7A2}", ".dio-win{fill:#FFD98A}"];
+  const LIT_CSS = ["", ".dio-win{fill:#F3D7A2}.dio-dusk{opacity:.1}.dio-beam{opacity:.35}.dio-pool{opacity:.45}", ".dio-win{fill:#FFD98A}.dio-dusk{opacity:.3}.dio-beam{opacity:1}.dio-pool{opacity:1}"];   // fenêtres allumées, faisceaux et flaques des lampadaires au sol
   function litStyle(svg, lvl) { return lvl ? svg.replace("</style>", LIT_CSS[lvl] + "</style>") : svg; }
   function litURL(lvl) {
     litURL.c = litURL.c || {};
@@ -1284,10 +1284,9 @@
       if (this._glows || !this.cam) return; this._glows = true;
       const host = this.cam.querySelector(".wanim"); if (!host) return;
       const add = (x, y, w, h, cls) => { const f = w2f(x, y); host.appendChild(el("i", { class: "wglow " + cls, style: `left:${f[0]}%;top:${f[1]}%;width:${w}%;height:${h}%;z-index:${zOf(x, y) - 30}` })); };
-      [[3.6, 21.7], [11.6, 21.7], [19.6, 21.7], [29.4, 19.0], [31.0, 25.2]].forEach(([x, y]) => add(x + .3, y - .3, 4.6, 3.2, "lamp"));
-      [4.35, 6.75, 9.35, 11.75, 13.8, 18.6, 22.5, 25.3].forEach((x) => add(x + .35, 19.7, 3.4, 2.1, "win"));
-      [20.95, 24.75].forEach((x) => add(x + .3, 9.1, 3, 1.8, "win"));
-      [0, 1, 2, 3].forEach((i) => add(32.05 + i * 1.45 + .3, 16.0, 2.8, 1.8, "win"));
+      // les lumières du soir (faisceaux des fenêtres, flaques sous les lampadaires) sont dessinées au sol dans le plan lui-même :
+      // elles passent sous les bâtiments et les personnes, jamais sur les toits
+      void add;
     },
     // fenêtres éclairées : on passe par le niveau intermédiaire (les lumières s'allument une à une)
     lights(lv) {
@@ -1297,10 +1296,11 @@
       const fade = (src) => {
         if (reduce()) { im.src = src; return; }
         const ov = im.cloneNode(); ov.classList.add("lit-ov"); ov.src = src; ov.style.opacity = "0";
+        ov.style.transition = "opacity 5s ease";
         im.after(ov); requestAnimationFrame(() => requestAnimationFrame(() => (ov.style.opacity = "1")));
-        setTimeout(() => { im.src = src; setTimeout(() => ov.remove(), 120); }, 1700);
+        setTimeout(() => { im.src = src; setTimeout(() => ov.remove(), 160); }, 5100);
       };
-      if (lv === 2 && from === 0 && !reduce()) { fade(litURL(1)); this._lt = setTimeout(() => { if (this.lit === 2) fade(litURL(2)); }, 1900); }
+      if (lv === 2 && from === 0 && !reduce()) { fade(litURL(1)); this._lt = setTimeout(() => { if (this.lit === 2) fade(litURL(2)); }, 5300); }
       else fade(litURL(lv));
     },
     // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
@@ -1351,11 +1351,11 @@
       });
       castL.forEach(([who, slot, pose], k) => {
         const P = place[who]; if (!P) return;
-        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose || "stand");
+        const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose === "pingpong" ? "listen" : pose || "stand");
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
         const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
-        g.setAttribute("class", "ractor" + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
+        g.setAttribute("class", "ractor" + (pose === "pingpong" ? " paddle" : "") + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
         if (seat) g.setAttribute("style", seat.css);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
@@ -3454,6 +3454,27 @@
       setTimeout(() => fbz.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
     }
     wrap.append(box, fbz); n.appendChild(wrap);
+    // « Où est Charlie ? » : un indice sur la tenue de la personne cherchée, et une vraie foule qui circule sur le centre
+    {
+      const sp = rigSpec(sc.who) || {}, fem = sp.sex === "f";
+      const COLS = [["rouge", "#C62828"], ["orange", "#E2702A"], ["jaune", "#F4B63F"], ["vert", "#3F8A5A"], ["vert d’eau", "#2F9C8A"], ["bleu", "#2B6FD6"], ["bleu marine", "#2F4058"],
+        ["violet", "#7A4FA8"], ["rose", "#E86A8A"], ["gris", "#8A929A"], ["blanc", "#F4F4F2"], ["noir", "#2A2A2A"], ["marron", "#7A5236"], ["bordeaux", "#8A2E3E"], ["turquoise", "#2EA3B5"]];
+      const hx = (h) => { h = String(h || "#888").replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+      const nameOf = (h) => { const c = hx(h); return COLS.map(([n, v]) => [n, hx(v).reduce((t, x, i) => t + (x - c[i]) ** 2, 0)]).sort((a, b) => a[1] - b[1])[0][0]; };
+      const HAIR = { brun: "bruns", noir: "noirs", blond: "blonds", chatain: "châtains", roux: "roux", gris: "gris" };
+      const STY = { pigtails: "en couettes", ponytail: "attachés en queue-de-cheval", curly: "bouclés", bob: "au carré", buzz: "très courts", short: "courts", long: "longs", bun: "en chignon", braids: "tressés", afro: "frisés" };
+      const top = nameOf(sp.top), hair = [HAIR[sp.hair] || "", STY[sp.hairStyle] || ""].filter(Boolean).join(", ");
+      const clue = el("div", { class: "fd-clue", role: "note" }, `<div class="fd-face" aria-hidden="true">${faceOf(sc.who)}</div><div><p class="kicker">Indice · comment ${fem ? "la" : "le"} reconnaître</p><p><b>${esc(NAMES[sc.who] || "")}</b> porte un haut <b>${esc(top)}</b>${hair ? `, cheveux ${esc(hair)}` : ""}.</p></div>`);
+      wrap.insertBefore(clue, box);
+      const taken = new Set([sc.who, ...sc.decoys.map((d) => d[0])]);
+      const POOL = ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11", "k12", "k13", "k14", "k15", "k16", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "hugo", "samia", "yanis", "lea", "tom", "ines"];
+      const ids = POOL.filter((w) => !taken.has(w)).slice(0, 24);
+      if (typeof crowdOn === "function") crowdOn(map, ids, (w) => {
+        if (done) return; Snd.click();
+        const nm = NAMES[w] || (/^t\d/.test(w) ? "Un jeune" : /^k\d/.test(w) ? "Un enfant" : "Un animateur");
+        toastMsg(free ? `${nm} : « Je l’ai pas vu… »` : `Ce n’est pas ${NAMES[sc.who] || "elle"}.`);
+      });
+    }
     if (free) {
       wrap.querySelector(".lx-hud").remove();
       // l'autre choix, tout aussi juste : ne pas aller le voir, et transmettre simplement son nom
@@ -3701,6 +3722,30 @@
   // (vous la suivez) ; derrière un bâtiment, il devient transparent, comme pendant les promenades.
   const TOUR_AT = { petits: "dMain", grands: "dMain", direction: "dMain", equipe: "dMain", cuisine: "dCuis", soins: "dSoins", radio: "dRad", libre: "dLib",
     sanitaires: "dSan", local: "dLoc", refectoire: "dRef", ados: "dAdo", entree: "gate" };
+  // Une foule qui circule vraiment sur le plan (recherche d'une personne) : des enfants, des jeunes et des adultes vont
+  // d'un point à l'autre par les chemins, avec des pauses ; on peut les toucher (ce n'est pas la personne cherchée).
+  function crowdOn(map, ids, onClick) {
+    if (!A.dio || reduce()) return null;
+    map.classList.add("tourlive");
+    const lay = el("div", { class: "wacts tour-acts crowd-acts" }); map.appendChild(lay);
+    const NK = Object.keys(NODES);
+    ids.forEach((w, i) => {
+      const n0 = NODES[NK[(i * 7 + 3) % NK.length]];
+      const W = Life.add(Walker(w, n0[0], n0[1], "stand")); lay.appendChild(W.el);
+      W.el.style.pointerEvents = "auto"; W.el.style.cursor = "pointer";
+      W.el.addEventListener("click", (e) => { e.stopPropagation(); if (onClick) onClick(w, W); });
+      const off = ((i % 5) - 2) * .12;
+      const hop = () => {
+        if (!map.isConnected) return;
+        const t = NODES[NK[Math.floor(Math.random() * NK.length)]], a = onGraph(W.x, W.y), b = onGraph(t[0], t[1]);
+        const R0 = a && b ? route(a, b) : null; if (!R0 || R0.length < 2) { setTimeout(hop, 900); return; }
+        R0[0] = [W.x, W.y];
+        W.go(R0.slice(1).map((q) => [q[0] + off, q[1] + off]), 1.0 + Math.random() * 1.3, () => setTimeout(hop, 700 + Math.random() * 2600), "walk");
+      };
+      setTimeout(hop, 300 + i * 180);
+    });
+    return lay;
+  }
   function tourGuide(map) {
     if (!A.dio || reduce()) return null;
     map.classList.add("tourlive");
@@ -3898,6 +3943,13 @@
         ["lea", [[3.6, 20.5], [20.8, 20.4]], 1.3, "walk"], ["yanis", [[14.0, 9.9], [28.0, 10.0], [28.3, 18.0]], 1.4, "walk"],
         ["k7", [[10.4, 4.4], [17.6, 6.2]], 1.2, "walk"], ["k9", [[22.6, 22.0], [26.4, 26.4]], 2.4, "run"],
         ["k8", [[5.2, 24.0], [8.4, 24.3]], 2.2, "run"], ["t3", [[19.0, 22.6], [23.8, 23.8]], 1.0, "walk"],
+        // plus d'enfants et d'adultes, partout sur le centre
+        ["k1", [[24.0, 20.0], [27.4, 24.8], [22.6, 25.6]], 2.4, "run"], ["k2", [[9.0, 22.8], [5.0, 23.4], [7.0, 27.0]], 2.0, "run"],
+        ["k3", [[12.6, 4.2], [16.2, 2.6], [17.8, 7.0]], 1.2, "walk"], ["k4", [[8.0, 10.0], [20.0, 9.9]], 1.5, "walk"],
+        ["k5", [[28.3, 12.0], [28.2, 4.6]], 1.4, "walk"], ["k6", [[14.4, 27.0], [16.2, 28.0]], .9, "walk"],
+        ["t1", [[26.2, 21.0], [6.0, 20.6]], 1.3, "walk"], ["t2", [[29.4, 7.2], [32.6, 7.3]], 1.1, "walk"],
+        ["t4", [[25.0, 26.2], [28.6, 22.0]], 1.2, "walk"], ["t5", [[30.6, 16.1], [34.4, 16.2]], 1.1, "walk"],
+        ["hugo", [[18.0, 9.9], [5.6, 10.0]], 1.2, "walk"], ["samia", [[6.2, 24.6], [11.2, 25.4]], 1.1, "walk"],
       ];
       CROWD.forEach(([w, loop, speed, pose]) => { if (busyW.has(w)) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "raise"] : ["wave", "nod", "explain"] }); acts.appendChild(W.el); });
       // les scènes en cours se voient de loin : les personnes sont là, elles bougent
@@ -4232,6 +4284,9 @@
     roots.forEach(see);
   }
   function see(W) {
+    // la porte coulissante de l'entrée s'ouvre (vers la gauche) quand quelqu'un arrive devant, puis se referme
+    const sl = W.querySelectorAll(".dio-slide");
+    if (sl.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 15.3, a._w.y - 19.1) < 1.7); sl.forEach((d) => d.classList.toggle("open", near)); }
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,

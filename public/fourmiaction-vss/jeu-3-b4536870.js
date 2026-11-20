@@ -1099,7 +1099,7 @@
   // visage (buste) d'une personne, avec son expression ; « you » = votre personnage
   function faceOf(who, mood) {
     const sp = rigSpec(who);
-    if (sp) return RIG.bust({ ...sp, mood: mood || "smile" });
+    if (sp) return RIG.bust({ ...sp, mood: (mood && (FACE[mood] || mood)) || (World._moods || {})[who] || "smile" });   // le visage de la bulle suit l'humeur de la scène
     return who === "you" ? youBust() : (A.chars[who] || A.chars.parent)[mood || "smile"];
   }
   // Assis sur une chaise du décor : le bassin repose sur l'assise (au-dessus du centre de la chaise), les cuisses partent
@@ -1139,16 +1139,39 @@
     heart: `<svg viewBox="-10 -10 20 20"><path d="M0,6 C-8,0 -6,-7 0,-3 C6,-7 8,0 0,6 Z" fill="#F07A8E"/></svg>`,
     idea: `<svg viewBox="-10 -10 20 20"><path d="M0,-9 v3 M-7,-6 l2,2 M7,-6 l-2,2" stroke="#F2B33D" stroke-width="2" stroke-linecap="round"/><circle cy="1" r="4.4" fill="#FFD66B"/><rect x="-2" y="5" width="4" height="2.6" rx="1" fill="#C9A24A"/></svg>`,
     tired: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 h5 l-5,5 h5 M2,-2 h4 l-4,4 h4" stroke="#8C9BB0" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>` };
+  // Expression de base de chacun selon la scène : sourire au quotidien, visage soucieux dans les situations graves,
+  // tristesse pour qui la vit ; certaines scènes précisent une personne (Inès, au briefing, ne rit pas avec les autres).
+  const FACE = { q: "concern", heart: "big", idea: "big", shy: "calm", tired: "sad" };
+  const FACEMOODS = {
+    brief: { ines: "sad", bastien: "big", yanis: "big", jade: "big" }, ines: { ines: "concern" }, chat: { ines: "sad", jade: "concern" }, chatact: { ines: "sad" },
+    bilanequipe: { ines: "calm", bastien: "concern", nour: "calm" }, rire: { bastien: "big" },
+    lou: { lou: "sad" }, numero: { lou: "sad" }, maelys: { maelys: "sad" }, f1: { maelys: "sad" }, f3: { maelys: "sad" }, temoin: { sacha: "concern" },
+    theo: { theo: "sad" }, theo2: { theo: "sad" }, chercher: { lena: "concern" }, consent: { lena: "concern" }, depart: { lou: "sad" },
+  };
+  const ROAM_GRAVE = new Set(["sanit", "sieste", "verite", "bagarre", "photo", "dispute"]);
+  function moodFor(w, pose, md) {
+    if (md) return md;
+    if (pose === "sad") return "sad"; if (pose === "angry") return "angry";
+    const sc = World._sc || {}, id = String(sc.id || "").replace(/^roam-(calm-)?/, "").replace(/^visit-.*/, "");
+    if (FACEMOODS[id] && FACEMOODS[id][w]) return FACEMOODS[id][w];
+    const kid = KIDS.has(w) || /^[kt]\d/.test(w);
+    if (GRAVE.has(id) || TENSE.has(id) || ROAM_GRAVE.has(id) || sc.crisis) return kid ? "calm" : "concern";
+    return undefined;   // le sourire de tous les jours
+  }
   function emote(who, emo) {
     if (!World.el) return;
     World.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`).forEach((a) => {
       const r = a.querySelector(".rig"); if (!r) return;
       const pose = (r.getAttribute("class").match(/p-\w+/) || ["p-idle"])[0], key = Object.keys(RIG.POSE).find((k) => RIG.POSE[k] === pose) || "stand";
       const gs = [...r.classList].filter((c) => c.startsWith("g-")), back = !!a.classList.contains("isback");
-      const html = rigMini(who, key, { back, mood: emo || undefined, chair: !!r.querySelector(".chair") });
+      const html = rigMini(who, key, { back, mood: (emo && (FACE[emo] || emo)) || (World._moods || {})[who] || undefined, chair: !!r.querySelector(".chair") });
       if (!html) return;
       const tmp = document.createElementNS("http://www.w3.org/2000/svg", "g"); tmp.innerHTML = html;
-      const nr = tmp.querySelector(".rig"); if (!nr) return; gs.forEach((g) => nr.classList.add(g)); r.replaceWith(nr);
+      const nr0 = tmp.querySelector(".rig"); if (!nr0) return;
+      // on ne change que le visage (la tête) : les bras et le geste en cours continuent sans interruption
+      const oh = r.querySelector(".head"), nh = nr0.querySelector(".head");
+      let nr = r;
+      if (oh && nh) { const nd = nr0.querySelector("defs"); r.querySelectorAll("defs[data-emo]").forEach((x) => x.remove()); if (nd) { nd.setAttribute("data-emo", "1"); r.insertBefore(nd, r.firstChild); } oh.replaceWith(nh); } else { gs.forEach((g) => nr0.classList.add(g)); r.replaceWith(nr0); nr = nr0; }
       a.classList.toggle("emo-angry", emo === "angry"); a.classList.toggle("emo-sad", emo === "sad");
       // le signe au-dessus de la tête (dehors : un élément HTML ; dans une salle : dans le dessin)
       a.querySelectorAll(".emo-sign").forEach((x) => x.remove());
@@ -1233,6 +1256,22 @@
     },
     show(S, sc) {
       this.init(); if (!this.el) return;
+      if (sc) { this._sc = sc; this._moods = {}; (S && S.cast || []).forEach(([w, , p, md]) => { const m = moodFor(w, p, md); if (m) this._moods[w] = m; }); }
+      // la vie autour de la conversation : de temps en temps, un parent ou un enfant fait un geste qui lui ressemble
+      clearInterval(this._amb);
+      if (!reduce()) this._amb = setInterval(() => {
+        if (!this.el || document.hidden) return;
+        const sc0 = this._sc || {}, id = String(sc0.id || ""), greet = GREET.has(id);
+        const all = [...this.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => a.dataset.who !== "you" && !a.classList.contains("talking") && !a.classList.contains("walker") && !a.classList.contains("legL"));
+        const C = all.filter((a) => { const w = a.dataset.who, md = (this._moods || {})[w]; return md !== "sad" && md !== "concern" && (/^pa\d|^parent/.test(w) || KIDS.has(w) || /^k\d|^petit/.test(w)); });
+        if (!C.length || Math.random() < .35) return;
+        const a = C[Math.floor(Math.random() * C.length)], w = a.dataset.who;
+        const P = /^pa\d|^parent/.test(w) ? (greet ? ["handhold", "bagstrap", "checkwatch", "wave"] : ["checkwatch", "texting", "bagstrap"])
+          : greet ? ["sway", "tugsleeve", "jumpjoy", "bagstrap"] : ["jumpjoy", "hop", "sway", "highfive"];
+        const g = P[Math.floor(Math.random() * P.length)];
+        if (!a.querySelector(".rig") || [...a.querySelector(".rig").classList].some((c) => c.startsWith("g-"))) return;
+        gesture(a, g, { greet });
+      }, 3400);
       // Entrer dans une salle ou en sortir : un zoom, un bref écran noir, et le lieu s'affiche directement
       // (plus de retour sur le bâtiment, de second zoom ni de toit qui se soulève sous nos yeux).
       const quick = this.quick || false; this.quick = false;
@@ -1277,7 +1316,7 @@
         const L = [];
         const cast = S.cast || [], others = cast.filter(([w]) => w !== "you"), duo = !cast.some(([w]) => w === "you") && others.length === 2;
         const anchor = others[0] && (stand[others[0][1]] || stand.a);
-        cast.forEach(([w, slot, pose], k) => {
+        cast.forEach(([w, slot, pose, md], k) => {
           let p = stand[slot] || stand.a; const from = [k % 2 ? 260 : -260, 110];
           // Vous êtes à côté de la personne qui vous parle, de dos, tournée vers elle.
           // Deux personnes qui discutent entre elles : côte à côte, tournées l'une vers l'autre.
@@ -1289,11 +1328,11 @@
             else if (duo && w === others[1][0]) { p = w2f(ax + 1.0, ay + .15); face = -1; }
             else if (others[0] && w === others[0][0]) face = 1;
           }
-          const a = this.actor(w, pose, p, sz, false, k < 3 ? from : null, { back });
+          const a = this.actor(w, pose === "wave" && !greetNow() ? "stand" : pose, p, sz, false, k < 3 ? from : null, { back, mood: (this._moods || {})[w] });
           if (a && face) { a.classList.toggle("flip", face < 0); a.dataset.faced = "1"; }
           // personne ne marche sur place : une fois arrivé, on se tient debout
           if (a && (pose === "walk" || pose === "run") && a._pose && !a.classList.contains("walker")) a._pose("stand");
-          if (a && pose === "wave" && a._pose) { a._pose("stand"); setTimeout(() => a.isConnected && gesture(a, "wave"), 800 + k * 250); }   // un salut bref, pas une main levée qui dure
+          if (a && pose === "wave" && a._pose) { a._pose("stand"); if (greetNow()) setTimeout(() => a.isConnected && gesture(a, "wave", { greet: true }), 800 + k * 250); }   // un salut bref, pas une main levée qui dure
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
@@ -1383,7 +1422,7 @@
         const P = place[who]; if (!P) return;
         const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose === "pingpong" ? "listen" : pose || "stand");
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
-        const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false }); if (!m && !R0) return;
+        const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false, mood: (World._moods || {})[who] }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
         g.setAttribute("class", "ractor" + (pose === "pingpong" ? " paddle" : "") + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
@@ -1516,11 +1555,11 @@
       // fin de réplique : la bouche s'arrête net et le geste en cours se termine tout de suite (plus de gestes inutiles)
       this.el.querySelectorAll(".talking").forEach((a) => a.classList.remove("talking"));
       // plus personne ne parle : tous les gestes de la scène (orateur et auditeurs) s'arrêtent tout de suite
-      this.el.querySelectorAll(".rig").forEach((r) => { if ([...r.classList].some((c) => c.startsWith("g-"))) { clearTimeout(r._gt); GESTS.forEach((x) => r.classList.remove("g-" + x)); } });
+      this.el.querySelectorAll(".rig").forEach((r) => { if ([...r.classList].some((c) => c.startsWith("g-"))) { clearTimeout(r._gt); clearTimeout(r._gq); const left = settle(r); r._gt = setTimeout(() => GESTS.forEach((x) => r.classList.remove("g-" + x)), left + 40); } });   // le geste se termine vite, mais sans coupure
       document.querySelectorAll(".portrait.chip.talking").forEach((a) => a.classList.remove("talking"));
       if (!who || who === "narr") return;
       const els = [...this.el.querySelectorAll(`.actor[data-who="${who}"], .ractor[data-who="${who}"]`)];
-      els.forEach((a) => a.classList.add("talking"));
+      els.forEach((a) => { a.classList.add("talking"); a._greet = GREET_RE.test(String(text || "").toLowerCase()); });
       const emo = emoOf(who, text || ""); emote(who, emo);
       if (emo === "angry") els.forEach((a) => gesture(a, Math.random() < .5 ? "fist" : "stomp"));
       if (emo && emo !== "concern") { clearTimeout(this._emoT); this._emoT = setTimeout(() => emote(who, null), 6500); }
@@ -1530,20 +1569,20 @@
         if (!els.some((a) => a.classList.contains("talking"))) return;
         // jamais deux fois de suite le même geste pour une même personne, même d'une réplique à l'autre
         const H = (World._gh = World._gh || {}), hist = (H[who] = H[who] || []);
-        const P2 = pool.concat(KIDS.has(who) ? ["scratch", "fidget", "tilt", "lookaway"] : ["tilt", "note", "open", "calm", "weight", "chin", "neck"]);
-        // le premier geste va avec ce qui est dit (s'il y a un indice dans la réplique), les suivants varient
-        const C0 = n === 0 && pool.cue ? pool.slice(0, pool.cue) : P2;
+        // chaque geste a un sens : on reste sur ceux que la réplique appelle (indices du texte) ; sinon des gestes
+        // d'accompagnement neutres (expliquer, montrer, ouvrir les mains), jamais un geste qui dirait autre chose
+        const C0 = pool.cue ? pool.slice(0, pool.cue) : pool;
         let g, k = 0; do { g = C0[Math.floor(Math.random() * C0.length)]; } while ((g === last || hist.includes(g)) && ++k < 12); last = g;
         hist.push(g); if (hist.length > 5) hist.shift();
         els.forEach((a) => gesture(a, g));
         // un geste (2 à 3 s) entier, puis une pause : plusieurs gestes différents sur une longue réplique, jamais mécanique
-        if (++n < 4) this._gi = setTimeout(step, (GDUR[g] || 2000) + 500 + Math.random() * 1300);
+        if (++n < 4) this._gi = setTimeout(step, (GDUR[g] || 2000) + 700 + Math.random() * 1300);
       };
       this._gi = setTimeout(step, 250);
       const listen = () => {
         if (!els.some((a) => a.classList.contains("talking"))) return;
         const a = others[Math.floor(Math.random() * others.length)];
-        if (a) gesture(a, LISTEN[Math.floor(Math.random() * LISTEN.length)]);
+        if (a) { const md = (World._moods || {})[a.dataset.who], Lp = md === "sad" || md === "concern" ? ["downcast", "lookaway", "cross", "sigh"] : md === "big" ? ["laugh", "nod", "tilt", "lean"] : LISTEN; gesture(a, Lp[Math.floor(Math.random() * Lp.length)]); }
         this._li = setTimeout(listen, 2600 + Math.random() * 2600);
       };
       this._li = setTimeout(listen, 1400);
@@ -1551,7 +1590,7 @@
     },
   };
   // 20 gestes de conversation (gest2.css, générés par tools/gest2.py) : leur durée propre, de 2,2 à 2,8 s
-  const GDUR = { push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
+  const GDUR = { jumpjoy: 1800, hop: 2000, kick: 1800, sway: 2600, tugsleeve: 2200, highfive: 1800, checkwatch: 2400, texting: 2800, bagstrap: 2200, handhold: 2600, stretch: 2600, push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
   /* ---------- Mise en scène : ce que dit le narrateur, on le voit ----------
      Quand le narrateur décrit une situation, on repère qui est nommé (ou « les enfants », « les jeunes »…) et ce que la
      personne fait ; au moment où la phrase est dite, la personne le joue : geste, émotion sur le visage, regard vers
@@ -1580,6 +1619,15 @@
     [/se cach|cache son|cache ses|derrière ses mains/, { g: "cover" }],
     [/serr\w* dans ses bras|câlin|prend dans ses bras|enlac|bisou|embrass/, { g: "hug", to: 1 }],
     [/salu|fait signe|coucou|agite la main/, { g: "wave", face: 1 }],
+    [/saute de joie|sautill|bondit|trépign/, { g: "hop", e: "big" }],
+    [/tire (?:la|sur la) manche|tire le bras|tire par la main/, { g: "tugsleeve", to: 1 }],
+    [/regarde sa montre|consulte sa montre/, { g: "checkwatch" }],
+    [/pianote|tapote son téléphone|son téléphone à la main|écrit un message|sms/, { g: "texting" }],
+    [/s’étire|bâille/, { g: "stretch" }],
+    [/tape dans le ballon|shoot|frappe le ballon|dribbl/, { g: "kick" }],
+    [/tape dans la main|check/, { g: "highfive", e: "big" }],
+    [/prend la main|donne la main|par la main/, { g: "handhold", to: 1 }],
+    [/remonte son sac|ajuste son sac|son sac sur l’épaule|cartable/, { g: "bagstrap" }],
     [/chuchot|murmur|à l’oreille|glisse à/, { g: "lean", to: 1 }],
     [/discut|échang|parlent|bavard|explique|raconte/, { g: "explain", face: 1 }],
     [/applaud/, { g: "clap", e: "big" }],
@@ -1609,7 +1657,7 @@
     [/dorm|endormi|allongé/, { g: "sigh" }],
     [/à sa table|à la console|au micro|travaille|concentré/, { g: "note" }],
   ];
-  const MISE_GROUP = [[/les enfants|les petits|les 6-11|tout le groupe|le groupe|ça court|ça rit|ça joue|des petits|\benfants\b|les autres/, "kids"], [/briefing|réunion|l’équipe se/, "all"], [/jeunes|les ados|les grands|les 11-14|les 14-17/, "teens"], [/tout le monde|les animateurs|l’équipe/, "all"]];
+  const MISE_GROUP = [[/les enfants|les petits|les 6-11|tout le groupe|le groupe|ça court|ça rit|ça joue|des petits|\benfants\b|les autres/, "kids"], [/briefing|réunion|l’équipe se|toute l’équipe|l’équipe rit|tout le monde rit/, "all"], [/jeunes|les ados|les grands|les 11-14|les 14-17/, "teens"], [/tout le monde|les animateurs|l’équipe/, "all"]];
   // découpe une narration en propositions, chacune avec ses personnes et ses actions ; pos = place dans le texte (0 à 1)
   function miseParse(text, present) {
     // les paroles entre guillemets sont dites par les personnages eux-mêmes : on ne les met pas en scène ici
@@ -1638,7 +1686,10 @@
       if (!target && /\blui\b|\ble (?:pousse|repousse|frappe|regarde)|sur lui|contre lui|vers lui|vers elle/.test(cl)) target = [last, prev, subj].find((x) => x && !who.includes(x)) || null;
       if (before.length) subj = before[0][0];
       hits.forEach(([w]) => { if (w !== last) { prev = last; last = w; } });
-      if (acts.length && who.length) out.push({ pos, who, acts, target });
+      const sauf = /\bsauf\b|à part\b|excepté/.test(cl) ? hits.filter(([, k]) => k > cl.search(/\bsauf\b|à part\b|excepté/)).map(([w]) => w) : [];
+      if (sauf.length) { who = who.filter((w) => !sauf.includes(w)); if (!who.length && grp) who = [grp]; }
+      if (acts.length && who.length) out.push({ pos, who, acts, target, except: sauf });
+      if (sauf.length) out.push({ pos: pos + .02, who: sauf, acts: [{ e: "sad", g: "downcast" }], target: null });
       else if (hits.length > 1 && !acts.length) out.push({ pos, who: [hits[0][0]], acts: [{ face: 1 }], target: hits[1][0] });
     });
     return out;
@@ -1678,7 +1729,7 @@
         const tgt = (c.target && this.actorsOf(c.target)[0]) || (c.acts.some((A) => A.to) && World.el.querySelector('.actor[data-who="you"], .ractor[data-who="you"]')) || null;
         // un groupe (« les enfants », « les jeunes ») : ceux qui ne sont pas déjà nommés dans la phrase
         const grp = (w) => ["kids", "teens", "all"].includes(w);
-        c.who.forEach((w) => this.actorsOf(w).filter((a) => !grp(w) || !named.has(a.dataset.who)).forEach((a, i) => this.tm.push(setTimeout(() => {
+        c.who.forEach((w) => this.actorsOf(w).filter((a) => (!grp(w) || !named.has(a.dataset.who)) && !(c.except || []).includes(a.dataset.who)).forEach((a, i) => this.tm.push(setTimeout(() => {
           c.acts.forEach((A) => {
             if (A.e) { emote(a.dataset.who, A.e); this.tm.push(setTimeout(() => emote(a.dataset.who, null), 5200)); }
             if ((A.face || A.to) && tgt && World.gazeAt) World.gazeAt(a, tgt);
@@ -1691,10 +1742,11 @@
       }, Math.max(150, c.pos * D * .92))));
     },
   };
-  const GESTS = ["weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  const GESTS = ["jumpjoy", "hop", "kick", "sway", "tugsleeve", "highfive", "checkwatch", "texting", "bagstrap", "handhold", "stretch", "weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
+  const GREET_RE = /bonjour|salut|au revoir|bonne soirée|à demain|bonne journée|coucou|bienvenue/;
   function gestPool(who, t) {
     const low = t.toLowerCase(), P = [];
     if (/\?/.test(t)) P.push("explain2", "open", "shrug", "open");
@@ -1742,15 +1794,46 @@
     if (/raison/.test(low)) P.push("nodhand");
     if (/une autre fois/.test(low)) P.push("pat");
     if (/important/.test(low)) P.push("chop");
+    // enfants : jeu, joie, timidité ; parents : arrivée, départ, téléphone, montre
+    if (KIDS.has(who) || /^k\d/.test(who)) {
+      if (/youpi|trop bien|génial|on a gagné|ouais|trop cool/.test(low)) P.push("jumpjoy", "highfive");
+      if (/ballon|foot|tir|but\b|passe/.test(low)) P.push("kick");
+      if (/euh|je sais pas|j’ose pas|timide|…/.test(low)) P.push("sway");
+      if (/regarde|dis|maîtresse|tu viens|s’il te plaît/.test(low)) P.push("tugsleeve");
+    } else if (/^pa\d|parent|papa|maman|mme|m\./.test(who)) {
+      if (/pressé|retard|l’heure|vite|attend/.test(low)) P.push("checkwatch");
+      if (/message|sms|téléphone|appel|groupe/.test(low)) P.push("texting");
+      if (/sac|affaires|doudou|goûter/.test(low)) P.push("bagstrap");
+      if (/viens|on rentre|on y va|donne-moi la main/.test(low)) P.push("handhold");
+    }
     // un adulte qui parle à un petit se met à sa hauteur
     if (!KIDS.has(who) && /(ma puce|mon grand|ma grande|petit|n’aie pas peur|t’inquiète)/.test(low)) P.push("crouch");
     P.cue = P.length;   // les gestes tirés de la réplique elle-même (avant les gestes génériques)
-    P.push(...(KIDS.has(who) ? ["fidget", "lookaway", "explain", "weight", "scratch", "open", "palmup", "rub", "brush"] : ["explain", "explain2", "calm", "present", "lean", "weight", "chin", "nod", "open", "weigh", "roll", "offer", "steeple", "nodhand", "palmup"]));
+    // gestes d'accompagnement neutres (expliquer, montrer, ouvrir les mains), quand la réplique n'appelle rien de précis
+    if (!P.cue) P.push(...(/\?/.test(t) ? ["explain2", "open", "palmup"] : KIDS.has(who) ? ["explain", "open", "present"] : ["explain", "explain2", "present", "open"]));
     return P;
   }
-  function gesture(a, g) {
+  // le salut de la main (« coucou ») n'a de sens qu'à l'arrivée et au départ : ailleurs, on acquiesce
+  const GREET = new Set(["intro", "c1", "c2", "c3", "c4", "c5", "parent1", "parent2", "portail", "depart", "aurevoir", "home", "bilan"]);
+  const greetNow = () => { const sc = SCREENS[st && st.idx]; return !sc || GREET.has(sc.id) || !document.body.classList.contains("live"); };
+  function settle(r) {   // termine en douceur (et vite) le geste en cours : il revient à l'attitude du moment
+    let left = 0;
+    r.querySelectorAll(".aL,.aR,.fore,.head,.bob,.lL,.lR,.shin").forEach((e) => (e.getAnimations ? e.getAnimations() : []).forEach((an) => {
+      if (an.animationName && an.animationName.startsWith("gx-") && an.playState === "running") {
+        const ct = an.currentTime || 0, d = (an.effect && an.effect.getTiming().duration) || 2000; an.playbackRate = 3.2; left = Math.max(left, (d - ct) / 3.2);
+      } }));
+    return left;
+  }
+  function gesture(a, g, opt) {
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
-    GESTS.forEach((x) => r.classList.remove("g-" + x)); void r.getBoundingClientRect();
+    if (g === "wave" && !(opt && opt.greet) && !a._greet && !greetNow()) g = "nodhand";
+    const cur = GESTS.find((x) => r.classList.contains("g-" + x));
+    if (cur) {   // un geste joue encore : il s'achève en accéléré, puis le nouveau enchaîne
+      if (cur === g) return;
+      const left = settle(r); clearTimeout(r._gt); clearTimeout(r._gq);
+      r._gq = setTimeout(() => { GESTS.forEach((x) => r.classList.remove("g-" + x)); gesture(a, g, opt); }, Math.min(900, left + 40));
+      return;
+    }
     r.classList.add("g-" + g);
     clearTimeout(r._gt); r._gt = setTimeout(() => r.classList.remove("g-" + g), (GDUR[g] || 2000) + 50);   // un geste dure de 2 à 3 secondes
   }
@@ -3484,7 +3567,7 @@
     people.forEach(([w, x, y, ok]) => {
       const p = isoPct(x, y);
       const b = el("button", { class: "fperson", type: "button", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%;z-index:${Math.round((x + y) * 10) + 10}`, "aria-label": ok ? "Une jeune fille près du parc" : "Un enfant" },
-        `<svg viewBox="-22 -60 44 64" overflow="visible">${(() => { const ps = ok ? "stand" : (["walk", "wave", "talk"][Math.floor(Math.random() * 3)]); return rigMini(w, ps) || A.minis[w][ps]; })()}</svg>`);
+        `<svg viewBox="-22 -60 44 64" overflow="visible">${(() => { const ps = ok ? "stand" : (["walk", "listen", "talk"][Math.floor(Math.random() * 3)]); return rigMini(w, ps) || A.minis[w][ps]; })()}</svg>`);
       b.addEventListener("click", () => {
         if (done || (!tId && !free)) return;
         if (!ok && free) {   // on demande autour de soi : chacun répond à sa façon, sans que l'on dise pourquoi on cherche
@@ -3961,6 +4044,12 @@
     idle(who, x, y, gests, opts = {}) {
       const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back }));
       if (opts.face) W.face(opts.face);
+      const kid = KIDS.has(who) || /^k\d/.test(who), par = /^pa\d|^parent/.test(who);
+      gests = (gests || []).filter((g) => g !== "wave");   // pas de « coucou » en dehors de l'accueil et du départ
+      if (kid && gests.some((g) => g === "laugh" || g === "raise")) gests = gests.concat(["jumpjoy", "hop", "highfive"]);
+      else if (kid) gests = gests.concat(["sway", "kick"]);
+      if (par) gests = gests.concat(["checkwatch", "texting", "bagstrap", "handhold"]);
+      if (!gests.length) gests = ["nod", "explain"];
       W.gests = gests;
       const g = { t: 0, W }; this.agents.push(g);
       const home = [x, y];
@@ -4031,7 +4120,7 @@
         ["t4", [[25.0, 26.2], [28.6, 22.0]], 1.2, "walk"], ["t5", [[30.6, 16.1], [34.4, 16.2]], 1.1, "walk"],
         ["hugo", [[18.0, 9.9], [5.6, 10.0]], 1.2, "walk"], ["samia", [[6.2, 24.6], [11.2, 25.4]], 1.1, "walk"],
       ];
-      CROWD.forEach(([w, loop, speed, pose]) => { if (busyW.has(w)) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "raise"] : ["wave", "nod", "explain"] }); acts.appendChild(W.el); });
+      CROWD.forEach(([w, loop, speed, pose]) => { if (busyW.has(w)) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); acts.appendChild(W.el); });
       // les scènes en cours se voient de loin : les personnes sont là, elles bougent
       sc.events.filter((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided)).forEach((e) => {
         (e.spots || []).forEach(([w, x, y, pose, gests]) => {
@@ -4996,4 +5085,5 @@
   home();
   soundGate();
   window.__game = { st: () => st, go, SCREENS, World, A: () => A, Mise, Voice, Lip, calm };
+  window.__testG = (a, g) => gesture(a, g);
 })();

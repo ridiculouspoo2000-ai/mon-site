@@ -120,17 +120,17 @@ const SCREENS = [
     start: "13 h 30", end: "17 h", from: "cour", guided: "foot",
     intro: "Vous circulez dans l’accueil, en volante. Avancez sur les chemins, entrez dans les salles, et restez attentive à ce qui se passe autour de vous.",
     life: [
-      { who: "jade", loop: [[15.7, 8.6], [12.6, 8.8], [12.4, 6.3], [15.9, 6.5]], speed: 3.1, pose: "run", pause: 600, gest: ["laugh", "raise", "wave"] },
+      { who: "jade", loop: [[15.7, 8.6], [12.6, 8.8], [12.4, 6.3], [15.9, 6.5]], speed: 3.1, pose: "run", pause: 600, gest: ["laugh", "raise", "nod"] },
       { who: "k1", loop: [[12.4, 6.3], [15.9, 6.5], [15.7, 8.6], [12.6, 8.8]], speed: 3, pose: "run", pause: 300 },
       { who: "k2", loop: [[15.9, 6.5], [15.7, 8.6], [12.6, 8.8], [12.4, 6.3]], speed: 2.8, pose: "run", pause: 500, gest: ["laugh", "raise"] },
       { who: "k4", loop: [[12.6, 8.8], [12.4, 6.3], [15.9, 6.5]], speed: 2.9, pose: "run", pause: 700 },
       { who: "tom", at: [15.3, 28.7], gest: ["explain", "present", "nod", "thumb"] },
       { who: "k3", at: [16.6, 26.9], gest: ["fidget", "laugh", "scratch", "raise"] },
-      { who: "k6", at: [20.6, 28.0], gest: ["wave", "laugh", "fidget"] },
+      { who: "k6", at: [20.6, 28.0], gest: ["nod", "laugh", "fidget"] },
       { who: "t1", at: [17.3, 23.7], gest: ["explain", "laugh", "shrug", "lookaway"], face: [18.2, 24.3] },
       { who: "t2", at: [18.2, 24.4], gest: ["laugh", "explain2", "cross"], face: [17.3, 23.7], back: true },
       { who: "nour", at: [25.3, 22.3], gest: ["explain", "calm", "nod", "present"], to: "15 h 30" },
-      { who: "pa1", at: [26.0, 23.3], gest: ["nod", "explain", "shrug"], back: true, to: "15 h 30" },
+      { who: "pa1", at: [26.0, 23.3], gest: ["nod", "explain", "checkwatch", "bagstrap"], back: true, to: "15 h 30" },
       { who: "k5", loop: [[16.4, 22.3], [10.6, 22.5]], speed: 3.2, pose: "run", pause: 1500 },
       { who: "theo", loop: [[8.6, 24.7], [9.9, 25.9], [9.7, 23.7]], speed: 3, pose: "run", pause: 400, after: "foot" },
       { who: "zoe", loop: [[9.9, 25.9], [9.7, 23.7], [8.6, 24.7]], speed: 2.8, pose: "run", pause: 600, after: "foot", gest: ["raise", "laugh"] },
@@ -508,7 +508,7 @@ const SCREENS = [
     start: "13 h 30", end: "16 h", from: "cour",
     intro: "Avancez sur les chemins, entrez dans les salles, et gardez l’œil ouvert. Nour vous attend au panneau d’affichage avant 15 h 30.",
     life: [
-      { who: "samia", loop: [[9.7, 23.7], [8.6, 24.7], [9.9, 25.9]], speed: 3.0, pose: "run", pause: 700, gest: ["laugh", "raise", "wave"] },
+      { who: "samia", loop: [[9.7, 23.7], [8.6, 24.7], [9.9, 25.9]], speed: 3.0, pose: "run", pause: 700, gest: ["laugh", "raise", "nod"] },
       { who: "k3", loop: [[8.6, 24.7], [9.9, 25.9], [9.7, 23.7]], speed: 3, pose: "run", pause: 400 },
       { who: "k6", loop: [[9.9, 25.9], [9.7, 23.7], [8.6, 24.7]], speed: 2.6, pose: "run", pause: 600, gest: ["raise", "laugh"] },
       { who: "tom", at: [15.3, 28.7], gest: ["explain", "present", "nod"] },
@@ -1347,7 +1347,7 @@ const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la p
   const j = SCREENS.findIndex((x) => x.id === "jeudi-libre"); SCREENS.splice(j + 1, 0, CADEAU, BAGARRE);
   const L = SCREENS.find((x) => x.id === "lundi-libre"), J = SCREENS.find((x) => x.id === "jeudi-libre");
   // devant les sanitaires, ça va et vient : des petits y vont, deux grands traînent devant la porte
-  L.life.push({ who: "k7", loop: [[8.4, 10.4], [6.2, 9.4], [9.8, 10.2]], speed: 1.6, pause: 2200, from: "14 h 30", to: "16 h 30", gest: ["wave", "laugh"] },
+  L.life.push({ who: "k7", loop: [[8.4, 10.4], [6.2, 9.4], [9.8, 10.2]], speed: 1.6, pause: 2200, from: "14 h 30", to: "16 h 30", gest: ["nod", "laugh"] },
     { who: "k8", loop: [[6.4, 9.6], [9.2, 10.0], [7.6, 10.6]], speed: 1.4, pause: 2800, from: "14 h 30", to: "16 h 30" },
     { who: "t3", at: [6.9, 9.9], from: "14 h 30", to: "16 h 30", gest: ["laugh", "point", "hips"] },
     { who: "t4", at: [7.3, 10.5], from: "14 h 30", to: "16 h 30", gest: ["laugh", "lean", "phone"] });

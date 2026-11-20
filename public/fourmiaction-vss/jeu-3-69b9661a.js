@@ -985,8 +985,13 @@
     const hip = seat + r, T = (B.kneeY - B.hipY) * k, Sh = (-B.kneeY + .8) * k;
     // on calcule toujours la pose genoux vers la droite ; face en bas à gauche (+y), le personnage est retourné en miroir
     // autour du bassin (pointes des pieds et mains vers l'avant ; le miroir ne dépend pas des animations)
-    const c30 = Math.cos(Math.PI / 6), dir = 1, up = P.fc === "-y" ? -1 : 1, flip = P.fc === "+y";
+    const c30 = Math.cos(Math.PI / 6), dir = 1, up = P.fc === "-y" || P.fc === "-x" ? -1 : 1, flip = P.fc === "+y" || P.fc === "-x";
     // cuisse : vers l'avant de la chaise (en bas à droite, en bas à gauche, ou vers le fond si l'on est vu de dos)
+    // vu de dos : comme sur le modèle, les cuisses partent à l'horizontale vers la table, les tibias tombent droit au sol
+    if (up < 0) {
+      const sk0 = Math.min(1.15, Math.max(.6, hip / Sh)), dy0 = -(hip + B.hipY * k);
+      return { dy: dy0, flip, css: `--th:-90deg;--sh:90deg;--shk:${sk0.toFixed(3)}` };
+    }
     const tx = dir * c30 * T, ty = up * .5 * T, th = Math.atan2(-tx, ty) * 180 / Math.PI;
     // tibia : du genou (à hauteur d'assise) jusqu'au sol ; s'il est trop long, le pied recule sous la chaise
     const back = Sh > hip ? Math.sqrt(Sh * Sh - hip * hip) : 0, sx = -dir * c30 * back, sy = hip - up * .5 * back;
@@ -1211,7 +1216,7 @@
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
         const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
-        g.setAttribute("class", "ractor" + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" ? " sitback" : "") : ""));
+        g.setAttribute("class", "ractor" + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
         if (seat) g.setAttribute("style", seat.css);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;

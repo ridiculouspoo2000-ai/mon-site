@@ -553,6 +553,7 @@
         if (i >= L.length || calm()) { this._sl = 0; return; }
         const [w, t, e] = L[i++], d = Math.min(7000, Math.max(1200, String(t).length * 48));
         if (w && w !== "narr") { World.talk(w, t); this.els = this.targets(w, e); this.els.forEach((x) => x.classList.add("lipsim")); }
+        else Mise.play(t, d / 1000);   // sans voix : la situation décrite se joue quand même, le temps de la lire
         this._st = setTimeout(next, d + 250);
       };
       next();
@@ -586,7 +587,7 @@
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
         this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) c.e.classList.remove("vpend");
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
-          if (c && !c.on) { c.on = 1; World.talk(c.w, c.t); Lip.on(c); } this._tick(); });
+          if (c && !c.on) { c.on = 1; World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
       try { this.el.pause(); } catch (e) { }
       this._done();
@@ -624,7 +625,7 @@
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { Lip.silent(null); (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { Lip.silent(null); Mise.stop(); (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
 
@@ -1416,6 +1417,12 @@
         a.style.setProperty("--lk", String(flipped ? -d : d)); a.classList.add("gaze");
       });
     },
+    // une personne regarde une autre (mise en scène d'une narration)
+    gazeAt(a, o) {
+      const cx = (x) => { const r = x.getBoundingClientRect(); return r.left + r.width / 2; }, d = Math.sign(cx(o) - cx(a));
+      const flipped = a.classList.contains("flip") || !!a.querySelector(".rbody.flip");
+      a.style.setProperty("--lk", String(flipped ? -d : d)); a.classList.add("gaze");
+    },
     // un geste seul, sans parole (souvenir muet, carte lue par le narrateur)
     mime(who, text) {
       if (!this.el || !who || who === "narr") return;
@@ -1467,6 +1474,145 @@
   };
   // 20 gestes de conversation (gest2.css, générés par tools/gest2.py) : leur durée propre, de 2,2 à 2,8 s
   const GDUR = { push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
+  /* ---------- Mise en scène : ce que dit le narrateur, on le voit ----------
+     Quand le narrateur décrit une situation, on repère qui est nommé (ou « les enfants », « les jeunes »…) et ce que la
+     personne fait ; au moment où la phrase est dite, la personne le joue : geste, émotion sur le visage, regard vers
+     l'autre, petit pas vers lui ou en arrière. Rien n'est joué pour ce qui n'est pas à l'écran. */
+  const MISE_NAMES = { ...NAMES, hugo: "Hugo", tom: "Tom", samia: "Samia", rey: "M. Rey", karim: "Karim", roussel: "M. Roussel", benali: "Mme Benali" };
+  // verbe ou expression → actions (g: geste, e: émotion, to: va vers la personne nommée ensuite, away: recule, face: la regarde)
+  const MISE_LEX = [
+    [/pleur|en larmes|sanglot|la gorge serrée|les yeux rouges/, { e: "sad", g: "cover" }],
+    [/éclat\w* de rire|\brit\b|\brient\b|rigol|se moqu|ricane|pouffe/, { e: "big", g: "laugh" }],
+    [/\bcrie\b|crient de colère|hurl|s’énerv|en colère|furieu|énervé|claque la porte/, { e: "angry", g: "fist" }],
+    [/se mettent à crier|scand|encourag|en chœur/, { g: "raise", e: "big" }],
+    [/bouscul|pouss/, { g: "push", to: 1 }],
+    [/attrap|agripp|tire par|saisit|retient par/, { g: "push", to: 1 }],
+    [/frapp|\btape\b|coup de poing|gifl/, { g: "push", to: 1, hit: 1 }],
+    [/accour|se précipit|court vers|fonce/, { g: "stepback", to: 1 }],
+    [/s’approch|vient vers|vient voir|rejoint|se penche vers|tout contre|colle/, { to: 1, g: "lean" }],
+    [/s’éloign|recul|s’écart|s’en va|part en courant|se retir|à l’écart/, { away: 1, g: "stepback" }],
+    [/montr|désign|du doigt|pointe/, { g: "point", face: 1 }],
+    [/téléphone|portable|écran|photo|film|snap|instagram|message/, { g: "phone" }],
+    [/install|prépar|rang|arrange|dispos|arros|plant|ramass/, { g: "crouch" }],
+    [/porte |soulèv|empil/, { g: "lift" }],
+    [/écri|not\w+ |dessin|remplit|coche|feuillet/, { g: "note" }],
+    [/regard|observ|fixe|dévisag|surveill/, { face: 1, g: "watch" }],
+    [/baiss\w* les yeux|tête basse|tête baissée|seule? sur|tout seul|toute seule|triste|sans ballon|mal à l’aise|replié/, { e: "sad", g: "downcast" }],
+    [/hésit|n’ose|gên|timide|se tortill|se dandin/, { g: "fidget" }],
+    [/se cach|cache son|cache ses|derrière ses mains/, { g: "cover" }],
+    [/serr\w* dans ses bras|câlin|prend dans ses bras|enlac|bisou|embrass/, { g: "hug", to: 1 }],
+    [/salu|fait signe|coucou|agite la main/, { g: "wave", face: 1 }],
+    [/chuchot|murmur|à l’oreille|glisse à/, { g: "lean", to: 1 }],
+    [/discut|échang|parlent|bavard|explique|raconte/, { g: "explain", face: 1 }],
+    [/applaud/, { g: "clap", e: "big" }],
+    [/\bjou|ballon|tournoi|ping-pong|partie de|mime|chante|danse/, { g: "raise", e: "big" }],
+    [/attend|patient|fait les cent pas|regarde sa montre|en retard|pressé/, { g: "watch" }],
+    [/trembl|peur|effray|terroris|panique|sursaut/, { e: "o", g: "hug" }],
+    [/soupir|fatigu|épuis|bâill/, { g: "sigh" }],
+    [/haussant les épaules|hausse les épaules|haussement/, { g: "shrug" }],
+    [/refus|secoue la tête|fait non/, { g: "shake" }],
+    [/hoch|acquiesc|fait oui/, { g: "nod" }],
+    [/sourit|souriant|content|ravi|fier|fière|heureu/, { e: "big", g: "thumb" }],
+    [/inquiet|inquiète|soucieu|préoccup/, { e: "concern", g: "chin" }],
+    [/surpris|étonn|stupéf/, { e: "o", g: "stepback" }],
+    [/rougi|honte|embarrass/, { e: "shy", g: "neck" }],
+    [/appel|compose le numéro|au téléphone/, { g: "phone" }],
+    [/réfléch|se demande|pensif|pensive/, { g: "chin" }],
+    [/(?:il|elle) console|consolent|réconfort|rassur/, { g: "pat", to: 1 }],
+    [/\baide\b|aident|accompagn/, { g: "explain", face: 1 }],
+    [/affich|panneau|épingl|accroch/, { g: "present" }],
+    [/mange|goûter|repas|plateau/, { g: "rub" }],
+    [/répart|distribu|anime |organis|propose|lance un|présente/, { g: "present" }],
+    [/se tient le ventre|mal au ventre|se tord/, { e: "sad", g: "hug" }],
+    [/ça court|court dans|cour\w* partout|jeu de piste|perles|guitare/, { g: "raise", e: "big" }],
+    [/briefing|réunion|réuni/, { g: "note" }],
+    [/vous tend|tend une|vous donne|remet|apporté/, { g: "offer" }],
+    [/vous confie|vous demande|vous dit|vous glisse|vous interpelle/, { g: "lean" }],
+    [/dorm|endormi|allongé/, { g: "sigh" }],
+    [/à sa table|à la console|au micro|travaille|concentré/, { g: "note" }],
+  ];
+  const MISE_GROUP = [[/les enfants|les petits|les 6-11|tout le groupe|le groupe|ça court|ça rit|ça joue|des petits|\benfants\b|les autres/, "kids"], [/briefing|réunion|l’équipe se/, "all"], [/jeunes|les ados|les grands|les 11-14|les 14-17/, "teens"], [/tout le monde|les animateurs|l’équipe/, "all"]];
+  // découpe une narration en propositions, chacune avec ses personnes et ses actions ; pos = place dans le texte (0 à 1)
+  function miseParse(text, present) {
+    // les paroles entre guillemets sont dites par les personnages eux-mêmes : on ne les met pas en scène ici
+    const T = String(text || "").replace(/«[^»]*»/g, (m) => " ".repeat(m.length)), low = T.toLowerCase().replace(/'/g, "’"), out = [];
+    const names = Object.entries(MISE_NAMES).filter(([w]) => !present || present.includes(w)).map(([w, n]) => [w, n.toLowerCase()]);
+    const at0 = (cl, n) => cl.search(new RegExp("(^|[^a-zà-ÿ])" + n.replace(/[.]/g, "\\.") + "(?![a-zà-ÿ])"));
+    let subj = null, last = null, prev = null, at = 0;
+    low.replace(/([.;:!?…])\s+/g, "$1\u0001").replace(/,\s+/g, ",\u0001").replace(/\s+(pendant qu|tandis qu|et (?:il|elle|ils|elles) )/g, "\u0001$1").split("\u0001").forEach((cl) => {
+      const i0 = low.indexOf(cl, at); at = i0 < 0 ? at : i0 + cl.length; const pos = (i0 < 0 ? at : i0) / Math.max(1, low.length);
+      const c = cl.trim(); if (!c) return;
+      const hits = names.map(([w, n]) => [w, at0(cl, n)]).filter(([, k]) => k >= 0).sort((x, y) => x[1] - y[1]);
+      const grp = (MISE_GROUP.find(([re]) => re.test(cl)) || [])[1];
+      const lex = MISE_LEX.map(([re, A]) => { const m = re.exec(cl); return m ? [m.index, A] : null; }).filter(Boolean).sort((x, y) => x[0] - y[0]);
+      const acts = lex.map(([, A]) => A), v0 = lex.length ? lex[0][0] : 1e9;
+      // qui agit : le nom placé avant le verbe ; « qui… » = la dernière personne nommée ; « il/elle » = le sujet ;
+      // sinon (incise : « Zoé, 8 ans, s'approche ») la dernière personne nommée
+      const before = hits.filter(([, k]) => k < v0), after = hits.filter(([, k]) => k > v0);
+      let who, target = null;
+      if (before.length) { who = [before[0][0]]; target = (before[1] || after[0] || [])[0] || null; }
+      else if (grp && grp !== "kids" || (grp && !/^(qui|il|elle)\b/.test(c))) { who = [grp]; target = (after[0] || [])[0] || null; }
+      else if (/^qui\b/.test(c) && last) { who = [last]; target = (after[0] || [])[0] || null; }
+      else if (/^(il|elle|ils|elles)\b/.test(c) && subj) { who = [subj]; target = (after[0] || [])[0] || null; }
+      else if (last) { who = [last]; target = (after[0] || [])[0] || null; }
+      else who = [];
+      // « lui », « le », « sur lui » : l'autre personne de la scène
+      if (!target && /\blui\b|\ble (?:pousse|repousse|frappe|regarde)|sur lui|contre lui|vers lui|vers elle/.test(cl)) target = [last, prev, subj].find((x) => x && !who.includes(x)) || null;
+      if (before.length) subj = before[0][0];
+      hits.forEach(([w]) => { if (w !== last) { prev = last; last = w; } });
+      if (acts.length && who.length) out.push({ pos, who, acts, target });
+      else if (hits.length > 1 && !acts.length) out.push({ pos, who: [hits[0][0]], acts: [{ face: 1 }], target: hits[1][0] });
+    });
+    return out;
+  }
+  const Mise = {
+    tm: [],
+    stop() { this.tm.forEach(clearTimeout); this.tm = []; },
+    actorsOf(k) {
+      const all = World.el ? [...World.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].filter((a) => !a.classList.contains("legL") && a.dataset.who !== "you") : [];
+      const kid = (w) => KIDS.has(w) || /^k\d/.test(w), teen = (w) => /^t\d/.test(w) || ["enzo", "clara", "lena", "maelys", "sacha"].includes(w);
+      if (k === "kids") return all.filter((a) => kid(a.dataset.who));
+      if (k === "teens") return all.filter((a) => teen(a.dataset.who));
+      if (k === "all") return all;
+      return all.filter((a) => a.dataset.who === k);
+    },
+    // petit pas (vers quelqu'un, ou en arrière) : on décale la personne à l'écran, sans toucher à sa place dans le décor
+    step(a, toward, f) {
+      const host = a.classList.contains("ractor") ? a.querySelector(".rmove") : a; if (!host) return;
+      // on mesure le personnage lui-même (pas son étiquette ni sa bulle) : un pas = un tiers de sa taille au plus
+      const body = (x) => (x.querySelector("svg.rig") || x).getBoundingClientRect();
+      const r = body(a), o = toward && body(toward);
+      let dx = o ? (o.left + o.width / 2) - (r.left + r.width / 2) : (r.left + r.width / 2 > innerWidth / 2 ? 1 : -1) * r.height, dy = o ? (o.bottom - r.bottom) : 0;
+      const d = Math.hypot(dx, dy) || 1, want = Math.min(d * .3, r.height * .32) * f; dx = dx / d * want; dy = dy / d * want;
+      const ar = a.getBoundingClientRect(), k = a.classList.contains("ractor") ? (1 / ((a.ownerSVGElement && a.ownerSVGElement.getScreenCTM && a.ownerSVGElement.getScreenCTM().a) || 1)) : (a.offsetWidth / (ar.width || 1));
+      // sur le plan, la personne est déjà calée par translate (-50 % -94 %) : on ajoute le pas à ce calage
+      const X = (dx * k).toFixed(1), Y = (dy * k).toFixed(1), base = host.classList.contains("actor");
+      host.style.transition = "translate 1.1s cubic-bezier(.45,.05,.35,1)";
+      host.style.translate = base ? `calc(-50% + ${X}px) calc(-94% + ${Y}px)` : `${X}px ${Y}px`;
+    },
+    play(text, dur) {
+      this.stop(); if (!World.el || reduce() || !text) return;
+      const present = [...new Set([...World.el.querySelectorAll(".actor[data-who], .ractor[data-who]")].map((a) => a.dataset.who))];
+      const D = Math.max(1.5, dur || 3) * 1000;
+      const P = miseParse(text, present), named = new Set(P.flatMap((c) => c.who.concat(c.target || [])));
+      P.forEach((c) => this.tm.push(setTimeout(() => {
+        // « s'approche » sans personne nommée : on vient vers vous
+        const tgt = (c.target && this.actorsOf(c.target)[0]) || (c.acts.some((A) => A.to) && World.el.querySelector('.actor[data-who="you"], .ractor[data-who="you"]')) || null;
+        // un groupe (« les enfants », « les jeunes ») : ceux qui ne sont pas déjà nommés dans la phrase
+        const grp = (w) => ["kids", "teens", "all"].includes(w);
+        c.who.forEach((w) => this.actorsOf(w).filter((a) => !grp(w) || !named.has(a.dataset.who)).forEach((a, i) => this.tm.push(setTimeout(() => {
+          c.acts.forEach((A) => {
+            if (A.e) { emote(a.dataset.who, A.e); this.tm.push(setTimeout(() => emote(a.dataset.who, null), 5200)); }
+            if ((A.face || A.to) && tgt && World.gazeAt) World.gazeAt(a, tgt);
+            if (A.to && tgt) this.step(a, tgt, 1);
+            if (A.away) this.step(a, tgt || null, -.8);
+          });
+          const g = (c.acts.find((A) => A.g) || {}).g; if (g) gesture(a, g);
+          if (c.acts.some((A) => A.hit) && tgt) { this.tm.push(setTimeout(() => gesture(tgt, "stagger"), 450)); }
+        }, i * 160))));
+      }, Math.max(150, c.pos * D * .92))));
+    },
+  };
   const GESTS = ["weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
@@ -4553,5 +4699,5 @@
   applySettings();
   home();
   soundGate();
-  window.__game = { st: () => st, go, SCREENS, World, A: () => A };
+  window.__game = { st: () => st, go, SCREENS, World, A: () => A, Mise };
 })();

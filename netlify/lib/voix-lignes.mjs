@@ -906,11 +906,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Un peu à l’écart du grand bâtiment, la salle des 14-17 ans. Bon, comme tu vois, il y a des canapés, une table de ping-pong et un tableau pour les projets : par exemple, c’est eux qui coordonnent la fête de la fin de l’été avec un anim, ils kiffent. On les a depuis petits, donc ils sont bien, en vrai."
  },
- "0b5d18c18566": {
+ "1a5e5af84df9": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Mon bureau, juste à côté de l’entrée. Les fiches sanitaires pour les sorties sont rangées dans l’armoire, avec aussi les trousses sanitaires. Pensez à les prendre, sinon vous serez en difficulté si un enfant se blesse. Vous pouvez même missionner certains jeunes pour les prendre, ils adorent cette responsabilité."
+  "text": "Mon bureau, juste à côté de l’entrée. Les fiches sanitaires pour les sorties sont rangées dans l’armoire, avec aussi les trousses sanitaires. Pense à les prendre, sinon tu seras en difficulté si un enfant se blesse. Tu peux même missionner certains jeunes pour les prendre, ils adorent cette responsabilité."
  },
  "ea29e29779b9": {
   "who": "nour",

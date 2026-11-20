@@ -690,24 +690,6 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je… je vais avoir des problèmes ?"
  },
- "c3e3a396a85e": {
-  "who": "nour",
-  "mood": "big",
-  "kind": "replique",
-  "text": "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt."
- },
- "1846e4f5b55a": {
-  "who": "nour",
-  "mood": "smile",
-  "kind": "replique",
-  "text": "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration."
- },
- "675215dc306f": {
-  "who": "nour",
-  "mood": "smile",
-  "kind": "replique",
-  "text": "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi. Merci encore pour la semaine…"
- },
  "48a34342df10": {
   "who": "narr",
   "mood": "",
@@ -2214,17 +2196,35 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
  },
+ "ae001f4384bd": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Revenons sur votre semaine, jour par jour : ce que vous aviez fait, et ce que ça a donné."
+ },
  "587601f13e65": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
   "text": "Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin."
  },
- "8f4cb18c5d97": {
-  "who": "narr",
-  "mood": "",
-  "kind": "situation",
-  "text": "Retour en arrière. Lundi, vous arriviez aux Hautes Herbes sans rien connaître de l’équipe. Revoyons ensemble chacune de vos décisions : ce que vous avez choisi alors, et ce qu’il en est aujourd’hui."
+ "1846e4f5b55a": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration."
+ },
+ "7819916094f2": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi."
+ },
+ "c3e3a396a85e": {
+  "who": "nour",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt."
  },
  "ee09ad6f73ae": {
   "who": "narr",

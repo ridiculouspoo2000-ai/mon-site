@@ -483,7 +483,8 @@
         this.ready = !!(j && (j.active || j.generees > 0)); applySettings(); if (this._onReady) this._onReady();
       }).catch(() => { this.ready = false; applySettings(); });
     },
-    url(who, text) { const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
+    url(who, text) { if (!/[A-Za-zÀ-ÿ0-9]/.test(String(text || ""))) return null;   // un silence (« … ») ne se dit pas : sinon la voix improvise, parfois en anglais
+      const id = VOIX[who + "|" + text]; return id ? "/api/voix?id=" + id + "&v=" + (window.VOIX_V || "1") : null; },
     say(who, text, target) { this.seq([[who, text, target instanceof Element ? target : null]]); },
     seq(list) {
       if (!this.ok || !this.ready || !st.settings.voice || !list || !list.length) return;
@@ -789,8 +790,25 @@
     }
     if (changed) { DC.el.classList.remove("newday"); void DC.el.offsetWidth; DC.el.classList.add("newday"); }
   }
+  // Flash-back : la même mise en scène partout où l'on revoit une scène passée (carnet de Nour, retour sur la semaine).
+  // Image sépia et granuleuse, bandeau « Flash-back · jour, heure · lieu », effet de rembobinage à chaque nouvelle scène.
+  const Flash = {
+    on(label, sub) {
+      document.body.classList.add("flashback");
+      let b = document.getElementById("fb-band");
+      if (!b) { b = el("div", { id: "fb-band", "aria-live": "polite" }); document.body.appendChild(b); }
+      b.innerHTML = `<span class="fb-ico" aria-hidden="true">⟲</span><span><b>Flash-back</b>${label ? ` · ${esc(label)}` : ""}${sub ? `<small>${esc(sub)}</small>` : ""}</span>`;
+      b.className = ""; void b.offsetWidth; b.classList.add("in");
+      if (!reduce() && !calm()) {
+        const w = el("div", { class: "fb-rewind", "aria-hidden": "true" }); document.body.appendChild(w); setTimeout(() => w.remove(), 900);
+        try { if (Snd.ctx && st.settings.sound) { const c = Snd.ctx, o = c.createOscillator(), g = c.createGain(); o.type = "sawtooth"; o.frequency.setValueAtTime(900, c.currentTime); o.frequency.exponentialRampToValueAtTime(120, c.currentTime + .55); g.gain.setValueAtTime(.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(.035, c.currentTime + .05); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .6); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .65); } } catch (e) { }
+      }
+    },
+    off() { document.body.classList.remove("flashback"); const b = document.getElementById("fb-band"); if (b) b.remove(); },
+  };
   function render(dir = 1) {
     document.body.classList.remove("athome", "roaming");
+    Flash.off();   // un flash-back ne déborde jamais sur l'écran suivant
     if (typeof Life !== "undefined") Life.clear();   // la promenade s'arrête quand on change d'écran
     const sc = tune(SCREENS[st.idx]);
     // partie reprise après la présentation : l'horloge et le téléphone sont déjà connus
@@ -2332,6 +2350,7 @@
         lis.forEach((li, j) => li.classList.toggle("on", j === k));
         const id = ILL[k % ILL.length], S0 = SCREENS.find((x) => x.id === id);
         if (S0) { try { World.stage(DE ? { ...S0, type: "story", kicker: dayEndT(DE), endday: true } : { ...S0, type: "story" }); } catch (e) { }
+          Flash.on(String(S0.kicker || CHAPTERS[S0.ch - 1].day).split("·")[0].trim(), S0.title || (lis[k] && lis[k].textContent.slice(0, 60)) || "");
           const C = (STAGE[id] && STAGE[id].cast) || [], w = (C.find((c) => c[0] !== "you") || [])[0];
           if (w) setTimeout(() => { if (n.isConnected) { World.talk(w); setTimeout(() => World.talk(null), 2600); } }, 900); }
         tm = setTimeout(show, Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
@@ -2949,9 +2968,7 @@
     const panel = el("div", { class: "panel replay" });
     const FL = typeof FLASH !== "undefined" ? FLASH : null;
     panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2><p class="lead">${FL ? esc(FL.intro) + " " : ""}Jour après jour, revivez vos décisions : ce que vous avez choisi, puis ce qu’il en est aujourd’hui.</p>`;
-    // flash-back : le plan prend la couleur des souvenirs
-    document.body.classList.add("flashback");
-    const mo = new MutationObserver(() => { if (!n.isConnected) { document.body.classList.remove("flashback"); mo.disconnect(); } }); mo.observe(document.body, { childList: true, subtree: true });
+    // flash-back : même traitement que dans le carnet de Nour (Flash.on à chaque décision revue)
     const body = el("div", { class: "rp-body", "aria-live": "polite" });
     const row = el("div", { class: "row" });
     n.dataset.novoice = "1";
@@ -2959,12 +2976,21 @@
     let i = 0;
     const tierOf = (id) => (st.res[id] >= 0.95 ? "excellent" : st.res[id] >= 0.45 ? "moyen" : "catastrophe");
     const LBL = { excellent: ["Ce que votre décision a permis", "good"], moyen: ["Ce que votre décision a laissé passer", "mid"], catastrophe: ["Ce que votre décision a provoqué", "low"] };
-    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else { if (FL) Voice.say("narr", FL.end); document.body.classList.remove("flashback"); setTimeout(next, FL && Voice.ok && Voice.ready && st.settings.voice ? 2600 : 300); } });
+    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else { if (FL) Voice.say("narr", FL.end); Flash.off(); setTimeout(next, FL && Voice.ok && Voice.ready && st.settings.voice ? 2600 : 300); } });
     const li = (t, cls = "") => `<li class="${cls}">${esc(t)}</li>`;
     function play() {
       const id = ids[i], S0 = tune(SCREENS.find((s) => s.id === id)), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
-      if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t].cast }, { id: "retour-" + id, type: "story", ch: 6 });
-      else World.show(stageOf(id), { id: "retour-" + id, type: "story", ch: 6 });
+      // d'abord le flash-back (la scène telle que vous l'avez vécue), puis retour au présent : ce qu'il en est aujourd'hui
+      const my = (play.tok = (play.tok || 0) + 1);
+      World.show(stageOf(id), { id: "flash-" + id, type: "story", ch: S0.ch, kicker: S0.kicker });
+      Flash.on(String(S0.kicker || CHAPTERS[S0.ch - 1].day).split("·")[0].trim(), S0.title || "");
+      setTimeout(() => {
+        if (my !== play.tok || !n.isConnected) return;
+        Flash.off();
+        if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t].cast }, { id: "retour-" + id, type: "story", ch: 6 });
+        else World.show(stageOf(id), { id: "retour-" + id, type: "story", ch: 6 });
+        const nw = el("div", { id: "fb-band", class: "now in", "aria-live": "polite" }, `<span class="fb-ico" aria-hidden="true">●</span><span><b>Aujourd’hui</b> · vendredi soir</span>`); document.body.appendChild(nw);
+      }, reduce() ? 0 : 3400);
       let choix = "", effet = [], cadre = "", V = [];
       if (S0.type === "choice") {
         const o = S0.opts[L.k != null ? L.k : 0];

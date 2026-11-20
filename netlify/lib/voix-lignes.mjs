@@ -120,11 +120,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi."
  },
- "6794c6028cca": {
+ "8eb70024f33a": {
   "who": "nour",
   "mood": "calm",
   "kind": "replique",
-  "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV, apparemment, tu es calée là-dessus."
+  "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV : tu t’es formée aux VSS."
  },
  "c15315656aaa": {
   "who": "nour",
@@ -843,7 +843,7 @@ export const LIGNES = {
  "82d5baa9b7f7": {
   "who": "nour",
   "mood": "",
-  "kind": "visite-alerte",
+  "kind": "visite-calme",
   "text": "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir."
  },
  "8fd4e1aefc74": {
@@ -3300,12 +3300,6 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Euh… oui… peut-être… je sais pas."
  },
- "53038bf5d996": {
-  "who": "sacha",
-  "mood": "",
-  "kind": "replique",
-  "text": "…"
- },
  "e09c6672c653": {
   "who": "sacha",
   "mood": "",
@@ -3497,12 +3491,6 @@ export const LIGNES = {
   "mood": "",
   "kind": "replique",
   "text": "Ils vont me dire que j’ai cafté…"
- },
- "153f96a05c20": {
-  "who": "malo",
-  "mood": "",
-  "kind": "replique",
-  "text": "…"
  },
  "081c7f621d9f": {
   "who": "lena",

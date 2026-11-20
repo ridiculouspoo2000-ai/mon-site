@@ -2316,13 +2316,31 @@ body.roaming .emo-sign,body.roaming .actor:before,body.roaming .walker:before{di
 @media (max-width:640px){.mt-press{height:62px;font-size:16px}.mt-press span b{font-size:24px}.sw-gauges{grid-template-columns:1fr}}
 .mt-press span em{font-style:normal}
 /* PROMPT 6 : la semaine en flash-backs */
-body.flashback #world .wcam{filter:sepia(.42) saturate(.78) brightness(1.04);transition:filter 1.2s ease}
-body.flashback #world::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 52%,rgba(60,40,20,.38) 100%);z-index:5}
+
+
 .rp-day{margin:0 0 6px;font:800 30px/1.1 'Inter',sans-serif;color:#B5602A;letter-spacing:-.01em;animation:rpday .8s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rpday{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .rp-narr{margin:8px 0 4px;font-style:italic;color:#6B5A48}
 .findg.free .fperson.asked{opacity:.55}
 .fd-alt{margin:10px 0}
+
+/* PROMPT B : flash-back bien visible — sépia, grain, vignette, cadre de pellicule, bandeau, rembobinage */
+#world .wcam{transition:filter .8s ease}
+body.flashback #world .wcam{filter:sepia(.75) saturate(.6) contrast(1.05) brightness(1.02)}
+body.flashback #world::before{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;opacity:.22;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");animation:fbgrain .5s steps(3) infinite}
+body.flashback #world::after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;box-shadow:inset 0 0 0 10px rgba(40,26,14,.55),inset 0 0 160px 40px rgba(40,26,14,.55);border-radius:6px}
+@keyframes fbgrain{0%{transform:translate(0,0)}33%{transform:translate(-6px,4px)}66%{transform:translate(5px,-3px)}100%{transform:translate(0,0)}}
+#fb-band{position:fixed;left:50%;top:86px;translate:-50% -8px;z-index:60;display:flex;gap:10px;align-items:center;padding:9px 18px 9px 12px;border-radius:99px;background:rgba(58,38,20,.88);color:#FBEBD3;font:600 15px/1.2 'Inter',sans-serif;box-shadow:0 10px 30px rgba(40,26,14,.35);opacity:0;transition:opacity .35s,translate .35s;pointer-events:none;max-width:min(92vw,640px)}
+#fb-band.in{opacity:1;translate:-50% 0}
+#fb-band b{font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-size:13px}
+#fb-band small{display:block;font-weight:500;font-size:12.5px;opacity:.85;margin-top:2px}
+#fb-band .fb-ico{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#E2B676;color:#3A2614;font-size:18px;animation:fbspin 1.2s ease-out 1}
+#fb-band.now{background:rgba(30,39,51,.9);color:#fff}#fb-band.now .fb-ico{background:#E2702A;color:#fff;font-size:11px;animation:none}
+@keyframes fbspin{from{transform:rotate(360deg)}to{transform:rotate(0)}}
+.fb-rewind{position:fixed;inset:0;z-index:59;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,240,215,.0) 0 6px,rgba(255,240,215,.35) 6px 8px),linear-gradient(rgba(60,40,20,.35),rgba(60,40,20,.35));animation:fbrew .85s ease-out forwards}
+@keyframes fbrew{0%{opacity:0;transform:translateY(-30px)}25%{opacity:1}100%{opacity:0;transform:translateY(40px)}}
+@media (max-width:860px){#fb-band{top:auto;bottom:calc(52vh + 10px);font-size:13px}}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -3017,7 +3035,7 @@ body.dusk #dayclock{visibility:hidden}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-c11ca1c7.js"></script>
-<script src="jeu-2-74099b04.js"></script>
-<script src="jeu-3-4c6ae4e7.js"></script>
+<script src="jeu-1-27579c52.js"></script>
+<script src="jeu-2-6eeb918f.js"></script>
+<script src="jeu-3-1cb8b0fe.js"></script>
 </body></html>

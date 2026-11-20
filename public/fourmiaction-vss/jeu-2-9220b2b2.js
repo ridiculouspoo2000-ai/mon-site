@@ -531,9 +531,14 @@ const SCREENS = [
           ["narr", "Les autres se mettent à crier « Bisou ! Bisou ! » et poussent Zoé vers Malo.", 1],
           ["sacha", "Vas-y, t’as pas le choix, c’est la règle du jeu !", 2],
         ],
+        // ce que vous pouvez dire dépend de ce qui s'est vraiment passé quand vous intervenez (min / max : répliques entendues)
         words: [
-          { t: "« Stop. Ici, personne n’est obligé d’embrasser qui que ce soit. Zoé a dit non : on arrête ce gage. »", q: 1 },
-          { t: "« Allez, on arrête ce jeu de bébés, tout le monde va jouer ailleurs. »", q: 0.5 },
+          { max: 2, t: "« Je viens jouer avec vous. Une règle avant de continuer : un gage, on peut toujours le refuser, et on n’insiste pas. »", q: 1 },
+          { max: 2, t: "« Allez, on arrête ce jeu de bébés, tout le monde va jouer ailleurs. »", q: 0.5 },
+          { min: 3, max: 3, t: "« Stop. Un bisou, ça ne s’impose pas : personne n’est obligé de faire ce gage. On le change. »", q: 1 },
+          { min: 3, max: 3, t: "« Allez, on arrête ce jeu de bébés, tout le monde va jouer ailleurs. »", q: 0.5 },
+          { min: 4, t: "« Stop. Ici, personne n’est obligé d’embrasser qui que ce soit. Zoé a dit non : on arrête ce gage. »", q: 1 },
+          { min: 4, t: "« Allez, on arrête ce jeu de bébés, tout le monde va jouer ailleurs. »", q: 0.5 },
         ],
         opts: [
           { t: "Je suis intervenue dès que le gage a été imposé, et j’ai nommé la règle : personne n’est obligé.", q: 1,
@@ -545,6 +550,9 @@ const SCREENS = [
           { t: "Je ne suis pas intervenue.", q: 0,
             cons: "Zoé a été poussée jusqu’à Malo devant tout le groupe. Le soir, elle a dit à son père qu’elle ne voulait plus jouer au parc.",
             fb: "Laisser faire un gage imposé apprend aux enfants que le « non » ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir." },
+          { t: "Je suis intervenue avant qu’un gage ne soit imposé, en rappelant qu’on peut refuser.", q: 0.5,
+            cons: "Le jeu a continué avec vous à côté, et chacun savait qu’il pouvait refuser un gage. Mais rien ne s’était encore passé : les enfants n’ont pas vraiment compris ce qui posait problème.",
+            fb: "Être présent et poser la règle à l’avance est utile. Mais l’essentiel est d’intervenir au moment où la contrainte apparaît, et de nommer ce qui se passe : personne n’est obligé, un non est un non." },
         ],
         better: "Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non." },
       { id: "sieste", at: "petits", room: "petits", from: "13 h 45", to: "15 h 45", comp: "C3", kicker: "Jeudi après-midi · la salle des 6-11 ans", title: "La porte fermée",
@@ -1352,18 +1360,24 @@ const NUANCE_KID = "Parfois, plusieurs réponses avaient l’air bien. Mais la p
     { who: "t3", at: [6.9, 9.9], from: "14 h 30", to: "16 h 30", gest: ["laugh", "point", "hips"] },
     { who: "t4", at: [7.3, 10.5], from: "14 h 30", to: "16 h 30", gest: ["laugh", "lean", "phone"] });
   const San = L.events.find((x) => x.id === "sanit"); if (San) San.cast = [["malo", "d", "sad"], ["t3", "a", "laugh"], ["t4", "b", "point"], ["you", "e"]];
-  L.events.push({ ...DISPUTE, at: "jeux", from: "15 h", to: "16 h 45",
+  L.events.push({ ...DISPUTE, at: "jeux", from: "15 h", to: "16 h 45", duel: ["lena", "sacha"],
     spots: [["sacha", 8.6, 25.2, "upset", ["stomp", "point", "fist"]], ["lena", 9.6, 24.6, "big", ["point", "stomp", "hips"]]],
     cast: [["sacha", "a", "upset"], ["lena", "b", "big"], ["you", "f", "walk"]],
     act: [[200, "lena", "face", "sacha"], [200, "sacha", "face", "lena"], [400, "lena", "g", "point"], [1100, "sacha", "g", "fist"], [1800, "lena", "g", "stomp"], [2500, "lena", "g", "push"], [2900, "sacha", "hit"], [2900, "sacha", "g", "stagger"], [2900, "sacha", "mv", [-.8, .4, 4]], [3700, "sacha", "g", "point"]],
     crowd: [["k5", 7.4, 24.0], ["k9", 10.6, 25.8]],
     lines: [["lena", "Rends-le ! C’est mon tour, t’as déjà joué !"], ["sacha", "Non, c’est pas vrai ! Lâche-moi !"], ["narr", "Léna pousse Sacha, qui manque de tomber."]] });
-  J.events.push({ ...BAGARRE, at: "preau", from: "14 h", to: "16 h 30", tense: true,
+  J.events.push({ ...BAGARRE, at: "preau", from: "14 h", to: "16 h 30", tense: true, duel: ["sacha", "enzo"],
     spots: [["enzo", 15.6, 24.6, "big", ["laugh", "point", "hips"]], ["clara", 16.6, 24.0, "upset", ["cover", "stepback", "stop"]], ["sacha", 14.2, 23.4, "upset", ["fist", "stomp"]]],
     cast: [["enzo", "a", "big"], ["clara", "b", "upset"], ["sacha", "c", "upset"], ["you", "f", "walk"]],
-    act: [[200, "enzo", "face", "clara"], [300, "enzo", "g", "point"], [900, "clara", "g", "stepback"], [1300, "enzo", "mv", [.5, -.3, 1.6]], [1800, "enzo", "g", "stop"], [2200, "clara", "g", "cover"],
-      [2600, "sacha", "mv", [1.0, .7, 4.2]], [3300, "sacha", "face", "enzo"], [3400, "sacha", "g", "push"], [3800, "enzo", "hit"], [3800, "enzo", "g", "stagger"], [3800, "enzo", "mv", [.6, .5, 4]],
-      [4500, "enzo", "face", "sacha"], [4600, "enzo", "g", "push"], [5000, "sacha", "hit"], [5000, "sacha", "g", "stagger"], [5000, "sacha", "mv", [-.6, -.3, 4]], [5700, "sacha", "g", "fist"], [5900, "enzo", "g", "fist"]],
+    // Enzo harcèle Clara ; Sacha arrive par la gauche et se plante face à lui (même profondeur, l'un en face de l'autre),
+    // puis les deux garçons s'empoignent : poussées, recul, retour, poings levés ; Clara recule et se protège
+    act: [[200, "enzo", "face", "clara"], [300, "enzo", "g", "point"], [900, "clara", "g", "stepback"], [1300, "enzo", "mv", [.4, -.25, 1.6]], [1800, "enzo", "g", "lean"], [2200, "clara", "g", "cover"], [2400, "clara", "mv", [.5, -.4, 2.2]],
+      [2500, "sacha", "mv", [.85, 1.9, 4.2]], [3200, "enzo", "face", "sacha"], [3200, "sacha", "face", "enzo"], [3300, "enzo", "mv", [-.2, .2, 2]],
+      [3600, "sacha", "g", "push"], [3900, "enzo", "hit"], [3900, "enzo", "g", "stagger"], [3900, "enzo", "mv", [.35, -.35, 4]],
+      [4500, "enzo", "g", "fist"], [4500, "sacha", "g", "fist"], [4900, "enzo", "mv", [-.35, .35, 3]], [5200, "enzo", "g", "push"],
+      [5500, "sacha", "hit"], [5500, "sacha", "g", "stagger"], [5500, "sacha", "mv", [-.35, .35, 4]], [6000, "sacha", "face", "enzo"],
+      [6100, "sacha", "mv", [.3, -.3, 3]], [6300, "sacha", "g", "push"], [6600, "enzo", "hit"], [6600, "enzo", "g", "stagger"], [6600, "enzo", "mv", [.25, -.25, 4]],
+      [7100, "enzo", "face", "sacha"], [7200, "enzo", "g", "fist"], [7200, "sacha", "g", "stomp"]],
     crowd: [["t1", 17.6, 25.2], ["t2", 13.8, 25.4], ["k8", 18.2, 23.4]],
     lines: [["enzo", "Eh, Clara, fais un tour sur toi, qu’on te mette une note !"], ["clara", "Arrête. Je t’ai dit d’arrêter. Laisse-moi passer."], ["narr", "Enzo lui attrape le bras. Sacha fonce sur lui et le pousse ; Enzo le repousse. Ils se battent sous le préau."]] });
   J.events.push({ ...CADEAU, at: "potager", from: "14 h", to: "16 h 30",

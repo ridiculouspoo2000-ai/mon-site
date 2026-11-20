@@ -406,6 +406,13 @@
         o.connect(g).connect(this.sfx); o.start(t0); v.start(t0); o.stop(t0 + .6); v.stop(t0 + .6); };
       hoot(t + .7, 390); hoot(t + 1.35, 370); hoot(t + 1.62, 370);
     },
+    // l'aube : une nappe douce qui s'ouvre, puis quelques oiseaux au loin
+    dawn() {
+      if (!st.settings.sound || !this.ctx) return;
+      const c = this.ctx, t = c.currentTime + .05;
+      [0, 7, 12, 16].forEach((k, i) => this.voice(mtof(57 + k), t + i * .18, 3.2, { wave: "sine", gain: 0.012, attack: 1.1, release: 1.8, cut: 2600 }));
+      setTimeout(() => { const t2 = c.currentTime; for (let k = 0; k < 4; k++) { const f0 = 2600 + Math.random() * 1400; for (let i = 0; i < 3; i++) this.voice(f0 * (1 + i * .06), t2 + k * .62 + i * .09, .07, { wave: "sine", gain: 0.006, attack: .004, release: .05, cut: 8000 }); } }, 1300);
+    },
     rooster() {
       if (!st.settings.sound || !this.ctx) return;
       const c = this.ctx, t = c.currentTime + .05;
@@ -1195,6 +1202,24 @@
     },
     show(S, sc) {
       this.init(); if (!this.el) return;
+      // Entrer dans une salle ou en sortir : un zoom, un bref écran noir, et le lieu s'affiche directement
+      // (plus de retour sur le bâtiment, de second zoom ni de toit qui se soulève sous nos yeux).
+      const quick = this.quick || false; this.quick = false;
+      const IN0 = S && S.room && A.dio.inner && A.dio.inner[S.room];
+      const wasOn = this.el.classList.contains("on"), inBld = this.lid && this.lid.G;
+      const cross = wasOn && this.cur !== S && (IN0 ? inBld !== IN0.G : !!inBld);
+      if (cross && !quick && !reduce()) {
+        const me = this._dv = (this._dv || 0) + 1, c0 = this.cv;
+        if (c0) { const tgt = IN0 ? { x: (IN0.l + IN0.w / 2) / 100, y: (IN0.t + IN0.w * A.dio.ratio / IN0.r * .52) / 100 } : { x: c0.x, y: c0.y }; this.camTo(tgt, Math.min(5.2, c0.z * 1.5), 520); }
+        let f = document.querySelector(".roomfade.wfade"); if (!f) { f = el("div", { class: "roomfade wfade", "aria-hidden": "true" }); document.body.appendChild(f); }
+        let done = false;
+        const swap = () => { if (done || me !== this._dv) return; done = true; this.quick = true; this.show(S, sc);
+          // le noir se lève une fois le nouveau lieu dessiné
+          requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => f.classList.remove("on"), 160))); };
+        setTimeout(() => { f.classList.add("on"); f.addEventListener("transitionend", function te(e) { if (e.propertyName === "opacity" && f.classList.contains("on")) { f.removeEventListener("transitionend", te); swap(); } }); setTimeout(swap, 700); }, 260);
+        return;
+      }
+      this._dv = (this._dv || 0) + 1; this._quickRoof = quick;
       this.el.classList.add("on"); document.body.classList.add("live");
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
@@ -1212,7 +1237,7 @@
         z = Math.max(1.6, Math.min(3.6, want / (IN.w / 100 * camW)));   // refonte : plafond 3,6 (au-delà, la petite régie était cadrée deux fois plus près que les autres salles)
         p = { x: (IN.l + IN.w / 2) / 100, y: (IN.t + hp * .52) / 100 };
       }
-      this.camTo(p, z);
+      this.camTo(p, z, quick ? 0 : undefined);
       // acteurs dehors
       const acts = this.cam.querySelector(".wacts"); acts.innerHTML = "";
       const stand = A.dio.stand[S.at] || A.dio.stand.ensemble, sz = (44 / A.dio.vbw) * 100 * .77;   // un peu plus petits : à l’échelle des portes et du mobilier
@@ -1249,7 +1274,7 @@
       const gen = this._gen = (this._gen || 0) + 1;
       if (IN) {
         const sameB = this.lid && this.lid.G === IN.G;
-        this._t2 = setTimeout(() => { if (gen === this._gen) this.roof(S.room, S); }, reduce() ? 0 : (sameB ? 0 : 700));
+        this._t2 = setTimeout(() => { if (gen === this._gen) this.roof(S.room, S); }, reduce() || quick ? 0 : (sameB ? 0 : 700));
       } else this.roof(null);
     },
     // le soir : la lumière des fenêtres et des lampadaires se projette au sol, vers l'extérieur
@@ -1294,7 +1319,7 @@
       this._cf = requestAnimationFrame(f);
     },
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
-    people(room, S) {
+    people(room, S, instant) {
       const IN = A.dio.inner[room], host = this.cam.querySelector(".wlids");
       const old = host.querySelector(".inroom-w"); if (old) old.remove();
       const w = el("div", { class: "inroom-w", style: `left:${IN.l}%;top:${IN.t}%;width:${IN.w}%;aspect-ratio:${IN.r};z-index:${IN.z}` }, IN.svg);
@@ -1330,6 +1355,7 @@
       w.addEventListener("click", (e) => { const g = e.target.closest && e.target.closest(".aff"); if (g) Aff.open(g.dataset.aff); });
       // dans une salle, on ne voit qu'elle : le reste du plan s'efface dans le noir
       let veil = host.querySelector(".room-veil"); if (!veil) { veil = el("div", { class: "room-veil" }); host.appendChild(veil); }
+      if (instant) { veil.classList.add("instant", "in"); w.classList.add("instant", "in"); }   // après l'écran noir : la salle est là, tout de suite
       requestAnimationFrame(() => veil.classList.add("in"));
       host.appendChild(w);
       requestAnimationFrame(() => w.classList.add("in"));
@@ -1372,7 +1398,10 @@
         } else this.people(room, S);
         return;
       }
-      if (cur) {   // on referme : la salle se vide, le toit redescend
+      const Q = this._quickRoof || reduce();
+      if (cur && Q) {   // pendant l'écran noir : tout disparaît d'un coup
+        host.querySelectorAll(".inroom-w, .room-veil").forEach((x) => x.remove()); cur.h.remove(); cur.t.remove(); this.lid = null;
+      } else if (cur) {   // on referme : la salle se vide, le toit redescend
         const r = host.querySelector(".inroom-w"); if (r) { r.classList.remove("in"); setTimeout(() => r.remove(), 300); }
         const v = host.querySelector(".room-veil"); if (v) { v.classList.remove("in"); setTimeout(() => v.remove(), 400); }
         // le toit redescend pendant que les murs remontent : la façade se fond progressivement, rien n'apparaît d'un coup
@@ -1382,10 +1411,12 @@
       }
       if (!G) return;
       const L = A.dio.lids[G], pos = `left:${L.l}%;top:${L.t}%;width:${L.w}%;aspect-ratio:${L.r}`;
-      const h = el("img", { class: "wlid hole", alt: "", src: holeSrc, style: pos }), t = el("img", { class: "wlid top", alt: "", src: Lids.src(G, "lid"), style: pos });
+      const h = el("img", { class: "wlid hole" + (Q ? " instant" : ""), alt: "", src: holeSrc, style: pos }), t = el("img", { class: "wlid top" + (Q ? " instant" : ""), alt: "", src: Lids.src(G, "lid"), style: pos });
       host.appendChild(h); host.appendChild(t); const me = this.lid = { G, room, h, t };
       Promise.all([h, t].map((i) => (i.decode ? i.decode() : Promise.resolve()).catch(() => {}))).then(() => {
         if (this.lid !== me) return;
+        // mode direct (après l'écran noir) : la salle est déjà ouverte, ses occupants déjà là
+        if (Q) { t.classList.add("ready", "open"); h.classList.add("ready"); this.people(room, S, true); return; }
         t.classList.add("ready");
         // le toit reste posé un instant (on voit le bâtiment fermé), puis il se soulève ; dessous, les murs de façade s'abaissent
         setTimeout(() => { if (this.lid !== me) return; t.classList.add("open"); h.classList.add("ready"); setTimeout(() => this.lid === me && this.people(room, S), reduce() ? 0 : 450); }, reduce() ? 0 : 350);
@@ -3668,7 +3699,8 @@
     if (reduce() || st.settings.calm) return fn();
     const b = el("div", { class: "roomfade", "aria-hidden": "true" }); document.body.appendChild(b);
     requestAnimationFrame(() => b.classList.add("on"));
-    setTimeout(() => { try { fn(); } finally { setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 420); }, 260); } }, 230);
+    // pendant le noir, le lieu suivant s'affiche directement (World.quick : ni second zoom, ni toit qui se soulève)
+    setTimeout(() => { try { World.quick = true; fn(); } finally { World.quick = false; setTimeout(() => { b.classList.remove("on"); setTimeout(() => b.remove(), 420); }, 260); } }, 230);
   }
 
   /* ---- figurants : enfants et adultes de l'accueil (personnages articulés générés) ---- */
@@ -3908,8 +3940,9 @@
     // la caméra s'approche de la porte, l'écran passe au noir un instant, et l'on se retrouve dans la salle seule
     function enter(key) {
       busy = true;
+      // le grand bâtiment : on choisit d'abord la salle, sur place ; le zoom et le noir viennent après le choix
+      if (key === "main") { busy = false; return hall(true); }
       const go = () => {
-        if (key === "main") return hall();
         const ev = sc.events.find((e) => e.room === key && evLive(e) && (S.guided || e.id === sc.guided));
         if (ev) scene(ev); else calm(key);
       };
@@ -3919,13 +3952,16 @@
       setTimeout(() => blackout(go), 560);
     }
     // le couloir du bâtiment principal : on choisit la salle
-    function hall() {
+    function hall(fromMap) {
+      // le choix de la salle s'affiche par-dessus la vue actuelle (le plan, ou la salle où l'on est) : pas de détour par le bâtiment
       document.body.classList.remove("roaming"); Life.clear();
-      World.show({ at: "direction", cast: [], z: 2.9 }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
       const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
       const g = el("div", { class: "opts" });
-      MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => blackout(() => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); })); g.appendChild(b); });
+      MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { g.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
+        const into = () => blackout(() => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); });
+        // depuis le plan : un zoom vers le bâtiment, puis le noir, puis la salle ; depuis une salle : le noir, puis la salle
+        if (fromMap && !reduce() && !st.settings.calm) { aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 600); setTimeout(into, 480); } else into(); }); g.appendChild(b); });
       // le couloir, vu de dessus : les portes des salles de part et d'autre, l'entrée vitrée au bout
       const plan = el("div", { class: "hall-plan", "aria-hidden": "true" });
       const D = MAIN_ROOMS.map((k, i) => { const top = i % 2 === 0, x = 60 + Math.floor(i / 2) * 150; return `<g class="hp-door" data-i="${i}" transform="translate(${x},${top ? 22 : 118})"><rect x="-58" y="${top ? -16 : 0}" width="116" height="16" rx="4" class="hp-room"/><rect x="-16" y="${top ? -3 : 0}" width="32" height="5" rx="2" class="hp-gap"/><text x="0" y="${top ? -24 : 34}">${esc(PLACE[k])}</text></g>`; }).join("");
@@ -4266,17 +4302,40 @@
     const W = World.el, golden = W.classList.contains("amb-golden");
     const pill = el("div", { class: "dusk-pill", "aria-live": "polite" }, golden ? "Le soleil se couche sur les Hautes Herbes…" : "La nuit tombe sur les Hautes Herbes…");
     document.body.appendChild(pill); requestAnimationFrame(() => pill.classList.add("on"));
-    const stars = Array.from({ length: 70 }, () => `<i style="left:${(Math.random() * 100).toFixed(1)}%;top:${(Math.random() * 62).toFixed(1)}%;--d:${(Math.random() * 3).toFixed(2)}s;--s:${(1 + Math.random() * 2).toFixed(1)}px"></i>`).join("");
-    const page = el("div", { class: "nightpage", "aria-hidden": "true" }, `<div class="np-dawn"></div><div class="np-stars">${stars}</div><div class="np-moon"></div><div class="np-sun"></div>
-      <svg class="np-land" viewBox="0 0 1200 260" preserveAspectRatio="none"><path class="np-far" d="M0,150 C160,90 300,120 430,95 C560,70 700,130 860,100 C990,78 1100,110 1200,92 L1200,260 L0,260 Z"/><path class="np-near" d="M0,200 C180,160 320,190 520,170 C700,152 860,200 1040,176 C1110,168 1160,172 1200,170 L1200,260 L0,260 Z"/>
-      <g class="np-house"><rect x="770" y="150" width="120" height="44"/><path d="M760,152 L830,118 L900,152 Z"/><rect class="np-win" x="788" y="164" width="16" height="13"/><rect class="np-win" x="818" y="164" width="16" height="13"/><rect class="np-win" x="848" y="164" width="16" height="13"/></g></svg>
-      <p class="np-t">La nuit</p>`);
+    // La nuit, version sobre : un ciel profond et un léger grain, une vraie lune, la silhouette de l'accueil et des arbres
+    // sur l'horizon (les fenêtres s'éteignent une à une), l'heure qui défile en grands chiffres fins ; puis l'aube
+    // (dégradé, lueur à l'horizon, oiseaux au loin). Même rendu pour toutes les nuits de la semaine.
+    const prevDay = ((CHAPTERS[(prevCh || 1) - 1] || {}).day || "").toLowerCase(), nextDay = String(dayLabel || "").toLowerCase();
+    const night0 = /23 h/.test(t0) ? 23 * 60 + 40 : 19 * 60, dawnM = 31 * 60 + 45;
+    const R = (a, b) => a + Math.random() * (b - a);
+    const stars = Array.from({ length: 120 }, (_, i) => `<i style="left:${R(0, 100).toFixed(2)}%;top:${R(0, 58).toFixed(2)}%;--s:${(i % 9 === 0 ? R(1.6, 2.3) : R(.6, 1.3)).toFixed(2)}px;--o:${R(.35, .95).toFixed(2)};--d:${R(0, 6).toFixed(2)}s"></i>`).join("");
+    // silhouettes : collines, lisière d'arbres, le bâtiment de l'accueil avec ses fenêtres, un lampadaire
+    let trees = "M0,214"; for (let x = 0; x <= 1440; x += 24) trees += ` Q${x + 12},${(170 + Math.sin(x * .013) * 14 + R(-18, 4)).toFixed(0)} ${x + 24},${(196 + Math.sin(x * .02) * 8).toFixed(0)}`; trees += " L1440,300 L0,300 Z";
+    const wins = Array.from({ length: 11 }, (_, i) => `<rect class="np-win" style="--k:${i}" x="${448 + i * 46}" y="${(i % 2 ? 222 : 220)}" width="20" height="14" rx="1.5"/>`).join("");
+    const page = el("div", { class: "nightpage np2", "aria-hidden": "true" }, `<div class="np-sky"></div><div class="np-dawn"></div><div class="np-glow"></div>
+      <div class="np-stars">${stars}<b class="np-shoot"></b></div><div class="np-moon"><span></span></div>
+      <svg class="np-land" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice">
+        <path class="np-far" d="M0,190 C200,150 340,176 520,158 C700,140 860,182 1040,160 C1200,142 1330,170 1440,156 L1440,300 L0,300 Z"/>
+        <path class="np-trees" d="${trees}"/>
+        <g class="np-bld"><path d="M420,210 L470,186 L1000,186 L1040,210 Z"/><rect x="430" y="208" width="600" height="52"/><rect x="1040" y="222" width="120" height="38"/><path d="M1034,224 L1100,206 L1166,224 Z"/>${wins}
+          <rect x="1300" y="176" width="3" height="84"/><circle class="np-lamp" cx="1301.5" cy="176" r="4"/></g>
+        <rect class="np-ground" x="0" y="256" width="1440" height="44"/></svg>
+      <div class="np-fog"></div><div class="np-grain"></div>
+      <div class="np-info"><p class="np-k">Nuit du ${esc(prevDay)} au ${esc(nextDay)}</p><p class="np-time">19 h 00</p><div class="np-bar"><i></i></div><p class="np-sub">Les Hautes Herbes · l’accueil est fermé</p></div>`);
+    const fmt = (m) => `${Math.floor(m / 60) % 24} h ${String(Math.floor(m % 60)).padStart(2, "0")}`;
+    const run = (a0, a1, D) => { const tm = page.querySelector(".np-time"), bar = page.querySelector(".np-bar i"), ws = [...page.querySelectorAll(".np-win")], t0 = performance.now();
+      const f = (now) => { if (!page.isConnected) return; const t = Math.min(1, (now - t0) / D), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, m = a0 + (a1 - a0) * e;
+        tm.textContent = fmt(m); bar.style.transform = `scaleX(${e.toFixed(3)})`;
+        ws.forEach((w, i) => w.classList.toggle("off", e > .12 + ((i * 7) % 11) / 11 * .55));   // les fenêtres s'éteignent une à une
+        if (t < 1) requestAnimationFrame(f); };
+      requestAnimationFrame(f); };
     const T = (golden ? 1500 : 0), steps = [
       [T, () => { W.classList.remove("amb-golden", "amb-morning", "amb-day", "amb-night"); W.classList.add("amb-evening"); World.lights(2); pill.textContent = "Les lumières s’allument dans les salles…"; }],
-      [T + 1700, () => { pill.classList.remove("on"); document.body.appendChild(page); requestAnimationFrame(() => page.classList.add("on")); Snd.night(); }],
-      [T + 2300, () => bigClock(19 * 60, 31 * 60 + 45, "La nuit", { night: true, dur: 3300 })],
-      [T + 6000, () => { page.classList.add("dawn"); page.querySelector(".np-t").textContent = `${dayLabel}, 7 h 45. Le jour se lève.`; Snd.rooster && Snd.rooster(); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
-      [T + 8600, () => { page.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => { page.remove(); pill.remove(); }, 900); done(); }],
+      [T + 1700, () => { pill.classList.remove("on"); page.querySelector(".np-time").textContent = fmt(night0); document.body.appendChild(page); requestAnimationFrame(() => page.classList.add("on")); Snd.night(); }],
+      [T + 2500, () => { page.classList.add("run"); run(night0, dawnM, 3700); }],
+      [T + 6400, () => { page.classList.add("dawn"); page.querySelector(".np-k").textContent = nextDay.charAt(0).toUpperCase() + nextDay.slice(1); page.querySelector(".np-sub").textContent = "Le jour se lève sur les Hautes Herbes";
+        (Snd.dawn || Snd.rooster || (() => {})).call(Snd); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
+      [T + 9000, () => { page.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => { page.remove(); pill.remove(); }, 1100); done(); }],
     ];
     // si l'on quitte l'écran en cours de route, la nuit s'efface tout de suite (elle ne déborde jamais sur l'écran suivant)
     const clean = () => { document.body.classList.remove("dusk"); page.remove(); pill.remove(); document.querySelectorAll(".bigclock.night").forEach((x) => x.remove()); };

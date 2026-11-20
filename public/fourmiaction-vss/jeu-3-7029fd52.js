@@ -48,12 +48,23 @@
       <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tone(hc, .18)}"/><stop offset="1" stop-color="${hc}"/></linearGradient>
     </defs>`;
     // chaussure : une basket (dessus arrondi, semelle claire, deux bandes), pointe vers l'avant ; pied posé à plat
-    const shoeSvg = (w, L, col) => {
+    // chaussure, pointe vers l'avant, pied posé à plat. Trois modèles : basket (semelle claire, deux bandes),
+    // toile (semelle blanche, bout blanc, lacets), ville (cuir, semelle fine foncée, petit talon)
+    const shoeSvg = (w, L, col, style = "basket") => {
       const n = parseInt(col.slice(1), 16), lum = (.3 * (n >> 16) + .59 * ((n >> 8) & 255) + .11 * (n & 255)) / 255;
-      const sole = lum > .6 ? "#9EA3AA" : "#EEEAE3", line = lum > .6 ? "#B9BDC3" : tone(col, .42), y0 = L - 3.6, ys = L + 2.4;
-      const f = (v) => v.toFixed(1);
-      return `<g class="shoe"><path d="M${f(-w * .62)},${f(y0)} h${f(w * 1.05)} c${f(w * .35)},0 ${f(w * .5)},${f(1.4)} ${f(w * .62)},${f(2.2)} c${f(w * .55)},${f(.4)} ${f(w * .98)},${f(1.6)} ${f(w * .98)},${f(ys - y0 - 2.4)} V${f(ys)} H${f(-w * .62)} Z" fill="${col}"/>`
-        + `<rect x="${f(-w * .7)}" y="${f(ys - .2)}" width="${f(w * 2.42)}" height="2.2" rx="1.1" fill="${sole}"/>`
+      const y0 = L - 3.6, ys = L + 2.4, f = (v) => v.toFixed(1);
+      const upper = `<path d="M${f(-w * .62)},${f(y0)} h${f(w * 1.05)} c${f(w * .35)},0 ${f(w * .5)},${f(1.4)} ${f(w * .62)},${f(2.2)} c${f(w * .55)},${f(.4)} ${f(w * .98)},${f(1.6)} ${f(w * .98)},${f(ys - y0 - 2.4)} V${f(ys)} H${f(-w * .62)} Z" fill="${col}"/>`;
+      if (style === "ville") {
+        return `<g class="shoe">${upper}<path d="M${f(w * .1)},${f(y0 + 2.1)} q${f(w * .4)},${f(-.5)} ${f(w * .7)},${f(.6)}" stroke="${tone(col, .3)}" stroke-width=".6" fill="none" opacity=".8"/>`
+          + `<rect x="${f(-w * .66)}" y="${f(ys - .1)}" width="${f(w * 2.32)}" height="1.3" rx=".6" fill="${tone(col, -.45)}"/><rect x="${f(-w * .66)}" y="${f(ys - .1)}" width="${f(w * .55)}" height="2.1" rx=".4" fill="${tone(col, -.5)}"/></g>`;
+      }
+      if (style === "toile") {
+        return `<g class="shoe">${upper}<path d="M${f(w * .72)},${f(ys - 3.2)} c${f(w * .4)},${f(.3)} ${f(w * .62)},${f(1.2)} ${f(w * .64)},${f(3)} H${f(w * .72)} Z" fill="#F4F1EC"/>`
+          + `<path d="M${f(-w * .1)},${f(y0 + .9)} l${f(w * .55)},${f(.9)} M${f(-w * .1)},${f(y0 + 2.2)} l${f(w * .55)},${f(.9)}" stroke="#F4F1EC" stroke-width=".55" stroke-linecap="round"/>`
+          + `<rect x="${f(-w * .7)}" y="${f(ys - .2)}" width="${f(w * 2.42)}" height="2" rx=".9" fill="#F4F1EC"/><rect x="${f(-w * .7)}" y="${f(ys + 1.2)}" width="${f(w * 2.42)}" height=".6" fill="${tone(col, -.2)}"/></g>`;
+      }
+      const sole = lum > .6 ? "#9EA3AA" : "#EEEAE3", line = lum > .6 ? "#B9BDC3" : tone(col, .42);
+      return `<g class="shoe">${upper}<rect x="${f(-w * .7)}" y="${f(ys - .2)}" width="${f(w * 2.42)}" height="2.2" rx="1.1" fill="${sole}"/>`
         + `<path d="M${f(w * .05)},${f(ys - .6)} l${f(w * .32)},${f(-2.6)} M${f(w * .42)},${f(ys - .6)} l${f(w * .32)},${f(-2.4)}" stroke="${line}" stroke-width="${f(Math.max(.7, w * .1))}" stroke-linecap="round"/></g>`;
     };
     // jambe : cuisse (pivot hanche) > tibia (pivot genou) > chaussure
@@ -66,7 +77,7 @@
           <g class="shin" style="transform-origin:0px ${thighLen.toFixed(1)}px"><g transform="translate(0,${thighLen.toFixed(1)})">
             ${limb(B.thigh * .82, B.shin, shinLen, skirt ? (back ? skD : sk) : c)}
             ${spec.socks ? `<rect x="${(-B.shin / 2).toFixed(1)}" y="${(shinLen - 7).toFixed(1)}" width="${B.shin.toFixed(1)}" height="6" fill="${spec.socks}"/>` : ""}
-            ${shoeSvg(B.shin, shinLen, s)}
+            ${shoeSvg(B.shin, shinLen, s, spec.shoeStyle)}
           </g></g></g></g>`;
     };
     // bras : épaule > avant-bras (pivot coude) > main
@@ -214,12 +225,24 @@
   const AGE = { nour: 34, bastien: 20, ines: 26, jade: 29, kevin: 24, garnier: 58, lou: 10, malo: 7, maelys: 14, roussel: 42, benali: 40, zoe: 8, theo: 8, sacha: 11, clara: 17, enzo: 14, lena: 13, parent: 46, rey: 40, karim: 35, petit: 68, intervenant: 50 };
   const FEM = new Set(["nour", "ines", "jade", "maelys", "benali", "zoe", "clara", "lena", "petit"]);
   const BOT = { nour: "#38465C", bastien: "#3A4A64", ines: "#2E3A4E", jade: "#4A5A78", kevin: "#3B3F48", garnier: "#4B4136", lou: "#40506A", malo: "#3D5A80", maelys: "#33405C", roussel: "#2F3540", benali: "#3A2F3E", zoe: "#6B4E9A", theo: "#3D5A80", sacha: "#2F4058", clara: "#2E3A4E", enzo: "#45506A", lena: "#4E6A8E", parent: "#3A3F48", rey: "#2F3540", karim: "#4B4136", petit: "#5A5060", intervenant: "#3B342E" };
+  // Chaussures de chacun (couleur, modèle) : tout le monde n'a pas les mêmes
+  const SHOES = { nour: ["#7A4E32", "ville"], bastien: ["#F2F0EC", "basket"], ines: ["#2E3F66", "toile"], jade: ["#C2413A", "toile"], kevin: ["#1F1F22", "basket"],
+    garnier: ["#4A3424", "ville"], lou: ["#3E7DC8", "basket"], malo: ["#E2702A", "basket"], maelys: ["#E7E1D6", "toile"], roussel: ["#2A2522", "ville"],
+    benali: ["#5A2E3A", "ville"], zoe: ["#D75A8A", "toile"], theo: ["#2F8A5B", "basket"], sacha: ["#5A6470", "basket"], clara: ["#F2F0EC", "toile"],
+    enzo: ["#F2F0EC", "basket"], lena: ["#7B5CB8", "toile"], parent: ["#3A3F48", "ville"], rey: ["#2A2522", "ville"], karim: ["#6B5A48", "basket"],
+    petit: ["#5A5060", "ville"], intervenant: ["#3A3F48", "ville"], yanis: ["#C9A24A", "basket"], hugo: ["#2E3F66", "basket"], lea: ["#E86A8A", "toile"],
+    tom: ["#5A6470", "basket"], samia: ["#8A5A3A", "ville"] };
+  const KIDSHOES = [["#E2702A", "basket"], ["#3E7DC8", "toile"], ["#F2F0EC", "basket"], ["#2F8A5B", "toile"], ["#D75A8A", "basket"], ["#F4B63F", "toile"],
+    ["#1F1F22", "basket"], ["#7B5CB8", "basket"], ["#C2413A", "toile"], ["#5A6470", "basket"], ["#E7E1D6", "toile"], ["#2E3F66", "basket"]];
+  const shoesOf = (who, child) => SHOES[who] || (() => { let h = 0; for (const ch of String(who)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const P = child ? KIDSHOES : KIDSHOES.concat([["#4A3424", "ville"], ["#2A2522", "ville"], ["#7A4E32", "ville"]]); return P[h % P.length]; })();
   function specOf(who, c) {
     if (!c) return null;
+    const [shoes, shoeStyle] = shoesOf(who, !!c.child);
     const age = AGE[who] || (c.child ? 10 : 35);
     return { age, sex: FEM.has(who) ? "f" : "m", skin: SKIN[c.skin] || c.skin || "doree", hair: c.hc || "brun", hairStyle: HS[c.hair] || "short", top: c.top || "#3F7CC0",
       bottom: BOT[who] || "#33405C", sleeves: c.child && age < 12 ? "short" : "long", glasses: c.glasses ? "#3B3B3B" : null, beard: false, moustache: false,   // plus de barbe ni de moustache sur les personnages du jeu
-      badge: !!c.staff, skirt: who === "zoe" ? "#6B4E9A" : null, socks: who === "zoe" ? "#fff" : null };
+      badge: !!c.staff, skirt: who === "zoe" ? "#6B4E9A" : null, socks: who === "zoe" ? "#fff" : null, shoes, shoeStyle };
   }
   // Votre personnage (personnalisation) traduit en personnage articulé
   function specOfLook(L) {
@@ -227,7 +250,7 @@
     return { age: 27, sex: ["tresses", "long", "ondule", "chignon", "couettes", "carre"].includes(L.hair) ? "f" : "m", skin: SKIN[L.skin] || "#D9A27A", hair: L.hc || "brun", hairStyle: HS[L.hair] || "short", top: L.top || "#3F7CC0", bottom: "#33405C",
       glasses: L.glasses ? ({ rouge: "#C2412A", doree: "#C9A24A" }[L.glasses] || "#3B3B3B") : null, glassShape: L.glasses === "carree" ? "square" : "round", beard: !!L.barbe, moustache: !!L.moustache, badge: true,
       eyes: { marron: "#5A3A22", noisette: "#8A5A2A", vert: "#4F7A3A", bleu: "#3F6FA8", gris: "#6E7780" }[L.eyes] || null,
-      mood: L.mood || "smile", nose: Number(L.nose || 1), cut: L.cut || "pull", headband: L.headband || null, bow: L.bow || null, earring: !!L.earring };
+      mood: L.mood || "smile", nose: Number(L.nose || 1), cut: L.cut || "pull", headband: L.headband || null, bow: L.bow || null, earring: !!L.earring, shoes: "#F4F1EC", shoeStyle: "toile" };
   }
   const POSE = { stand: "p-idle", talk: "p-talk", wave: "p-wave", walk: "p-walk", run: "p-run", point: "p-point", sit: "p-sit", listen: "p-listen", sad: "p-sad", angry: "p-angry" };
   // Pour placer un personnage dans l'ancien repère des figurines (viewBox -22 -60 44 64, pieds en 0,0)
@@ -252,7 +275,7 @@
       <rect x="${-sw * .8}" y="${seatY + 4}" width="2.4" height="${-seatY - 4}" fill="${dk}"/><rect x="${sw * .7}" y="${seatY + 4}" width="2.4" height="${-seatY - 4}" fill="${d}"/>
       <rect x="${-sw * .45}" y="${seatY + 4}" width="2" height="${-seatY - 6}" fill="${dk}" opacity=".7"/></g>`;
   }
-  G.RIG = { figure, inMini, bust, specOf, specOfLook, POSE, SKIN, HAIR, chair, body };
+  G.RIG = { figure, inMini, bust, specOf, specOfLook, POSE, SKIN, HAIR, chair, body, shoesOf };
 })(typeof window !== "undefined" ? window : globalThis);
 
 /* Les Hautes Herbes — moteur du jeu */
@@ -3423,7 +3446,8 @@
     samia: { age: 26, sex: "f", skin: "olive", hair: "noir", hairStyle: "bun", top: "#C2418A", bottom: "#2E3A4E", badge: true },
     hugo: { age: 28, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#2F6D6A", bottom: "#2E3A4E", badge: true },
   };
-  Object.entries(FIGS).forEach(([k, v]) => (RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long" }));
+  // chacun ses chaussures (couleur et modèle), comme la distribution
+  Object.entries(FIGS).forEach(([k, v]) => { const [shoes, shoeStyle] = RIG.shoesOf ? RIG.shoesOf(k, v.age < 12) : []; RSPEC[k] = { ...v, skin: RIG.SKIN[v.skin] || v.skin, sleeves: v.age < 12 ? "short" : "long", ...(shoes ? { shoes, shoeStyle } : {}) }; });
 
   /* ---- marcheurs : un personnage qui se déplace au sol (vous, les figurants, les personnes d'une scène) ---- */
   const SZ = () => (44 / A.dio.vbw) * 100 * .77;

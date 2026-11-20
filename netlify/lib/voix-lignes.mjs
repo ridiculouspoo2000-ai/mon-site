@@ -3342,11 +3342,11 @@ export const LIGNES = {
   "kind": "replique",
   "text": "Pour commencer, va voir à l’aire de jeux : j’ai entendu des éclats de voix du côté du foot. Ensuite, promène-toi : à toi de repérer. Et vers 14 h, passe à l’atelier radio."
  },
- "e6cbe476a26d": {
+ "10d5880e94e2": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "17 h. Les familles commencent à arriver au portail : votre après-midi se termine."
+  "text": "Les familles commencent à arriver au portail : votre après-midi se termine."
  },
  "2ee57e619a35": {
   "who": "narr",
@@ -3648,11 +3648,11 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Les sanitaires sont vides pour l’instant."
  },
- "6030d41add2b": {
+ "1b0d58d17449": {
   "who": "narr",
   "mood": "",
   "kind": "recit",
-  "text": "16 h. Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents."
+  "text": "Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents."
  },
  "0a5ee632827e": {
   "who": "sacha",

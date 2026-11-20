@@ -217,7 +217,7 @@ const SCREENS = [
       radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["you", "a", "walk"]], room: "radio", before: "Bastien installe le matériel : l’atelier radio commence à 14 h.", t: "L’atelier radio se poursuit. Léna est à sa table." },
       sanitaires: { cast: [["you", "d", "walk"]], room: "sanitaires", before: "Les sanitaires sont vides pour l’instant.", t: "Les sanitaires sont calmes." },
     },
-    end_t: "17 h. Les familles commencent à arriver au portail : votre après-midi se termine." },
+    end_t: "Les familles commencent à arriver au portail : votre après-midi se termine." },
   { id: "radio", inRoam: "lundi-libre", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio", title: "Qui touche à la console ?",
     context: "Bastien anime l’atelier : « Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. » Léna lui redemande d’apprendre à régler les micros.",
     prompt: "Que faites-vous ?",
@@ -605,7 +605,7 @@ const SCREENS = [
       radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["clara", "s1", "sit"], ["you", "a"]], room: "radio", t: "À l’atelier radio, Léna et Clara sont à la console. Elles enregistrent la météo de la semaine." },
       sanitaires: { cast: [["you", "b"]], room: "sanitaires", t: "Aux sanitaires, la porte du bloc est ouverte, et un planning de passages est affiché." },
     },
-    end_t: "16 h. Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents." },
+    end_t: "Le temps libre se termine : les enfants se rassemblent dans la cour en attendant leurs parents." },
   { id: "depart", ch: 4, type: "story", scene: "S13", kicker: "Jeudi, 16 h · les familles arrivent à 17 h",
     lines: [
       { who: null, t: "Les familles arrivent dans une heure. Lou, 10 ans, s’approche, son sac à la main." },

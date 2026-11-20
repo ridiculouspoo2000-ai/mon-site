@@ -553,12 +553,22 @@
     // sans voix : on fait parler chaque personne le temps de lire sa réplique, l'une après l'autre
     silent(list) {
       clearTimeout(this._st); this._sk = (this._sk || 0) + 1; const k = this._sk;
-      if (!list) { if (this._sl) { this._sl = 0; World.talk(null); this.off(); } return; }
-      const L = list.filter(([w, t]) => t && /[A-Za-zÀ-ÿ]/.test(String(t))); let i = 0; this._sl = 1;
+      if (!list) { if (this._sl_l) { this._sl_l.forEach((x) => x[2] && x[2].classList.remove("vpend", "kara")); this._sl_l = null; } if (this._sl) { this._sl = 0; World.talk(null); this.off(); } return; }
+      if (this._sl_l) this._sl_l.forEach((x) => x[2] && x[2].classList.remove("vpend", "kara"));   // la séquence précédente, interrompue : tout reste lisible
+      const L = list.filter(([w, t]) => t && /[A-Za-zÀ-ÿ]/.test(String(t))); let i = 0; this._sl = 1; this._sl_l = L;
+      if (!calm()) L.forEach((x) => x[2] && x[2].classList.add("vpend"));
       const next = () => {
         if (k !== this._sk) return; World.talk(null); this.off();
-        if (i >= L.length || calm()) { this._sl = 0; return; }
+        if (i >= L.length || calm()) { this._sl = 0; L.forEach((x) => x[2] && x[2].classList.remove("vpend", "kara")); this._se = null; return; }
         const [w, t, e] = L[i++], d = Math.min(7000, Math.max(1200, String(t).length * 48));
+        if (this._se) { this._se.classList.remove("kara"); this._se.classList.remove("vpend"); }
+        this._se = e || null;
+        if (e) {   // les mots paraissent un à un, au rythme de lecture de la réplique
+          e.classList.remove("vpend"); e.classList.add("kara"); const ws = [...e.querySelectorAll(".wd")]; ws.forEach((x) => x.classList.remove("sp"));
+          let c = 0; const cum = ws.map((x) => (c += x.textContent.length + 1.2)); const t0 = performance.now();
+          const step = () => { if (k !== this._sk || this._se !== e) return; const f = (performance.now() - t0) / d; ws.forEach((x, j) => { if ((j === 0 || cum[j - 1] / c <= f) && !x.classList.contains("sp")) x.classList.add("sp"); }); if (f < 1) requestAnimationFrame(step); };
+          requestAnimationFrame(step);
+        }
         if (w && w !== "narr") { World.talk(w, t); this.els = this.targets(w, e); this.els.forEach((x) => x.classList.add("lipsim")); }
         else Mise.play(t, d / 1000);   // sans voix : la situation décrite se joue quand même, le temps de la lire
         this._st = setTimeout(next, d + 250);
@@ -592,14 +602,15 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) c.e.classList.remove("vpend");
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on) { c.e.classList.add("kara"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
           if (c && !c.on) { c.on = 1; World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
       try { this.el.pause(); } catch (e) { }
+      (this._q || []).concat(this._cur ? [this._cur] : []).forEach((x) => x.e && x.e.classList.remove("vpend"));   // la séquence interrompue reste lisible
       this._done();
       // texte et voix ensemble : une réplique pas encore dite reste cachée, puis apparaît au moment où on l'entend
-      items.forEach((x, i) => { if (x.e && i > 0) x.e.classList.add("vpend"); });
+      items.forEach((x) => { if (x.e) x.e.classList.add("vpend"); });
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
@@ -607,7 +618,7 @@
       const now = Date.now(); this._h = (this._h || []).filter((t) => now - t < 10000); this._h.push(now);
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
       World.talk(null); Lip.off();
-      clearTimeout(this._show); if (it.e) this._show = setTimeout(() => it.e && it.e.classList.remove("vpend"), 1500);   // si la voix tarde, le texte paraît quand même
+      clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 2500);   // si la voix tarde, le texte paraît quand même
       this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
@@ -621,8 +632,10 @@
         const it = this._cur; if (!it || !this.el || this.el.paused) return;
         if (it.on) Lip.frame(it, this.el.currentTime);
         const d = it.e && audDur(this.el, it.e.textContent); if (d) {
-          const ws = it.e.querySelectorAll(".wd"), k = Math.min(ws.length, Math.ceil((this.el.currentTime / d) * ws.length * 1.04));
-          for (let i = 0; i < k; i++) if (!ws[i].classList.contains("sp")) ws[i].classList.add("sp");
+          const ws = it.e.querySelectorAll(".wd");
+          if (!it.cum || it.cum.length !== ws.length) { let c = 0; const L = [...ws].map((w) => (c += w.textContent.replace(/[^A-Za-zÀ-ÿ0-9]/g, "").length + 1.2)); it.cum = L.map((x) => x / c); }
+          const f0 = Math.min(1, (this.el.currentTime / d) * 1.03);
+          for (let i = 0; i < ws.length; i++) { const on = i === 0 || it.cum[i - 1] <= f0; if (on && !ws[i].classList.contains("sp")) ws[i].classList.add("sp"); }
         }
         this._raf = requestAnimationFrame(f);
       };
@@ -632,9 +645,24 @@
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
-    stop() { Lip.silent(null); Mise.stop(); (this._q || []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
+    stop() { Lip.silent(null); Mise.stop(); (this._q || []).concat(this._cur ? [this._cur] : []).forEach((x) => x.e && x.e.classList.remove("vpend")); this._q = []; this._done(); if (this.el) { try { this.el.pause(); } catch (e) { } } Snd.duck(false); },
   };
   Voice.check();
+
+  // Le texte affiché qui correspond à ce qui est dit : il se remplit mot à mot pendant qu'on l'entend.
+  // (on retrouve le paragraphe par son texte ; un paragraphe de texte brut est découpé en mots pour l'occasion)
+  function bindTargets(root, list) {
+    const nz = (t) => String(t || "").replace(/[«»"“”’']/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+    const cand = [...root.querySelectorAll("p, blockquote, .bridge, .ctx, .lead, .narr, .say p, .bub p")];
+    return list.map((it) => {
+      if (it[2]) return it;
+      const want = nz(it[1]); if (!want) return it;
+      const e = cand.find((x) => !x._vt && nz(x.textContent) === want);
+      if (!e) return it;
+      if (!e.querySelector(".wd")) { if (e.children.length) return it; e.innerHTML = words(e.textContent); }
+      e._vt = 1; return [it[0], it[1], e];
+    });
+  }
 
   /* ---------- structure ---------- */
   const app = $("#app"), stage = $("#stage"), live = $("#live");
@@ -929,7 +957,7 @@
     if (sc.bridge) node.dataset.bridge = "1";
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
     { const VP = VOICE_TXT.parts(sc); if (World.entered) { VP.unshift(["narr", ROOM_SAY[World.entered]]); World.entered = null; }
-      if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(VP), 350); }
+      if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(bindTargets(node, VP)), 350); }
     if (sc.bridge) { const host = node.querySelector(".rm-card, .panel, .solo, .maphead > div, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "bridge" }, words(sc.bridge)), host.firstChild); }
     if (sc.fact) { const host = node.querySelector(".panel, .solo, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "fact" }, `<b>Inspiré de faits réels</b> ${esc(sc.fact)}`), host.firstChild); }
     if (old) { old.classList.add("leaving"); setTimeout(() => old.remove(), st.settings.calm ? 0 : 320); }
@@ -1168,6 +1196,8 @@
         `<div class="wext"><div class="wcam">${dioHTML()}<div class="wacts"></div></div></div><div class="wint"><div class="wroom"></div><p class="wname"></p></div><i class="wvig"></i><i class="wgrade"></i><i class="wsky"><b class="wsun"></b><b class="wmoon"></b></i><i class="wdof"></i>${fieldGrass()}`);
       document.body.insertBefore(this.el, document.body.firstChild);
       this.cam = this.el.querySelector(".wcam"); this.wint = this.el.querySelector(".wint");
+      // le soleil et la lune sont posés dans le paysage (au-dessus du fond du terrain) : ils ne suivent plus la caméra
+      ["wmoon", "wsun"].forEach((k) => { const b = this.el.querySelector("." + k); if (b) this.cam.insertBefore(b, this.cam.firstChild); });
     },
     actor(who, pose, pct, size, flip, from, opts = {}) {
       const key = who === "you" ? youKey() : who;
@@ -1306,7 +1336,7 @@
     // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
     // point visé (zoom) au lieu de faire glisser le plan. ms = 0 : tout de suite.
     camTo(p, z, ms) {
-      const set = (x, y, k) => { this.cv = { x, y, z: k }; this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
+      const set = (x, y, k) => { this.cv = { x, y, z: k }; this.cam.style.setProperty("--camz", k.toFixed(3)); this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
       cancelAnimationFrame(this._cf); this.cam.style.transitionProperty = "left, top";
       const c0 = this.cv, D = ms != null ? ms : 1500;
       if (!c0 || reduce() || D <= 0 || !this.el.classList.contains("on")) { set(p.x, p.y, z); return; }
@@ -2095,9 +2125,39 @@
       if (!timeout && Voice.busy()) { document.addEventListener("voice-idle", sayEnd, { once: true }); } else sayEnd();
       say(res.textContent);
     }
+    let visitTok = 0, inRoomPanel = null;
+    function enterRoom(s) {
+      blackout(() => {
+        card.hidden = true; wrap.classList.add("visit-in");
+        World.show({ at: s.key, room: s.key, cast: [["nour", "a", "talk"], ["you", "b"]] }, { id: "visit-" + s.key, type: "story", ch: sc.ch, kicker: "Lundi, 9 h 30" });
+        inRoomPanel = el("div", { class: "panel visit-room", role: "dialog", "aria-label": s.title }, `<p class="kicker">Nour vous fait visiter</p><h3>${esc(s.title)}</h3><p>${esc(s.t)}</p>`);
+        const out = btn("Ressortir", () => leaveRoom(s));
+        inRoomPanel.appendChild(el("div", { class: "row" })).appendChild(out);
+        n.appendChild(inRoomPanel); out.focus({ preventScroll: true });
+      });
+    }
+    function leaveRoom(s) {
+      Snd.click(); visitTok++;
+      blackout(() => {
+        if (inRoomPanel) { inRoomPanel.remove(); inRoomPanel = null; }
+        wrap.classList.remove("visit-in");
+        World.stage(sc);
+        if (tour) { tour.inside(false); setTimeout(() => tour.door(s.key, false), 900); }
+      });
+    }
     function open(s, i, b) {
       Snd.click(); if (!over) Voice.say(...VOICE_TXT.spot(s));
-      if (tour) tour.go(s.key);
+      if (tour) {
+        const vk = ++visitTok;
+        // une salle : on voit Nour et vous aller jusqu'à la porte, l'ouvrir et entrer ; puis on est dans la salle
+        if (tour.isRoom(s.key)) tour.go(s.key, (ok) => {
+          if (!ok || vk !== visitTok || !wrap.isConnected) return;
+          tour.nour.face([tour.nour.x - 1, tour.nour.y - 1]); gesture(tour.nour.el, "point");
+          tour.door(s.key, true);
+          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 650); }, 700);
+        });
+        else tour.go(s.key);
+      }
       b.classList.add("seen"); b.classList.remove("hinted", "missed");
       if (s.real) found.add(i);
       else if (!seenDecoy.has(i)) {
@@ -2111,6 +2171,12 @@
       card.innerHTML = `<p class="kicker">${over ? "Le lieu" : "Nour vous fait visiter"}</p><h3 id="spot-t">${esc(s.title)}</h3><p>${esc(s.t)}</p>`;
       const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
       card.appendChild(c); c.focus({ preventScroll: true }); card.scrollTop = 0;   // refonte : la fiche s'ouvre par son titre
+      // une salle : la fiche ne cache pas le trajet ; on suit Nour et vous jusqu'à la porte (la fiche s'affiche dans la salle)
+      if (tour && tour.isRoom(s.key)) {
+        card.hidden = true;
+        const zz = dio && dio.zones[s.key];
+        if (zz) { const mk = el("i", { "aria-hidden": "true", style: `position:absolute;left:${zz.x + zz.w / 2}%;top:${zz.y + zz.h * .75}%;width:1px;height:1px` }); map.appendChild(mk); mk.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); setTimeout(() => mk.remove(), 1500); }
+      }
       { const c2 = $(".counter", wrap); c2.classList.remove("bump"); void c2.offsetWidth; c2.classList.add("bump"); }
       // la visite ne s'arrête plus d'elle-même : on écoute Nour jusqu'au bout, puis on la termine quand on veut
     }
@@ -3754,16 +3820,28 @@
     N.ev = Y.ev = true; lay.append(N.el, Y.el); N.face([14, 22]);
     const target = (key) => { const d = TOUR_AT[key]; if (d) return NODES[d]; return SPOTS[key] || null; };
     const walk = (W, tgt, sp, side, done) => {
-      const a = onGraph(W.x, W.y), b = onGraph(tgt[0] + side * .5, tgt[1] + side * .3); if (!a || !b) return;
-      const R0 = route(a, b); if (!R0) return; R0[0] = [W.x, W.y];
+      const a = onGraph(W.x, W.y), b = onGraph(tgt[0] + side * .5, tgt[1] + side * .3); if (!a || !b) return false;
+      const R0 = route(a, b); if (!R0) return false; R0[0] = [W.x, W.y];
       W.go(R0.slice(1).map((q) => [q[0] + side * .35, q[1] + side * .25]), sp, () => { done && done(); });
+      return true;
     };
+    let tok = 0;
+    const doorOf = (key) => TOUR_AT[key] === "dMain" ? ".dio-slide" : `.dio-door.dk-${key}`;
     return {
-      go(key) {
-        const t = target(key); if (!t || !map.isConnected) return;
-        walk(N, t, 5.6, 0, () => N.face([Y.x, Y.y]));
-        setTimeout(() => walk(Y, t, 5.6, 1, () => Y.face([N.x, N.y])), 350);
+      // Nour vous emmène jusqu'au lieu ; done(true) quand vous y êtes tous les deux
+      go(key, done) {
+        const t = target(key), me = ++tok; if (!t || !map.isConnected) { if (done) done(false); return; }
+        [N, Y].forEach((W) => W.el.classList.remove("tour-in"));
+        let left = 2; const fin = () => { if (--left === 0 && done && me === tok) done(true); };
+        if (!walk(N, t, 5.6, 0, () => { N.face([Y.x, Y.y]); fin(); })) fin();
+        setTimeout(() => { if (!walk(Y, t, 5.6, 1, () => { Y.face([N.x, N.y]); fin(); })) fin(); }, 350);
       },
+      // la porte de la salle s'ouvre (ou se referme)
+      door(key, open) { map.querySelectorAll(doorOf(key)).forEach((d) => d.classList.toggle("open", open)); },
+      // Nour, puis vous, passez la porte
+      inside(on) { [N, Y].forEach((W, i) => setTimeout(() => W.el.classList.toggle("tour-in", on), on ? i * 260 : 0)); },
+      nour: N,
+      isRoom: (key) => !!(TOUR_AT[key] && TOUR_AT[key] !== "gate" && A.dio.inner && A.dio.inner[key]),
     };
   }
 
@@ -3865,7 +3943,7 @@
     // un figurant qui va et vient sur un parcours, avec des pauses et des gestes
     loop(who, pts, opts = {}) {
       const W = this.add(Walker(who, pts[0][0], pts[0][1], "stand"));
-      const g = { t: 0 }; this.agents.push(g); let i = 0;
+      const g = { t: 0, W }; this.agents.push(g); let i = 0;
       // chacun son couloir : un léger décalage propre à chaque figurant, pour qu'ils ne se rentrent pas dedans
       const off = ((this.walkers.length * 37) % 7 - 3) * .14;
       const next = () => {
@@ -3883,7 +3961,8 @@
     idle(who, x, y, gests, opts = {}) {
       const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back }));
       if (opts.face) W.face(opts.face);
-      const g = { t: 0 }; this.agents.push(g);
+      W.gests = gests;
+      const g = { t: 0, W }; this.agents.push(g);
       const home = [x, y];
       const tick = () => {
         if (!this.walkers.includes(W)) return;
@@ -3915,6 +3994,7 @@
     /* -- le plan vivant -- */
     function free(first) {
       Life.clear(); busy = false; moving = false; sceneLock = false;
+      if (World.cam) World.cam.querySelectorAll(".dio-door.open").forEach((d) => d.classList.remove("open"));
       Snd.setMood(sc.ch);
       document.body.classList.remove("scene"); document.body.classList.add("roaming");
       World.show({ at: "ensemble", cast: [], free: true }, { id: sc.id, type: "roam", ch: sc.ch, kicker: fmtMin(S.t) });
@@ -4065,6 +4145,7 @@
         if (ev) scene(ev); else calm(key);
       };
       if (reduce() || st.settings.calm) { you.el.classList.add("indoor"); return go(); }
+      World.cam.querySelectorAll(`.dio-door.dk-${key}`).forEach((d) => d.classList.add("open"));   // la porte s'ouvre devant vous
       aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 700);
       setTimeout(() => you.el.classList.add("indoor"), 200);
       setTimeout(() => blackout(go), 380);
@@ -4110,6 +4191,35 @@
       }, t));
       actT = ev.act ? Math.max(...ev.act.map((x) => x[0])) + 900 : 0;
     }
+    // Pendant une situation dehors, les personnes concernées continuent d'agir : gestes, petits pas, regards
+    // (elles ne restent pas figées) ; la boucle s'arrête d'elle-même quand elles quittent le plan.
+    function act(sp, first) {
+      sp.forEach((W, j) => {
+        const home = [W.x, W.y], G = W.gests && W.gests.length ? W.gests : ["explain", "point", "nod", "shrug"];
+        const tick = () => {
+          if (!Life.walkers.includes(W)) return;
+          if (!W.path) {
+            const r = Math.random();
+            if (r < .3) { const a = Math.random() * 6.283, d = .25 + Math.random() * .45, to = [home[0] + Math.cos(a) * d, home[1] + Math.sin(a) * d];
+              W.go([to], .8, () => W.face(W === first ? [you.x, you.y] : [first.x, first.y]), "walk"); }
+            else if (r < .45 && W.x !== home[0]) W.go([home], .8, () => W.face(W === first ? [you.x, you.y] : [first.x, first.y]), "walk");
+            else gesture(W.el, G[Math.floor(Math.random() * G.length)]);
+          }
+          W._act = setTimeout(tick, 1800 + Math.random() * 2200);
+        };
+        clearTimeout(W._act); W._act = setTimeout(tick, 900 + j * 500);
+      });
+    }
+    // fin d'une situation dehors : on reprend la promenade là où l'on était, sans écran noir ni nouveau plan
+    function resume() {
+      busy = false; moving = false; sceneLock = false; n._scene = null;
+      Snd.setMood(sc.ch);
+      document.body.classList.remove("scene"); document.body.classList.add("roaming");
+      if (you) { you.setBack(false); you.onStep = () => checkSpots(); S.x = you.x; S.y = you.y; }
+      save(); placeRing(); follow(1400);
+      dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
+      drawCard();
+    }
     let ev0 = null;
     function scene(ev) {
       ev0 = ev;
@@ -4127,7 +4237,8 @@
       } else {
         // dehors : on reste dans le plan vivant ; vous vous placez face à la personne qui parle, de dos
         const sp = Life.walkers.filter((W) => W.ev === ev.id), first = sp[0];
-        Life.agents.forEach((g) => clearTimeout(g.t));   // les gestes au hasard s'arrêtent : la scène commence
+        // les personnes de la scène jouent la scène (leurs gestes au hasard s'arrêtent) ; autour, l'accueil continue de vivre
+        Life.agents.forEach((g) => { if (g.W && sp.includes(g.W)) clearTimeout(g.t); });
         if (first) {
           const tx = first.x + .7, ty = first.y + 1.15;
           you.go([[tx, ty]], 1.5, () => { you.setBack(true); you.face([first.x - .4, first.y]); });
@@ -4135,6 +4246,7 @@
           sp.forEach((W) => W.face([tx, ty]));
         }
         play(sp);
+        act(sp, first);
       }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
@@ -4214,7 +4326,7 @@
         fbz.innerHTML = "";
         const row = el("div", { class: "row" });
         if (ev.room && MAIN_ROOMS.includes(ev.room)) row.appendChild(btn("Une autre salle du bâtiment", () => { Snd.click(); Voice.stop(); hall(); }, "ghost"));
-        row.appendChild(btn("Repartir", () => { Snd.click(); Voice.stop(); if (!ev.room) { S.x = you.x; S.y = you.y; } outside(); })); fbz.appendChild(row);
+        row.appendChild(btn("Repartir", () => { Snd.click(); Voice.stop(); if (!ev.room) { S.x = you.x; S.y = you.y; resume(); } else outside(); })); fbz.appendChild(row);
         Snd.click(); row.querySelector("button").focus({ preventScroll: true });
       }
     }
@@ -4883,5 +4995,5 @@
   applySettings();
   home();
   soundGate();
-  window.__game = { st: () => st, go, SCREENS, World, A: () => A, Mise };
+  window.__game = { st: () => st, go, SCREENS, World, A: () => A, Mise, Voice, Lip, calm };
 })();

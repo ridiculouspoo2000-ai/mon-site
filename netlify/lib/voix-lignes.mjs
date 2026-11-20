@@ -1746,6 +1746,12 @@ export const LIGNES = {
   "kind": "retour-faible",
   "text": "Zoé a été poussée jusqu’à Malo devant tout le groupe. Le soir, elle a dit à son père qu’elle ne voulait plus jouer au parc. Laisser faire un gage imposé apprend aux enfants que le non ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir. Pour faire mieux : Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non."
  },
+ "0b24774454cc": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Le jeu a continué avec vous à côté, et chacun savait qu’il pouvait refuser un gage. Mais rien ne s’était encore passé : les enfants n’ont pas vraiment compris ce qui posait problème. Être présent et poser la règle à l’avance est utile. Mais l’essentiel est d’intervenir au moment où la contrainte apparaît, et de nommer ce qui se passe : personne n’est obligé, un non est un non. Pour faire mieux : Intervenir dès que la contrainte apparaît, et nommer la règle : personne n’est obligé, un non est un non."
+ },
  "709c9e7b39ba": {
   "who": "narr",
   "mood": "",
@@ -1763,6 +1769,12 @@ export const LIGNES = {
   "mood": "",
   "kind": "retour-moyen",
   "text": "Laisser faire un gage imposé apprend aux enfants que le non ne compte pas face au groupe. C’est exactement ce qu’il faut prévenir."
+ },
+ "543327c4e5f1": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-moyen",
+  "text": "Être présent et poser la règle à l’avance est utile. Mais l’essentiel est d’intervenir au moment où la contrainte apparaît, et de nommer ce qui se passe : personne n’est obligé, un non est un non."
  },
  "4341f47aa561": {
   "who": "narr",

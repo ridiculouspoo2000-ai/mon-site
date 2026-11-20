@@ -2418,10 +2418,11 @@ body.calm .rig *{animation:none!important}
 /* assis : cuisses à l'horizontale, genoux pliés, mains sur les genoux */
 /* sur une chaise du décor, la pose est calculée pour la chaise et le personnage (engine.js, sitPose) :
    --th cuisse, --sh tibia (et --shk sa longueur à l'écran), --sg le côté où partent les genoux */
-.p-sit .lL,.p-sit .lR{transform:rotate(var(--th,-82deg))}
+.p-sit .lL{transform:translate(var(--lLx,0px),var(--lLy,0px)) rotate(var(--th,-82deg))}
+.p-sit .lR{transform:translate(var(--lRx,0px),var(--lRy,0px)) rotate(var(--th,-82deg))}
 .p-sit .lL .shin,.p-sit .lR .shin{transform:rotate(var(--sh,84deg)) scaleY(var(--shk,1))}
-.p-sit .aL{transform:rotate(-22deg)}.p-sit .aL .fore{transform:rotate(-40deg)}
-.p-sit .aR{transform:rotate(-18deg)}.p-sit .aR .fore{transform:rotate(-36deg)}
+.p-sit .aL{transform:rotate(-4deg)}.p-sit .aL .fore{transform:rotate(-20deg)}
+.p-sit .aR{transform:rotate(-2deg)}.p-sit .aR .fore{transform:rotate(-24deg)}
 /* assis : pas d'ombre « debout » sous les pieds (la chaise a la sienne) ; vu de dos, mains posées sur les genoux */
 .ractor.seated .rig>ellipse{display:none}
 /* au repos : bras le long du corps, légèrement écartés */
@@ -2455,6 +2456,11 @@ svg.rig-bust{display:block}
 @keyframes rg-rswing{0%,100%{transform:rotate(34deg)}50%{transform:rotate(-34deg)}}
 /* de dos : pas de clignement ni de bouche */
 .rig .fig.back .eyes{animation:none}
+/* vu de dos, assis : on voit le talon de la chaussure (pas la pointe, qui part vers la table) */
+.ractor.sitback .p-sit .shin>g>path:last-of-type{transform-box:fill-box;transform-origin:30% 100%;transform:scaleX(.55)}
+/* vu de dos, assis : les mains rejoignent les cuisses, qui partent vers la table (aucune main ne dépasse sous l'assise) */
+.ractor.sitback .p-sit .aL{transform:rotate(-30deg)}.ractor.sitback .p-sit .aL .fore{transform:rotate(-8deg)}
+.ractor.sitback .p-sit .aR{transform:rotate(-12deg)}.ractor.sitback .p-sit .aR .fore{transform:rotate(-26deg)}
 /* ============ Gestes (environ 35) : courts (2 à 3 s), joués une fois pendant qu’une personne parle ou écoute ============ */
 @keyframes gx-explain-aL{0%{transform:rotate(5deg)} 25%{transform:rotate(-28deg)} 70%{transform:rotate(-24deg)} 100%{transform:rotate(5deg)}}
 .rig.g-explain .aL{animation:gx-explain-aL 2.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
@@ -3041,5 +3047,5 @@ body.dusk #dayclock{visibility:hidden}
 </div>
 <script src="jeu-1-0dfa4666.js"></script>
 <script src="jeu-2-6eeb918f.js"></script>
-<script src="jeu-3-69b9661a.js"></script>
+<script src="jeu-3-23e752ee.js"></script>
 </body></html>

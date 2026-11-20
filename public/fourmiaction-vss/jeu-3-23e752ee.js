@@ -983,21 +983,16 @@
     const B = RIG.body(sp.age || 30), k = 50 / 172 * .96;              // unités du personnage → pixels de la salle
     const seat = P.sz != null ? P.sz : 10.2, r = B.thigh * .5 * k;       // l'épaisseur de la cuisse repose sur l'assise
     const hip = seat + r, T = (B.kneeY - B.hipY) * k, Sh = (-B.kneeY + .8) * k;
-    // on calcule toujours la pose genoux vers la droite ; face en bas à gauche (+y), le personnage est retourné en miroir
-    // autour du bassin (pointes des pieds et mains vers l'avant ; le miroir ne dépend pas des animations)
-    const c30 = Math.cos(Math.PI / 6), dir = 1, up = P.fc === "-y" || P.fc === "-x" ? -1 : 1, flip = P.fc === "+y" || P.fc === "-x";
-    // cuisse : vers l'avant de la chaise (en bas à droite, en bas à gauche, ou vers le fond si l'on est vu de dos)
-    // vu de dos : comme sur le modèle, les cuisses partent à l'horizontale vers la table, les tibias tombent droit au sol
-    if (up < 0) {
-      const sk0 = Math.min(1.15, Math.max(.6, hip / Sh)), dy0 = -(hip + B.hipY * k);
-      return { dy: dy0, flip, css: `--th:-90deg;--sh:90deg;--shk:${sk0.toFixed(3)}` };
-    }
-    const tx = dir * c30 * T, ty = up * .5 * T, th = Math.atan2(-tx, ty) * 180 / Math.PI;
-    // tibia : du genou (à hauteur d'assise) jusqu'au sol ; s'il est trop long, le pied recule sous la chaise
-    const back = Sh > hip ? Math.sqrt(Sh * Sh - hip * hip) : 0, sx = -dir * c30 * back, sy = hip - up * .5 * back;
-    const sl = Math.hypot(sx, sy), sk = Math.min(1.15, Math.max(.6, sl / Sh)), al = Math.atan2(-sx, sy) * 180 / Math.PI;
+    // Comme sur le modèle : les cuisses suivent l'axe du plan (en bas à droite, 30° sous l'horizontale), les deux jambes
+    // côte à côte (celle du devant un peu plus bas), les tibias droits jusqu'au sol, pieds à plat. On calcule genoux vers
+    // la droite ; face en bas à gauche (+y ou dos tourné vers -x), le personnage est retourné en miroir autour du bassin.
+    const c30 = Math.cos(Math.PI / 6), flip = P.fc === "+y" || P.fc === "-x";
+    // vu de dos, les jambes partent dans le même sens que le dos : vers l'avant du personnage (la table), donc vers le fond
+    const away = P.fc === "-y" || P.fc === "-x", th = away ? -120 : -60, sk = Math.min(1.15, Math.max(.6, hip / Sh));
+    // écart des deux jambes : le long de l'autre axe du plan
+    const h = B.hipW * .55, ex = (1 - c30) * h, ey = .5 * h * 1.15 * (away ? -1 : 1);
     const dy = -(hip + B.hipY * k);                                       // pieds (origine du personnage) → bassin sur l'assise
-    return { dy, flip, css: `--th:${th.toFixed(1)}deg;--sh:${(al - th).toFixed(1)}deg;--shk:${sk.toFixed(3)}` };
+    return { dy, flip, css: `--th:${th}deg;--sh:${-th}deg;--shk:${sk.toFixed(3)};--lLx:${ex.toFixed(2)}px;--lLy:${ey.toFixed(2)}px;--lRx:${(-ex).toFixed(2)}px;--lRy:${(-ey).toFixed(2)}px` };
   }
   // opts : { back: vu de dos, chair: assis sur une chaise }
   const rigMini = (who, pose, opts = {}) => { const sp = rigSpec(who); return sp ? RIG.inMini({ ...sp, ...(opts.back ? { back: true } : {}), ...(opts.mood ? { mood: opts.mood } : {}) }, pose, opts) : null; };

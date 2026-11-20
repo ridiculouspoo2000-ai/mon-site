@@ -843,13 +843,6 @@ const SCREENS = [
 
   { id: "dafter", ch: 5, type: "positions", mode: "after", kicker: "Vendredi, 17 h 30", title: "Tes convictions, une semaine plus tard",
     intro: "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez." },
-  { id: "aurevoir", ch: 5, type: "story", scene: "S17", kicker: "Vendredi, 18 h · au portail",
-    lines: [
-      { who: null, t: "Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin." },
-      { who: "nour", mood: "big", t: "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt." },
-      { who: "nour", mood: "smile", t: "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration." },
-      { who: "nour", mood: "smile", t: "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi. Merci encore pour la semaine…" },
-    ] },
   { id: "souvenirs", ch: 5, type: "replay", kicker: "Vendredi, 18 h · fin de la semaine", title: "Vous vous souvenez ?" },
   { id: "bilan", ch: 5, type: "bilan" }
 ];
@@ -1031,6 +1024,14 @@ const REPLAY = {
 
 // Ce que dit la narration en entrant dans une salle (pour toujours savoir où l'on est).
 // Retour sur la semaine, raconté par le narrateur, en flash-backs
+// Le merci et l'au revoir de Nour : tout à la fin, après le bilan (plus d'écran d'au revoir avant la rétrospective)
+const AUREVOIR = [
+      { who: null, t: "Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin." },
+      { who: "nour", mood: "smile", t: "Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration." },
+      { who: "nour", mood: "smile", t: "Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi." },
+      { who: "nour", mood: "big", t: "Voilà, la semaine est finie. Merci, vraiment, pour ta mission : tu as été là quand les enfants et l’équipe en avaient besoin. Au revoir, et à bientôt." },
+];
+
 const FLASH = {
   intro: "C’est moi, Bafaël, votre narrateur. Avant de nous quitter, revenons ensemble sur votre semaine.",
   days: { 1: "Le lundi, vous découvriez l’accueil.", 2: "Le mardi, les mots ont commencé à blesser.", 3: "Le mercredi, c’était la grosse journée.", 4: "Le jeudi, un enfant vous a confié sa parole.", 5: "Et ce vendredi, il a fallu tout mobiliser." },
@@ -1098,7 +1099,7 @@ const BRIDGE = {
   f3: "14 h. Maëlys attend à l’infirmerie, avec Nour. Vous allez la rejoindre.",
   k5: "La semaine touche à sa fin. Nour vous laisse la dernière page de son carnet.",
   dafter: "Vendredi, 17 h 30. Les enfants sont partis. Seule en salle des animateurs, au calme, vous retrouvez les questions du premier jour.",
-  souvenirs: "Retour en arrière. Lundi, vous arriviez aux Hautes Herbes sans rien connaître de l’équipe. Revoyons ensemble chacune de vos décisions : ce que vous avez choisi alors, et ce qu’il en est aujourd’hui.",
+  souvenirs: "Revenons sur votre semaine, jour par jour : ce que vous aviez fait, et ce que ça a donné.",
 };
 SCREENS.forEach((sc) => {
   const b = BRIDGE[sc.id]; if (!b) return;
@@ -1149,7 +1150,7 @@ const STAGE = {
   garnier: { at: "direction", room: "direction", cast: [["garnier", "s1", "talk"], ["you", "b"]] },
   f3: { at: "soins", room: "soins", cast: [["maelys", "c"], ["nour", "a", "talk"], ["you", "b"]] },
   dafter: { at: "equipe", room: "equipe", cast: [["you", "a"]] },
-  bilan: { at: "cour", cast: [["nour", "a", "wave"], ["you", "b", "wave"], ["bastien", "c", "wave"], ["ines", "d"], ["kevin", "e"], ["jade", "f", "wave"]] },
+  bilan: { at: "entree", z: 3.2, cast: [["nour", "c", "wave"], ["you", "b"]] },   // au portail, là où Nour vous avait accueillie lundi
 };
 // Qui parle dans un texte du récit : les citations « … » sont dites par le personnage nommé juste avant (même phrase),
 // le reste par la narratrice ou le narrateur. On entend ainsi un maximum les personnages eux-mêmes.

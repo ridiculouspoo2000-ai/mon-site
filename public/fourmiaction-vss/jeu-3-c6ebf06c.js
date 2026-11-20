@@ -326,7 +326,7 @@
   if (st.settings.voice === undefined) st.settings.voice = true;
 
   /* ---------- son : musique générative par chapitre + ambiances (désactivable) ---------- */
-  const WIND_AT = new Set(["nuit1", "nuit3", "aurevoir"]);
+  const WIND_AT = new Set(["nuit1", "nuit3"]);
   const MOODS = {
     home:  { bpm: 68, chords: [[53, 57, 60, 64], [50, 53, 57, 62], [46, 50, 53, 57], [48, 52, 55, 60]], arp: 0.34, oct: 12, wave: "triangle", cut: 1500, nature: "birds" },
     1:     { bpm: 72, chords: [[60, 64, 67, 71], [57, 60, 64, 67], [53, 57, 60, 64], [55, 59, 62, 65]], arp: 0.42, oct: 12, wave: "triangle", cut: 1800, nature: "birds" },
@@ -938,19 +938,18 @@
   }
   // Flash-back : la même mise en scène partout où l'on revoit une scène passée (carnet de Nour, retour sur la semaine).
   // Image sépia et granuleuse, bandeau « Flash-back · jour, heure · lieu », effet de rembobinage à chaque nouvelle scène.
+  // Retour en arrière : plus de couleurs de flash-back. Quand il faut le signaler, une grande flèche de rembobinage
+  // (comme une télécommande), brève, puis on reste dans le présent.
   const Flash = {
-    on(label, sub) {
-      document.body.classList.add("flashback");
-      let b = document.getElementById("fb-band");
-      if (!b) { b = el("div", { id: "fb-band", "aria-live": "polite" }); document.body.appendChild(b); }
-      b.innerHTML = `<span class="fb-ico" aria-hidden="true">⟲</span><span><b>Flash-back</b>${label ? ` · ${esc(label)}` : ""}${sub ? `<small>${esc(sub)}</small>` : ""}</span>`;
-      b.className = ""; void b.offsetWidth; b.classList.add("in");
-      if (!reduce() && !calm()) {
-        const w = el("div", { class: "fb-rewind", "aria-hidden": "true" }); document.body.appendChild(w); setTimeout(() => w.remove(), 900);
-        try { if (Snd.ctx && st.settings.sound) { const c = Snd.ctx, o = c.createOscillator(), g = c.createGain(); o.type = "sawtooth"; o.frequency.setValueAtTime(900, c.currentTime); o.frequency.exponentialRampToValueAtTime(120, c.currentTime + .55); g.gain.setValueAtTime(.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(.035, c.currentTime + .05); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .6); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .65); } } catch (e) { }
-      }
+    on(label, sub, tries = 0) {
+      if (reduce() || calm()) return;
+      if (document.querySelector(".roomfade.on") && tries < 12) { setTimeout(() => this.on(label, sub, tries + 1), 250); return; }   // après le noir d'un changement de lieu
+      const w = el("div", { class: "fb-rew", "aria-hidden": "true" }, `<svg viewBox="0 0 120 64"><path d="M58 4 L10 32 L58 60 Z"/><path d="M110 4 L62 32 L110 60 Z"/></svg>${label ? `<p>${esc(label)}${sub ? ` · ${esc(sub)}` : ""}</p>` : ""}`);
+      document.body.appendChild(w); requestAnimationFrame(() => w.classList.add("on"));
+      setTimeout(() => { w.classList.remove("on"); setTimeout(() => w.remove(), 500); }, 1500);
+      try { if (Snd.ctx && st.settings.sound) { const c = Snd.ctx, o = c.createOscillator(), g = c.createGain(); o.type = "triangle"; o.frequency.setValueAtTime(700, c.currentTime); o.frequency.exponentialRampToValueAtTime(160, c.currentTime + .45); g.gain.setValueAtTime(.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(.05, c.currentTime + .05); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .5); o.connect(g).connect(Snd.master || c.destination); o.start(); o.stop(c.currentTime + .55); } } catch (e) { }
     },
-    off() { document.body.classList.remove("flashback"); const b = document.getElementById("fb-band"); if (b) b.remove(); },
+    off() { document.querySelectorAll(".fb-rew").forEach((x) => x.remove()); const b = document.getElementById("fb-band"); if (b) b.remove(); },
   };
   function render(dir = 1) {
     document.body.classList.remove("athome", "roaming");
@@ -2874,24 +2873,22 @@
     n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Finir la journée" : "Continuer", next));
     if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
-    // Chaque idée de la page est illustrée en direct, sur le plan, par une scène de la journée rejouée par les personnages.
-    const ILL = { k1: ["radio", "foot", "radio"], k2: ["brief", "chat", "rire"], k3: ["verite", "consent", "nuit3"], k4: ["lou", "numero", "portail"], k5: ["affiche", "familles", "bilanequipe"] }[sc.id];
-    if (ILL) {
-      const DE = afterDayEnd(sc);   // après le bilan du soir, les scènes rejouées gardent la lumière du soir
-      const lis = [...n.querySelectorAll(".pn-body li")]; let k = -1, tm = 0;
+    // Chaque point de la page est illustré par une image (de nouveaux personnages qui montrent ce que dit le point) :
+    // plus de flash-back sur le plan, on reste dans le présent
+    if (typeof NoteArt !== "undefined" && NoteArt.has(sc.id)) {
+      const lis = [...n.querySelectorAll(".pn-body li")]; let k = -1;
       n.classList.add("pn-ill");
-      const show = () => {
+      const art = el("figure", { class: "pn-art", "aria-hidden": "true" });
+      const host = n.querySelector(".pn-body h2"); if (host) host.after(art);
+      const show = (j) => {
         if (!n.isConnected) return;
-        k = (k + 1) % Math.max(lis.length, 1);
-        lis.forEach((li, j) => li.classList.toggle("on", j === k));
-        const id = ILL[k % ILL.length], S0 = SCREENS.find((x) => x.id === id);
-        if (S0) { try { World.stage(DE ? { ...S0, type: "story", kicker: dayEndT(DE), endday: true } : { ...S0, type: "story" }); } catch (e) { }
-          Flash.on(String(S0.kicker || CHAPTERS[S0.ch - 1].day).split("·")[0].trim(), S0.title || (lis[k] && lis[k].textContent.slice(0, 60)) || "");
-          const C = (STAGE[id] && STAGE[id].cast) || [], w = (C.find((c) => c[0] !== "you") || [])[0];
-          if (w) setTimeout(() => { if (n.isConnected) World.mime(w); }, 900); }   // souvenir muet : un geste, sans bouche (c'est le narrateur qui parle)
-        tm = setTimeout(show, Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
+        k = j != null ? j : (k + 1) % Math.max(lis.length, 1);
+        lis.forEach((li, x) => li.classList.toggle("on", x === k));
+        const f = el("div", { class: "pn-frame" }, NoteArt.svg(sc.id, k)); art.querySelectorAll(".pn-frame").forEach((o) => { o.classList.add("out"); setTimeout(() => o.remove(), 500); }); art.appendChild(f);
+        clearTimeout(art._t); art._t = setTimeout(() => show(), Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
       };
-      setTimeout(show, 600);
+      lis.forEach((li, x) => li.addEventListener("click", () => show(x)));
+      setTimeout(() => show(0), 300);
     }
   };
 
@@ -3004,10 +3001,18 @@
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
       <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
     { const NU = st.level === 1 ? NUANCE_KID : NUANCE; const box = n.querySelector(".bilan .bhead"); if (box) box.insertAdjacentHTML("afterend", `<div class="nuance"><p class="kicker">Le mot de Bafaël</p><p>${esc(NU)}</p></div>`);
-      n.dataset.novoice = "1"; setTimeout(() => Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [])), 700); }
+      n.dataset.novoice = "1"; setTimeout(() => n.isConnected && Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [], FW)), 700); }
     const b = n.querySelector(".bilan");
     if (typeof SOURCES !== "undefined" && SOURCES.length) n.querySelector(".bilan").appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
     b.appendChild(rankBox(defi));
+    // tout à la fin : Nour, au portail, vous dit merci et au revoir (c'est la dernière voix du jeu)
+    let FW = [];
+    if (typeof AUREVOIR !== "undefined") {
+      const fw = el("section", { class: "farewell", "aria-label": "Au revoir" }, `<div class="fw-av" aria-hidden="true">${faceOf("nour", "big")}</div><div class="fw-txt"><p class="kicker">Vendredi, 18 h · au portail</p>${AUREVOIR.map((L) => L.who ? `<p class="fw-say"><b>${esc(NAMES[L.who] || "")}</b> ${words(L.t)}</p>` : `<p class="fw-narr">${words(L.t)}</p>`).join("")}</div>`);
+      b.appendChild(fw);
+      const ps = [...fw.querySelectorAll(".fw-txt > p:not(.kicker)")];
+      FW = AUREVOIR.map((L, k) => [L.who || "narr", L.t, ps[k]]);
+    }
     const row = el("div", { class: "row" });
     row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
     b.appendChild(row);
@@ -3504,73 +3509,69 @@
     const ids = SCREENS.filter((x) => DEFER.has(x.type) && st.res[x.id] != null && (!x.nuitee || st.nuitee)).map((x) => x.id);
     const panel = el("div", { class: "panel replay" });
     const FL = typeof FLASH !== "undefined" ? FLASH : null;
-    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2><p class="lead">${FL ? esc(FL.intro) + " " : ""}Jour après jour, revivez vos décisions : ce que vous avez choisi, puis ce qu’il en est aujourd’hui.</p>`;
+    panel.innerHTML = `${kicker(sc.kicker)}<h2 id="h-${sc.id}">Retour sur votre semaine</h2>`;
     // flash-back : même traitement que dans le carnet de Nour (Flash.on à chaque décision revue)
     const body = el("div", { class: "rp-body", "aria-live": "polite" });
     const row = el("div", { class: "row" });
     n.dataset.novoice = "1";
     if (!ids.length) { body.innerHTML = `<p>Aucune décision à revoir.</p>`; endRow(row, "Voir le bilan"); panel.append(body, row); n.appendChild(panel); return; }
-    let i = 0;
+    // Le bilan des décisions, jour par jour : pour chaque décision, quand et avec qui, ce que vous aviez fait,
+    // puis ce que ça a donné. Court, concret, sans phrase répétée ; le cadre détaillé reste replié.
     const tierOf = (id) => (st.res[id] >= 0.95 ? "excellent" : st.res[id] >= 0.45 ? "moyen" : "catastrophe");
-    const LBL = { excellent: ["Ce que votre décision a permis", "good"], moyen: ["Ce que votre décision a laissé passer", "mid"], catastrophe: ["Ce que votre décision a provoqué", "low"] };
-    const nb = btn("Décision suivante", () => { i++; if (i < ids.length) play(); else { if (FL) Voice.say("narr", FL.end); Flash.off(); setTimeout(next, FL && Voice.ok && Voice.ready && st.settings.voice ? 2600 : 300); } });
+    const CLS = { excellent: "good", moyen: "mid", catastrophe: "low" };
+    const short = (t, n0 = 110) => { t = String(t || "").replace(/\s+/g, " ").trim(); if (t.length <= n0) return t; const c = t.slice(0, n0); return c.slice(0, Math.max(40, c.lastIndexOf(" "))).replace(/[,;:]$/, "") + "…"; };
+    const first = (tx) => { const S1 = String(tx).match(/[^.!?…]+[.!?…»]+(?=\s|$)/g) || [String(tx)];
+      const k = S1.findIndex((x) => x.trim().length > 45 || !/^\s*(lundi|mardi|mercredi|jeudi|vendredi|le lendemain|ce soir|ce matin)\b/i.test(x)); return (S1[k < 0 ? 0 : k] || "").trim(); };
     const li = (t, cls = "") => `<li class="${cls}">${esc(t)}</li>`;
-    function play() {
-      const id = ids[i], S0 = tune(SCREENS.find((s) => s.id === id)), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id], v = verdict(st.res[id]);
-      // d'abord le flash-back (la scène telle que vous l'avez vécue), puis retour au présent : ce qu'il en est aujourd'hui
-      const my = (play.tok = (play.tok || 0) + 1);
-      World.show(stageOf(id), { id: "flash-" + id, type: "story", ch: S0.ch, kicker: S0.kicker });
-      Flash.on(String(S0.kicker || CHAPTERS[S0.ch - 1].day).split("·")[0].trim(), S0.title || "");
-      setTimeout(() => {
-        if (my !== play.tok || !n.isConnected) return;
-        Flash.off();
-        if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t].cast }, { id: "retour-" + id, type: "story", ch: 6 });
-        else World.show(stageOf(id), { id: "retour-" + id, type: "story", ch: 6 });
-        const nw = el("div", { id: "fb-band", class: "now in", "aria-live": "polite" }, `<span class="fb-ico" aria-hidden="true">●</span><span><b>Aujourd’hui</b> · vendredi soir</span>`); document.body.appendChild(nw);
-      }, reduce() ? 0 : 3400);
-      let choix = "", effet = [], cadre = "", V = [];
+    const where = (S0) => String(S0.kicker || "").split("·").map((x) => x.trim()).filter(Boolean).join(", ");
+    function card(id) {
+      const S0 = tune(SCREENS.find((s) => s.id === id)), L = (st.later || {})[id] || {}, t = tierOf(id), R0 = REPLAY[id];
+      let did = "", res = "", cadre = "", who = R0 ? R0.label : (S0.title || "");
       if (S0.type === "choice") {
         const o = S0.opts[L.k != null ? L.k : 0];
-        choix = `<p class="rp-choice">Vous aviez répondu : « ${esc(o.t)} »</p>`;
-        if (R0) R0.tiers[t].lines.forEach(([w, tx]) => effet.push([w, tx]));
-        else if (o.cons) effet.push(["narr", o.cons]);
+        did = `« ${esc(short(o.t))} »`;
+        res = R0 ? (R0.tiers[t].lines[0] || [])[1] : o.cons;
         cadre = `<p>${esc(o.fb)}</p>${o.q < 1 && S0.better ? `<p class="better"><b>Pour faire mieux.</b> ${esc(S0.better)}</p>` : ""}`;
-        if (!R0) V.push(VOICE_TXT.fb(S0, o)); else V.push(["narr", o.fb]);
       } else if (S0.type === "multi") {
-        const sel = new Set(L.sel || []);
-        choix = `<p class="rp-choice">Vous aviez retenu :</p><ul class="rp-sel">${S0.opts.map((o, j) => sel.has(j) ? li(o.t) : "").join("") || li("aucune action")}</ul>`;
+        const sel = new Set(L.sel || []), picked = S0.opts.filter((o, j) => sel.has(j));
+        did = picked.length ? `${picked.length} action${picked.length > 1 ? "s" : ""} : ${esc(short(picked.map((o) => o.t).join(" ; "), 120))}` : "aucune action";
+        const miss = S0.opts.filter((o, j) => sel.has(j) !== !!o.ok).length;
+        res = miss ? `${miss} point${miss > 1 ? "s" : ""} à revoir dans vos choix.` : "Toutes les bonnes actions, et aucune de trop.";
         cadre = `<ul class="rp-why">${S0.opts.map((o, j) => li((o.ok ? "✓ " : "✕ ") + o.t + " : " + o.why, (o.ok ? "ok" : "no") + (sel.has(j) !== !!o.ok ? " miss" : ""))).join("")}</ul>${S0.after ? `<p class="better"><b>Et ensuite.</b> ${esc(S0.after)}</p>` : ""}`;
       } else if (S0.type === "dialogue") {
         const nd = S0.nodes[L.end] || Object.values(S0.nodes).find((x) => x.end) || {};
-        choix = (L.says || []).length ? `<p class="rp-choice">Ce que vous aviez dit :</p><ul class="rp-sel">${L.says.map((x) => li("« " + x + " »")).join("")}</ul>` : "";
-        if (nd.t) effet.push([S0.npc, nd.t]);
+        const said = (L.says || []).slice(-1)[0];
+        did = said ? `« ${esc(short(said))} »` : `vous avez échangé avec ${esc(NAMES[S0.npc] || "")}`;
+        res = nd.t ? `${NAMES[S0.npc] || ""} : « ${first(nd.t)} »` : "";
         cadre = nd.lesson ? `<p><b>À retenir.</b> ${esc(nd.lesson)}</p>` : "";
-        if (nd.lesson) V.push(["narr", "À retenir. " + nd.lesson]);
-      } else if (S0.type === "find" && L.skip && S0.skip) {
-        choix = `<p class="rp-choice">Vous aviez choisi : ${esc(S0.skip.t)}</p>`;
-        cadre = `<p>${esc(S0.skip.fb)}</p>`; V.push(["narr", S0.skip.fb]);
       } else if (S0.type === "find") {
-        const o = S0.opts[L.k != null ? L.k : 0];
-        choix = `<p class="rp-choice">Vous aviez répondu à ${esc(NAMES[S0.who] || "Léna")} : ${esc(o.t)}</p>`;
-        cadre = `<p>${esc(o.fb)}</p>`; V.push(["narr", o.fb]);
+        if (L.skip && S0.skip) { did = esc(short(S0.skip.t)); cadre = `<p>${esc(S0.skip.fb)}</p>`; res = first(S0.skip.fb); }
+        else { const o = S0.opts[L.k != null ? L.k : 0]; did = `« ${esc(short(o.t))} »`; cadre = `<p>${esc(o.fb)}</p>`; res = o.cons || first(o.fb); }
       }
-      const newDay = FL && (i === 0 || SCREENS.find((x) => x.id === ids[i - 1]).ch !== S0.ch), dayT = FL && FL.days[S0.ch];
-      body.innerHTML = `${newDay && dayT ? `<p class="rp-day">${esc(CHAPTERS[S0.ch - 1].day)}</p>` : ""}<p class="kicker">${i + 1} sur ${ids.length} · ${esc(S0.kicker || S0.title || "")}</p>${choix}<p class="rp-tier ${LBL[t][1]}">${LBL[t][0]} · ${v.t}</p><div class="rp-lines"></div>${cadre ? `<details class="rp-cadre"><summary>Voir le cadre</summary>${cadre}</details>` : ""}`;
-      const box = body.querySelector(".rp-lines"), seq = [];
-      // version courte : une seule phrase sur ce qu'il en est aujourd'hui (le cadre détaillé est replié derrière « Voir le cadre »)
-      const first = (tx) => { const S1 = String(tx).match(/[^.!?…]+[.!?…»]+(?=\s|$)/g) || [String(tx)];
-        // on saute le simple repère (« Vendredi, à l'atelier radio. ») pour garder la phrase qui dit ce qu'il en est
-        const k = S1.findIndex((x) => x.trim().length > 45 || !/^\s*(lundi|mardi|mercredi|jeudi|vendredi|le lendemain|ce soir|ce matin)\b/i.test(x)); return (S1[k < 0 ? 0 : k] || "").trim(); };
-      effet = effet.filter(([, tx]) => first(tx).length > 12).slice(0, 1).map(([w, tx]) => [w, first(tx)]);
-      effet.forEach(([w, tx], j) => {
-        const r = el("div", { class: "say " + (w === "narr" ? "narr" : "npc"), style: `animation-delay:${0.6 + j * 0.5}s` }, w === "narr" ? `<p>${words(tx)}</p>` : `<b>${NAMES[w] || ""}</b><p>${words(tx)}</p>`);
-        box.appendChild(r); seq.push([w, tx, r.querySelector("p")]);
-      });
-      // le narrateur raconte : « Le lundi… Vous avez pris cette décision. Voilà ce qu'il en est aujourd'hui. »
-      const N0 = FL ? [].concat(i === 0 ? [["narr", FL.intro]] : [], newDay && dayT ? [["narr", dayT]] : []) : [];
-      setTimeout(() => Voice.seq(N0.concat(seq)), 500);   // le cadre se lit à la demande (déplié)
-      nb.textContent = i < ids.length - 1 ? "Décision suivante" : "Voir le bilan";
-      Snd[t === "excellent" ? "good" : t === "moyen" ? "mid" : "low"]();
+      res = res ? first(res) : verdict(st.res[id]).t;
+      const html = `<article class="rp-card ${CLS[t]}"><p class="rp-when">${esc(where(S0))}${who ? ` · <b>${esc(who)}</b>` : ""}</p>
+        <p class="rp-did"><span class="rp-lab">Vous aviez</span> ${did}</p><p class="rp-res"><span class="rp-lab">Ce que ça a donné</span> <em>${esc(res)}</em></p>
+        ${cadre ? `<details class="rp-cadre"><summary>Voir le cadre</summary>${cadre}</details>` : ""}</article>`;
+      return { html, res };
+    }
+    const days = [...new Set(ids.map((id) => SCREENS.find((s) => s.id === id).ch))];
+    let di = 0;
+    const nb = btn("Jour suivant", () => { Snd.click(); di++; if (di < days.length) play(); else next(); });
+    function play() {
+      const ch = days[di], dIds = ids.filter((id) => SCREENS.find((s) => s.id === id).ch === ch), dayT = FL && FL.days[ch];
+      if (di === 0) Flash.on("Retour sur la semaine");   // une seule fois : on rembobine, puis on reste dans le présent
+      // sur le plan : là où ça se passe aujourd'hui, pour la première décision du jour
+      const id0 = dIds[0], R0 = REPLAY[id0], t0 = tierOf(id0);
+      if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t0].cast }, { id: "retour-" + id0, type: "story", ch: 6 });
+      else World.show(stageOf(id0), { id: "retour-" + id0, type: "story", ch: 6 });
+      const C = dIds.map(card);
+      body.innerHTML = `<p class="rp-day">${esc(CHAPTERS[ch - 1].day)}</p>${C.map((c) => c.html).join("")}`;
+      body.scrollTop = 0;
+      const V = dayT ? [["narr", dayT]] : [];   // le pont d’entrée présente déjà la rétrospective
+      // le narrateur annonce le jour ; les cartes se lisent d'un coup d'œil (rapide)
+      setTimeout(() => n.isConnected && Voice.seq(V), 400);
+      nb.textContent = di < days.length - 1 ? `${CHAPTERS[days[di + 1] - 1].day} →` : "Voir le bilan";
+      Snd.page && Snd.page();
     }
     row.appendChild(nb); panel.append(body, row); n.appendChild(panel); play();
   };
@@ -4768,6 +4769,87 @@
     }, 1050);
     return { leave() { const r = box.querySelector(".rig"); if (r) r.setAttribute("class", "rig p-walk"); box.classList.add("out"); setTimeout(() => box.remove(), 1000); } };
   }
+
+  /* ---------- Les images des pages du carnet de Nour ----------
+     Chaque point de la page est illustré par une petite image : de nouveaux personnages (pas ceux de l'histoire)
+     qui montrent concrètement ce que dit le point. Pas de flash-back : on reste dans le présent, on illustre l'idée. */
+  const NoteArt = (() => {
+    const P = {   // les personnages des images (inconnus de l'histoire)
+      anim: { age: 27, sex: "f", skin: "#D9A27A", hair: "noir", hairStyle: "ponytail", top: "#2E7D6B", bottom: "#33405C", badge: true, shoes: "#F4F1EC", shoeStyle: "toile", sleeves: "long" },
+      anim2: { age: 31, sex: "m", skin: "#EDC3A4", hair: "chatain", hairStyle: "short", top: "#5B6FB0", bottom: "#2F3540", badge: true, shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
+      dir: { age: 44, sex: "f", skin: "#8E5A3B", hair: "noir", hairStyle: "bun", top: "#8A4F7D", bottom: "#2E3A4E", badge: true, glasses: "#3B3B3B", shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
+      girl: { age: 9, sex: "f", skin: "#C98E63", hair: "brun", hairStyle: "pigtails", top: "#E86A8A", bottom: "#45506A", shoes: "#F4F1EC", shoeStyle: "basket", sleeves: "short" },
+      boy: { age: 10, sex: "m", skin: "#EFC2A4", hair: "roux", hairStyle: "short", top: "#F2B33D", bottom: "#3D5A80", shoes: "#2B6FD6", shoeStyle: "basket", sleeves: "short" },
+      kid: { age: 7, sex: "m", skin: "#6B4129", hair: "noir", hairStyle: "curly", top: "#4FA3C2", bottom: "#40506A", shoes: "#E2702A", shoeStyle: "basket", sleeves: "short" },
+      teen: { age: 15, sex: "f", skin: "#F3D2BD", hair: "blond", hairStyle: "long", top: "#7A5BC2", bottom: "#2E3A4E", shoes: "#F4F1EC", shoeStyle: "toile", sleeves: "long" },
+      par: { age: 40, sex: "m", skin: "#B5784E", hair: "noir", hairStyle: "short", top: "#7A5234", bottom: "#2F3540", shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
+    };
+    const fig = (k, pose, x, o = {}) => { const sp = { ...P[k], mood: o.mood || "smile" }, s = o.s || 2.1;
+      return `<g transform="translate(${x},${o.y || 150}) scale(${o.flip ? -s : s},${s})">${RIG.inMini(sp, pose || "stand")}</g>`; };
+    const BG = {
+      in: `<rect width="320" height="180" fill="#F4ECE0"/><rect y="150" width="320" height="30" fill="#D9C4A4"/><rect y="146" width="320" height="5" fill="#C9B394"/>`,
+      out: `<rect width="320" height="180" fill="#DCEBF4"/><circle cx="270" cy="34" r="16" fill="#FFE3A0"/><rect y="146" width="320" height="34" fill="#A9CF8E"/><path d="M0 146 Q80 132 160 146 T320 146" fill="#BCDDA2"/>`,
+      night: `<rect width="320" height="180" fill="#2B3458"/><circle cx="262" cy="32" r="12" fill="#F4F0DC"/><rect y="150" width="320" height="30" fill="#3D4670"/><rect x="236" y="42" width="54" height="40" rx="3" fill="#41508A" stroke="#6B7AB6"/>`,
+    };
+    const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-family="Inter,sans-serif" font-size="${o.fs || 12}" font-weight="${o.fw || 700}" fill="${o.c || "#1E2733"}" text-anchor="${o.a || "middle"}">${t}</text>`;
+    const poster = (x, y, w, h, lines, col = "#FFFFFF", ink = "#C62828") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}" stroke="#C9B394"/>` + lines.map((l, i) => T(x + w / 2, y + 16 + i * 15, l, { c: i ? "#1E2733" : ink, fs: i ? 10 : 13 })).join("");
+    const phone = (x, y, txt, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><rect width="34" height="58" rx="6" fill="#1E2733"/><rect x="3" y="6" width="28" height="44" rx="3" fill="#EAF2FA"/>${txt || ""}</g>`;
+    const bubble = (x, y, t, w = 44) => `<g><rect x="${x}" y="${y}" width="${w}" height="22" rx="10" fill="#FFFFFF" stroke="#C9D2DA"/><path d="M${x + 10},${y + 22} l-4,8 l10,-8" fill="#FFFFFF" stroke="#C9D2DA"/>${T(x + w / 2, y + 15, t, { fs: 11, fw: 600 })}</g>`;
+    const no = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#FDECEA" stroke="#C62828" stroke-width="2.4"/><path d="M${x - r * .5},${y - r * .5} L${x + r * .5},${y + r * .5} M${x + r * .5},${y - r * .5} L${x - r * .5},${y + r * .5}" stroke="#C62828" stroke-width="3" stroke-linecap="round"/></g>`;
+    const yes = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#E7F5EC" stroke="#2E8B57" stroke-width="2.4"/><path d="M${x - r * .5},${y} l${r * .35},${r * .4} l${r * .65},-${r * .8}" stroke="#2E8B57" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+    const book = (x, y) => `<g><rect x="${x}" y="${y}" width="46" height="34" rx="3" fill="#FFFDF4" stroke="#C9B394"/>${[8, 15, 22].map((d) => `<line x1="${x + 6}" y1="${y + d}" x2="${x + 40}" y2="${y + d}" stroke="#2B6FD6" stroke-width="1.2" opacity=".6"/>`).join("")}<rect x="${x + 50}" y="${y + 2}" width="3" height="26" fill="#E2702A" transform="rotate(20 ${x + 51} ${y + 15})"/></g>`;
+    const table = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="7" rx="2" fill="#C99566"/><rect x="${x + 6}" y="${y + 7}" width="5" height="${150 - y - 7}" fill="#8C6A4C"/><rect x="${x + w - 11}" y="${y + 7}" width="5" height="${150 - y - 7}" fill="#8C6A4C"/>`;
+    const bed = (x, y = 128, kid) => `<g><rect x="${x}" y="${y}" width="76" height="14" rx="4" fill="#9FB6D2"/><rect x="${x}" y="${y + 14}" width="76" height="8" fill="#6E86A6"/><rect x="${x + 2}" y="${y - 6}" width="20" height="10" rx="4" fill="#F4F4F2"/>${kid ? `<circle cx="${x + 14}" cy="${y - 4}" r="7" fill="${kid}"/>` : ""}</g>`;
+    const ball = (x, y = 142) => `<circle cx="${x}" cy="${y}" r="8" fill="#FFFFFF" stroke="#1E2733"/><path d="M${x - 3},${y - 3} l3,-2 3,2 -1,4 h-4z" fill="#1E2733"/>`;
+    const door = (x) => `<rect x="${x}" y="70" width="40" height="80" fill="#E8DCC8" stroke="#C9B394"/><path d="M${x},70 L${x + 18},78 L${x + 18},146 L${x},150 Z" fill="#B98A5E"/>`;
+    const board = (x, y, w, h, rows) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#FFFFFF" stroke="#8B6B4A" stroke-width="2"/>` + rows.map((r, i) => T(x + 10, y + 18 + i * 15, r, { a: "start", fs: 10.5, fw: 600 })).join("");
+    const arrow = (x1, y1, x2, y2) => `<path d="M${x1},${y1} Q${(x1 + x2) / 2},${Math.min(y1, y2) - 26} ${x2},${y2}" stroke="#E2702A" stroke-width="3" fill="none" stroke-dasharray="6 5"/><path d="M${x2},${y2} l-10,-3 4,10z" fill="#E2702A"/>`;
+    const zzz = (x, y) => T(x, y, "z z z", { c: "#9FB6D2", fs: 13 });
+    const box = (x, y, t) => `<rect x="${x}" y="${y}" width="40" height="34" rx="3" fill="#C9A06A"/><rect x="${x + 12}" y="${y - 2}" width="16" height="4" fill="#1E2733"/>${T(x + 20, y + 22, t, { fs: 9, c: "#3A2614" })}`;
+    // une image par point de chaque page, dans l'ordre des points
+    const S = {
+      k1: [
+        () => BG.out + ball(120) + fig("anim2", "point", 70) + fig("boy", "stand", 130) + fig("girl", "sad", 220, { mood: "sad" }) + bubble(40, 40, "Le foot, c’est pour les garçons", 170) + no(270, 60, 12),
+        () => BG.out + ball(150) + fig("boy", "run", 130) + fig("kid", "run", 170, { flip: true }) + fig("girl", "sad", 255, { mood: "sad" }) + no(255, 50, 14),
+        () => BG.in + board(20, 34, 120, 78, ["Qui fait quoi ?", "Console : tout le monde", "Rangement : chacun", "Ballons : à tour de rôle"]) + fig("anim", "point", 175) + fig("girl", "listen", 230) + fig("boy", "listen", 275, { flip: true }),
+      ],
+      k2: [
+        () => BG.in + fig("anim2", "talk", 70) + fig("par", "talk", 120, { mood: "big" }) + bubble(30, 30, "Ha ha !", 50) + bubble(110, 18, "Encore ?", 56) + fig("anim", "sad", 240, { mood: "sad", flip: true }),
+        () => BG.in + phone(40, 40, `<rect x="6" y="11" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="8" y="22" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="6" y="33" width="20" height="7" rx="3" fill="#D8E6F2"/>`, 1.4) + T(160, 60, "1 + 1 + 1", { fs: 22, c: "#C62828" }) + T(160, 82, "= une répétition", { fs: 13 }) + fig("anim", "sad", 260, { mood: "sad" }),
+        () => BG.in + table(110, 108, 130) + book(150, 76) + fig("anim", "sit", 92, { y: 150 }) + T(250, 46, "Vu", { c: "#2E8B57" }) + T(250, 64, "Entendu", { c: "#2B6FD6" }) + T(250, 82, "Supposé ?", { c: "#B5602A" }),
+        () => BG.in + poster(28, 30, 76, 96, ["119", "Allô enfance", "en danger", "24 h/24"]) + phone(150, 54, T(17, 32, "119", { fs: 12, c: "#C62828" }), 1.3) + fig("anim", "talk", 250, { flip: true, mood: "concern" }),
+      ],
+      kn: [
+        () => BG.night + bed(30) + bed(120, 128, "#C98E63") + fig("anim", "stand", 250, { mood: "calm" }) + T(160, 40, "Dortoir des filles", { fs: 11, c: "#E9ECF5" }),
+        () => BG.night + bed(30, 128, "#EFC2A4") + door(150) + fig("anim2", "stand", 230, { mood: "calm" }) + T(170, 60, "porte ouverte", { fs: 10, c: "#E9ECF5" }),
+        () => BG.night + bed(90, 128, "#6B4129") + zzz(150, 100) + phone(220, 60, "", 1.2) + no(240, 50, 16),
+      ],
+      k3: [
+        () => BG.in + fig("anim", "talk", 110, { mood: "smile" }) + fig("girl", "stand", 200, { flip: true }) + bubble(60, 30, "Tu veux bien ?", 80) + yes(240, 60, 12) + no(270, 60, 12) + T(255, 90, "elle choisit", { fs: 10 }),
+        () => BG.night + bed(110, 128, "#EFC2A4") + zzz(140, 100) + T(160, 50, "Silence ≠ oui", { fs: 16, c: "#E9ECF5" }) + no(250, 90, 16),
+        () => BG.in + fig("par", "stand", 120, { s: 2.5 }) + fig("kid", "stand", 200, { flip: true, mood: "concern" }) + T(160, 30, "Adulte / enfant", { fs: 13 }) + T(160, 48, "jamais d’égal à égal", { fs: 11, fw: 600 }),
+        () => BG.out + fig("anim", "wave", 110) + fig("kid", "wave", 180, { flip: true, mood: "big" }) + T(146, 40, "Tope là !", { fs: 13, c: "#2E8B57" }) + T(250, 70, "un câlin ?", { fs: 10, fw: 600 }) + T(250, 86, "seulement s’il le veut", { fs: 10, fw: 600 }),
+      ],
+      k4: [
+        () => BG.in + fig("anim", "listen", 120, { mood: "calm" }) + fig("girl", "sad", 190, { flip: true, mood: "sad" }) + T(160, 34, "J’écoute, je ne promets pas le secret", { fs: 11 }),
+        () => BG.in + table(100, 108, 140) + book(150, 76) + fig("anim", "sit", 84) + T(250, 42, "« ses mots »", { fs: 12, c: "#2B6FD6" }) + T(250, 60, "l’heure, le lieu", { fs: 11, fw: 600 }),
+        () => BG.out + phone(40, 40, T(17, 26, "17", { fs: 13, c: "#C62828" }) + T(17, 42, "112", { fs: 11, c: "#C62828" }), 1.5) + fig("anim2", "talk", 170, { mood: "concern" }) + fig("kid", "stand", 230, { flip: true, mood: "calm" }) + T(250, 40, "Danger immédiat", { fs: 12, c: "#C62828" }),
+        () => BG.in + book(40, 80) + arrow(100, 90, 220, 80) + `<rect x="226" y="56" width="70" height="70" fill="#E3EAF2" stroke="#8A9AB0"/><path d="M222 58 L261 34 L300 58Z" fill="#5E6E86"/>` + T(261, 100, "Autorités", { fs: 10 }) + fig("dir", "point", 150),
+        () => BG.in + fig("dir", "talk", 110, { mood: "calm" }) + fig("par", "listen", 200, { flip: true, mood: "concern" }) + T(160, 34, "Avec les autorités, d’abord", { fs: 11 }),
+      ],
+      k5: [
+        () => BG.in + board(20, 26, 150, 98, ["✓ Ce qui change", "✓ Qui s’en charge", "✓ Quand", "✓ Comment on le voit"]) + fig("dir", "point", 210) + fig("anim2", "listen", 262, { flip: true }),
+        () => BG.in + box(40, 112, "Mots") + fig("girl", "talk", 140) + fig("anim", "listen", 200, { flip: true, mood: "calm" }) + bubble(150, 30, "Je peux te dire ?", 96),
+        () => BG.in + poster(26, 30, 70, 92, ["119", "Enfance", "en danger"]) + poster(110, 30, 70, 92, ["3018", "Harcèlement", "en ligne"], "#FFFFFF", "#2B6FD6") + fig("teen", "point", 230) + fig("kid", "stand", 275, { flip: true }),
+        () => BG.in + fig("anim2", "stand", 90) + box(70, 104, "") + fig("anim", "stand", 200, { flip: true }) + `<rect x="226" y="60" width="4" height="90" fill="#8C6A4C" transform="rotate(14 228 105)"/>` + T(160, 34, "Ranger, soigner : chacun son tour", { fs: 11 }),
+        () => BG.in + `<rect x="40" y="40" width="76" height="96" rx="3" fill="#FFFFFF" stroke="#C9B394"/>` + T(78, 62, "Contrôle", { fs: 11 }) + `<circle cx="78" cy="104" r="16" fill="none" stroke="#2E8B57" stroke-width="3"/>` + T(78, 109, "OK", { fs: 11, c: "#2E8B57" }) + fig("anim", "stand", 200, { mood: "concern" }) + T(250, 54, "+ la vigilance", { fs: 13, c: "#B5602A" }) + T(250, 72, "chaque jour", { fs: 11, fw: 600 }),
+      ],
+    };
+    return {
+      has: (id) => !!S[id],
+      svg(id, k) { const L = S[id]; if (!L || !L.length) return ""; try { return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${L[k % L.length]()}</svg>`; } catch (e) { return ""; } },
+    };
+  })();
 
   /* ---------- Personnage du joueur, créé sur mesure ----------
    Transposition fidèle de kit/clay.py (bust, mini) : mêmes formes, mêmes matières « pâte à modeler ».

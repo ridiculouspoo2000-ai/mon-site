@@ -2416,10 +2416,16 @@ body.calm .rig *{animation:none!important}
 
 .rig .fig path[fill^="url"]{stroke:rgba(20,16,12,.22);stroke-width:.7}
 /* assis : cuisses à l'horizontale, genoux pliés, mains sur les genoux */
-.p-sit .lL,.p-sit .lR{transform:rotate(-82deg)}
-.p-sit .lL .shin,.p-sit .lR .shin{transform:rotate(84deg)}
+/* sur une chaise du décor, la pose est calculée pour la chaise et le personnage (engine.js, sitPose) :
+   --th cuisse, --sh tibia (et --shk sa longueur à l'écran), --sg le côté où partent les genoux */
+.p-sit .lL,.p-sit .lR{transform:rotate(var(--th,-82deg))}
+.p-sit .lL .shin,.p-sit .lR .shin{transform:rotate(var(--sh,84deg)) scaleY(var(--shk,1))}
 .p-sit .aL{transform:rotate(-22deg)}.p-sit .aL .fore{transform:rotate(-40deg)}
 .p-sit .aR{transform:rotate(-18deg)}.p-sit .aR .fore{transform:rotate(-36deg)}
+/* assis : pas d'ombre « debout » sous les pieds (la chaise a la sienne) ; vu de dos, les jambes sont sous la table */
+.ractor.seated .rig>ellipse{display:none}
+.ractor.sitback .p-sit .leg{visibility:hidden}
+.ractor.sitback .p-sit .aL,.ractor.sitback .p-sit .aR{transform:rotate(-6deg)}.ractor.sitback .p-sit .aL .fore,.ractor.sitback .p-sit .aR .fore{transform:rotate(-14deg)}
 /* au repos : bras le long du corps, légèrement écartés */
 .p-idle .aL{transform:rotate(5deg)}.p-idle .aR{transform:rotate(-4deg)}
 .p-idle .aL .fore,.p-idle .aR .fore{transform:rotate(-6deg)}
@@ -3035,7 +3041,7 @@ body.dusk #dayclock{visibility:hidden}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-21c33f9c.js"></script>
+<script src="jeu-1-703d597f.js"></script>
 <script src="jeu-2-6eeb918f.js"></script>
-<script src="jeu-3-1cb8b0fe.js"></script>
+<script src="jeu-3-463c3cfa.js"></script>
 </body></html>

@@ -974,6 +974,26 @@
     if (sp) return RIG.bust({ ...sp, mood: mood || "smile" });
     return who === "you" ? youBust() : (A.chars[who] || A.chars.parent)[mood || "smile"];
   }
+  // Assis sur une chaise du décor : le bassin repose sur l'assise (au-dessus du centre de la chaise), les cuisses partent
+  // à l'horizontale vers l'avant de la chaise (selon l'axe du plan isométrique), les tibias descendent jusqu'au sol (les pieds
+  // se rangent un peu sous l'assise si les jambes sont plus longues que la chaise n'est haute). Tout est calculé pour la taille
+  // du personnage et la hauteur de l'assise : plus personne ne flotte au-dessus d'une chaise.
+  function sitPose(who, P) {
+    const sp = rigSpec(who); if (!sp || typeof RIG === "undefined" || !RIG.body) return null;
+    const B = RIG.body(sp.age || 30), k = 50 / 172 * .96;              // unités du personnage → pixels de la salle
+    const seat = P.sz != null ? P.sz : 10.2, r = B.thigh * .5 * k;       // l'épaisseur de la cuisse repose sur l'assise
+    const hip = seat + r, T = (B.kneeY - B.hipY) * k, Sh = (-B.kneeY + .8) * k;
+    // on calcule toujours la pose genoux vers la droite ; face en bas à gauche (+y), le personnage est retourné en miroir
+    // autour du bassin (pointes des pieds et mains vers l'avant ; le miroir ne dépend pas des animations)
+    const c30 = Math.cos(Math.PI / 6), dir = 1, up = P.fc === "-y" ? -1 : 1, flip = P.fc === "+y";
+    // cuisse : vers l'avant de la chaise (en bas à droite, en bas à gauche, ou vers le fond si l'on est vu de dos)
+    const tx = dir * c30 * T, ty = up * .5 * T, th = Math.atan2(-tx, ty) * 180 / Math.PI;
+    // tibia : du genou (à hauteur d'assise) jusqu'au sol ; s'il est trop long, le pied recule sous la chaise
+    const back = Sh > hip ? Math.sqrt(Sh * Sh - hip * hip) : 0, sx = -dir * c30 * back, sy = hip - up * .5 * back;
+    const sl = Math.hypot(sx, sy), sk = Math.min(1.15, Math.max(.6, sl / Sh)), al = Math.atan2(-sx, sy) * 180 / Math.PI;
+    const dy = -(hip + B.hipY * k);                                       // pieds (origine du personnage) → bassin sur l'assise
+    return { dy, flip, css: `--th:${th.toFixed(1)}deg;--sh:${(al - th).toFixed(1)}deg;--shk:${sk.toFixed(3)}` };
+  }
   // opts : { back: vu de dos, chair: assis sur une chaise }
   const rigMini = (who, pose, opts = {}) => { const sp = rigSpec(who); return sp ? RIG.inMini({ ...sp, ...(opts.back ? { back: true } : {}), ...(opts.mood ? { mood: opts.mood } : {}) }, pose, opts) : null; };
   // Émotions visibles : le visage change (sourcils, bouche, rougeur, larme), un signe apparaît au-dessus de la tête,
@@ -1180,7 +1200,6 @@
     },
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
     people(room, S) {
-      const SIT_OFF = [0, 5];   // assis : les hanches sur l’assise de la chaise du décor
       const IN = A.dio.inner[room], host = this.cam.querySelector(".wlids");
       const old = host.querySelector(".inroom-w"); if (old) old.remove();
       const w = el("div", { class: "inroom-w", style: `left:${IN.l}%;top:${IN.t}%;width:${IN.w}%;aspect-ratio:${IN.r};z-index:${IN.z}` }, IN.svg);
@@ -1191,18 +1210,21 @@
         const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose || "stand");
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
         const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false }); if (!m && !R0) return;
-        const g = document.createElementNS(NS, "g"), off = P.sit ? (window.__sitOff != null ? window.__sitOff : SIT_OFF) : [0, 0];
-        g.setAttribute("class", "ractor"); g.dataset.who = who; g.setAttribute("transform", `translate(${P.x + off[0]},${P.y + off[1]})`);
-        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
+        const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
+        g.setAttribute("class", "ractor" + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" ? " sitback" : "") : ""));
+        g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
+        if (seat) g.setAttribute("style", seat.css);
+        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
-        L.push([g, [P.x, 0], P]);
+        L.push([g, [P.x, 0], P, seat]);
       });
       // l'étiquette « Vous » est posée au-dessus de tout le décor de la salle : un meuble devant les pieds ne la coupe plus
       if (youLab) { const t = document.createElementNS(NS, "text"); t.setAttribute("class", "rlab rlab-top"); t.setAttribute("x", youLab[0]); t.setAttribute("y", youLab[1] + 8); t.setAttribute("text-anchor", "middle"); t.textContent = "Vous"; svg.appendChild(t); }
-      if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P]) => g.querySelector(".rbody").classList.toggle("flip", P && P.sit ? !!P.fx : p[0] > cx + 2)); }
-      else L.forEach(([g, , P]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", !!P.fx));
+      // assis : le sens est donné par la chaise (les jambes partent vers l'avant de l'assise), pas par la place dans la salle
+      if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P, seat]) => g.querySelector(".rbody").classList.toggle("flip", seat ? false : P && P.sit ? !!P.fx : p[0] > cx + 2)); }
+      else L.forEach(([g, , P, seat]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", seat ? false : !!P.fx));
       w.addEventListener("click", (e) => { const g = e.target.closest && e.target.closest(".aff"); if (g) Aff.open(g.dataset.aff); });
       // dans une salle, on ne voit qu'elle : le reste du plan s'efface dans le noir
       let veil = host.querySelector(".room-veil"); if (!veil) { veil = el("div", { class: "room-veil" }); host.appendChild(veil); }

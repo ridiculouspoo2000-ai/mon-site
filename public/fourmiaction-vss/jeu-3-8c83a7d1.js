@@ -569,7 +569,7 @@
         if (this._se) { this._se.classList.remove("kara"); this._se.classList.remove("vpend"); }
         this._se = e || null;
         if (e) {   // les mots paraissent un à un, au rythme de lecture de la réplique
-          e.classList.remove("vpend"); e.classList.add("kara"); const ws = [...e.querySelectorAll(".wd")]; ws.forEach((x) => x.classList.remove("sp"));
+          e.classList.remove("vpend"); e.classList.add("kara", "said"); const ws = [...e.querySelectorAll(".wd")]; ws.forEach((x) => x.classList.remove("sp"));
           let c = 0; const cum = ws.map((x) => (c += x.textContent.length + 1.2)); const t0 = performance.now();
           const step = () => { if (k !== this._sk || this._se !== e) return; const f = (performance.now() - t0) / d; ws.forEach((x, j) => { if ((j === 0 || cum[j - 1] / c <= f) && !x.classList.contains("sp")) x.classList.add("sp"); }); if (f < 1) requestAnimationFrame(step); };
           requestAnimationFrame(step);
@@ -609,7 +609,7 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on) { c.e.classList.add("kara"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on) { c.e.classList.add("kara", "said"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
           if (c && !c.on) { c.on = 1; if (c.cb) { const f = c.cb; c.cb = null; try { f(); } catch (e) { } } World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
@@ -629,7 +629,7 @@
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
       World.talk(null); Lip.off();
       clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 2500);   // si la voix tarde, le texte paraît quand même
-      this._cur = it; if (it.e) { it.e.classList.add("kara"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
+      this._cur = it; if (it.e) { it.e.classList.add("kara", "said"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
       // garde-fou : une voix générée à la volée peut tarder ; au-delà de 14 s, on passe à la suivante
@@ -4528,6 +4528,9 @@
     // la porte coulissante de l'entrée s'ouvre (vers la gauche) quand quelqu'un arrive devant, puis se referme
     const sl = W.querySelectorAll(".dio-slide");
     if (sl.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 15.3, a._w.y - 19.1) < 1.7); sl.forEach((d) => d.classList.toggle("open", near)); }
+    // le portail des familles glisse pour laisser passer quelqu'un, puis se referme
+    const gt = W.querySelectorAll(".dio-gate");
+    if (gt.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 30.0, a._w.y - 23.4) < 2.2); gt.forEach((d) => d.classList.toggle("open", near)); }
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,
@@ -5139,12 +5142,14 @@
     const hb = n.querySelector(".hbtns");
     // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)
     const allOn = () => { st.settings.sound = true; st.settings.voice = true; applySettings(); save(); };
+    // l'écran « Activez le son » vient après le clic de lancement (jamais avant, sur l'accueil)
+    const launch = (go2) => soundGate((on) => { if (on) allOn(); else { st.settings.sound = false; st.settings.voice = false; applySettings(); save(); } begin(); go2(); });
     st.settings.sound = true; st.settings.voice = true;
     if (canResume) {
       const sc = SCREENS[prev.idx];
-      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { st = prev; st.settings = st.settings || { calm: false }; allOn(); begin(); if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }));
-      hb.appendChild(btn("Nouvelle partie", () => { allOn(); begin(); restart(); }, "ghost light"));
-    } else hb.appendChild(btn("Commencer", () => { allOn(); begin(); prelude(() => go(0)); }));
+      hb.appendChild(btn(prev.done ? "Revoir mon bilan" : `Reprendre · ${CHAPTERS[sc.ch - 1].day.toLowerCase()}`, () => { st = prev; st.settings = st.settings || { calm: false }; launch(() => { if (prev.done) go(SCREENS.length - 1); else go(prev.idx); }); }));
+      hb.appendChild(btn("Nouvelle partie", () => launch(restart), "ghost light"));
+    } else hb.appendChild(btn("Commencer", () => launch(() => prelude(() => go(0)))));
     // Le classement, toujours visible sur l’accueil (sans bouton à ouvrir)
     const rk = el("aside", { class: "hrank", "aria-labelledby": "hr-h" });
     rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Le podium</h2><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol><p class="hr-foot"></p>`;
@@ -5189,18 +5194,19 @@
   function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   // Consigne plein écran à l'arrivée : activer le son (à l'écran et à l'oral). Le bouton sert aussi de « geste » pour lancer la musique.
-  function soundGate() {
-    if (sessionStorage.getItem("hh-son")) return;
+  function soundGate(then) {
+    const done = (on) => { if (then) { const f = then; then = null; f(on); } };
+    if (sessionStorage.getItem("hh-son")) { done(sessionStorage.getItem("hh-son") !== "0"); return; }
     const g = el("div", { class: "sgate", role: "dialog", "aria-modal": "true", "aria-labelledby": "sg-h" },
       `<div class="sg-in"><span class="sg-ic" aria-hidden="true"><i></i><i></i><i></i></span><h2 id="sg-h">Activez le son</h2><p>${esc(ECHOES.son)}</p><p class="sg-small">Un casque ou des écouteurs, c’est encore mieux.</p>
        <div class="sg-b"><button type="button" class="cta sg-on">Activer le son</button><button type="button" class="btn ghost sg-off">Continuer sans le son</button></div></div>`);
-    const close = () => { sessionStorage.setItem("hh-son", "1"); g.classList.add("out"); setTimeout(() => g.remove(), 600); const b = document.querySelector(".hbtns button"); if (b) b.focus({ preventScroll: true }); };
+    const close = (on) => { sessionStorage.setItem("hh-son", on ? "1" : "0"); g.classList.add("out"); setTimeout(() => g.remove(), 600); done(on); };
     g.querySelector(".sg-on").addEventListener("click", () => {
       st.settings.sound = true; st.settings.voice = true; save(); applySettings && applySettings();
       begin(); Voice.say("narr", ECHOES.son);
-      g.querySelector(".sg-on").textContent = "Le son est activé"; setTimeout(close, 1400);
+      g.querySelector(".sg-on").textContent = "Le son est activé"; setTimeout(() => close(true), 1400);
     });
-    g.querySelector(".sg-off").addEventListener("click", () => { close(); });
+    g.querySelector(".sg-off").addEventListener("click", () => close(false));
     document.body.appendChild(g); requestAnimationFrame(() => g.classList.add("in"));
     g.querySelector(".sg-on").focus();
     // si le navigateur autorise déjà le son, la consigne est aussi dite tout de suite
@@ -5208,8 +5214,7 @@
   }
 
   applySettings();
-  home();
-  soundGate();
+  home();   // l'écran du son n'apparaît qu'après « Commencer », « Nouvelle partie » ou « Reprendre »
   window.__game = { st: () => st, go, SCREENS, World, A: () => A, Mise, Voice, Lip, calm };
   window.__testG = (a, g) => gesture(a, g);
 })();

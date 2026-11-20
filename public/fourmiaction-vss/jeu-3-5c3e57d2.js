@@ -47,6 +47,15 @@
       <radialGradient id="${u}f" cx=".42" cy=".38" r=".75"><stop offset="0" stop-color="${tone(sk, .1)}"/><stop offset=".7" stop-color="${sk}"/><stop offset="1" stop-color="${skD}"/></radialGradient>
       <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tone(hc, .18)}"/><stop offset="1" stop-color="${hc}"/></linearGradient>
     </defs>`;
+    // chaussure : une basket (dessus arrondi, semelle claire, deux bandes), pointe vers l'avant ; pied posé à plat
+    const shoeSvg = (w, L, col) => {
+      const n = parseInt(col.slice(1), 16), lum = (.3 * (n >> 16) + .59 * ((n >> 8) & 255) + .11 * (n & 255)) / 255;
+      const sole = lum > .6 ? "#9EA3AA" : "#EEEAE3", line = lum > .6 ? "#B9BDC3" : tone(col, .42), y0 = L - 3.6, ys = L + 2.4;
+      const f = (v) => v.toFixed(1);
+      return `<g class="shoe"><path d="M${f(-w * .62)},${f(y0)} h${f(w * 1.05)} c${f(w * .35)},0 ${f(w * .5)},${f(1.4)} ${f(w * .62)},${f(2.2)} c${f(w * .55)},${f(.4)} ${f(w * .98)},${f(1.6)} ${f(w * .98)},${f(ys - y0 - 2.4)} V${f(ys)} H${f(-w * .62)} Z" fill="${col}"/>`
+        + `<rect x="${f(-w * .7)}" y="${f(ys - .2)}" width="${f(w * 2.42)}" height="2.2" rx="1.1" fill="${sole}"/>`
+        + `<path d="M${f(w * .05)},${f(ys - .6)} l${f(w * .32)},${f(-2.6)} M${f(w * .42)},${f(ys - .6)} l${f(w * .32)},${f(-2.4)}" stroke="${line}" stroke-width="${f(Math.max(.7, w * .1))}" stroke-linecap="round"/></g>`;
+    };
     // jambe : cuisse (pivot hanche) > tibia (pivot genou) > chaussure
     const leg = (side, back) => {
       const x = side * B.hipW * .55, c = back ? botD : `url(#${u}b)`, s = back ? tone(shoe, -.15) : shoe;
@@ -57,7 +66,7 @@
           <g class="shin" style="transform-origin:0px ${thighLen.toFixed(1)}px"><g transform="translate(0,${thighLen.toFixed(1)})">
             ${limb(B.thigh * .82, B.shin, shinLen, skirt ? (back ? skD : sk) : c)}
             ${spec.socks ? `<rect x="${(-B.shin / 2).toFixed(1)}" y="${(shinLen - 7).toFixed(1)}" width="${B.shin.toFixed(1)}" height="6" fill="${spec.socks}"/>` : ""}
-            <path d="M${(-B.shin * .6).toFixed(1)},${(shinLen - 3).toFixed(1)} h${(B.shin * 1.1).toFixed(1)} c${(B.shin * .9).toFixed(1)},0 ${(B.shin * 1.3).toFixed(1)},3 ${(B.shin * 1.3).toFixed(1)},6 v1.8 h-${(B.shin * 2.4).toFixed(1)} z" fill="${s}"/>
+            ${shoeSvg(B.shin, shinLen, s)}
           </g></g></g></g>`;
     };
     // bras : épaule > avant-bras (pivot coude) > main
@@ -991,7 +1000,8 @@
     // tibias : jusqu'au sol, à hauteur du pied de la chaise (vu de dos, les genoux sont plus haut à l'écran : tibia plus long)
     const away = P.fc === "-y" || P.fc === "-x", th = away ? -120 : -60, sk = Math.min(1.6, Math.max(.6, (hip + (away ? .5 * T : 0)) / Sh));
     // écart des deux jambes : le long de l'autre axe du plan
-    const h = B.hipW * .55, ex = (1 - c30) * h, ey = .5 * h * 1.15 * (away ? -1 : 1);
+    // vu de dos : jambe et chaussure droites devant (plus bas, plus à droite), comme sur le modèle
+    const h = B.hipW * .55, ex = away ? -(1.5 * c30 - 1) * h : (1 - c30) * h, ey = .5 * h * (away ? -1.5 : 1.15);
     const dy = -(hip + B.hipY * k);                                       // pieds (origine du personnage) → bassin sur l'assise
     return { dy, flip, css: `--th:${th}deg;--sh:${-th}deg;--shk:${sk.toFixed(3)};--lLx:${ex.toFixed(2)}px;--lLy:${ey.toFixed(2)}px;--lRx:${(-ex).toFixed(2)}px;--lRy:${(-ey).toFixed(2)}px` };
   }

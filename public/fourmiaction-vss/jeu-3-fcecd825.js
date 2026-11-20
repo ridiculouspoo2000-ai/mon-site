@@ -1214,10 +1214,11 @@
         if (c0) { const tgt = IN0 ? { x: (IN0.l + IN0.w / 2) / 100, y: (IN0.t + IN0.w * A.dio.ratio / IN0.r * .52) / 100 } : { x: c0.x, y: c0.y }; this.camTo(tgt, Math.min(5.2, c0.z * 1.5), 520); }
         let f = document.querySelector(".roomfade.wfade"); if (!f) { f = el("div", { class: "roomfade wfade", "aria-hidden": "true" }); document.body.appendChild(f); }
         let done = false;
-        const swap = () => { if (done || me !== this._dv) return; done = true; this.quick = true; this.show(S, sc);
+        const swap = () => { if (done) return; done = true; if (me !== this._dv) { f.classList.remove("on"); return; }   // un autre écran a pris la main : on ne laisse jamais le noir affiché
+          this.quick = true; this.show(S, sc);
           // le noir se lève une fois le nouveau lieu dessiné
           requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => f.classList.remove("on"), 160))); };
-        setTimeout(() => { f.classList.add("on"); f.addEventListener("transitionend", function te(e) { if (e.propertyName === "opacity" && f.classList.contains("on")) { f.removeEventListener("transitionend", te); swap(); } }); setTimeout(swap, 700); }, 260);
+        setTimeout(() => { f.classList.add("on"); f.addEventListener("transitionend", function te(e) { if (e.propertyName === "opacity" && f.classList.contains("on")) { f.removeEventListener("transitionend", te); swap(); } }); setTimeout(swap, 700); setTimeout(() => { if (me === this._dv || done) f.classList.remove("on"); }, 2400); }, 260);
         return;
       }
       this._dv = (this._dv || 0) + 1; this._quickRoof = quick;
@@ -2860,6 +2861,7 @@
   // (iPhone et Android n’autorisent le son qu’ainsi), puis réutilisée phrase après phrase.
   function prelude(done) {
     if (DC.el) DC.el.hidden = true;
+    document.querySelectorAll(".roomfade").forEach((f) => f.classList.remove("on"));
     hud(false); Voice.stop();
     if (World.el) { World.el.classList.remove("on"); World.cur = null; }
     document.body.classList.remove("athome", "live", "grave", "scene");
@@ -4713,6 +4715,7 @@
   }
   function home() {
     if (DC.el) DC.el.hidden = true;
+    document.querySelectorAll(".roomfade").forEach((f) => f.classList.remove("on"));
     // l'accueil de loisirs, en vrai, derrière le titre : le matin, les familles arrivent
     // Accueil : la nuit sur les hautes herbes (plus de décor en 3D derrière le titre)
     World.init();

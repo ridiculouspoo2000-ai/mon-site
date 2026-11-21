@@ -4740,6 +4740,7 @@
     }
     const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
     occ.forEach((o) => {
+      if (o.classList.contains("dio-signtxt")) return;   // l'enseigne reste lisible (texte fin, en hauteur)
       const z = +o.style.zIndex || 0, r = o.getBoundingClientRect();
       let hit = false;
       for (const [b, za] of R) {

@@ -822,6 +822,12 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "C’est ici que les animateurs et animatrices peuvent prendre leurs pauses. C’est aussi ici qu’on fera nos petites réunions, s’il y en a, le matin et l’après-midi."
  },
+ "024dce94c301": {
+  "who": "nour",
+  "mood": "",
+  "kind": "visite-calme",
+  "text": "La cuisine pédagogique : on y prépare les goûters et les ateliers cuisine avec les enfants. La plaque et le four, c’est toujours avec un adulte, et on note tout dans le cahier de traçabilité."
+ },
  "5d31602c0c9d": {
   "who": "nour",
   "mood": "",

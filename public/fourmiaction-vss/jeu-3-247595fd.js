@@ -101,6 +101,8 @@
         + `<g class="prop prop-torch"><rect x="${f(-F * .22)}" y="${f(y - F * .2)}" width="${f(F * .44)}" height="${f(F * 1.3)}" rx="${f(F * .1)}" fill="#3A444E"/><ellipse cx="0" cy="${f(y + F * 1.25)}" rx="${f(F * .3)}" ry="${f(F * .12)}" fill="#FFF3C8"/><path d="M${f(-F * .3)},${f(y + F * 1.3)} L${f(-F * 1.4)},${f(y + F * 4)} L${f(F * 1.4)},${f(y + F * 4)} L${f(F * .3)},${f(y + F * 1.3)} Z" fill="#FFF3C8" opacity=".35"/></g>`
         // une guitare (Bastien, à la veillée)
         + `<g class="prop prop-guitar"><path d="M0,${f(y - F * .6)} L0,${f(y + F * 1.6)}" stroke="#6B4A35" stroke-width="${f(F * .42)}"/><ellipse cx="0" cy="${f(y + F * 3.0)}" rx="${f(F * 1.35)}" ry="${f(F * 1.75)}" fill="#C98A4B" stroke="#7A5236" stroke-width=".5"/><circle cx="0" cy="${f(y + F * 2.7)}" r="${f(F * .38)}" fill="#3A2A1E"/></g>`
+        // une cuillère (au repas, le temps du geste « manger »)
+        + `<g class="prop prop-spoon"><path d="M0,${f(y - F * .2)} L${f(F * .9)},${f(y - F * 1.6)}" stroke="#C9CED3" stroke-width="${f(F * .22)}" stroke-linecap="round"/><ellipse cx="${f(F * 1.0)}" cy="${f(y - F * 1.75)}" rx="${f(F * .3)}" ry="${f(F * .2)}" fill="#DDE2E6"/></g>`
         // un micro
         + `<g class="prop prop-mic"><rect x="${f(-F * .14)}" y="${f(y - F * .9)}" width="${f(F * .28)}" height="${f(F * 1.1)}" fill="#2A3540"/><circle cx="0" cy="${f(y - F * 1.0)}" r="${f(F * .36)}" fill="#5A6470"/></g>`;
     };
@@ -1241,6 +1243,7 @@
   // Le signe d'émotion est dessiné dans la tête du personnage (il suit la tête, toujours bien placé, quel que soit le cadrage).
   // Jamais pendant l'exploration libre (le joueur découvre seul), ni pour les plus jeunes enfants (Malo).
   function signOnHead(rig, who, emo) {
+    return;   // plus de signe au-dessus des têtes (goutte, « ^ ^ »…) : le visage suffit à dire l'émotion
     if (!rig || !emo || !EMO_SIGN[emo] || who === "malo" || document.body.classList.contains("roaming")) return;
     const h = rig.querySelector(".head"); if (!h) return;
     let bb; try { bb = h.getBBox(); } catch (e) { return; } if (!bb || !bb.width) return;
@@ -1368,9 +1371,11 @@
       const IN = S.room && A.dio.inner && A.dio.inner[S.room];
       if (IN) {   // on cadre la salle elle-même, assez près pour voir les visages
         const hp = IN.w * A.dio.ratio / IN.r, camW = this.cam.offsetWidth || 1500;
-        const want = innerWidth < 760 ? innerWidth * .98 : Math.min(innerWidth * .52, 940);
+        const want = innerWidth < 760 ? innerWidth * .98 : Math.min(innerWidth * .5, 920);
         z = Math.max(1.6, Math.min(3.6, want / (IN.w / 100 * camW)));   // refonte : plafond 3,6 (au-delà, la petite régie était cadrée deux fois plus près que les autres salles)
         p = { x: (IN.l + IN.w / 2) / 100, y: (IN.t + hp * .52) / 100 };
+        // sur grand écran, la salle est cadrée à gauche : la bulle du texte (à droite) ne recouvre plus le décor
+        if (innerWidth >= 761) p.x += (innerWidth * .07) / (camW * z);
       }
       this.camTo(p, z, quick ? 0 : undefined);
       // acteurs dehors
@@ -1536,6 +1541,13 @@
       host.appendChild(w);
       requestAnimationFrame(() => w.classList.add("in"));
       if (room === "sanitaires" && (S.cast || []).some((c) => c[0] !== "you")) this.passage(w, svg, IN, S);
+      // au repas : les enfants assis mangent vraiment (la cuillère va du plateau à la bouche), chacun à son rythme
+      clearInterval(this._meal);
+      if (S.meal && !reduce()) this._meal = setInterval(() => {
+        if (!w.isConnected) return clearInterval(this._meal);
+        const kids = [...svg.querySelectorAll(":scope > .ractor.seated:not(.legL)")].filter((g) => !g.classList.contains("talking") && !g.querySelector(".rig.g-eat"));
+        const g = kids[Math.floor(Math.random() * kids.length)]; if (g) gesture(g, "eat");
+      }, 650);
       // on entre dans la salle pendant que quelqu'un parle (la visite : Nour décrit la salle) : sa bouche et ses gestes continuent ici
       const cur = Lip.cur || Lip._simw;
       if (cur && cur.w && castL.some((q) => q[0] === cur.w)) setTimeout(() => { if ((Lip.cur || Lip._simw) !== cur) return; World.talk(cur.w, cur.t); Lip.refresh(!Lip.cur); }, 80);
@@ -1676,7 +1688,7 @@
     },
   };
   // 20 gestes de conversation (gest2.css, générés par tools/gest2.py) : leur durée propre, de 2,2 à 2,8 s
-  const GDUR = { jumpjoy: 1800, hop: 2000, kick: 1800, sway: 2600, tugsleeve: 2200, highfive: 1800, checkwatch: 2400, texting: 2800, bagstrap: 2200, handhold: 2600, stretch: 2600, push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
+  const GDUR = { eat: 2600, jumpjoy: 1800, hop: 2000, kick: 1800, sway: 2600, tugsleeve: 2200, highfive: 1800, checkwatch: 2400, texting: 2800, bagstrap: 2200, handhold: 2600, stretch: 2600, push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
   /* ---------- Mise en scène : ce que dit le narrateur, on le voit ----------
      Quand le narrateur décrit une situation, on repère qui est nommé (ou « les enfants », « les jeunes »…) et ce que la
      personne fait ; au moment où la phrase est dite, la personne le joue : geste, émotion sur le visage, regard vers
@@ -1828,7 +1840,7 @@
       }, Math.max(150, c.pos * D * .92))));
     },
   };
-  const GESTS = ["jumpjoy", "hop", "kick", "sway", "tugsleeve", "highfive", "checkwatch", "texting", "bagstrap", "handhold", "stretch", "weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  const GESTS = ["eat", "jumpjoy", "hop", "kick", "sway", "tugsleeve", "highfive", "checkwatch", "texting", "bagstrap", "handhold", "stretch", "weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
@@ -4465,8 +4477,8 @@
           if (!W.path) {
             const r = Math.random();
             if (r < .3) { const a = Math.random() * 6.283, d = .25 + Math.random() * .45, to = [home[0] + Math.cos(a) * d, home[1] + Math.sin(a) * d];
-              W.go([to], .8, () => W.face(W === first ? [you.x, you.y] : [first.x, first.y]), "walk"); }
-            else if (r < .45 && W.x !== home[0]) W.go([home], .8, () => W.face(W === first ? [you.x, you.y] : [first.x, first.y]), "walk");
+              W.go([to], .8, () => W.face(W === first ? (sp[1] ? [sp[1].x, sp[1].y] : [you.x, you.y]) : [first.x, first.y]), "walk"); }
+            else if (r < .45 && W.x !== home[0]) W.go([home], .8, () => W.face(W === first ? (sp[1] ? [sp[1].x, sp[1].y] : [you.x, you.y]) : [first.x, first.y]), "walk");
             else gesture(W.el, G[Math.floor(Math.random() * G.length)]);
           }
           W._act = setTimeout(tick, 1800 + Math.random() * 2200);
@@ -4529,9 +4541,11 @@
             if (!o) return; usedA.add(o[0]);
             const to = [first.x + o[1][0], first.y + o[1][1]];
             gT = Math.max(gT, dist([W.x, W.y], to) / 1.9 * 1000);
-            W.go([to], 1.9, () => { W.face([tx, ty]); gesture(W.el, W.gests && W.gests[0] || "nod"); }, "walk");
+            W.go([to], 1.9, () => { faceUp(); gesture(W.el, W.gests && W.gests[0] || "nod"); }, "walk");
           });
-          sp.forEach((W) => { if (!W.path) W.face([tx, ty]); });
+          // les deux qui se parlent (ou se disputent) se font face ; les autres regardent la personne qui parle
+          const faceUp = () => { const two = sp[1]; sp.forEach((W) => { if (W.path) return; if (W === first) W.face(two ? [two.x, two.y] : [tx, ty]); else W.face([first.x, first.y]); }); };
+          faceUp();
         }
         gT = reduce() ? 0 : Math.min(3500, gT + 250);
         World._settle = gT + actT ? performance.now() + gT + actT : 0;   // la conversation attend qu'on se soit rejoints et que l'action se soit jouée
@@ -4939,7 +4953,7 @@
   /* ---------- Les images des pages du carnet de Nour ----------
      Chaque point de la page est illustré par une petite image : de nouveaux personnages (pas ceux de l'histoire)
      qui montrent concrètement ce que dit le point. Pas de flash-back : on reste dans le présent, on illustre l'idée. */
-  const NoteArt = (() => {
+  const NoteArt = window.__NoteArt = (() => {
     const P = {   // les personnages des images (inconnus de l'histoire)
       anim: { age: 27, sex: "f", skin: "#D9A27A", hair: "noir", hairStyle: "ponytail", top: "#2E7D6B", bottom: "#33405C", badge: true, shoes: "#F4F1EC", shoeStyle: "toile", sleeves: "long" },
       anim2: { age: 31, sex: "m", skin: "#EDC3A4", hair: "chatain", hairStyle: "short", top: "#5B6FB0", bottom: "#2F3540", badge: true, shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
@@ -4954,13 +4968,13 @@
       return `<g transform="translate(${x},${o.y || 150}) scale(${o.flip ? -s : s},${s})">${RIG.inMini(sp, pose || "stand")}</g>`; };
     const BG = {
       in: `<rect width="320" height="180" fill="#F4ECE0"/><rect y="150" width="320" height="30" fill="#D9C4A4"/><rect y="146" width="320" height="5" fill="#C9B394"/>`,
-      out: `<rect width="320" height="180" fill="#DCEBF4"/><circle cx="270" cy="34" r="16" fill="#FFE3A0"/><rect y="146" width="320" height="34" fill="#A9CF8E"/><path d="M0 146 Q80 132 160 146 T320 146" fill="#BCDDA2"/>`,
-      night: `<rect width="320" height="180" fill="#2B3458"/><circle cx="262" cy="32" r="12" fill="#F4F0DC"/><rect y="150" width="320" height="30" fill="#3D4670"/><rect x="236" y="42" width="54" height="40" rx="3" fill="#41508A" stroke="#6B7AB6"/>`,
+      out: `<rect width="320" height="180" fill="#DCEBF4"/><rect y="146" width="320" height="34" fill="#A9CF8E"/><path d="M0 146 Q80 132 160 146 T320 146" fill="#BCDDA2"/>`,
+      night: `<rect width="320" height="180" fill="#2B3458"/><circle cx="302" cy="16" r="8" fill="#F4F0DC"/><circle cx="298" cy="13" r="7" fill="#2B3458"/><rect y="150" width="320" height="30" fill="#3D4670"/>`,
     };
     const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-family="Inter,sans-serif" font-size="${o.fs || 12}" font-weight="${o.fw || 700}" fill="${o.c || "#1E2733"}" text-anchor="${o.a || "middle"}">${t}</text>`;
-    const poster = (x, y, w, h, lines, col = "#FFFFFF", ink = "#C62828") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}" stroke="#C9B394"/>` + lines.map((l, i) => T(x + w / 2, y + 16 + i * 15, l, { c: i ? "#1E2733" : ink, fs: i ? 10 : 13 })).join("");
+    const poster = (x, y, w, h, lines, col = "#FFFFFF", ink = "#C62828") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}" stroke="#C9B394"/>` + lines.map((l, i) => T(x + w / 2, y + 16 + i * 15, l, { c: i ? "#1E2733" : ink, fs: Math.min(i ? 10 : 13, (w - 8) / (String(l).length * .6)).toFixed(1) })).join("");
     const phone = (x, y, txt, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><rect width="34" height="58" rx="6" fill="#1E2733"/><rect x="3" y="6" width="28" height="44" rx="3" fill="#EAF2FA"/>${txt || ""}</g>`;
-    const bubble = (x, y, t, w = 44) => `<g><rect x="${x}" y="${y}" width="${w}" height="22" rx="10" fill="#FFFFFF" stroke="#C9D2DA"/><path d="M${x + 10},${y + 22} l-4,8 l10,-8" fill="#FFFFFF" stroke="#C9D2DA"/>${T(x + w / 2, y + 15, t, { fs: 11, fw: 600 })}</g>`;
+    const bubble = (x, y, t, w = 44) => { w = Math.max(w, String(t).length * 6.1 + 18); y = Math.min(y, 18); x = Math.max(4, Math.min(x, 316 - w)); return `<g><rect x="${x}" y="${y}" width="${w}" height="22" rx="10" fill="#FFFFFF" stroke="#C9D2DA"/><path d="M${x + 10},${y + 22} l-4,8 l10,-8" fill="#FFFFFF" stroke="#C9D2DA"/>${T(x + w / 2, y + 15, t, { fs: 11, fw: 600 })}</g>`; };
     const no = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#FDECEA" stroke="#C62828" stroke-width="2.4"/><path d="M${x - r * .5},${y - r * .5} L${x + r * .5},${y + r * .5} M${x + r * .5},${y - r * .5} L${x - r * .5},${y + r * .5}" stroke="#C62828" stroke-width="3" stroke-linecap="round"/></g>`;
     const yes = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#E7F5EC" stroke="#2E8B57" stroke-width="2.4"/><path d="M${x - r * .5},${y} l${r * .35},${r * .4} l${r * .65},-${r * .8}" stroke="#2E8B57" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
     const book = (x, y) => `<g><rect x="${x}" y="${y}" width="46" height="34" rx="3" fill="#FFFDF4" stroke="#C9B394"/>${[8, 15, 22].map((d) => `<line x1="${x + 6}" y1="${y + d}" x2="${x + 40}" y2="${y + d}" stroke="#2B6FD6" stroke-width="1.2" opacity=".6"/>`).join("")}<rect x="${x + 50}" y="${y + 2}" width="3" height="26" fill="#E2702A" transform="rotate(20 ${x + 51} ${y + 15})"/></g>`;
@@ -4968,8 +4982,11 @@
     const bed = (x, y = 128, kid) => `<g><rect x="${x}" y="${y}" width="76" height="14" rx="4" fill="#9FB6D2"/><rect x="${x}" y="${y + 14}" width="76" height="8" fill="#6E86A6"/><rect x="${x + 2}" y="${y - 6}" width="20" height="10" rx="4" fill="#F4F4F2"/>${kid ? `<circle cx="${x + 14}" cy="${y - 4}" r="7" fill="${kid}"/>` : ""}</g>`;
     const ball = (x, y = 142) => `<circle cx="${x}" cy="${y}" r="8" fill="#FFFFFF" stroke="#1E2733"/><path d="M${x - 3},${y - 3} l3,-2 3,2 -1,4 h-4z" fill="#1E2733"/>`;
     const door = (x) => `<rect x="${x}" y="70" width="40" height="80" fill="#E8DCC8" stroke="#C9B394"/><path d="M${x},70 L${x + 18},78 L${x + 18},146 L${x},150 Z" fill="#B98A5E"/>`;
-    const board = (x, y, w, h, rows) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#FFFFFF" stroke="#8B6B4A" stroke-width="2"/>` + rows.map((r, i) => T(x + 10, y + 18 + i * 15, r, { a: "start", fs: 10.5, fw: 600 })).join("");
+    const board = (x, y, w, h, rows) => { const L = Math.max(...rows.map((r) => String(r).length)), fs = Math.min(10.5, (w - 18) / (L * .53)), lh = Math.min(15, (h - 10) / rows.length);
+      return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#FFFFFF" stroke="#8B6B4A" stroke-width="2"/>` + rows.map((r, i) => T(x + 10, y + 8 + lh * .8 + i * lh, r, { a: "start", fs: fs.toFixed(1), fw: 600 })).join(""); };
     const arrow = (x1, y1, x2, y2) => `<path d="M${x1},${y1} Q${(x1 + x2) / 2},${Math.min(y1, y2) - 26} ${x2},${y2}" stroke="#E2702A" stroke-width="3" fill="none" stroke-dasharray="6 5"/><path d="M${x2},${y2} l-10,-3 4,10z" fill="#E2702A"/>`;
+    // une chaise (on ne s'assoit pas dans le vide)
+    const chair = (x) => `<g><rect x="${x - 15}" y="118" width="30" height="5" rx="1.5" fill="#5A6470"/><rect x="${x - 15}" y="88" width="5" height="32" rx="1.5" fill="#5A6470"/><rect x="${x - 13}" y="123" width="3.5" height="27" fill="#3A444E"/><rect x="${x + 10}" y="123" width="3.5" height="27" fill="#3A444E"/></g>`;
     const zzz = (x, y) => T(x, y, "z z z", { c: "#9FB6D2", fs: 13 });
     const box = (x, y, t) => `<rect x="${x}" y="${y}" width="40" height="34" rx="3" fill="#C9A06A"/><rect x="${x + 12}" y="${y - 2}" width="16" height="4" fill="#1E2733"/>${T(x + 20, y + 22, t, { fs: 9, c: "#3A2614" })}`;
     // une image par point de chaque page, dans l'ordre des points
@@ -4977,12 +4994,12 @@
       k1: [
         () => BG.out + ball(120) + fig("anim2", "point", 70) + fig("boy", "stand", 130) + fig("girl", "sad", 220, { mood: "sad" }) + bubble(40, 40, "Le foot, c’est pour les garçons", 170) + no(270, 60, 12),
         () => BG.out + ball(150) + fig("boy", "run", 130) + fig("kid", "run", 170, { flip: true }) + fig("girl", "sad", 255, { mood: "sad" }) + no(255, 50, 14),
-        () => BG.in + board(20, 34, 120, 78, ["Qui fait quoi ?", "Console : tout le monde", "Rangement : chacun", "Ballons : à tour de rôle"]) + fig("anim", "point", 175) + fig("girl", "listen", 230) + fig("boy", "listen", 275, { flip: true }),
+        () => BG.in + board(18, 30, 142, 84, ["Qui fait quoi ?", "Console : tout le monde", "Rangement : chacun", "Ballons : à tour de rôle"]) + fig("anim", "point", 175) + fig("girl", "listen", 230) + fig("boy", "listen", 275, { flip: true }),
       ],
       k2: [
         () => BG.in + fig("anim2", "talk", 70) + fig("par", "talk", 120, { mood: "big" }) + bubble(30, 30, "Ha ha !", 50) + bubble(110, 18, "Encore ?", 56) + fig("anim", "sad", 240, { mood: "sad", flip: true }),
         () => BG.in + phone(40, 40, `<rect x="6" y="11" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="8" y="22" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="6" y="33" width="20" height="7" rx="3" fill="#D8E6F2"/>`, 1.4) + T(160, 60, "1 + 1 + 1", { fs: 22, c: "#C62828" }) + T(160, 82, "= une répétition", { fs: 13 }) + fig("anim", "sad", 260, { mood: "sad" }),
-        () => BG.in + table(110, 108, 130) + book(150, 76) + fig("anim", "sit", 92, { y: 150 }) + T(250, 46, "Vu", { c: "#2E8B57" }) + T(250, 64, "Entendu", { c: "#2B6FD6" }) + T(250, 82, "Supposé ?", { c: "#B5602A" }),
+        () => BG.in + table(110, 108, 130) + book(150, 76) + chair(92) + fig("anim", "sit", 92, { y: 150 }) + T(250, 46, "Vu", { c: "#2E8B57" }) + T(250, 64, "Entendu", { c: "#2B6FD6" }) + T(250, 82, "Supposé ?", { c: "#B5602A" }),
         () => BG.in + poster(28, 30, 76, 96, ["119", "Allô enfance", "en danger", "24 h/24"]) + phone(150, 54, T(17, 32, "119", { fs: 12, c: "#C62828" }), 1.3) + fig("anim", "talk", 250, { flip: true, mood: "concern" }),
       ],
       kn: [
@@ -4993,26 +5010,27 @@
       k3: [
         () => BG.in + fig("anim", "talk", 110, { mood: "smile" }) + fig("girl", "stand", 200, { flip: true }) + bubble(60, 30, "Tu veux bien ?", 80) + yes(240, 60, 12) + no(270, 60, 12) + T(255, 90, "elle choisit", { fs: 10 }),
         () => BG.night + bed(110, 128, "#EFC2A4") + zzz(140, 100) + T(160, 50, "Silence ≠ oui", { fs: 16, c: "#E9ECF5" }) + no(250, 90, 16),
-        () => BG.in + fig("par", "stand", 120, { s: 2.5 }) + fig("kid", "stand", 200, { flip: true, mood: "concern" }) + T(160, 30, "Adulte / enfant", { fs: 13 }) + T(160, 48, "jamais d’égal à égal", { fs: 11, fw: 600 }),
+        () => BG.in + fig("par", "stand", 120, { s: 2.5 }) + fig("kid", "stand", 200, { flip: true, mood: "concern" }) + T(258, 70, "Adulte / enfant", { fs: 13 }) + T(258, 88, "jamais d’égal à égal", { fs: 9.5, fw: 600 }),
         () => BG.out + fig("anim", "wave", 110) + fig("kid", "wave", 180, { flip: true, mood: "big" }) + T(146, 40, "Tope là !", { fs: 13, c: "#2E8B57" }) + T(250, 70, "un câlin ?", { fs: 10, fw: 600 }) + T(250, 86, "seulement s’il le veut", { fs: 10, fw: 600 }),
       ],
       k4: [
         () => BG.in + fig("anim", "listen", 120, { mood: "calm" }) + fig("girl", "sad", 190, { flip: true, mood: "sad" }) + T(160, 34, "J’écoute, je ne promets pas le secret", { fs: 11 }),
-        () => BG.in + table(100, 108, 140) + book(150, 76) + fig("anim", "sit", 84) + T(250, 42, "« ses mots »", { fs: 12, c: "#2B6FD6" }) + T(250, 60, "l’heure, le lieu", { fs: 11, fw: 600 }),
+        () => BG.in + table(100, 108, 140) + book(150, 76) + chair(84) + fig("anim", "sit", 84) + T(250, 42, "« ses mots »", { fs: 12, c: "#2B6FD6" }) + T(250, 60, "l’heure, le lieu", { fs: 11, fw: 600 }),
         () => BG.out + phone(40, 40, T(17, 26, "17", { fs: 13, c: "#C62828" }) + T(17, 42, "112", { fs: 11, c: "#C62828" }), 1.5) + fig("anim2", "talk", 170, { mood: "concern" }) + fig("kid", "stand", 230, { flip: true, mood: "calm" }) + T(250, 40, "Danger immédiat", { fs: 12, c: "#C62828" }),
         () => BG.in + book(40, 80) + arrow(100, 90, 220, 80) + `<rect x="226" y="56" width="70" height="70" fill="#E3EAF2" stroke="#8A9AB0"/><path d="M222 58 L261 34 L300 58Z" fill="#5E6E86"/>` + T(261, 100, "Autorités", { fs: 10 }) + fig("dir", "point", 150),
         () => BG.in + fig("dir", "talk", 110, { mood: "calm" }) + fig("par", "listen", 200, { flip: true, mood: "concern" }) + T(160, 34, "Avec les autorités, d’abord", { fs: 11 }),
       ],
       k5: [
         () => BG.in + board(20, 26, 150, 98, ["✓ Ce qui change", "✓ Qui s’en charge", "✓ Quand", "✓ Comment on le voit"]) + fig("dir", "point", 210) + fig("anim2", "listen", 262, { flip: true }),
-        () => BG.in + box(40, 112, "Mots") + fig("girl", "talk", 140) + fig("anim", "listen", 200, { flip: true, mood: "calm" }) + bubble(150, 30, "Je peux te dire ?", 96),
+        () => BG.in + box(40, 112, "Mots") + fig("girl", "talk", 140) + fig("anim", "listen", 200, { flip: true, mood: "calm" }) + bubble(62, 18, "Je peux te dire ?", 96),
         () => BG.in + poster(26, 30, 70, 92, ["119", "Enfance", "en danger"]) + poster(110, 30, 70, 92, ["3018", "Harcèlement", "en ligne"], "#FFFFFF", "#2B6FD6") + fig("teen", "point", 230) + fig("kid", "stand", 275, { flip: true }),
         () => BG.in + fig("anim2", "stand", 90) + box(70, 104, "") + fig("anim", "stand", 200, { flip: true }) + `<rect x="226" y="60" width="4" height="90" fill="#8C6A4C" transform="rotate(14 228 105)"/>` + T(160, 34, "Ranger, soigner : chacun son tour", { fs: 11 }),
-        () => BG.in + `<rect x="40" y="40" width="76" height="96" rx="3" fill="#FFFFFF" stroke="#C9B394"/>` + T(78, 62, "Contrôle", { fs: 11 }) + `<circle cx="78" cy="104" r="16" fill="none" stroke="#2E8B57" stroke-width="3"/>` + T(78, 109, "OK", { fs: 11, c: "#2E8B57" }) + fig("anim", "stand", 200, { mood: "concern" }) + T(250, 54, "+ la vigilance", { fs: 13, c: "#B5602A" }) + T(250, 72, "chaque jour", { fs: 11, fw: 600 }),
+        () => BG.in + `<rect x="40" y="40" width="76" height="96" rx="3" fill="#FFFFFF" stroke="#C9B394"/>` + T(78, 62, "Contrôle", { fs: 11 }) + `<circle cx="78" cy="104" r="16" fill="none" stroke="#2E8B57" stroke-width="3"/>` + T(78, 109, "OK", { fs: 11, c: "#2E8B57" }) + fig("anim", "stand", 200, { mood: "concern" }) + T(268, 54, "+ la vigilance", { fs: 12, c: "#B5602A" }) + T(268, 72, "chaque jour", { fs: 11, fw: 600 }),
       ],
     };
     return {
       has: (id) => !!S[id],
+      ids: () => Object.keys(S).map((k) => [k, S[k].length]),
       svg(id, k) { const L = S[id]; if (!L || !L.length) return ""; try { return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${L[k % L.length]()}</svg>`; } catch (e) { return ""; } },
     };
   })();

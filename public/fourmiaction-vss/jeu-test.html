@@ -3549,12 +3549,15 @@ body.flashback #world .wcam{filter:none!important}body.flashback #world::before,
   box-shadow:0 2px 0 -1px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion:reduce){.actor.pp-dribble::after{animation:none}}
 /* manger : la main droite (avec la cuillère) monte à la bouche, deux fois, la tête se penche un peu vers le plateau */
-.rig.g-eat .aR .prop-spoon{display:inline}
+.rig.g-eat .aL .prop-spoonL{display:inline}
 @keyframes gx-eat-aR{0%{transform:rotate(var(--aR0,-4deg))}22%{transform:rotate(16deg)}38%{transform:rotate(10deg)}55%{transform:rotate(16deg)}72%{transform:rotate(10deg)}100%{transform:rotate(var(--aR0,-4deg))}}
 @keyframes gx-eat-aRf{0%{transform:rotate(var(--aRf0,-6deg))}22%{transform:rotate(148deg)}38%{transform:rotate(112deg)}55%{transform:rotate(150deg)}72%{transform:rotate(112deg)}100%{transform:rotate(var(--aRf0,-6deg))}}
 @keyframes gx-eat-head{0%{transform:rotate(var(--hd0,0deg))}22%{transform:rotate(4deg)}38%{transform:rotate(-3deg)}55%{transform:rotate(4deg)}72%{transform:rotate(-3deg)}100%{transform:rotate(var(--hd0,0deg))}}
-.rig.g-eat .aR{animation:gx-eat-aR 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
-.rig.g-eat .aR .fore{animation:gx-eat-aRf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+/* c'est le bras qui est devant (le gauche, pour qui est assis face à nous) qui porte la cuillère jusqu'à la bouche */
+@keyframes gx-eat-aL{0%{transform:rotate(-4deg)}22%{transform:rotate(-28deg)}38%{transform:rotate(-20deg)}55%{transform:rotate(-28deg)}72%{transform:rotate(-20deg)}100%{transform:rotate(-4deg)}}
+@keyframes gx-eat-aLf{0%{transform:rotate(-20deg)}22%{transform:rotate(-150deg)}38%{transform:rotate(-112deg)}55%{transform:rotate(-150deg)}72%{transform:rotate(-112deg)}100%{transform:rotate(-20deg)}}
+.rig.g-eat .aL{animation:gx-eat-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+.rig.g-eat .aL .fore{animation:gx-eat-aLf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 .rig.g-eat .head{animation:gx-eat-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 /* on écoute jusqu'au bout : les choix et les boutons de la scène attendent la fin de la réplique, les lieux du plan ne
    répondent plus pendant que Nour parle (pas d'entrée dans une autre salle au milieu d'une explication) */
@@ -3612,7 +3615,7 @@ body.calm .ractor.pp-live .aR,body.calm .ractor.pp-live .aR .fore,body.calm .rac
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-70151001.js"></script>
-<script src="jeu-2-1af81eb0.js"></script>
-<script src="jeu-3-d38c6daa.js"></script>
+<script src="jeu-1-b15f9775.js"></script>
+<script src="jeu-2-7b9e9ffe.js"></script>
+<script src="jeu-3-e424c015.js"></script>
 </body></html>

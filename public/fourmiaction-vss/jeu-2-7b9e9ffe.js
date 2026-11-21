@@ -1139,7 +1139,7 @@ const STAGE = {
   chat: { at: "equipe", room: "equipe", cast: [["you", "a"], ["ines", "s2"], ["jade", "d"]] }, chatact: "keep",
   theo: { at: "petits", room: "petits", props: { theo: "paper" }, cast: [["jade", "a", "talk"], ["you", "b"], ["theo", "s1"], ["zoe", "s2"]] }, theo2: "keep",
   parent1: { at: "entree", cast: [["roussel", "a", "talk"], ["you", "b"], ["zoe", "c"]] },
-  sousef: { at: "direction", room: "direction", cast: [["nour", "s1", "talk"], ["you", "b"]] },
+  sousef: { at: "direction", room: "direction", cast: [["nour", "s1", "talk"], ["jade", "c"], ["kevin", "a"], ["you", "b"]] },
   chercher: { at: "ensemble", cast: [] },
   ronde: { at: "cour", cast: [["jade", "a", "talk"], ["you", "b"], ["malo", "c"], ["zoe", "d"], ["petit", "e"], ["theo", "f"]] },
   consent: { at: "petits", room: "petits", cast: [["nour", "c", "talk"], ["you", "a"], ["zoe", "s1"], ["malo", "s2"], ["sacha", "f"]] },

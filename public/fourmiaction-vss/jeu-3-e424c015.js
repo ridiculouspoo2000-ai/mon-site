@@ -108,6 +108,9 @@
         // un micro
         + `<g class="prop prop-mic"><rect x="${f(-F * .14)}" y="${f(y - F * .9)}" width="${f(F * .28)}" height="${f(F * 1.1)}" fill="#2A3540"/><circle cx="0" cy="${f(y - F * 1.0)}" r="${f(F * .36)}" fill="#5A6470"/></g>`;
     };
+    // la cuillère dans la main gauche : celle du bras qui est devant quand on est assis à table, face à nous
+    const spoonL = (B) => { const F = B.foreArm, y = B.foreLen + F * .55, f = (v) => v.toFixed(1);
+      return `<g class="prop prop-spoonL"><path d="M0,${f(y - F * .2)} L${f(-F * .9)},${f(y - F * 1.6)}" stroke="#C9CED3" stroke-width="${f(F * .22)}" stroke-linecap="round"/><ellipse cx="${f(-F * 1.0)}" cy="${f(y - F * 1.75)}" rx="${f(F * .3)}" ry="${f(F * .2)}" fill="#DDE2E6"/></g>`; };
     // bras : épaule > avant-bras (pivot coude) > main
     const arm = (side, back) => {
       const x = side * (B.shW - B.upArm * .35), sl = back ? topD : `url(#${u}t)`, skin = back ? skD : sk;
@@ -117,7 +120,7 @@
             ${limb(B.upArm * .9, B.foreArm, B.foreLen, sleeveLong ? sl : skin)}
             ${sleeveLong ? `<rect x="${(-B.foreArm / 2).toFixed(1)}" y="${(B.foreLen - 2.2).toFixed(1)}" width="${B.foreArm.toFixed(1)}" height="2.4" rx="1" fill="${back ? tone(top, -.3) : topD}"/>` : ""}
             <g class="hand"><ellipse cx="0" cy="${(B.foreLen + B.foreArm * .55).toFixed(1)}" rx="${(B.foreArm * .62).toFixed(1)}" ry="${(B.foreArm * .72).toFixed(1)}" fill="${skin}"/>
-            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? handProps(B) : ""}</g>
+            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? handProps(B) : spoonL(B)}</g>
           </g></g></g></g>`;
     };
     // buste : vêtement qui suit l'épaule et la taille
@@ -1676,8 +1679,10 @@
       clearInterval(this._meal);
       if (S.meal && !reduce()) this._meal = setInterval(() => {
         if (!w.isConnected) return clearInterval(this._meal);
-        const kids = [...svg.querySelectorAll(":scope > .ractor.seated:not(.legL)")].filter((g) => !g.classList.contains("talking") && !g.querySelector(".rig.g-eat"));
-        const g = kids[Math.floor(Math.random() * kids.length)]; if (g) gesture(g, "eat");
+        const kids = [...svg.querySelectorAll(":scope > .ractor.seated:not(.legL)")].filter((g) => !g.classList.contains("talking") && !g.querySelector(".rig.g-eat") && ![...(g.querySelector(".rig") || { classList: [] }).classList].some((c) => c.startsWith("g-")));
+        const g = kids[Math.floor(Math.random() * kids.length)];
+        // face à nous : la cuillère va vraiment jusqu'à la bouche ; de dos (la bouche est cachée), on discute avec ses voisins
+        if (g) { if (g.classList.contains("sitback")) { if (Math.random() < .45) gesture(g, ["nod", "laugh", "tilt"][Math.floor(Math.random() * 3)]); } else gesture(g, "eat"); }
       }, 650);
       // ping-pong : les deux joueurs à la table échangent vraiment (la balle va et vient, rebondit, les raquettes frappent)
       this.pingpong(w, svg);
@@ -3366,7 +3371,6 @@
     const h2 = (t) => { if (y > PH - 260) page(); y += 18; x.fillStyle = "#E2702A"; x.fillRect(M, y + 6, 8, 30); text(t, 34, 700, NAVY, { dx: 22, after: 16 }); };
     // page 1 : la cible
     page();
-    if (logo) { const lh = 64, lw = Math.min(380, logo.naturalWidth / logo.naturalHeight * lh); x.drawImage(logo, PW - M - lw, y + 6, lw, lw / (logo.naturalWidth / logo.naturalHeight)); }
     text("Ma cible", 64, 800, NAVY, { after: 6 });
     text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 30 });
     const P = compProgress(), cx = M + 210, cy = y + 210;
@@ -4538,13 +4542,25 @@
   }
   window.__keepOff = keepOff;
 
+  // taille (en pixels, hors zoom de la caméra) du calque où sont posés les personnages : mise en cache, recalculée au redimensionnement
+  let _box = new WeakMap();
+  const boxOf = (P) => { let v = _box.get(P); if (!v) { v = [P.clientWidth, P.clientHeight]; if (!v[0]) return null; _box.set(P, v); } return v; };
+  addEventListener("resize", () => { _box = new WeakMap(); requestAnimationFrame(() => (Life.walkers || []).forEach((W) => W.place && W.place())); });
   function Walker(who, x, y, pose = "stand", opts = {}) {
     const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
     a.classList.add("walker");
     a.style.animationDelay = "-" + (Math.random() * 2.4).toFixed(2) + "s"; a.style.animationDuration = (2.1 + Math.random() * .7).toFixed(2) + "s";   // chacun son pas
     if (!opts.free) [x, y] = outZ([x, y]);   // personne ne reste planté dans le potager ou un massif
     const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null }; a._w = W;
-    W.place = () => { const f = w2f(W.x, W.y); a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; a.style.zIndex = W.zb != null ? W.zb : zOf(W.x, W.y) + 1; };
+    // Fluidité : sur le plan, on déplace la personne par une translation (la carte graphique s'en charge, sans recalculer
+    // la mise en page à chaque image) ; ailleurs (petits plans), par la position comme avant
+    W.place = () => {
+      const f = w2f(W.x, W.y), z = W.zb != null ? W.zb : zOf(W.x, W.y) + 1, P = a.parentNode, sz = P && P.isConnected && P.closest && P.closest("#world") ? boxOf(P) : null;
+      if (sz) { if (!a._tf) { a._tf = 1; a.style.left = "0"; a.style.top = "0"; a.style.willChange = "transform"; }
+        a.style.transform = `translate3d(${(f[0] * sz[0] / 100).toFixed(2)}px,${(f[1] * sz[1] / 100).toFixed(2)}px,0)`; }
+      else { if (a._tf) { a._tf = 0; a.style.transform = ""; } a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; }
+      if (a._z !== z) { a._z = z; a.style.zIndex = z; }
+    };
     W.set = (px, py) => { W.x = px; W.y = py; W.place(); };
     W.setPose = (ps) => { if (W.pose === ps) return; W.pose = ps; a._pose(ps); };
     W.face = (tx) => { const s0 = w2f(W.x, W.y)[0], s1 = w2f(tx[0], tx[1])[0]; if (Math.abs(s1 - s0) > .05) a.classList.toggle("flip", s1 < s0); };
@@ -4841,7 +4857,12 @@
       const row = el("div", { class: "row" }); row.appendChild(btn("Ressortir", () => { Snd.click(); outside(); }, "ghost"));
       p.append(plan, g, row); wrap.appendChild(p); n.appendChild(wrap);
     }
-    function outside() { blackout(() => free()); }
+    // en ressortant d'une salle, on se retrouve un pas devant sa porte (pas « dans » la porte, collé au battant)
+    function outside() {
+      const dn = Object.keys(DOORS).map((k) => NODES[k]).find((q) => q && Math.hypot(q[0] - S.x, q[1] - S.y) < .5);
+      if (dn) { S.x = dn[0]; S.y = dn[1] + .7; }
+      blackout(() => free());
+    }
 
     /* -- une scène sur laquelle on tombe : on voit, on entend, on réagit -- */
     // La scène se joue vraiment sous vos yeux avant qu'on en parle : gestes, bousculade, curieux qui accourent.
@@ -4976,7 +4997,10 @@
             if (now > B.hold) for (const p of P) if (now > p.cd && Math.hypot(p.W.x - B.x, p.W.y - B.y) < .42) { kick(p, now); break; }
           }
         }
-        const f = w2f(B.x, B.y); bel.style.left = f[0] + "%"; bel.style.top = f[1] + "%"; bel.style.zIndex = zOf(B.x, B.y) + 1; bel.style.rotate = B.rot.toFixed(1) + "deg";
+        const f = w2f(B.x, B.y), sz = boxOf(acts), zb = zOf(B.x, B.y) + 1;
+        if (sz) { bel.style.left = "0"; bel.style.top = "0"; bel.style.transform = `translate3d(${(f[0] * sz[0] / 100).toFixed(2)}px,${(f[1] * sz[1] / 100).toFixed(2)}px,0) translate(-50%,-100%) rotate(${B.rot.toFixed(1)}deg)`; }
+        else { bel.style.left = f[0] + "%"; bel.style.top = f[1] + "%"; bel.style.rotate = B.rot.toFixed(1) + "deg"; }
+        if (bel._z !== zb) { bel._z = zb; bel.style.zIndex = zb; }
         raf = requestAnimationFrame(roll);
       };
       raf = requestAnimationFrame(roll);

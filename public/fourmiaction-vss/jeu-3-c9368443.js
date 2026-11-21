@@ -627,7 +627,9 @@
       const next = () => {
         if (k !== this._sk) return; World.talk(null); this.off();
         if (i >= L.length || calm()) { this._sl = 0; L.forEach((x) => x[2] && x[2].classList.remove("vpend", "kara")); this._se = null; return; }
-        const [w, t, e, cb] = L[i++], d = Math.min(7000, Math.max(1200, String(t).length * 48));
+        // une page du carnet lue par Nour (texte long) garde un vrai rythme de lecture : ses images suivent chaque point
+        const [w, t, e, cb] = L[i++], d = Math.min(w === "nour" && String(t).length > 300 ? 32000 : 7000, Math.max(1200, String(t).length * 48));
+        this._spr = { t, t0: performance.now(), d };   // où en est la lecture (pour suivre une longue réplique, phrase par phrase)
         if (cb) try { cb(); } catch (x) { }
         if (this._se) { this._se.classList.remove("kara"); this._se.classList.remove("vpend"); }
         this._se = e || null;
@@ -729,6 +731,13 @@
     },
     _done() { World.talk(null); Lip.off(); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
+    // la réplique en train d'être dite et la part déjà dite (0 → 1) : voix enregistrée, ou lecture silencieuse au rythme du texte
+    progress() {
+      const it = this._cur;
+      if (it && it.on && this.el && !this.el.paused) { const d = audDur(this.el, it.t); return { t: it.t, f: Math.min(1, this.el.currentTime / d) }; }
+      const s = Lip._spr; if (s && Lip._sl) return { t: s.t, f: Math.min(1, (performance.now() - s.t0) / s.d) };
+      return null;
+    },
     prefetch(list) { if (!this.ready || !st.settings.voice) return; this._pf = this._pf || new Set(); list.forEach(([w, t]) => { const u = this.url(w, t); if (u && !this._pf.has(u)) { this._pf.add(u); fetch(u).catch(() => { }); } }); },
     quotes(who, text) { const q = [...String(text || "").matchAll(/«\s*([^»]+?)\s*»/g)].map((m) => m[1]); if (q.length) this.say(who, q.join(" … ")); },
     // une réplique en train d'être dite (le son a démarré et n'est pas fini)
@@ -3169,15 +3178,33 @@
       n.classList.add("pn-ill");
       const art = el("figure", { class: "pn-art", "aria-hidden": "true" });
       const host = n.querySelector(".pn-body h2"); if (host) host.after(art);
-      const show = (j) => {
+      const show = (j, held) => {
         if (!n.isConnected) return;
         k = j != null ? j : (k + 1) % Math.max(lis.length, 1);
         lis.forEach((li, x) => li.classList.toggle("on", x === k));
         const f = el("div", { class: "pn-frame" }, NoteArt.svg(sc.id, k)); art.querySelectorAll(".pn-frame").forEach((o) => { o.classList.add("out"); setTimeout(() => o.remove(), 500); }); art.appendChild(f);
-        clearTimeout(art._t); art._t = setTimeout(() => show(), Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
+        clearTimeout(art._t); if (!held) art._t = setTimeout(() => show(), Math.max(6500, ((lis[k] && lis[k].textContent.length) || 80) * 60));
       };
-      lis.forEach((li, x) => li.addEventListener("click", () => show(x)));
-      setTimeout(() => show(0), 300);
+      lis.forEach((li, x) => li.addEventListener("click", () => { follow = false; show(x); }));
+      // pendant que Nour lit sa page, l'image suit la phrase qu'elle dit : on repère où en est sa voix dans le texte
+      // (titre puis chaque point) et l'image du point change au moment où elle commence à le dire
+      const said = [p.title, ...p.pts].join(" ");
+      const starts = []; { let c = p.title.length + 1; p.pts.forEach((x) => { starts.push(c); c += x.length + 1; }); }
+      let follow = true, heard = false;
+      const watch = () => {
+        if (!n.isConnected) return;
+        const pr = follow && Voice.progress();
+        if (pr && pr.t === said) {
+          heard = true; clearTimeout(art._t);
+          const at = pr.f * said.length + 6;   // un rien d'avance : l'image arrive avec les premiers mots du point
+          let j = 0; starts.forEach((c0, x) => { if (at >= c0) j = x; });
+          if (j !== k) show(j, true);
+        }
+        requestAnimationFrame(watch);
+      };
+      setTimeout(() => { show(0, true); requestAnimationFrame(watch); }, 300);
+      // sans voix du tout (mode calme, son coupé et lecture finie) : les images défilent au rythme de lecture
+      setTimeout(() => { if (n.isConnected && !heard && !Voice.busy() && !Lip._sl) show(); }, 4000);
     }
   };
 
@@ -3270,13 +3297,142 @@
       .catch(() => { d.querySelector(".rk-board").innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
   }
 
+  /* ---------- Ma cible à télécharger (PDF) ----------
+     En fin de partie : la cible des compétences, les réflexes, la mesure de prévention, les numéros, puis toutes les pages
+     du carnet de Nour avec leurs images. Tout est dessiné dans le navigateur (pages A4 en image) puis assemblé en PDF :
+     rien n'est envoyé à un serveur. */
+  function reflexState() { return REFLEXES.map((r) => ({ ...r, ok: r.from.every(([id, min]) => st.res[id] != null && st.res[id] >= min) })); }
+  // une image du carnet, figée et autonome (les poses et ce qui est caché sont recopiés depuis la page)
+  async function artJPEG(id, k, w) {
+    const box = el("div", { class: "page-note pn-ill pdfsnap", "aria-hidden": "true", style: "position:fixed;left:-12000px;top:0;width:640px" }, `<figure class="pn-art"><div class="pn-frame">${NoteArt.svg(id, k)}</div></figure>`);
+    document.body.appendChild(box);
+    const svg = box.querySelector("svg"); if (!svg) { box.remove(); return null; }
+    svg.setAttribute("width", "640"); svg.setAttribute("height", "360");
+    [...svg.querySelectorAll("*")].forEach((e) => {
+      const cs = getComputedStyle(e);
+      if (cs.display === "none" || cs.visibility === "hidden") { e.setAttribute("data-x", "1"); return; }
+      let css = "";
+      if (cs.transform && cs.transform !== "none") css += `transform:${cs.transform};transform-origin:${cs.transformOrigin};transform-box:${cs.transformBox};`;
+      if (e.getAttribute("class")) css += `fill:${cs.fill};stroke:${cs.stroke};opacity:${cs.opacity};`;
+      if (css) e.setAttribute("style", css + (e.getAttribute("style") || ""));
+    });
+    svg.querySelectorAll("[data-x]").forEach((e) => e.remove());
+    if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    const src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    box.remove();
+    const im = new Image(); im.src = src;
+    try { await im.decode(); } catch (e) { return null; }
+    return im;
+  }
+  // un PDF minimal : une image JPEG pleine page par page A4
+  function pdfOf(jpgs) {
+    const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+    const put = (x) => { const b = typeof x === "string" ? enc.encode(x) : x; parts.push(b); len += b.length; };
+    const obj = (n, body) => { offs[n] = len; put(`${n} 0 obj\n`); body(); put("\nendobj\n"); };
+    const N = jpgs.length, W = 595.28, H = 841.89;
+    put("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+    obj(1, () => put("<< /Type /Catalog /Pages 2 0 R >>"));
+    obj(2, () => put(`<< /Type /Pages /Count ${N} /Kids [${jpgs.map((_, i) => `${3 + i * 3} 0 R`).join(" ")}] >>`));
+    jpgs.forEach((j, i) => {
+      const P = 3 + i * 3, C = P + 1, I = P + 2, cs = `q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+      obj(P, () => put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 ${I} 0 R >> >> /Contents ${C} 0 R >>`));
+      obj(C, () => put(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
+      obj(I, () => { put(`<< /Type /XObject /Subtype /Image /Width ${j.w} /Height ${j.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${j.b.length} >>\nstream\n`); put(j.b); put("\nendstream"); });
+    });
+    const xref = len, last = 3 + N * 3;
+    put(`xref\n0 ${last}\n0000000000 65535 f \n` + Array.from({ length: last - 1 }, (_, i) => String(offs[i + 1]).padStart(10, "0") + " 00000 n \n").join(""));
+    put(`trailer\n<< /Size ${last} /Root 1 0 R /Info << /Title (Ma cible - Les Hautes Herbes) /Producer (Fourmi'Action) >> >>\nstartxref\n${xref}\n%%EOF`);
+    return new Blob(parts, { type: "application/pdf" });
+  }
+  async function cibleDoc() {
+    const PW = 1240, PH = 1754, M = 96, F = "'Inter', 'Helvetica Neue', Arial, sans-serif", NAVY = "#14304A", INK = "#26313D", MUT = "#5F6B78";
+    const pages = []; let cv, x, y;
+    const page = () => { cv = document.createElement("canvas"); cv.width = PW; cv.height = PH; x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, PW, PH); x.textBaseline = "top"; pages.push(cv);
+      x.fillStyle = "#F3F6F9"; x.fillRect(0, 0, PW, 70); x.fillStyle = NAVY; x.font = `700 22px ${F}`; x.fillText("Fourmi’Action · Les Hautes Herbes", M, 24);
+      x.fillStyle = MUT; x.font = `400 20px ${F}`; const d = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); x.fillText(d, PW - M - x.measureText(d).width, 26); y = 120; };
+    const wrap = (t, fz, wt, w, col, lh = 1.38, dx = 0) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; const L = []; let line = "";
+      String(t).split(/\s+/).forEach((wd) => { const tt = line ? line + " " + wd : wd; if (x.measureText(tt).width > w && line) { L.push(line); line = wd; } else line = tt; }); if (line) L.push(line);
+      return { h: L.length * fz * lh, draw: (yy) => L.forEach((l, i) => x.fillText(l, M + dx, yy + i * fz * lh)) }; };
+    const text = (t, fz, wt, col, opt = {}) => { const W0 = opt.w || PW - 2 * M, b = wrap(t, fz, wt, W0, col, opt.lh, opt.dx || 0); if (y + b.h > PH - 120) page(); b.draw(y); y += b.h + (opt.after != null ? opt.after : 10); };
+    const h2 = (t) => { if (y > PH - 260) page(); y += 18; x.fillStyle = "#E2702A"; x.fillRect(M, y + 6, 8, 30); text(t, 34, 700, NAVY, { dx: 22, after: 16 }); };
+    // page 1 : la cible
+    page();
+    text("Ma cible", 64, 800, NAVY, { after: 6 });
+    text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 30 });
+    const P = compProgress(), cx = M + 210, cy = y + 210;
+    P.forEach(([c, p], i) => { const r = 190 - i * 44; x.lineWidth = 32; x.lineCap = "round"; x.strokeStyle = RING[c] + "2E"; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
+      if (p > 0) { x.strokeStyle = RING[c]; x.beginPath(); x.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(.02, p)); x.stroke(); } });
+    let ly = y + 40; P.forEach(([c, p]) => { x.fillStyle = RING[c]; x.beginPath(); x.arc(M + 470, ly + 16, 12, 0, Math.PI * 2); x.fill();
+      x.fillStyle = INK; x.font = `800 30px ${F}`; x.fillText(`${Math.round(p * 100)} %`, M + 495, ly);
+      const b = wrap(COMPS[c], 22, 500, PW - 2 * M - 610, MUT, 1.3, 600); b.draw(ly + 4); ly += Math.max(46, b.h) + 34; });
+    y = Math.max(cy + 230, ly) + 10;
+    const weak = P.slice().sort((a, b) => a[1] - b[1]).filter(([, v]) => v < 0.8).slice(0, 2);
+    h2("Pour progresser");
+    if (weak.length) weak.forEach(([c]) => { text(COMPS[c], 24, 700, RING[c], { after: 4 }); text(TIPS[c], 22, 400, INK, { after: 14 }); });
+    else text("Toutes vos compétences sont acquises : continuez à les faire vivre avec votre équipe.", 22, 400, INK);
+    h2("Mes réflexes professionnels");
+    reflexState().forEach((r) => text(`${r.ok ? "✓  Acquis" : "↻  À consolider"} · ${r.label}`, 22, r.ok ? 600 : 400, r.ok ? "#1F7A4D" : INK, { after: 8 }));
+    if (st.build) { h2("Ma mesure de prévention"); text(`${st.build.sit} : ${st.build.change}`, 22, 600, INK, { after: 6 }); text(`Indicateur : ${st.build.ind}`, 22, 400, INK, { after: 6 }); text("À proposer à ma direction lors de mon prochain accueil.", 20, 400, MUT); }
+    // les numéros, sur deux colonnes (ils tiennent avec la cible sur la première page)
+    if (y > PH - 120 - 60 - Math.ceil(NUMBERS.length / 2) * 62) page();
+    h2("Les numéros à garder");
+    { const cw = (PW - 2 * M - 30) / 2, rows = Math.ceil(NUMBERS.length / 2);
+      NUMBERS.forEach(([a, b], i) => { const col = i < rows ? 0 : 1, r = i % rows, xx = M + col * (cw + 30), yy = y + r * 62;
+        x.fillStyle = NAVY; x.font = `800 22px ${F}`; x.fillText(a, xx, yy); const aw = Math.max(110, x.measureText(a).width + 16);
+        const bb = wrap(b, 18, 400, cw - aw, MUT, 1.25, xx - M + aw); bb.draw(yy + 2); });
+      y += rows * 62 + 10; }
+    // le carnet de Nour, page par page, avec ses images
+    const notes = SCREENS.filter((s) => s.type === "explain" && s.page && st.carnet.includes(s.id));
+    if (notes.length) {
+      if (y > PH * .5) page(); else y += 50;   // le carnet commence à la suite, s'il reste la place
+      text("Le carnet de Nour", 56, 800, NAVY, { after: 6 }); text("Les repères notés pendant la semaine, à garder sous la main.", 24, 400, MUT, { after: 24 });
+      for (const s of notes) {
+        if (y > PH - 420) page();
+        h2(s.page.title);
+        if (s.page.quote) text(`« ${s.page.quote.replace(/^«\s*|\s*»$/g, "")} »`, 22, 400, MUT, { after: 14 });
+        for (let k = 0; k < s.page.pts.length; k++) {
+          const iw = 320, ih = 180, tw = PW - 2 * M - iw - 30, b = wrap(s.page.pts[k], 22, 400, tw, INK, 1.38, iw + 30), hh = Math.max(ih, b.h);
+          if (y + hh > PH - 120) page();
+          const im = typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? await artJPEG(s.id, k).catch(() => null) : null;
+          if (im) { x.save(); x.beginPath(); x.roundRect ? x.roundRect(M, y, iw, ih, 14) : x.rect(M, y, iw, ih); x.clip(); x.drawImage(im, M, y, iw, ih); x.restore(); }
+          b.draw(y + (im ? 6 : 0)); y += hh + 22;
+        }
+        if (s.page.refs) text(`Repères : ${[].concat(s.page.refs).join(" · ")}`, 18, 400, MUT, { after: 18 });
+      }
+    }
+    // pied de page : numéro et rappel
+    pages.forEach((c, i) => { const g = c.getContext("2d"); g.fillStyle = MUT; g.font = `400 18px ${F}`; g.textBaseline = "top";
+      g.fillText("Ce document est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.", M, PH - 70);
+      const t = `Page ${i + 1} sur ${pages.length}`; g.fillText(t, PW - M - g.measureText(t).width, PH - 70); });
+    const jpgs = [];
+    for (const c of pages) { const bl = await new Promise((r) => c.toBlob(r, "image/jpeg", .9)); jpgs.push({ w: c.width, h: c.height, b: new Uint8Array(await bl.arrayBuffer()) }); }
+    return pdfOf(jpgs);
+  }
+  // le bouton : on prépare le PDF puis on le télécharge
+  function cibleBtn(label = "Télécharger ma cible et le carnet (PDF)", cls) {
+    const b = btn(label, async () => {
+      if (b.disabled) return; b.disabled = true; const t0 = b.textContent; b.textContent = "Préparation du PDF…"; Snd.click();
+      try {
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        const blob = await cibleDoc(), u = URL.createObjectURL(blob);
+        const a = el("a", { href: u, download: `ma-cible-hautes-herbes${st.name ? "-" + String(st.name).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""}.pdf` });
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
+        window.__lastPDF = blob;   // pour les tests automatiques
+        toastMsg("Votre cible est téléchargée.");
+      } catch (e) { console.warn(e); toastMsg("Le PDF n’a pas pu être préparé. Réessayez dans un instant."); }
+      b.disabled = false; b.textContent = t0;
+    }, cls);
+    b.classList.add("dl-cible");
+    return b;
+  }
+
   R.bilan = (sc, n) => {
     st.done = true; save();
     const by = { C1: [], C2: [], C3: [], C4: [] };
     SCREENS.forEach((s) => { if (s.comp && st.res[s.id] != null) by[s.comp].push(st.res[s.id]); });
     const lvl = (v) => (v == null ? ["", "Non joué"] : v >= 0.8 ? ["good", "Acquis"] : v >= 0.5 ? ["mid", "En cours"] : ["low", "À retravailler"]);
     const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
-    const rf = REFLEXES.map((r) => ({ ...r, ok: r.from.every(([id, min]) => st.res[id] != null && st.res[id] >= min) }));
+    const rf = reflexState();
     const defi = rf.find((r) => r.id === "protect").ok && rf.find((r) => r.id === "alert").ok && !st.flags.secret;
     const name = st.name || "Vous";
     n.innerHTML = `<div class="bilan">
@@ -3303,7 +3459,9 @@
       FW = AUREVOIR.map((L, k) => [L.who || "narr", L.t, ps[k]]);
     }
     const row = el("div", { class: "row" });
-    row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
+    row.append(cibleBtn("Télécharger ma cible (PDF)"), btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
+    // juste sous la cible : la garder, avec tout le carnet de Nour
+    { const br = b.querySelector(".bring"); if (br) { const d = el("div", { class: "dl-row" }, `<p class="small">Gardez votre cible et toutes les pages du carnet de Nour, avec leurs images, dans un document PDF.</p>`); d.appendChild(cibleBtn()); br.after(d); } }
     b.appendChild(row);
     b.querySelectorAll("[data-ch]").forEach((x) => x.addEventListener("click", () => replay(+x.dataset.ch)));
     Snd.good();
@@ -5584,6 +5742,7 @@
     const body = $("#carnet-body");
     body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul>${s.page.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
 ;
+    if (st.done && pages.length) { const d = el("section", { class: "cpage dl-row" }, `<h3>Garder le carnet</h3><p>Votre cible et toutes ces pages, avec leurs images, dans un document PDF.</p>`); d.appendChild(cibleBtn()); body.appendChild(d); }
     const docs = (st.docs || []).filter((k) => DOCS[k]);
     if (docs.length) body.insertAdjacentHTML("afterbegin", `<section class="cdocs"><h3>Documents</h3>${docs.map((k) => `<div id="doc-${k}">${docHTML(k)}</div>`).join("")}</section>`);
     dlg.hidden = false; document.body.classList.add("modal");

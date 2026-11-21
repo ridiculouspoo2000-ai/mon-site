@@ -1670,9 +1670,69 @@
         const kids = [...svg.querySelectorAll(":scope > .ractor.seated:not(.legL)")].filter((g) => !g.classList.contains("talking") && !g.querySelector(".rig.g-eat"));
         const g = kids[Math.floor(Math.random() * kids.length)]; if (g) gesture(g, "eat");
       }, 650);
+      // ping-pong : les deux joueurs à la table échangent vraiment (la balle va et vient, rebondit, les raquettes frappent)
+      this.pingpong(w, svg);
+      // les autres activités des salles se voient aussi : on cuisine, on mime, on bricole, on règle le son
+      this.activity(w, svg, room);
       // on entre dans la salle pendant que quelqu'un parle (la visite : Nour décrit la salle) : sa bouche et ses gestes continuent ici
       const cur = Lip.cur || Lip._simw;
       if (cur && cur.w && castL.some((q) => q[0] === cur.w)) setTimeout(() => { if ((Lip.cur || Lip._simw) !== cur) return; World.talk(cur.w, cur.t); Lip.refresh(!Lip.cur); }, 80);
+    },
+    activity(w, svg, room) {
+      clearTimeout(this._act);
+      const ACT = { cuisine: ["chop", "pinch", "roll", "rub", "chop"], libre: ["laugh", "clap", "raise", "spread", "wag", "jumpjoy"], grands: ["pinch", "tap", "chin", "roll", "nod"],
+        radio: ["earcup", "tap", "nodhand", "pinch"], ados: ["laugh", "clap", "raise", "nod", "thumb"], petits: ["clap", "raise", "laugh"] }[room];
+      if (!ACT || reduce() || calm()) return;
+      const tick = () => {
+        if (!w.isConnected) return;
+        const L = [...svg.querySelectorAll(":scope > .ractor[data-who]:not(.legL):not(.pp-live)")].filter((g) => g.dataset.who !== "you" && !g.classList.contains("talking")
+          && !(Lip.cur && Lip.cur.w === g.dataset.who) && g.querySelector(".rig") && ![...g.querySelector(".rig").classList].some((c) => c.startsWith("g-")));
+        const g = L[Math.floor(Math.random() * L.length)];
+        if (g) gesture(g, ACT[Math.floor(Math.random() * ACT.length)]);
+        this._act = setTimeout(tick, 1300 + Math.random() * 1500);
+      };
+      this._act = setTimeout(tick, 2200);
+    },
+    pingpong(w, svg) {
+      const pl = [...svg.querySelectorAll(":scope > .ractor.paddle:not(.legL)")];
+      if (pl.length < 2 || reduce() || calm()) return;
+      const NS = "http://www.w3.org/2000/svg", T = 1500;   // un aller-retour : 1,5 s (chacun frappe toutes les 0,75 s)
+      // on mesure la raquette une fois les joueurs arrivés à leur place (leur petite entrée est finie)
+      setTimeout(() => {
+        if (!w.isConnected) return;
+        const inv = svg.getScreenCTM && svg.getScreenCTM(); if (!inv) return;
+        const M = inv.inverse(), toSvg = (x, y) => { const q = svg.createSVGPoint(); q.x = x; q.y = y; return q.matrixTransform(M); };
+        const H = [], D = [];
+        for (const g of pl.slice(0, 2)) {
+          const pd = g.querySelector(".aR .prop-paddle"), r = pd && pd.getBoundingClientRect(), rb = g.getBoundingClientRect();
+          if (!r || !r.width) return;
+          const c = toSvg(r.left + r.width / 2, r.top + r.height * .62), top = toSvg(rb.left, rb.top), bot = toSvg(rb.left, rb.bottom);
+          H.push([c.x, c.y]); D.push(Math.abs(bot.y - top.y));
+        }
+        if (H[0][0] > H[1][0]) { H.reverse(); pl.reverse(); }
+        const fig = (D[0] + D[1]) / 2, tab = fig * .13, arc = fig * .16;   // le plateau, un peu sous la main ; la balle passe au-dessus du filet
+        const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
+        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .018).toFixed(2)}" fill="#FFF8EC" stroke="#E8DCC8" stroke-width=".15"/>`;
+        // la balle passe juste devant le joueur le plus en avant (au-dessus de la table, sous ce qui est devant)
+        const last = pl[0].compareDocumentPosition(pl[1]) & Node.DOCUMENT_POSITION_FOLLOWING ? pl[1] : pl[0];
+        last.after(ball);
+        const bl = ball.querySelector(".pp-ball"), sh = ball.querySelector(".pp-shadow");
+        // les raquettes frappent en rythme : l'un frappe quand la balle arrive chez lui, l'autre se prépare
+        pl.forEach((g, i) => { g.classList.add("pp-live"); g.style.setProperty("--ppT", T + "ms"); g.style.setProperty("--ppD", (i ? -T / 2 : 0) + "ms"); });
+        const t0 = performance.now();
+        const f = (now) => {
+          if (!ball.isConnected) return;
+          const p = ((now - t0) % T) / T, fw = p < .5, u = fw ? p * 2 : (p - .5) * 2;
+          const A = fw ? H[0] : H[1], B = fw ? H[1] : H[0];
+          const x = A[0] + (B[0] - A[0]) * u, base = A[1] + (B[1] - A[1]) * u + tab;   // le plateau sous la trajectoire
+          // départ de la raquette, un arc au-dessus du filet, rebond sur la moitié adverse (70 %), puis remontée vers l'autre raquette
+          const b = .7, h = u < b ? (1 - u / b) * tab + 4 * arc * (u / b) * (1 - u / b) : ((u - b) / (1 - b)) * tab + 2.2 * arc * ((u - b) / (1 - b)) * (1 - (u - b) / (1 - b));
+          bl.setAttribute("cx", x.toFixed(2)); bl.setAttribute("cy", (base - h).toFixed(2));
+          sh.setAttribute("cx", x.toFixed(2)); sh.setAttribute("cy", base.toFixed(2)); sh.setAttribute("opacity", (.28 - Math.min(.2, h / arc * .1)).toFixed(2));
+          requestAnimationFrame(f);
+        };
+        requestAnimationFrame(f);
+      }, 1900);
     },
     // aux sanitaires, pendant la scène, des enfants vont et viennent : on entre, on ressort, la vie continue
     passage(w, svg, IN, S) {
@@ -3936,11 +3996,15 @@
       deckEl.appendChild(card); requestAnimationFrame(() => card.classList.add("in"));
       yes.disabled = no.disabled = !!c.intr;
       if (c.intr) {
-        Voice.seq(VOICE_TXT.split(c.t, c.who)); Snd.mid && Snd.mid();
+        // comme au téléphone avec Lou : la personne qui vous interpelle arrive vraiment jusqu'à vous, vous fait signe et parle,
+        // puis repart quand vous avez répondu (sa voix passe par elle : pas de seconde lecture)
+        const LI = liveInterrupt(c.fig || c.who, c.t); Snd.mid && Snd.mid();
+        if (calm()) Voice.seq(VOICE_TXT.split(c.t, c.who));
+        card._li = LI;
         const o = card.querySelector(".sw-iopts");
         mix([[c.ok, true], [c.ko, false]]).forEach(([tx, good], i) => {
           const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${"AB"[i]}</span><span>${esc(tx)}</span>`);
-          b.addEventListener("click", () => { if (over) return; intrOk.push(good); t += good ? 1 : 6; if (!good) { G.abri -= .25; Snd.low(); } log.textContent = `${fmt(t)} · ${good ? "Vous gardez votre attention sur Lou." : c.why}`; out(card, good ? 1 : -1); });
+          b.addEventListener("click", () => { if (over) return; intrOk.push(good); t += good ? 1 : 6; if (!good) { G.abri -= .25; Snd.low(); } log.textContent = `${fmt(t)} · ${good ? "Vous gardez votre attention sur Lou." : c.why}`; LI.leave(); out(card, good ? 1 : -1); });
           o.appendChild(b);
         });
         return;
@@ -4429,10 +4493,16 @@
       // l'heure tourne en marchant : dès qu'elle est passée, on s'arrête là, la promenade est finie
       you.onMove = (d) => { S.t += d * PER_M; tickClock(); if (S.t >= END && !timeUp) { timeUp = true; you.stop(); you.onDone = null; moving = false; busy = true; ring.classList.remove("moving"); drawCard(); } };
       you.onStep = () => checkSpots();
+      // le terrain de foot : un vrai match dès qu'aucune situation ne s'y joue (les enfants du terrain jouent, deux animateurs encadrent)
+      const PITCH = (q) => q[0] > 3.6 && q[0] < 14.6 && q[1] > 22.4 && q[1] < 27.2;
+      const footOn = !reduce() && !calm() && !sc.events.some((e) => e.at === "jeux" && !e.room && evLive0(e));
+      const STAFF = new Set(["samia", "hugo", "yanis", "lea", "tom", "jade", "ines", "kevin", "bastien", "nour"]);
+      const fKids = [], fStaff = [];
       // l'accueil vit autour de vous
       (sc.life || []).forEach((L) => {
         if ((L.from && S.t < toMin(L.from)) || (L.to && S.t > toMin(L.to))) return;
         if (L.after && !S.done[L.after]) return; if (L.before && S.done[L.before]) return;
+        if (footOn && L.loop && L.loop.every(PITCH)) { (STAFF.has(L.who) ? fStaff : fKids).push(L.who); return; }   // il rejoint le match
         const W = L.loop ? Life.loop(L.who, L.loop, L) : Life.idle(L.who, L.at[0], L.at[1], L.gest || LISTEN, L);
         acts.appendChild(W.el);
       });
@@ -4455,7 +4525,15 @@
         ["t4", [[25.0, 26.2], [28.6, 22.0]], 1.2, "walk"], ["t5", [[30.6, 16.1], [34.4, 16.2]], 1.1, "walk"],
         ["hugo", [[18.0, 9.9], [5.6, 10.0]], 1.2, "walk"], ["samia", [[6.2, 24.6], [11.2, 25.4]], 1.1, "walk"],
       ];
-      CROWD.forEach(([w, loop, speed, pose]) => { if (busyW.has(w)) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); acts.appendChild(W.el); });
+      if (footOn) {
+        CROWD.forEach((c) => { const [w, loop] = c; if (busyW.has(w) || !loop.every(PITCH) || fKids.includes(w) || fStaff.includes(w)) return; (STAFF.has(w) ? fStaff : fKids).push(w); c.foot = true; });
+        // deux animateurs au terrain : ceux qui y sont déjà, complétés par des collègues libres
+        const lifeW = new Set((sc.life || []).map((L) => L.who));
+        for (const w of ["samia", "hugo", "yanis", "lea", "tom"]) { if (fStaff.length >= 2) break; if (!fStaff.includes(w) && !busyW.has(w) && !lifeW.has(w)) fStaff.push(w); }
+        CROWD.forEach((c) => { if (fStaff.includes(c[0])) c.foot = true; });
+        football(acts, fKids.slice(0, 10), fStaff.slice(0, 2));
+      }
+      CROWD.forEach(([w, loop, speed, pose], i, all) => { if (busyW.has(w) || all[i].foot) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); acts.appendChild(W.el); });
       // les scènes en cours se voient de loin : les personnes sont là, elles bougent
       sc.events.filter((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided)).forEach((e) => {
         ground(e);   // un objet au sol, qui fait partie de la scène (le ballon entre deux enfants)
@@ -4650,6 +4728,92 @@
       save(); placeRing(); follow(1400);
       dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
       drawCard();
+    }
+    // Le match du temps libre : le ballon roule (frottement, rebonds sur les lignes), le plus proche de chaque équipe va le
+    // chercher et frappe (passe à un coéquipier ou tir), les autres se placent ; au but, on se réjouit et on remet au centre.
+    // Deux animateurs suivent le jeu le long des lignes de touche.
+    function football(acts, kids, staff) {
+      if (kids.length < 2) return;
+      const X0 = 4.55, X1 = 11.05, Y0 = 23.15, Y1 = 26.45, MX = 7.8, MY = 24.8, GY0 = 24.25, GY1 = 25.35;
+      const B = { x: MX, y: MY, vx: 0, vy: 0, rot: 0, hold: 0, dead: 0 };
+      const bel = el("i", { class: "wprop wp-ball wball", "aria-hidden": "true" }); acts.appendChild(bel);
+      const P = kids.map((w, i) => {
+        const team = i % 2, j = i >> 1, dir = team ? -1 : 1, keep = j === 0 && kids.length >= 6;
+        const home = keep ? [team ? 10.55 : 5.05, MY] : [MX - dir * (1.9 - (j % 2) * 1.5), Y0 + .5 + ((j * 1.15) % (Y1 - Y0 - .8))];
+        const W = Life.add(Walker(w, home[0], home[1], "stand", { free: true })); acts.appendChild(W.el); W.face([B.x, B.y]);
+        return { W, team, dir, home, keep, cd: 0, tg: null };
+      });
+      const A = staff.map((w, i) => { const W = Life.add(Walker(w, MX + (i ? 1.2 : -1.2), i ? 26.8 : 23.0, "stand", { free: true })); acts.appendChild(W.el); return { W, y: i ? 26.8 : 23.0, tg: null, g: 0 }; });
+      const clampX = (x) => Math.max(X0, Math.min(X1, x)), clampY = (y) => Math.max(Y0, Math.min(Y1, y));
+      const moveTo = (o, t, sp) => {
+        const d = Math.hypot(o.W.x - t[0], o.W.y - t[1]);
+        if (d < .22) { if (o.W.path) o.W.stop(); o.W.face([B.x, B.y]); o.tg = null; return; }
+        if (o.tg && Math.hypot(o.tg[0] - t[0], o.tg[1] - t[1]) < .3 && o.W.path) return;
+        o.tg = t; o.W.go([t], sp, () => o.W.face([B.x, B.y]), sp > 2.2 ? "run" : "walk");
+      };
+      const kick = (p, now) => {
+        p.cd = now + 950; B.hold = now + 420;
+        gesture(p.W.el, "kick");
+        const gx = p.dir > 0 ? X1 + .3 : X0 - .3, near = Math.abs(gx - B.x) < 3.1;
+        let tx, ty, v;
+        if (near) { tx = gx; ty = GY0 + .15 + Math.random() * (GY1 - GY0 - .3); v = 5.4 + Math.random() * 1.4; }
+        else {
+          const mates = P.filter((q) => q !== p && q.team === p.team && !q.keep && (q.W.x - B.x) * p.dir > -.2).sort((a, b) => Math.hypot(a.W.x - B.x, a.W.y - B.y) - Math.hypot(b.W.x - B.x, b.W.y - B.y));
+          if (mates[0] && Math.random() < .7) { tx = mates[0].W.x + p.dir * .5; ty = mates[0].W.y; } else { tx = B.x + p.dir * (1.4 + Math.random()); ty = clampY(B.y + (Math.random() - .5) * 1.6); }
+          v = Math.min(5.2, Math.max(2.6, Math.hypot(tx - B.x, ty - B.y) * 1.5 + .9));
+        }
+        // le pied touche le ballon un instant après le début du geste
+        setTimeout(() => { if (Math.hypot(p.W.x - B.x, p.W.y - B.y) > .6 || now < B.dead) return; const a = Math.atan2(ty - B.y, tx - B.x) + (Math.random() - .5) * .22; B.vx = Math.cos(a) * v; B.vy = Math.sin(a) * v; Snd.kick && Snd.kick(); }, 230);
+      };
+      const goal = (team) => {
+        B.dead = performance.now() + 2200; B.vx *= .2; B.vy *= .2;
+        P.forEach((q) => { if (q.team === team) setTimeout(() => gesture(q.W.el, Math.random() < .5 ? "jumpjoy" : "raise"), Math.random() * 400); });
+        A.forEach((a) => gesture(a.W.el, "clap"));
+        setTimeout(() => { B.x = MX; B.y = MY; B.vx = B.vy = 0; P.forEach((q) => (q.tg = null)); }, 1700);
+      };
+      // les décisions : qui va au ballon, qui se place
+      const think = () => {
+        const now = performance.now();
+        [0, 1].forEach((team) => {
+          const T = P.filter((q) => q.team === team);
+          const mine = T.filter((q) => !q.keep).sort((a, b) => Math.hypot(a.W.x - B.x, a.W.y - B.y) - Math.hypot(b.W.x - B.x, b.W.y - B.y));
+          const kp = T.find((q) => q.keep), ownG = team ? X1 : X0;
+          const ch = kp && Math.abs(B.x - ownG) < 1.4 ? kp : mine[0];
+          T.forEach((q) => {
+            if (now < B.dead) return moveTo(q, q.home, 1.6);
+            if (q === ch) return moveTo(q, [clampX(B.x - q.dir * .28), clampY(B.y)], 3.1);
+            if (q.keep) return moveTo(q, [q.home[0], Math.max(GY0, Math.min(GY1, B.y))], 1.8);
+            moveTo(q, [clampX(q.home[0] + (B.x - MX) * .5), clampY(q.home[1] + (B.y - MY) * .3)], 2.3);
+          });
+        });
+        A.forEach((a, i) => {
+          moveTo(a, [Math.max(X0 + .3, Math.min(X1 - .3, B.x + (i ? .8 : -.8))), a.y], 1.5);
+          if (now > a.g) { a.g = now + 3500 + Math.random() * 3500; gesture(a.W.el, ["point", "explain", "raise", "nod", "clap"][Math.floor(Math.random() * 5)]); }
+        });
+        Life.wake();
+      };
+      // le ballon : il roule, ralentit, rebondit sur les lignes ; le joueur au contact frappe
+      let last = performance.now(), raf = 0;
+      const roll = (now) => {
+        if (!bel.isConnected) return;
+        const dt = Math.min(.05, (now - last) / 1000); last = now;
+        B.x += B.vx * dt; B.y += B.vy * dt; const k = Math.pow(.42, dt); B.vx *= k; B.vy *= k;
+        const sp = Math.hypot(B.vx, B.vy); if (sp < .05) B.vx = B.vy = 0;
+        B.rot = (B.rot + sp * dt * 520) % 360;
+        if (now > B.dead) {
+          if ((B.x > X1 + .15 || B.x < X0 - .15) && B.y > GY0 && B.y < GY1) goal(B.x > X1 ? 0 : 1);
+          else {
+            if (B.x < X0 - .1 || B.x > X1 + .1) { B.vx = -B.vx * .55; B.x = Math.max(X0 - .1, Math.min(X1 + .1, B.x)); }
+            if (B.y < Y0 - .1 || B.y > Y1 + .1) { B.vy = -B.vy * .55; B.y = Math.max(Y0 - .1, Math.min(Y1 + .1, B.y)); }
+            if (now > B.hold) for (const p of P) if (now > p.cd && Math.hypot(p.W.x - B.x, p.W.y - B.y) < .42) { kick(p, now); break; }
+          }
+        }
+        const f = w2f(B.x, B.y); bel.style.left = f[0] + "%"; bel.style.top = f[1] + "%"; bel.style.zIndex = zOf(B.x, B.y) + 1; bel.style.rotate = B.rot.toFixed(1) + "deg";
+        raf = requestAnimationFrame(roll);
+      };
+      raf = requestAnimationFrame(roll);
+      const iv = setInterval(think, 320); setTimeout(think, 60);
+      Life.agents.push({ t: 0, clear: () => { cancelAnimationFrame(raf); clearInterval(iv); bel.remove(); } });
     }
     // un objet posé au sol, sur le plan : ev.ground = [[objet, x, y], …]
     function ground(e) {

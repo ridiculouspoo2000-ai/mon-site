@@ -840,11 +840,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir."
  },
- "4082427ad00f": {
+ "26894ca753ab": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "L’aire de jeux des 6-11 ans : le mini-foot, la pyramide de cordes, le toboggan. Idéalement, deux animateurs : l’un joue avec le groupe, l’autre avec ceux qui restent à l’écart."
+  "text": "L’aire de jeux des 6-11 ans : un terrain de foot et une araignée de cordes. Idéalement, deux animateurs : l’un joue avec le groupe, l’autre avec ceux qui restent à l’écart."
  },
  "eb795c8847f3": {
   "who": "nour",
@@ -936,11 +936,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Bastien anime l’atelier"
  },
- "bffa03a8d29d": {
+ "e38aa99490f6": {
   "who": "bastien",
   "mood": "",
   "kind": "replique",
-  "text": "Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire."
+  "text": "Je propose que les filles aillent à l’écriture du texte : les garçons sont pas aussi forts que les filles en français. Et vous, les mecs… on va vous proposer un truc manuel… Tiens, vous allez paramétrer la console…"
  },
  "c4c5097e7eba": {
   "who": "narr",
@@ -4007,5 +4007,71 @@ export const LIGNES = {
   "mood": "",
   "kind": "carnet",
   "text": "À retenir. Quand un enfant se confie : l’écouter, le croire, ne pas l’interroger pour enquêter, et ne pas promettre de garder le secret. Protéger d’abord, puis alerter le jour même : la direction et, selon la situation, le 119 ou le procureur. Noter ses mots exacts, la date et l’heure, sans interprétation."
+ },
+ "d6fe6ec7700c": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous êtes recruté comme animateur volant pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : être vigilant, et agir."
+ },
+ "393032e7de58": {
+  "who": "nour",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins comme animateur volant pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
+ },
+ "3ea333ed644e": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV : tu t’es formé aux VSS."
+ },
+ "9f9373832f88": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Ce que j’attends de toi, donc : tu es notre animateur volant pour la semaine des vacances. Tu circules partout, tu restes vigilant, et quand quelque chose te paraît anormal, tu agis et tu me le transmets."
+ },
+ "9604147a8e3e": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
+ },
+ "9beca840bc83": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous laisse seul un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
+ },
+ "4d528084a9d9": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vous circulez dans l’accueil, en animateur volant. Avancez sur les chemins, entrez dans les salles, et restez attentif à ce qui se passe autour de vous."
+ },
+ "a7f0e777b06f": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "À 9 h 40, vous êtes seul aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
+ },
+ "ad9b3c52ae4d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver."
+ },
+ "832a0c0ed3e7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vendredi, 17 h 30. Les enfants sont partis. Seul en salle des animateurs, au calme, vous retrouvez les questions du premier jour."
+ },
+ "d80d073a884b": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ben quoi ? L’animateur a dit que c’était rien."
  }
 };

@@ -78,6 +78,19 @@ const ROLE = {
   ],
   goalVoice: "Comment on joue ? Laissez-vous guider : des personnages vont venir vous voir, et le jeu vous dit à chaque fois ce qui se passe. Réagissez comme sur le terrain : personne ne vous dit sur le moment si c’était juste. Le vendredi, vous revenez sur chaque décision, ce qu’elle a produit, et ce que dit le cadre.",
 };
+// Accords au masculin, quand on joue un animateur (le jeu est écrit au féminin) : seulement ce qui désigne le joueur.
+// Ces règles servent aussi à préparer les voix au masculin (voix/extract.mjs).
+const GENRE_M = [
+  ["recrutée comme animatrice volante", "recruté comme animateur volant"], ["comme animatrice volante", "comme animateur volant"],
+  ["notre animatrice volante", "notre animateur volant"], ["être vigilante", "être vigilant"], ["tu restes vigilante", "tu restes vigilant"],
+  ["vous a recrutée", "vous a recruté"], ["tu t’es formée", "tu t’es formé"], ["tu gères seule", "tu gères seul"],
+  ["vous êtes seule", "vous êtes seul"], ["vous laisse seule", "vous laisse seul"], ["Seule en salle des animateurs", "Seul en salle des animateurs"],
+  ["Pas seule aux sanitaires", "Pas seul aux sanitaires"], ["assurer seule", "assurer seul"], ["en volante", "en animateur volant"],
+  ["restez attentive", "restez attentif"], ["en restant concentrée", "en restant concentré"], ["vous êtes restée concentrée", "vous êtes resté concentré"],
+  ["vous êtes prête", "vous êtes prêt"], ["faire l’animatrice ?", "faire l’animateur ?"], ["L’animatrice apprend elle-même", "L’animateur apprend lui-même"],
+  ["Rester gentille", "Rester gentil"], ["L’animatrice a dit que c’était rien", "L’animateur a dit que c’était rien"],
+];
+const genreM = (t) => typeof t !== "string" ? t : GENRE_M.reduce((x, [a, b]) => x.split(a).join(b), t);
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
   { id: "c1", ch: 1, type: "chapter" },
@@ -103,7 +116,7 @@ const SCREENS = [
       { x: 40, y: 32, w: 14, h: 20, key: "cuisine", label: "La cuisine pédagogique", real: false, title: "La cuisine pédagogique", t: "La cuisine pédagogique : on y prépare les goûters et les ateliers cuisine avec les enfants. La plaque et le four, c’est toujours avec un adulte, et on note tout dans le cahier de traçabilité.", lesson: "Rien à signaler : un lieu d’activité encadré, avec des règles d’hygiène et de sécurité." },
       { x: 59, y: 36.8, w: 20, h: 32.5, key: "soins", label: "L’infirmerie", real: true, title: "À l’infirmerie", t: "Bon, l’infirmerie, tu connais, je pense. On ne donne pas de médicament s’il n’y a pas d’ordonnance médicale d’un médecin ; Bastien est nommé assistant sanitaire. Et on a Zoé, une enfant en situation de handicap. Elle a besoin d’aide pour certains soins d’hygiène ; elle viendra peut-être te voir, et là, tu vois avec Bastien.", lesson: "Les soins d’hygiène de Zoé touchent à son intimité : « tu vois avec Bastien » ne suffit pas. L’équipe doit convenir de qui l’aide, de comment recueillir son choix (avec son tableau d’images) et de comment respecter son intimité. Une aide nécessaire n’autorise pas un accès illimité au corps.", ref: "R10" },
       { x: 81.8, y: 43, w: 14.4, h: 33.4, key: "panneau", label: "Le panneau d’affichage", real: false, title: "Au panneau d’affichage", t: "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir.", lesson: "Rien à signaler : un lieu d’information vivant, que les enfants s’approprient.", ref: "R10" },
-            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "L’aire de jeux des 6-11 ans : le mini-foot, la pyramide de cordes, le toboggan. Idéalement, deux animateurs : l’un joue avec le groupe, l’autre avec ceux qui restent à l’écart.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, y compris ceux qui restent à l’écart, et gardent un œil sur l’ensemble." },
+            { x: 10, y: 60, w: 20, h: 14, key: "jeux", label: "L’aire de jeux", real: false, title: "L’aire de jeux", t: "L’aire de jeux des 6-11 ans : un terrain de foot et une araignée de cordes. Idéalement, deux animateurs : l’un joue avec le groupe, l’autre avec ceux qui restent à l’écart.", lesson: "Rien d’inquiétant : on ne veut pas de simples surveillants. Les animateurs jouent avec les enfants, y compris ceux qui restent à l’écart, et gardent un œil sur l’ensemble." },
       { x: 69.2, y: 75, w: 13.6, h: 14.3, key: "potager", label: "Le potager", real: false, title: "Le potager", t: "Notre potager ! Tout le monde peut y participer, et tout le monde peut y planter des petites choses. Chacun choisit sa tâche : arroser, semer, récolter. Faut juste faire attention aux ballons, des fois, qui abîment le potager.", lesson: "Rien à signaler : chacun choisit son rôle." },
       { x: 80, y: 18, w: 10, h: 18, key: "local", label: "La régie", real: true, title: "À la régie, le local du matériel", t: "La régie, au fond du terrain : un local à l’écart, où l’on range aussi le matériel de l’atelier bois. Le planning prévoit qu’en fin d’atelier l’intervenant y range le matériel avec un ou deux jeunes.", lesson: "Un local à l’écart, où un adulte range le matériel seul avec un ou deux jeunes : c’est une situation à risque. On range à plusieurs, porte ouverte, et l’équipe sait qui est où." },
             { x: 40, y: 70, w: 10, h: 8, key: "parc", label: "Le parc", real: false, title: "Le parc, derrière le bâtiment", t: "Notre petit espace vert, pour les grands jeux et tout, c’est sympa. Il faut juste être vigilant, car les 14-17 sont à côté et, des fois, ils occupent tout l’espace.", lesson: "Rien d’inquiétant : un espace partagé, où l’équipe veille à ce que chaque groupe ait sa place." },
@@ -161,7 +174,7 @@ const SCREENS = [
         better: "Nommer la règle devant le groupe et réorganiser le jeu : équipes mélangées, rôles qui tournent." },
       { id: "radio", at: "radio", room: "radio", from: "14 h", to: "17 h", must: true, nudge: "14 h 15", nudgeLine: ["nour", "Tu passes à l’atelier radio ? Bastien démarre avec les grands."],
         cast: [["you", "a"], ["bastien", "c", "talk"], ["enzo", "s1"], ["lena", "s2"], ["clara", "d"]],
-        lines: [["narr", "À l’atelier radio, Bastien répartit les postes avec les 13-17 ans."], ["bastien", "Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire."], ["lena", "Euh… moi j’aimerais bien apprendre à régler les micros… je peux ?"], ["bastien", "Une autre fois, Léna. Les textes, c’est important aussi."]],
+        lines: [["narr", "À l’atelier radio, Bastien répartit les postes avec les 13-17 ans."], ["bastien", "Je propose que les filles aillent à l’écriture du texte : les garçons sont pas aussi forts que les filles en français. Et vous, les mecs… on va vous proposer un truc manuel… Tiens, vous allez paramétrer la console…"], ["lena", "Euh… moi j’aimerais bien apprendre à régler les micros… je peux ?"], ["bastien", "Une autre fois, Léna. Les textes, c’est important aussi."]],
         reacts: [{ lena: "talk", bastien: "listen" }, { lena: "listen", bastien: "talk" }, { lena: "talk", bastien: "sad" }, { lena: "sad", bastien: "talk" }],
         replies: [["lena", "Ah… d’accord. Demain, alors."], ["lena", "Trop bien ! Je peux commencer ?"], ["bastien", "Bon… si tu veux le faire à ma place."], ["lena", "Bon… je retourne aux textes."]] },
       { id: "photo", at: "preau", from: "14 h 40", to: "16 h 30", comp: "C2", kicker: "Lundi après-midi · le préau", title: "La photo",
@@ -221,7 +234,7 @@ const SCREENS = [
     },
     end_t: "Les familles commencent à arriver au portail : votre après-midi se termine." },
   { id: "radio", inRoam: "lundi-libre", ch: 1, type: "choice", comp: "C4", scene: "S01", kicker: "Lundi, 14 h · atelier radio", title: "Qui touche à la console ?",
-    context: "Bastien anime l’atelier : « Les garçons à la console, les filles aux textes. C’est naturel, elles préfèrent écrire. » Léna lui redemande d’apprendre à régler les micros.",
+    context: "Bastien anime l’atelier : « Je propose que les filles aillent à l’écriture du texte : les garçons sont pas aussi forts que les filles en français. Et vous, les mecs… on va vous proposer un truc manuel… Tiens, vous allez paramétrer la console… » Léna lui redemande d’apprendre à régler les micros.",
     prompt: "Que faites-vous ?",
     opts: [
       {t:  "Je n’interviens pas pendant l’atelier, mais j’ouvre demain une séance « technique » ouverte à toutes et à tous.", q:  0.5, cons:  "Demain, quatre filles viennent à la séance. Aujourd’hui, Léna est restée aux textes.", fb:  "Vous ouvrez l’accès, mais un jour trop tard, et le raisonnement de Bastien n’est pas travaillé : la même règle se reproduira ailleurs."},
@@ -756,13 +769,13 @@ const SCREENS = [
         opts: [{ t: "Pardon. Tu n’as rien à prouver. Tu as bien fait de me le dire, et ce n’est pas de ta faute.", to: "n2", q: 0.5 }] },
       n2: { mood: "concern", t: "Je veux plus aller là-bas. Et… y a atelier bois à 15 h.",
         opts: [
-          { t: "Tu n’iras pas. Je reste avec toi. Hier, au local, tu étais seule avec lui ?", to: "n3", q: 1 },
+          { t: "Tu n’iras pas. Je reste avec toi. Hier, au local, tu étais seul avec lui ?", to: "n3", q: 1 },
           { t: "Tu n’iras pas. Je reste avec toi. Est-ce qu’il y avait quelqu’un d’autre, pas loin ?", to: "n3", q: 1 },
           { t: "Tu n’iras pas, promis. Et je ne le dirai à personne.", to: "n2b", q: 0, note: "Vous ne pouvez pas promettre le secret : vous allez devoir transmettre. Dites-le-lui simplement." },
           { t: "On verra. Peut-être que ce n’est qu’un malentendu.", to: "n2b", q: 0, note: "Minimiser l’expose à nouveau. Elle ne doit plus croiser l’intervenant." },
         ] },
       n2b: { mood: "sad", t: "…D’accord.",
-        opts: [{ t: "Je me suis mal exprimée. Tu n’iras pas, je reste avec toi, et je vais en parler à des adultes dont c’est le rôle. Hier, tu étais seule avec lui ?", to: "n3", q: 0.5 }] },
+        opts: [{ t: "Je me suis mal exprimée. Tu n’iras pas, je reste avec toi, et je vais en parler à des adultes dont c’est le rôle. Hier, tu étais seul avec lui ?", to: "n3", q: 0.5 }] },
       n3: { end: true, mood: "calm", t: "Non… Je crois que Sacha était peut-être à côté. Il rangeait les outils. Je sais pas s’il a vu.",
         lesson: "Accueillir sans questionner sur les faits : remercier, déculpabiliser, protéger. Une question sur le contexte (qui était là ?) aide à transmettre sans orienter le récit." } } },
   { id: "f1", ch: 5, type: "choice", comp: "C3", kicker: "13 h 05",

@@ -349,6 +349,33 @@
   function load() { try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.v === 1) return s; } catch (e) { } return null; }
   const saved = load();
   if (saved) st.settings = saved.settings || st.settings;
+  // Animateur ou animatrice : les textes qui désignent le joueur s'accordent (GENRE_M, dans le scénario). On garde
+  // l'original de chaque texte modifié, pour pouvoir revenir au féminin si l'on change d'avis.
+  const G_ORIG = new WeakMap();
+  const isM = () => !!(st && st.look && st.look.g === "m");
+  const G = (t) => (isM() && typeof genreM === "function" ? genreM(t) : t);
+  function applyGender() {
+    if (typeof genreM !== "function") return;
+    const m = isM(), seen = new Set();
+    const walk = (o) => {
+      if (!o || typeof o !== "object" || seen.has(o)) return; seen.add(o);
+      let O = G_ORIG.get(o);
+      for (const k of Object.keys(o)) {
+        const v = o[k];
+        if (typeof v === "string") {
+          const orig = O && k in O ? O[k] : v, nv = m ? genreM(orig) : orig;
+          if (nv !== orig && !O) { O = {}; G_ORIG.set(o, O); }
+          if (O && !(k in O) && nv !== orig) O[k] = orig;
+          if (nv !== v) o[k] = nv;
+        } else if (v && typeof v === "object") walk(v);
+      }
+    };
+    [typeof SCREENS !== "undefined" && SCREENS, typeof ROLE !== "undefined" && ROLE, typeof BRIDGE !== "undefined" && BRIDGE, typeof KID !== "undefined" && KID,
+      typeof HARD !== "undefined" && HARD, typeof EXPERT !== "undefined" && EXPERT, typeof REPLAY !== "undefined" && REPLAY, typeof AUREVOIR !== "undefined" && AUREVOIR,
+      typeof DAYEND !== "undefined" && DAYEND, typeof EPILOGUE !== "undefined" && EPILOGUE, typeof FLASH !== "undefined" && FLASH, typeof ROOM_SAY !== "undefined" && ROOM_SAY,
+      typeof ECHOES !== "undefined" && ECHOES, typeof CHAPTERS !== "undefined" && CHAPTERS, typeof DOCS !== "undefined" && DOCS, typeof PHONE !== "undefined" && PHONE,
+      typeof REFLEXES !== "undefined" && REFLEXES, typeof NUMBERS !== "undefined" && NUMBERS, typeof BUILD !== "undefined" && BUILD].forEach((r) => r && walk(r));
+  }
   if (st.settings.voice === undefined) st.settings.voice = true;
 
   /* ---------- son : musique générative par chapitre + ambiances (désactivable) ---------- */
@@ -871,7 +898,7 @@
   }
   // Les épreuves chronométrées attendent que la consigne ait été dite : bouton « Commencer », mis en avant à la fin de la voix.
   function readyGate(host, start, label = "Commencer") {
-    const g = el("div", { class: "rgate" }, `<p>Écoutez la consigne, puis lancez le chrono quand vous êtes prête.</p>`);
+    const g = el("div", { class: "rgate" }, `<p>${G("Écoutez la consigne, puis lancez le chrono quand vous êtes prête.")}</p>`);
     const b = btn(label, () => { document.removeEventListener("voice-idle", glow); g.remove(); start(); });
     const glow = () => b.classList.add("ready");
     g.appendChild(b); host.appendChild(g);
@@ -994,7 +1021,21 @@
     },
     off() { document.querySelectorAll(".fb-rew").forEach((x) => x.remove()); const b = document.getElementById("fb-band"); if (b) b.remove(); },
   };
+  // On écoute jusqu'au bout : tant que le narrateur ou quelqu'un parle (ou, sans le son, le temps de lire sa réplique), les
+  // choix, les boutons de la scène et les lieux du plan restent cachés ou inactifs. On ne peut ni entrer dans une autre salle
+  // ni avancer avant la fin. Les réglages, le carnet et le téléphone restent accessibles (on peut toujours couper le son).
+  let _vl0 = 0;
+  setInterval(() => {
+    const on = !calm() && !!((typeof Voice !== "undefined" && Voice.busy && Voice.busy()) || (typeof Lip !== "undefined" && Lip._sl));
+    const now = performance.now();
+    if (on && !_vl0) _vl0 = now; if (!on) _vl0 = 0;
+    const sc0 = st && SCREENS[st.idx], timed = sc0 && ((sc0.type === "order" && sc0.crisis) || (sc0.type === "sort" && sc0.cats && sc0.cats.length <= 3));   // les épreuves chronométrées (crise, réflexes) se jouent pendant qu'on parle
+    const lock = on && !timed && now - _vl0 < 45000;   // garde-fou : jamais bloqué plus de 45 s d'affilée
+    if (document.body.classList.contains("vlock") !== lock) document.body.classList.toggle("vlock", lock);
+  }, 150);
+  let _gm = false;
   function render(dir = 1) {
+    if (isM() !== _gm) { _gm = isM(); applyGender(); }   // partie reprise, ou changement en cours de route : les accords suivent
     document.body.classList.remove("athome", "roaming");
     Flash.off();   // un flash-back ne déborde jamais sur l'écran suivant
     if (typeof Life !== "undefined") Life.clear();   // la promenade s'arrête quand on change d'écran
@@ -2072,7 +2113,8 @@
         <p class="lead">${esc(ROLE.voice)} Créez le personnage qui vous ressemble : il vous suivra toute la semaine.</p></div>
         <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div>
           <p class="su-mlab">Partir d’un modèle</p><div class="avs" role="group" aria-label="Modèles de départ"></div></div>
-        <div class="su-form"><label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
+        <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez">${[["f", "Une animatrice"], ["m", "Un animateur"]].map(([v, t]) => `<button type="button" class="ch${(st.look && st.look.g === "m" ? "m" : "f") === v ? " sel" : ""}" data-g="${v}" aria-pressed="${(st.look && st.look.g === "m" ? "m" : "f") === v}">${t}</button>`).join("")}</div>
+          <label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
           <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="Sam" value="${esc(st.name || "")}">
           <div class="tabs" role="tablist" aria-label="Personnaliser">${[["visage", "Visage"], ["cheveux", "Cheveux"], ["tenue", "Tenue"], ["accessoires", "Accessoires"]].map(([k, t]) => `<button type="button" role="tab" class="tab${k === tab ? " sel" : ""}" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("")}</div>
           <div class="tabp" role="tabpanel"></div></div></div>`;
@@ -2081,9 +2123,14 @@
       const fillTab = () => { panel.innerHTML = TABS[tab](); };
       LOOK.PRESETS.forEach((p, i) => {
         const b = el("button", { class: "av", type: "button", "aria-label": "Modèle " + (i + 1) }, LOOK.bust(p));
-        b.addEventListener("click", () => { st.look = { ...p }; st.av = i; fillTab(); draw(true); Snd.click(); });
+        b.addEventListener("click", () => { const g = st.look && st.look.g; st.look = { ...p }; if (g) st.look.g = g; st.av = i; fillTab(); draw(true); Snd.click(); });
         models.appendChild(b);
       });
+      su.querySelectorAll(".su-genre button").forEach((b) => b.addEventListener("click", () => {
+        st.look.g = b.dataset.g; applyGender(); save(); Snd.click();
+        su.querySelectorAll(".su-genre button").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-pressed", on); });
+        const ld = su.querySelector(".lead"); if (ld) ld.textContent = ROLE.voice + " Créez le personnage qui vous ressemble : il vous suivra toute la semaine.";
+      }));
       su.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
         tab = t.dataset.t; su.querySelectorAll(".tab").forEach((x) => { x.classList.toggle("sel", x === t); x.setAttribute("aria-selected", x === t); }); fillTab(); Snd.click();
       }));
@@ -2789,7 +2836,7 @@
       wrap.appendChild(res);
       const row = el("div", { class: "row" }); row.appendChild(btn("Continuer", next)); wrap.appendChild(row);
       if (stars === 3) burst(res, "good");
-      Voice.say("narr", stars === 3 ? "Crise maîtrisée : Lou est protégé, et vous êtes restée concentrée." : q >= 0.5 ? "Lou est protégé. Relisez ce qui aurait pu être plus rapide ou plus sûr." : "Relisez le déroulé : dans l’urgence, l’ordre des actions protège.");
+      Voice.say("narr", stars === 3 ? G("Crise maîtrisée : Lou est protégé, et vous êtes restée concentrée.") : q >= 0.5 ? "Lou est protégé. Relisez ce qui aurait pu être plus rapide ou plus sûr." : "Relisez le déroulé : dans l’urgence, l’ordre des actions protège.");
       row.querySelector(".cta").focus({ preventScroll: true });
     }
   };
@@ -4104,6 +4151,7 @@
     [10.25, 2.45, 10.55, 2.75], [12.05, 1.6, 12.35, 1.9], [18.15, 2.05, 18.45, 2.35], [9.85, 8.15, 10.15, 8.45],   // troncs
     [13.35, 19.25, 14.35, 19.95], [16.55, 19.25, 17.55, 19.95],     // jardinières de l'entrée
     [12.0, 23.6, 14.2, 25.8],                                         // l'araignée de cordes
+    [6.6, 22.35, 8.6, 22.95],                                         // le banc de l'aire de jeux
     [3.85, 24.05, 4.4, 25.55], [11.2, 24.05, 11.75, 25.55],         // les deux cages du terrain de foot
   ];
   const inZ = (p, R, e = 0) => p[0] > R[0] + e && p[0] < R[2] - e && p[1] > R[1] + e && p[1] < R[3] - e;
@@ -4355,6 +4403,7 @@
     /* -- se déplacer : on touche le sol près de soi -- */
     function onTap(e) {
       if ((busy && !moving) || !document.body.classList.contains("roaming") || e.button > 0) return;   // en marchant, on peut recliquer plus loin
+      if (document.body.classList.contains("vlock")) return;   // on écoute d'abord jusqu'au bout, puis on repart
       if (World._drag) return;
       const r = World.cam.getBoundingClientRect(); if (!r.width) return;
       const fx = (e.clientX - r.left) / r.width * 100, fy = (e.clientY - r.top) / r.height * 100, [wx, wy] = f2w(fx, fy);

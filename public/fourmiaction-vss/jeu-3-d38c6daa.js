@@ -3308,6 +3308,9 @@
     document.body.appendChild(box);
     const svg = box.querySelector("svg"); if (!svg) { box.remove(); return null; }
     svg.setAttribute("width", "640"); svg.setAttribute("height", "360");
+    // image fixe : les mouvements (course, flèches qui avancent) sont saisis à leur position de référence
+    svg.querySelectorAll("animateMotion").forEach((e) => e.parentNode && e.parentNode.remove());
+    svg.querySelectorAll("animate, animateTransform, set").forEach((e) => e.remove());
     [...svg.querySelectorAll("*")].forEach((e) => {
       const cs = getComputedStyle(e);
       if (cs.display === "none" || cs.visibility === "hidden") { e.setAttribute("data-x", "1"); return; }
@@ -3347,8 +3350,14 @@
   async function cibleDoc() {
     const PW = 1240, PH = 1754, M = 96, F = "'Inter', 'Helvetica Neue', Arial, sans-serif", NAVY = "#14304A", INK = "#26313D", MUT = "#5F6B78";
     const pages = []; let cv, x, y;
+    // le logo de l'association (celui de l'accueil du jeu)
+    let logo = null;
+    { const m = /url\((["']?)(.+?)\1\)/.exec(getComputedStyle(document.documentElement).getPropertyValue("--logo") || "");
+      if (m) { const im = new Image(); im.src = m[2]; try { await im.decode(); logo = im; } catch (e) { } } }
     const page = () => { cv = document.createElement("canvas"); cv.width = PW; cv.height = PH; x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, PW, PH); x.textBaseline = "top"; pages.push(cv);
-      x.fillStyle = "#F3F6F9"; x.fillRect(0, 0, PW, 70); x.fillStyle = NAVY; x.font = `700 22px ${F}`; x.fillText("Fourmi’Action · Les Hautes Herbes", M, 24);
+      x.fillStyle = "#F3F6F9"; x.fillRect(0, 0, PW, 70);
+      if (logo) { const lh = 34, lw = logo.naturalWidth / logo.naturalHeight * lh; x.drawImage(logo, M, 18, lw, lh); x.fillStyle = NAVY; x.font = `600 20px ${F}`; x.fillText("· Les Hautes Herbes", M + lw + 12, 26); }
+      else { x.fillStyle = NAVY; x.font = `700 22px ${F}`; x.fillText("Fourmi’Action · Les Hautes Herbes", M, 24); }
       x.fillStyle = MUT; x.font = `400 20px ${F}`; const d = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); x.fillText(d, PW - M - x.measureText(d).width, 26); y = 120; };
     const wrap = (t, fz, wt, w, col, lh = 1.38, dx = 0) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; const L = []; let line = "";
       String(t).split(/\s+/).forEach((wd) => { const tt = line ? line + " " + wd : wd; if (x.measureText(tt).width > w && line) { L.push(line); line = wd; } else line = tt; }); if (line) L.push(line);
@@ -3357,6 +3366,7 @@
     const h2 = (t) => { if (y > PH - 260) page(); y += 18; x.fillStyle = "#E2702A"; x.fillRect(M, y + 6, 8, 30); text(t, 34, 700, NAVY, { dx: 22, after: 16 }); };
     // page 1 : la cible
     page();
+    if (logo) { const lh = 64, lw = Math.min(380, logo.naturalWidth / logo.naturalHeight * lh); x.drawImage(logo, PW - M - lw, y + 6, lw, lw / (logo.naturalWidth / logo.naturalHeight)); }
     text("Ma cible", 64, 800, NAVY, { after: 6 });
     text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 30 });
     const P = compProgress(), cx = M + 210, cy = y + 210;
@@ -5445,75 +5455,169 @@
       kid: { age: 7, sex: "m", skin: "#6B4129", hair: "noir", hairStyle: "curly", top: "#4FA3C2", bottom: "#40506A", shoes: "#E2702A", shoeStyle: "basket", sleeves: "short" },
       teen: { age: 15, sex: "f", skin: "#F3D2BD", hair: "blond", hairStyle: "long", top: "#7A5BC2", bottom: "#2E3A4E", shoes: "#F4F1EC", shoeStyle: "toile", sleeves: "long" },
       par: { age: 40, sex: "m", skin: "#B5784E", hair: "noir", hairStyle: "short", top: "#7A5234", bottom: "#2F3540", shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
+      par2: { age: 36, sex: "f", skin: "#EDC3A4", hair: "blond", hairStyle: "bob", top: "#C2418A", bottom: "#2E3A4E", shoes: "#3A3F48", shoeStyle: "ville", sleeves: "long" },
     };
-    const fig = (k, pose, x, o = {}) => { const sp = { ...P[k], mood: o.mood || "smile" }, s = o.s || 2.1;
-      return `<g transform="translate(${x},${o.y || 150}) scale(${o.flip ? -s : s},${s})">${RIG.inMini(sp, pose || "stand")}</g>`; };
+    // Style « à la Apple » : dégradés doux, ombres portées légères, pastilles arrondies, couleurs système.
+    const C = { blue: "#0A84FF", green: "#30B158", red: "#FF3B30", orange: "#FF9500", purple: "#AF52DE", ink: "#1D1D1F", mute: "#6E6E73" };
+    let u = "na";   // préfixe des identifiants (plusieurs images peuvent coexister pendant un fondu)
+    const FONT = "-apple-system,'SF Pro Text','Inter',system-ui,sans-serif";
+    const esc2 = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-family="${FONT}" font-size="${o.fs || 11}" font-weight="${o.fw || 600}" fill="${o.c || C.ink}" text-anchor="${o.a || "middle"}"${o.ls ? ` letter-spacing="${o.ls}"` : ""}>${esc2(t)}</text>`;
+    const defs = () => `<defs>
+      <linearGradient id="${u}sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE6FF"/><stop offset="1" stop-color="#F4F9FF"/></linearGradient>
+      <linearGradient id="${u}grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8E09C"/><stop offset="1" stop-color="#8CC56F"/></linearGradient>
+      <linearGradient id="${u}wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF7F1"/><stop offset="1" stop-color="#EFE6DA"/></linearGradient>
+      <linearGradient id="${u}floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2D0B6"/><stop offset="1" stop-color="#CDB596"/></linearGradient>
+      <linearGradient id="${u}nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2547"/><stop offset="1" stop-color="#3A4677"/></linearGradient>
+      <linearGradient id="${u}nfloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3760"/><stop offset="1" stop-color="#252C4E"/></linearGradient>
+      <linearGradient id="${u}win" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E4F2FF"/><stop offset="1" stop-color="#B9DAF7"/></linearGradient>
+      <linearGradient id="${u}wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D7A877"/><stop offset="1" stop-color="#B9875A"/></linearGradient>
+      <radialGradient id="${u}sh"><stop offset="0" stop-color="#000" stop-opacity=".26"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF6D6"/><stop offset="1" stop-color="#FFF6D6" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${u}vig" cx=".5" cy=".45" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".1"/></radialGradient>
+      <filter id="${u}ds" x="-20%" y="-30%" width="140%" height="170%"><feDropShadow dx="0" dy="1.6" stdDeviation="2" flood-color="#0B1A33" flood-opacity=".18"/></filter>
+      <filter id="${u}soft"><feGaussianBlur stdDeviation="6"/></filter></defs>`;
     const BG = {
-      in: `<rect width="320" height="180" fill="#F4ECE0"/><rect y="150" width="320" height="30" fill="#D9C4A4"/><rect y="146" width="320" height="5" fill="#C9B394"/>`,
-      out: `<rect width="320" height="180" fill="#DCEBF4"/><rect y="146" width="320" height="34" fill="#A9CF8E"/><path d="M0 146 Q80 132 160 146 T320 146" fill="#BCDDA2"/>`,
-      night: `<rect width="320" height="180" fill="#2B3458"/><circle cx="302" cy="16" r="8" fill="#F4F0DC"/><circle cx="298" cy="13" r="7" fill="#2B3458"/><rect y="150" width="320" height="30" fill="#3D4670"/>`,
+      out: () => `<rect width="320" height="180" fill="url(#${u}sky)"/><circle cx="268" cy="30" r="34" fill="url(#${u}sun)"/><circle cx="268" cy="30" r="9" fill="#FFF3C4"/>
+        <path d="M0 132 Q70 108 150 126 T320 118 V180 H0Z" fill="#CFE8BE" opacity=".8"/><path d="M0 146 Q90 132 170 144 T320 140 V180 H0Z" fill="url(#${u}grass)"/>`,
+      in: () => `<rect width="320" height="180" fill="url(#${u}wall)"/><rect x="214" y="22" width="78" height="66" rx="6" fill="url(#${u}win)" stroke="#FFFFFF" stroke-width="3"/><line x1="253" y1="22" x2="253" y2="88" stroke="#FFFFFF" stroke-width="2.5"/>
+        <path d="M214 88 L292 88 L262 150 L170 150Z" fill="#FFFFFF" opacity=".28"/><rect y="146" width="320" height="34" fill="url(#${u}floor)"/><rect y="143" width="320" height="4" fill="#E6D8C4"/>`,
+      night: () => `<rect width="320" height="180" fill="url(#${u}nsky)"/>${[[30, 20], [70, 40], [120, 14], [180, 30], [230, 12], [150, 52]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.1" fill="#fff" opacity=".7"/>`).join("")}
+        <circle cx="290" cy="26" r="20" fill="#F4F0DC" opacity=".12"/><circle cx="290" cy="26" r="9" fill="#F4F0DC"/><circle cx="286" cy="23" r="8" fill="#26305A"/><rect y="146" width="320" height="34" fill="url(#${u}nfloor)"/>`,
     };
-    const T = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-family="Inter,sans-serif" font-size="${o.fs || 12}" font-weight="${o.fw || 700}" fill="${o.c || "#1E2733"}" text-anchor="${o.a || "middle"}">${t}</text>`;
-    const poster = (x, y, w, h, lines, col = "#FFFFFF", ink = "#C62828") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${col}" stroke="#C9B394"/>` + lines.map((l, i) => T(x + w / 2, y + 16 + i * 15, l, { c: i ? "#1E2733" : ink, fs: Math.min(i ? 10 : 13, (w - 8) / (String(l).length * .6)).toFixed(1) })).join("");
-    const phone = (x, y, txt, s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><rect width="34" height="58" rx="6" fill="#1E2733"/><rect x="3" y="6" width="28" height="44" rx="3" fill="#EAF2FA"/>${txt || ""}</g>`;
-    const bubble = (x, y, t, w = 44) => { w = Math.max(w, String(t).length * 6.1 + 18); y = Math.min(y, 18); x = Math.max(4, Math.min(x, 316 - w)); return `<g><rect x="${x}" y="${y}" width="${w}" height="22" rx="10" fill="#FFFFFF" stroke="#C9D2DA"/><path d="M${x + 10},${y + 22} l-4,8 l10,-8" fill="#FFFFFF" stroke="#C9D2DA"/>${T(x + w / 2, y + 15, t, { fs: 11, fw: 600 })}</g>`; };
-    const no = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#FDECEA" stroke="#C62828" stroke-width="2.4"/><path d="M${x - r * .5},${y - r * .5} L${x + r * .5},${y + r * .5} M${x + r * .5},${y - r * .5} L${x - r * .5},${y + r * .5}" stroke="#C62828" stroke-width="3" stroke-linecap="round"/></g>`;
-    const yes = (x, y, r = 14) => `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#E7F5EC" stroke="#2E8B57" stroke-width="2.4"/><path d="M${x - r * .5},${y} l${r * .35},${r * .4} l${r * .65},-${r * .8}" stroke="#2E8B57" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
-    const book = (x, y) => `<g><rect x="${x}" y="${y}" width="46" height="34" rx="3" fill="#FFFDF4" stroke="#C9B394"/>${[8, 15, 22].map((d) => `<line x1="${x + 6}" y1="${y + d}" x2="${x + 40}" y2="${y + d}" stroke="#2B6FD6" stroke-width="1.2" opacity=".6"/>`).join("")}<rect x="${x + 50}" y="${y + 2}" width="3" height="26" fill="#E2702A" transform="rotate(20 ${x + 51} ${y + 15})"/></g>`;
-    const table = (x, y, w) => `<rect x="${x}" y="${y}" width="${w}" height="7" rx="2" fill="#C99566"/><rect x="${x + 6}" y="${y + 7}" width="5" height="${150 - y - 7}" fill="#8C6A4C"/><rect x="${x + w - 11}" y="${y + 7}" width="5" height="${150 - y - 7}" fill="#8C6A4C"/>`;
-    const bed = (x, y = 128, kid) => `<g><rect x="${x}" y="${y}" width="76" height="14" rx="4" fill="#9FB6D2"/><rect x="${x}" y="${y + 14}" width="76" height="8" fill="#6E86A6"/><rect x="${x + 2}" y="${y - 6}" width="20" height="10" rx="4" fill="#F4F4F2"/>${kid ? `<circle cx="${x + 14}" cy="${y - 4}" r="7" fill="${kid}"/>` : ""}</g>`;
-    const ball = (x, y = 142) => `<circle cx="${x}" cy="${y}" r="8" fill="#FFFFFF" stroke="#1E2733"/><path d="M${x - 3},${y - 3} l3,-2 3,2 -1,4 h-4z" fill="#1E2733"/>`;
-    const door = (x) => `<rect x="${x}" y="70" width="40" height="80" fill="#E8DCC8" stroke="#C9B394"/><path d="M${x},70 L${x + 18},78 L${x + 18},146 L${x},150 Z" fill="#B98A5E"/>`;
-    const board = (x, y, w, h, rows) => { const L = Math.max(...rows.map((r) => String(r).length)), fs = Math.min(10.5, (w - 18) / (L * .53)), lh = Math.min(15, (h - 10) / rows.length);
-      return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#FFFFFF" stroke="#8B6B4A" stroke-width="2"/>` + rows.map((r, i) => T(x + 10, y + 8 + lh * .8 + i * lh, r, { a: "start", fs: fs.toFixed(1), fw: 600 })).join(""); };
-    const arrow = (x1, y1, x2, y2) => `<path d="M${x1},${y1} Q${(x1 + x2) / 2},${Math.min(y1, y2) - 26} ${x2},${y2}" stroke="#E2702A" stroke-width="3" fill="none" stroke-dasharray="6 5"/><path d="M${x2},${y2} l-10,-3 4,10z" fill="#E2702A"/>`;
-    // une chaise (on ne s'assoit pas dans le vide)
-    const chair = (x) => `<g><rect x="${x - 15}" y="118" width="30" height="5" rx="1.5" fill="#5A6470"/><rect x="${x - 15}" y="88" width="5" height="32" rx="1.5" fill="#5A6470"/><rect x="${x - 13}" y="123" width="3.5" height="27" fill="#3A444E"/><rect x="${x + 10}" y="123" width="3.5" height="27" fill="#3A444E"/></g>`;
-    const zzz = (x, y) => T(x, y, "z z z", { c: "#9FB6D2", fs: 13 });
-    const box = (x, y, t) => `<rect x="${x}" y="${y}" width="40" height="34" rx="3" fill="#C9A06A"/><rect x="${x + 12}" y="${y - 2}" width="16" height="4" fill="#1E2733"/>${T(x + 20, y + 22, t, { fs: 9, c: "#3A2614" })}`;
-    // une image par point de chaque page, dans l'ordre des points
+    const vig = () => `<rect width="320" height="180" fill="url(#${u}vig)" pointer-events="none"/>`;
+    // un personnage : ses pieds en (x, y) ; on connaît où est son visage (pour la pointe des bulles)
+    // o.move = [x0, x1, durée] : il traverse vraiment l'image (court, marche), en boucle
+    const F = (k, pose, x, o = {}) => {
+      const sp = { ...P[k], mood: o.mood || "smile" }, s = o.s || 2.1, y = o.y || 152, B = RIG.body(sp.age), kk = 50 / 172 * s, R = B.headR;
+      if (o.move) x = o.at != null ? o.at : o.move[0] + (o.move[1] - o.move[0]) * .42;   // image fixe (PDF) : la personne est saisie en pleine course, dans l'image
+      const headY = B.shY - B.neck - R * .92;
+      const f = { x, y, head: [x, y + headY * kk], r: R * kk, top: y + (headY - R * 1.25) * kk };
+      let mv = "";
+      if (o.move) { const [a, b, d] = o.move, bg = o.begin || 0;
+        mv = `<animateTransform attributeName="transform" type="translate" values="${a},${y};${b},${y}" dur="${d}s" begin="${bg}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;.08;.5;.92;1" dur="${d}s" begin="${bg}s" repeatCount="indefinite"/>`; }
+      f.svg = `<g transform="translate(${x},${y})">${mv}<ellipse cx="0" cy="0" rx="${(13 * s / 2.1 * (B.H / 172 + .4)).toFixed(1)}" ry="${(3.2 * s / 2.1).toFixed(1)}" fill="url(#${u}sh)"/><g transform="scale(${o.flip ? -s : s},${s})">${RIG.inMini(sp, pose || "stand")}</g></g>`;
+      return f;
+    };
+    // bulle : posée au-dessus, sa pointe va vers le visage de la personne qui parle
+    const bub = (f, t, o = {}) => {
+      const words = String(t).split(" "), long = t.length > 22;
+      let L = [t]; if (long) { let best = 1, bd = 1e9; for (let i = 1; i < words.length; i++) { const d = Math.abs(words.slice(0, i).join(" ").length - words.slice(i).join(" ").length); if (d < bd) { bd = d; best = i; } } L = [words.slice(0, best).join(" "), words.slice(best).join(" ")]; }
+      const w = Math.max(...L.map((l) => l.length)) * 5.7 + 20, h = 12 * L.length + 10;
+      const side = o.side || (f.head[0] > 160 ? -1 : 1);
+      let bx = f.head[0] + side * 14 - (side > 0 ? 0 : w), by = (o.y != null ? o.y : f.top - h - 14);
+      bx = Math.max(6, Math.min(314 - w, bx));
+      // jamais sur le visage de celui qui parle : la bulle reste au-dessus de sa tête
+      if (by + h > f.top - 4 && bx < f.head[0] + f.r * 1.4 && bx + w > f.head[0] - f.r * 1.4) by = f.top - h - 6;
+      by = Math.max(4, by);
+      // pointe : de la base de la bulle vers le visage, et elle s'arrête juste avant lui
+      const ax = Math.max(bx + 12, Math.min(bx + w - 12, f.head[0] + side * (f.r * .2))), ay = by + h;
+      const dx = f.head[0] - ax, dy = f.head[1] - ay, d = Math.hypot(dx, dy) || 1, gap = f.r * 1.35;
+      const tx = f.head[0] - dx / d * gap, ty = f.head[1] - dy / d * gap;
+      const nx = -dy / d, ny = dx / d, bw = 5.5;
+      const tail = `<path d="M${(ax - nx * bw).toFixed(1)},${(ay - 1).toFixed(1)} Q${((ax + tx) / 2).toFixed(1)},${((ay + ty) / 2).toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} Q${((ax + tx) / 2 + nx * 2).toFixed(1)},${((ay + ty) / 2).toFixed(1)} ${(ax + nx * bw).toFixed(1)},${(ay - 1).toFixed(1)} Z" fill="#FFFFFF"/>`;
+      return `<g filter="url(#${u}ds)"><rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${Math.min(11, h / 2)}" fill="#FFFFFF"/>${tail}</g>` + L.map((l, i) => T(bx + w / 2, by + 15 + i * 12, l, { fs: 10, fw: 600, c: o.c || C.ink })).join("");
+    };
+    // pastille de légende (en haut) : la phrase simple que l'image raconte
+    const chip = (t, o = {}) => { const w = t.length * 5.6 + (o.ic ? 34 : 22), x = o.x != null ? o.x : 160 - w / 2, y = o.y != null ? o.y : 8, col = o.col || C.blue;
+      return `<g filter="url(#${u}ds)"><rect x="${x}" y="${y}" width="${w}" height="20" rx="10" fill="#FFFFFF" fill-opacity=".96"/></g>${o.ic ? `<circle cx="${x + 13}" cy="${y + 10}" r="6" fill="${col}"/>${T(x + 13, y + 13.2, o.ic, { fs: 8.5, fw: 800, c: "#fff" })}` : ""}${T(x + (o.ic ? 24 : 11), y + 14, t, { a: "start", fs: 10, fw: 600, c: o.tc || C.ink })}`; };
+    const tag = (x, y, t, col, o = {}) => { const w = t.length * 5.4 + 16; return `<g filter="url(#${u}ds)"><rect x="${x - w / 2}" y="${y - 10}" width="${w}" height="18" rx="9" fill="${o.fill || "#FFFFFF"}"/></g>${T(x, y + 3, t, { fs: 9.5, fw: 700, c: col })}`; };
+    const ok = (x, y, r = 11) => `<g filter="url(#${u}ds)"><circle cx="${x}" cy="${y}" r="${r}" fill="${C.green}"/></g><path d="M${x - r * .45},${y + .5} l${r * .3},${r * .32} l${r * .55},-${r * .65}" stroke="#fff" stroke-width="${(r * .22).toFixed(1)}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const no = (x, y, r = 11) => `<g filter="url(#${u}ds)"><circle cx="${x}" cy="${y}" r="${r}" fill="${C.red}"/></g><path d="M${x - r * .38},${y - r * .38} L${x + r * .38},${y + r * .38} M${x + r * .38},${y - r * .38} L${x - r * .38},${y + r * .38}" stroke="#fff" stroke-width="${(r * .22).toFixed(1)}" stroke-linecap="round"/>`;
+    const ball = (x, y = 149, o = {}) => { if (o.move) x = o.at != null ? o.at : o.move[0] + (o.move[1] - o.move[0]) * .42; const mv = o.move ? `<animateTransform attributeName="transform" type="translate" values="${o.move[0]},${y};${o.move[1]},${y}" dur="${o.move[2]}s" begin="${o.begin || 0}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;.08;.5;.92;1" dur="${o.move[2]}s" begin="${o.begin || 0}s" repeatCount="indefinite"/>` : "";
+      const spin = o.move ? `<animateTransform attributeName="transform" type="rotate" values="0;720" dur="${o.move[2]}s" begin="${o.begin || 0}s" repeatCount="indefinite"/>` : "";
+      return `<g transform="translate(${x},${y})">${mv}<ellipse cy="1" rx="8" ry="2" fill="url(#${u}sh)"/><g transform="translate(0,-6.5)"><g>${spin}<circle r="6.5" fill="#FFFFFF" stroke="#C7CDD4" stroke-width=".8"/><path d="M-2.2,-2 l2.2,-1.6 2.2,1.6 -.8,2.6 h-2.8z" fill="#1D1D1F"/><circle cx="-4.2" cy="2.6" r="1.3" fill="#1D1D1F"/><circle cx="4.1" cy="2.8" r="1.3" fill="#1D1D1F"/></g></g></g>`; };
+    const phone = (x, y, inner = "", s = 1) => `<g transform="translate(${x},${y}) scale(${s})"><g filter="url(#${u}ds)"><rect width="36" height="64" rx="8" fill="#1D1D1F"/></g><rect x="2.5" y="2.5" width="31" height="59" rx="6" fill="#F5F7FA"/><rect x="13" y="5" width="10" height="2.4" rx="1.2" fill="#1D1D1F"/>${inner}</g>`;
+    const poster = (x, y, w, h, big, lines, col) => `<g filter="url(#${u}ds)"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#FFFFFF"/></g><rect x="${x}" y="${y}" width="${w}" height="${h * .42}" rx="6" fill="${col}"/><rect x="${x}" y="${y + h * .3}" width="${w}" height="${h * .12}" fill="${col}"/>${T(x + w / 2, y + h * .3, big, { fs: Math.min(20, w / (big.length * .62)), fw: 800, c: "#fff" })}` + lines.map((l, i) => T(x + w / 2, y + h * .58 + i * 12, l, { fs: Math.min(9.5, (w - 8) / (l.length * .55)), fw: 600, c: C.ink })).join("");
+    const board = (x, y, w, h, title, rows) => `<g filter="url(#${u}ds)"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#FFFFFF"/></g>${T(x + 12, y + 18, title, { a: "start", fs: 11, fw: 700, c: C.blue })}` + rows.map(([ic, t, col], i) => `<circle cx="${x + 17}" cy="${y + 34 + i * 16}" r="5.5" fill="${col || C.green}"/>${T(x + 17, y + 37 + i * 16, ic, { fs: 7.5, fw: 800, c: "#fff" })}${T(x + 28, y + 37.5 + i * 16, t, { a: "start", fs: 9.5, fw: 600 })}`).join("");
+    const table = (x, y, w) => `<rect x="${x + 8}" y="${y + 6}" width="5" height="${148 - y - 6}" rx="2" fill="#9C7552"/><rect x="${x + w - 13}" y="${y + 6}" width="5" height="${148 - y - 6}" rx="2" fill="#9C7552"/><rect x="${x}" y="${y}" width="${w}" height="8" rx="3" fill="url(#${u}wood)"/>`;
+    const chair = (x) => `<g><rect x="${x - 14}" y="88" width="5" height="32" rx="2.5" fill="#8E8E93"/><rect x="${x - 15}" y="117" width="30" height="5" rx="2.5" fill="#AEAEB2"/><rect x="${x - 13}" y="122" width="3.5" height="26" rx="1.5" fill="#8E8E93"/><rect x="${x + 9.5}" y="122" width="3.5" height="26" rx="1.5" fill="#8E8E93"/></g>`;
+    const book = (x, y, rows = 3) => `<g filter="url(#${u}ds)"><rect x="${x}" y="${y}" width="50" height="34" rx="4" fill="#FFFFFF"/></g><rect x="${x}" y="${y}" width="6" height="34" rx="3" fill="${C.orange}"/>${Array.from({ length: rows }, (_, i) => `<rect x="${x + 11}" y="${y + 8 + i * 8}" width="${30 - i * 5}" height="2.6" rx="1.3" fill="#C7CDD4"/>`).join("")}`;
+    const bed = (x, y = 124, kid, o = {}) => `<g><rect x="${x - 2}" y="${y + 14}" width="4" height="10" fill="#7C86A8"/><rect x="${x + 76}" y="${y + 14}" width="4" height="10" fill="#7C86A8"/><rect x="${x}" y="${y + 6}" width="80" height="12" rx="5" fill="#E9EDF5"/><rect x="${x + 24}" y="${y + 2}" width="56" height="14" rx="6" fill="${o.col || "#7EA2D6"}"/><rect x="${x + 3}" y="${y}" width="22" height="10" rx="5" fill="#FFFFFF"/>${kid ? `<circle cx="${x + 15}" cy="${y - 1}" r="7" fill="${kid}"/><path d="M${x + 8},${y - 3} q7,-8 14,0" fill="#2B211C" opacity=".85"/>` : ""}</g>`;
+    const zzz = (x, y) => `<g>${["z", "z", "Z"].map((z, i) => `<text x="${x + i * 7}" y="${y - i * 7}" font-family="${FONT}" font-size="${8 + i * 2}" font-weight="700" fill="#C9D6F2" opacity=".9">${z}<animate attributeName="opacity" values=".2;1;.2" dur="2.4s" begin="${i * .4}s" repeatCount="indefinite"/></text>`).join("")}</g>`;
+    const door = (x, open) => `<rect x="${x}" y="66" width="42" height="82" rx="3" fill="#FFFFFF" opacity=".9"/>${open ? `<path d="M${x},66 L${x + 16},74 L${x + 16},144 L${x},148Z" fill="#C49A6C"/><rect x="${x + 2}" y="68" width="38" height="78" fill="#FFE9A8" opacity=".35"/>` : `<rect x="${x + 2}" y="68" width="38" height="78" rx="2" fill="#C49A6C"/><circle cx="${x + 34}" cy="108" r="2" fill="#8C6A4C"/>`}`;
+    const house = (x, y, t, col) => `<g filter="url(#${u}ds)"><rect x="${x}" y="${y + 18}" width="70" height="52" rx="4" fill="#FFFFFF"/></g><path d="M${x - 4},${y + 20} L${x + 35},${y} L${x + 74},${y + 20}Z" fill="${col}"/>${[0, 1, 2].map((i) => `<rect x="${x + 10 + i * 19}" y="${y + 30}" width="10" height="22" rx="2" fill="#E5EAF1"/>`).join("")}${T(x + 35, y + 65, t, { fs: 8.5, fw: 700, c: col })}`;
+    const arrow = (x1, y1, x2, y2, col = C.orange) => { const id = u + "ar" + Math.round(x1 + y1); return `<path id="${id}" d="M${x1},${y1} Q${(x1 + x2) / 2},${Math.min(y1, y2) - 26} ${x2},${y2}" stroke="${col}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-dasharray="1 6"><animate attributeName="stroke-dashoffset" values="14;0" dur=".8s" repeatCount="indefinite"/></path><circle r="3.2" fill="${col}"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#${id}"/></animateMotion></circle>`; };
+    const camNo = (x, y) => `<g transform="translate(${x},${y})"><g filter="url(#${u}ds)"><rect x="-17" y="-11" width="34" height="23" rx="6" fill="#FFFFFF"/></g><rect x="-6" y="-15" width="12" height="5" rx="2" fill="#FFFFFF"/><circle r="6.5" fill="none" stroke="${C.ink}" stroke-width="2"/><circle r="2.6" fill="${C.ink}"/><line x1="-20" y1="15" x2="20" y2="-15" stroke="${C.red}" stroke-width="3.4" stroke-linecap="round"/></g>`;
+    const key = (x, y, n, col, sub) => `<g filter="url(#${u}ds)"><rect x="${x}" y="${y}" width="40" height="34" rx="9" fill="${col}"/></g>${T(x + 20, y + (sub ? 17 : 22), n, { fs: n.length > 3 ? 11 : 14, fw: 800, c: "#fff" })}${sub ? T(x + 20, y + 28, sub, { fs: 6.5, fw: 600, c: "#fff" }) : ""}`;
     const S = {
       k1: [
-        () => BG.out + ball(120) + fig("anim2", "point", 70) + fig("boy", "stand", 130) + fig("girl", "sad", 220, { mood: "sad" }) + bubble(40, 40, "Le foot, c’est pour les garçons", 170) + no(270, 60, 12),
-        () => BG.out + ball(150) + fig("boy", "run", 130) + fig("kid", "run", 170, { flip: true }) + fig("girl", "sad", 255, { mood: "sad" }) + no(255, 50, 14),
-        () => BG.in + board(18, 30, 142, 84, ["Qui fait quoi ?", "Console : tout le monde", "Rangement : chacun", "Ballons : à tour de rôle"]) + fig("anim", "point", 175) + fig("girl", "listen", 230) + fig("boy", "listen", 275, { flip: true }),
+        // un cliché sur tout un groupe : « le foot, c'est pour les garçons »
+        () => { const a = F("anim2", "point", 72), b = F("boy", "stand", 150), g = F("girl", "sad", 236, { mood: "sad", flip: true });
+          return BG.out() + ball(170) + a.svg + b.svg + g.svg + bub(a, "Le foot, c’est pour les garçons !", { side: 1 }) + no(264, 92, 10) + chip("Un cliché sur tout un groupe", { ic: "!", col: C.orange, y: 154 }); },
+        // décider contre quelqu'un à cause de son sexe : les garçons jouent, la fille est mise à l'écart
+        () => { const g = F("girl", "sad", 52, { mood: "sad" });
+          return BG.out() + F("boy", "run", 0, { move: [70, 360, 4.2], at: 214 }).svg + ball(0, 149, { move: [96, 386, 4.2], at: 240 }) + F("kid", "run", 0, { move: [-14, 276, 4.2], at: 170 }).svg + g.svg + bub(g, "Et moi ?", { side: 1 }) + no(88, 96, 10) + chip("Exclue parce que c’est une fille : interdit", { ic: "×", col: C.red, y: 154 }); },
+        // on change l'organisation : un tableau « qui fait quoi », chacun a accès à tout
+        () => { const a = F("anim", "point", 186);
+          return BG.in() + board(18, 26, 146, 86, "Qui fait quoi ?", [["✓", "Console : tout le monde"], ["✓", "Ballons : à tour de rôle"], ["✓", "Rangement : chacun"]]) + a.svg + F("boy", "run", 0, { move: [150, 340, 3.8], at: 236 }).svg + F("girl", "run", 0, { move: [196, 386, 3.8], at: 278 }).svg + ball(0, 149, { move: [216, 406, 3.8], at: 298 }) + chip("On change l’organisation", { ic: "✓", col: C.green, y: 154 }); },
       ],
       k2: [
-        () => BG.in + fig("anim2", "talk", 70) + fig("par", "talk", 120, { mood: "big" }) + bubble(30, 30, "Ha ha !", 50) + bubble(110, 18, "Encore ?", 56) + fig("anim", "sad", 240, { mood: "sad", flip: true }),
-        () => BG.in + phone(40, 40, `<rect x="6" y="11" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="8" y="22" width="20" height="7" rx="3" fill="#D8E6F2"/><rect x="6" y="33" width="20" height="7" rx="3" fill="#D8E6F2"/>`, 1.4) + T(160, 60, "1 + 1 + 1", { fs: 22, c: "#C62828" }) + T(160, 82, "= une répétition", { fs: 13 }) + fig("anim", "sad", 260, { mood: "sad" }),
-        () => BG.in + table(110, 108, 130) + book(150, 76) + chair(92) + fig("anim", "sit", 92, { y: 150 }) + T(250, 46, "Vu", { c: "#2E8B57" }) + T(250, 64, "Entendu", { c: "#2B6FD6" }) + T(250, 82, "Supposé ?", { c: "#B5602A" }),
-        () => BG.in + poster(28, 30, 76, 96, ["119", "Allô enfance", "en danger", "24 h/24"]) + phone(150, 54, T(17, 32, "119", { fs: 12, c: "#C62828" }), 1.3) + fig("anim", "talk", 250, { flip: true, mood: "concern" }),
+        // des remarques sexistes répétées
+        () => { const p = F("par", "talk", 62, { mood: "big" }), v = F("anim", "sad", 272, { mood: "sad", flip: true });
+          return BG.in() + p.svg + v.svg + bub(p, "Encore en jupe ?", { side: 1, y: 8 }) + bub(p, "T’es bien jolie…", { side: 1, y: 38 }).replace(/<g filter/, "<g filter") + bub(p, "Souris un peu !", { side: 1, y: 68 }) + tag(212, 20, "lundi", C.mute) + tag(212, 50, "mardi", C.mute) + tag(212, 80, "mercredi", C.mute) + chip("Des remarques qui se répètent", { ic: "!", col: C.orange, y: 154 }); },
+        // plusieurs personnes, une fois chacune : ça s'additionne
+        () => { const a = F("par", "talk", 50, { mood: "big" }), b = F("anim2", "talk", 118, { mood: "big" }), c = F("teen", "talk", 186, { mood: "big" }), v = F("anim", "sad", 270, { mood: "sad", flip: true });
+          return BG.in() + a.svg + b.svg + c.svg + v.svg + bub(a, "Ha ha", { side: 1, y: 6 }) + bub(b, "Ha ha", { side: 1, y: 6 }) + bub(c, "Ha ha", { side: 1, y: 6 }) + tag(270, 42, "1 + 1 + 1", C.red) + chip("Une fois chacun… mais ça s’additionne", { ic: "+", col: C.red, y: 154 }); },
+        // je note les faits ; je sépare ce que j'ai vu, entendu, supposé
+        () => BG.in() + table(108, 106, 128) + book(150, 74) + chair(92) + F("anim", "sit", 92).svg + tag(272, 36, "Vu", C.green) + tag(272, 60, "Entendu", C.blue) + tag(272, 84, "Supposé ?", C.orange, { fill: "#FFF4E5" }) + chip("J’écris les faits, pas mes idées", { ic: "✎", col: C.blue, y: 154 }),
+        // enfant en danger : 119 ou CRIP
+        () => { const a = F("anim", "talk", 234, { flip: true, mood: "concern" });
+          return BG.in() + poster(28, 26, 74, 96, "119", ["Allô enfance", "en danger", "24 h/24"], C.red) + phone(128, 64, T(18, 30, "119", { fs: 13, fw: 800, c: C.red }) + T(18, 44, "appel…", { fs: 7, c: C.mute }), 1.15) + a.svg + bub(a, "Un enfant est en danger", { side: -1, y: 18 }) + chip("Enfant en danger : j’appelle le 119", { ic: "☎", col: C.red, y: 154 }); },
       ],
       kn: [
-        () => BG.night + bed(30) + bed(120, 128, "#C98E63") + fig("anim", "stand", 250, { mood: "calm" }) + T(160, 40, "Dortoir des filles", { fs: 11, c: "#E9ECF5" }),
-        () => BG.night + bed(30, 128, "#EFC2A4") + door(150) + fig("anim2", "stand", 230, { mood: "calm" }) + T(170, 60, "porte ouverte", { fs: 10, c: "#E9ECF5" }),
-        () => BG.night + bed(90, 128, "#6B4129") + zzz(150, 100) + phone(220, 60, "", 1.2) + no(240, 50, 16),
+        // la nuitée : des lits, des enfants qui dorment, une animatrice qui veille
+        () => BG.night() + bed(24, 124, "#C98E63") + bed(118, 124, "#EFC2A4", { col: "#E58FB0" }) + zzz(60, 108) + zzz(154, 108) + F("anim", "stand", 254, { mood: "calm" }).svg + tag(66, 44, "Dortoir", "#26305A") + chip("1 à 4 nuits, prévues et déclarées", { ic: "☾", col: C.purple, y: 154 }),
+        // la nuit : espaces séparés, porte ouverte, jamais seul avec un enfant
+        () => BG.night() + bed(20, 124, "#EFC2A4") + zzz(56, 108) + `<rect x="114" y="40" width="5" height="108" rx="2" fill="#7C86A8"/>` + door(140, true) + F("anim2", "stand", 236, { mood: "calm" }).svg + ok(160, 54, 9) + tag(161, 36, "porte ouverte", "#26305A") + chip("Porte ouverte : jamais seul avec un enfant", { ic: "!", col: C.orange, y: 154 }),
+        // aucune photo au coucher
+        () => BG.night() + bed(54, 124, "#6B4129") + zzz(92, 108) + camNo(222, 78) + chip("Pas de photo ni de vidéo au coucher", { ic: "×", col: C.red, y: 154 }),
       ],
       k3: [
-        () => BG.in + fig("anim", "talk", 110, { mood: "smile" }) + fig("girl", "stand", 200, { flip: true }) + bubble(60, 30, "Tu veux bien ?", 80) + yes(240, 60, 12) + no(270, 60, 12) + T(255, 90, "elle choisit", { fs: 10 }),
-        () => BG.night + bed(110, 128, "#EFC2A4") + zzz(140, 100) + T(160, 50, "Silence ≠ oui", { fs: 16, c: "#E9ECF5" }) + no(250, 90, 16),
-        () => BG.in + fig("par", "stand", 120, { s: 2.5 }) + fig("kid", "stand", 200, { flip: true, mood: "concern" }) + T(258, 70, "Adulte / enfant", { fs: 13 }) + T(258, 88, "jamais d’égal à égal", { fs: 9.5, fw: 600 }),
-        () => BG.out + fig("anim", "wave", 110) + fig("kid", "wave", 180, { flip: true, mood: "big" }) + T(146, 40, "Tope là !", { fs: 13, c: "#2E8B57" }) + T(250, 70, "un câlin ?", { fs: 10, fw: 600 }) + T(250, 86, "seulement s’il le veut", { fs: 10, fw: 600 }),
+        // demander, et l'enfant peut dire oui ou non
+        () => { const a = F("anim", "talk", 108), g = F("girl", "listen", 196, { flip: true });
+          return BG.in() + a.svg + g.svg + bub(a, "Tu veux bien ?", { side: 1 }) + ok(246, 60, 11) + no(276, 60, 11) + tag(261, 84, "elle choisit", C.ink) + chip("Elle peut dire non, et changer d’avis", { ic: "?", col: C.blue, y: 154 }); },
+        // le silence n'est pas un oui ; quelqu'un qui dort ne peut pas dire oui
+        () => BG.night() + bed(84, 124, "#EFC2A4") + zzz(122, 108) + T(160, 66, "Silence ≠ oui", { fs: 20, fw: 800, c: "#FFFFFF" }) + no(250, 60, 12) + chip("Qui ne dit rien, ou qui dort, n’a pas dit oui", { ic: "×", col: C.red, y: 154 }),
+        // adulte et enfant : jamais d'égal à égal
+        () => BG.in() + F("par", "stand", 104, { s: 2.4 }).svg + F("kid", "stand", 214, { flip: true, mood: "concern" }).svg + tag(104, 14, "adulte", C.ink) + tag(214, 70, "enfant", C.blue) + T(160, 104, "≠", { fs: 34, fw: 800, c: C.red }) + chip("Un adulte a du pouvoir sur un enfant", { ic: "!", col: C.orange, y: 154 }),
+        // dans les gestes de tous les jours : on propose, l'enfant choisit (check plutôt que câlin)
+        () => { const a = F("anim", "wave", 128), k = F("kid", "wave", 174, { flip: true, mood: "big" });
+          return BG.out() + a.svg + k.svg + bub(a, "Check ou câlin ?", { side: -1, y: 26 }) + bub(k, "Check !", { side: 1, y: 30 }) + `<circle cx="152" cy="78" r="10" fill="#FFD60A" opacity=".5"><animate attributeName="r" values="4;14;4" dur="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="1.4s" repeatCount="indefinite"/></circle>` + chip("On propose, l’enfant choisit", { ic: "✓", col: C.green, y: 154 }); },
       ],
       k4: [
-        () => BG.in + fig("anim", "listen", 120, { mood: "calm" }) + fig("girl", "sad", 190, { flip: true, mood: "sad" }) + T(160, 34, "J’écoute, je ne promets pas le secret", { fs: 11 }),
-        () => BG.in + table(100, 108, 140) + book(150, 76) + chair(84) + fig("anim", "sit", 84) + T(250, 42, "« ses mots »", { fs: 12, c: "#2B6FD6" }) + T(250, 60, "l’heure, le lieu", { fs: 11, fw: 600 }),
-        () => BG.out + phone(40, 40, T(17, 26, "17", { fs: 13, c: "#C62828" }) + T(17, 42, "112", { fs: 11, c: "#C62828" }), 1.5) + fig("anim2", "talk", 170, { mood: "concern" }) + fig("kid", "stand", 230, { flip: true, mood: "calm" }) + T(250, 40, "Danger immédiat", { fs: 12, c: "#C62828" }),
-        () => BG.in + book(40, 80) + arrow(100, 90, 220, 80) + `<rect x="226" y="56" width="70" height="70" fill="#E3EAF2" stroke="#8A9AB0"/><path d="M222 58 L261 34 L300 58Z" fill="#5E6E86"/>` + T(261, 100, "Autorités", { fs: 10 }) + fig("dir", "point", 150),
-        () => BG.in + fig("dir", "talk", 110, { mood: "calm" }) + fig("par", "listen", 200, { flip: true, mood: "concern" }) + T(160, 34, "Avec les autorités, d’abord", { fs: 11 }),
+        // écouter, protéger, sans promettre le secret
+        () => { const g = F("girl", "sad", 196, { flip: true, mood: "sad" }), a = F("anim", "listen", 116, { mood: "calm" });
+          return BG.in() + a.svg + g.svg + bub(g, "Je peux te dire un secret ?", { side: 1, y: 44 }) + bub(a, "Je t’écoute. Je ne peux pas promettre.", { side: -1, y: 6 }) + chip("J’écoute, je protège, je ne promets pas le secret", { ic: "♥", col: C.blue, y: 154 }); },
+        // noter sans enquêter
+        () => BG.in() + table(98, 106, 138) + book(150, 74, 4) + chair(82) + F("anim", "sit", 82).svg + tag(272, 34, "ses mots exacts", C.blue) + tag(272, 58, "l’heure, le lieu", C.blue) + tag(272, 82, "pas d’enquête", C.red, { fill: "#FFECEB" }) + chip("Je note ce que j’ai entendu, sans enquêter", { ic: "✎", col: C.blue, y: 154 }),
+        // les numéros d'urgence
+        () => BG.in() + key(22, 34, "17", C.blue, "police") + key(68, 34, "112", C.blue, "urgences") + key(114, 34, "114", C.purple, "par SMS") + key(22, 76, "15", C.red, "SAMU") + key(68, 76, "119", C.orange, "enfance") + F("anim2", "talk", 232, { mood: "concern", flip: true }).svg + phone(166, 64, T(18, 30, "17", { fs: 13, fw: 800, c: C.blue }), 1) + chip("Danger tout de suite : 17 ou 112", { ic: "☎", col: C.red, y: 154 }),
+        // violences sexuelles : la justice ; l'organisateur prévient aussi le SDJES
+        () => BG.in() + F("dir", "point", 40, { s: 1.9 }).svg + book(70, 104) + arrow(124, 110, 172, 72) + arrow(124, 116, 244, 96, C.blue) + house(150, 24, "Justice", C.purple) + house(230, 48, "SDJES", C.blue) + chip("On signale tout de suite aux autorités", { ic: "→", col: C.purple, y: 154 }),
+        // les parents : informés avec les autorités
+        () => { const d = F("dir", "talk", 104, { mood: "calm" }), p = F("par2", "listen", 196, { flip: true, mood: "concern" });
+          return BG.in() + d.svg + p.svg + bub(d, "Les autorités nous guident", { side: -1, y: 22 }) + house(232, 30, "Autorités", C.purple).replace(/<g filter/, `<g transform="translate(0,0)" filter`) + chip("Prévenir les parents : avec les autorités", { ic: "i", col: C.blue, y: 154 }); },
       ],
       k5: [
-        () => BG.in + board(20, 26, 150, 98, ["✓ Ce qui change", "✓ Qui s’en charge", "✓ Quand", "✓ Comment on le voit"]) + fig("dir", "point", 210) + fig("anim2", "listen", 262, { flip: true }),
-        () => BG.in + box(40, 112, "Mots") + fig("girl", "talk", 140) + fig("anim", "listen", 200, { flip: true, mood: "calm" }) + bubble(62, 18, "Je peux te dire ?", 96),
-        () => BG.in + poster(26, 30, 70, 92, ["119", "Enfance", "en danger"]) + poster(110, 30, 70, 92, ["3018", "Harcèlement", "en ligne"], "#FFFFFF", "#2B6FD6") + fig("teen", "point", 230) + fig("kid", "stand", 275, { flip: true }),
-        () => BG.in + fig("anim2", "stand", 90) + box(70, 104, "") + fig("anim", "stand", 200, { flip: true }) + `<rect x="226" y="60" width="4" height="90" fill="#8C6A4C" transform="rotate(14 228 105)"/>` + T(160, 34, "Ranger, soigner : chacun son tour", { fs: 11 }),
-        () => BG.in + `<rect x="40" y="40" width="76" height="96" rx="3" fill="#FFFFFF" stroke="#C9B394"/>` + T(78, 62, "Contrôle", { fs: 11 }) + `<circle cx="78" cy="104" r="16" fill="none" stroke="#2E8B57" stroke-width="3"/>` + T(78, 109, "OK", { fs: 11, c: "#2E8B57" }) + fig("anim", "stand", 200, { mood: "concern" }) + T(268, 54, "+ la vigilance", { fs: 12, c: "#B5602A" }) + T(268, 72, "chaque jour", { fs: 11, fw: 600 }),
+        // une mesure : quoi, qui, quand, comment on le voit
+        () => BG.in() + board(18, 22, 156, 100, "Une bonne mesure", [["1", "Ce qui change", C.blue], ["2", "Qui s’en occupe", C.blue], ["3", "Quand", C.blue], ["4", "Comment on le voit", C.blue]]) + F("dir", "point", 214).svg + F("anim2", "listen", 266, { flip: true }).svg + chip("Une mesure qu’on peut vérifier", { ic: "✓", col: C.green, y: 154 }),
+        // plusieurs façons de parler, des adultes repérables
+        () => { const g = F("girl", "talk", 150), a = F("anim", "listen", 214, { flip: true, mood: "calm" });
+          return BG.in() + `<g filter="url(#${u}ds)"><rect x="30" y="80" width="46" height="40" rx="6" fill="${C.orange}"/></g><rect x="40" y="90" width="26" height="4" rx="2" fill="#fff"/>` + T(53, 112, "Boîte à mots", { fs: 7, fw: 700, c: "#fff" }) + `<rect x="50" y="120" width="6" height="28" fill="#9C7552"/>` + g.svg + a.svg + bub(g, "Je peux te parler ?", { side: 1, y: 22 }) + tag(254, 120, "animatrice", C.green) + chip("Plusieurs façons de parler à un adulte", { ic: "…", col: C.blue, y: 154 }); },
+        // afficher le 119 et le 3018
+        () => BG.in() + poster(24, 22, 70, 92, "119", ["Enfance", "en danger"], C.red) + poster(108, 22, 70, 92, "3018", ["Harcèlement", "en ligne"], C.blue) + F("teen", "point", 226).svg + F("kid", "listen", 274, { flip: true }).svg + chip("Les numéros affichés, pour tous", { ic: "☎", col: C.blue, y: 154 }),
+        // l'égalité dans les tâches : un animateur porte la caisse de rangement, une animatrice soigne
+        () => BG.in() + F("anim2", "walk", 0, { move: [-20, 340, 6] }).svg + `<g><g transform="translate(131,0)"><animateTransform attributeName="transform" type="translate" values="-20,0;340,0" dur="6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;.08;.5;.92;1" dur="6s" repeatCount="indefinite"/><rect x="-12" y="94" width="30" height="20" rx="3" fill="${C.orange}"/><rect x="-6" y="90" width="18" height="6" rx="2" fill="#FFD9A8"/></g></g>` + F("anim", "listen", 230, { flip: true }).svg + `<g filter="url(#${u}ds)"><rect x="252" y="96" width="30" height="22" rx="4" fill="#FFFFFF"/></g><path d="M262 107 h10 M267 102 v10" stroke="${C.red}" stroke-width="3" stroke-linecap="round"/>` + chip("Ranger, soigner : chacun son tour", { ic: "=", col: C.green, y: 154 }),
+        // le contrôle d'honorabilité ne suffit pas : on reste attentif
+        () => BG.in() + `<g filter="url(#${u}ds)"><rect x="36" y="24" width="80" height="104" rx="6" fill="#FFFFFF"/></g>` + T(76, 46, "Contrôle", { fs: 10, fw: 700 }) + ok(76, 76, 14) + `<rect x="50" y="98" width="52" height="3" rx="1.5" fill="#D1D5DB"/><rect x="50" y="106" width="38" height="3" rx="1.5" fill="#D1D5DB"/>` + T(140, 82, "+", { fs: 22, fw: 800, c: C.mute }) + F("anim", "stand", 200, { mood: "concern" }).svg + `<g transform="translate(252,62)"><g filter="url(#${u}ds)"><ellipse rx="22" ry="13" fill="#FFFFFF"/></g><circle r="7" fill="${C.blue}"/><circle r="3" fill="#1D1D1F"/></g>` + tag(252, 92, "vigilance", C.blue) + chip("Le contrôle ne remplace pas la vigilance", { ic: "!", col: C.orange, y: 154 }),
       ],
     };
+    let N = 0;
     return {
       has: (id) => !!S[id],
       ids: () => Object.keys(S).map((k) => [k, S[k].length]),
-      svg(id, k) { const L = S[id]; if (!L || !L.length) return ""; try { return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${L[k % L.length]()}</svg>`; } catch (e) { return ""; } },
+      svg(id, k) { const L = S[id]; if (!L || !L.length) return ""; u = "na" + (++N) + "_"; try { return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${defs()}${L[k % L.length]()}${vig()}</svg>`; } catch (e) { console.warn(e); return ""; } },
     };
   })();
 

@@ -80,6 +80,30 @@
             ${shoeSvg(B.shin, shinLen, s, spec.shoeStyle)}
           </g></g></g></g>`;
     };
+    // Objets tenus dans la main droite : un seul est visible à la fois, selon la classe posée sur le personnage
+    // (pp-phone, pp-ball…) ; la raquette garde sa classe historique (.paddle).
+    const handProps = (B) => {
+      const F = B.foreArm, y = B.foreLen + F * .55, f = (v) => v.toFixed(1);
+      return `<g class="prop-paddle"><rect x="${(-B.foreArm * .22).toFixed(1)}" y="${(B.foreLen + B.foreArm * .3).toFixed(1)}" width="${(B.foreArm * .44).toFixed(1)}" height="${(B.foreArm * 1.5).toFixed(1)}" rx=".6" fill="#B07A4E"/><ellipse cx="0" cy="${(B.foreLen + B.foreArm * 2.9).toFixed(1)}" rx="${(B.foreArm * 1.25).toFixed(1)}" ry="${(B.foreArm * 1.45).toFixed(1)}" fill="#C62828" stroke="#1F1F1F" stroke-width=".5"/></g>`
+        // téléphone tenu devant soi, écran allumé
+        + `<g class="prop prop-phone"><rect x="${f(-F * .34)}" y="${f(y - F * .9)}" width="${f(F * .68)}" height="${f(F * 1.25)}" rx="${f(F * .12)}" fill="#1E232A"/><rect x="${f(-F * .26)}" y="${f(y - F * .8)}" width="${f(F * .52)}" height="${f(F * .98)}" rx="${f(F * .06)}" fill="#8FC7F0"/></g>`
+        // un ballon tenu contre la hanche
+        + `<g class="prop prop-ball"><circle cx="${f(F * 1.1)}" cy="${f(y - F * .5)}" r="${f(F * 1.4)}" fill="#FFFFFF" stroke="#2A3540" stroke-width=".5"/><path d="M${f(F * 1.1)},${f(y - F * 1.05)} l${f(F * .5)},${f(F * .36)} l${f(-F * .2)},${f(F * .58)} h${f(-F * .6)} l${f(-F * .2)},${f(-F * .58)} z" fill="#2A3540"/></g>`
+        // une feuille (un dessin, une affiche, une fiche) tenue à la main
+        + `<g class="prop prop-paper"><rect x="${f(-F * .2)}" y="${f(y - F * 1.4)}" width="${f(F * 1.7)}" height="${f(F * 2.2)}" fill="#FFFFFF" stroke="#C9CED3" stroke-width=".4" transform="rotate(-8 0 ${f(y)})"/><path d="M${f(F * .1)},${f(y - F * .9)} h${f(F * 1.0)} M${f(F * .1)},${f(y - F * .5)} h${f(F * .8)} M${f(F * .1)},${f(y - F * .1)} h${f(F * 1.1)}" stroke="#7A8D9E" stroke-width=".5" transform="rotate(-8 0 ${f(y)})"/></g>`
+        // un porte-bloc (la feuille d'émargement)
+        + `<g class="prop prop-clip"><rect x="${f(-F * .3)}" y="${f(y - F * 1.5)}" width="${f(F * 1.8)}" height="${f(F * 2.4)}" rx="${f(F * .1)}" fill="#A0703F"/><rect x="${f(-F * .15)}" y="${f(y - F * 1.25)}" width="${f(F * 1.5)}" height="${f(F * 2.0)}" fill="#FFFFFF"/><rect x="${f(F * .3)}" y="${f(y - F * 1.6)}" width="${f(F * .6)}" height="${f(F * .3)}" rx="${f(F * .1)}" fill="#9AA3AB"/></g>`
+        // un sac à dos tenu par la poignée
+        + `<g class="prop prop-bag"><path d="M${f(-F * .3)},${f(y)} q${f(F * .3)},${f(-F * .6)} ${f(F * .6)},0" stroke="#2F3540" stroke-width=".9" fill="none"/><rect x="${f(-F * .9)}" y="${f(y)}" width="${f(F * 1.8)}" height="${f(F * 2.2)}" rx="${f(F * .5)}" fill="#2B6FD6"/><rect x="${f(-F * .6)}" y="${f(y + F * 1.1)}" width="${f(F * 1.2)}" height="${f(F * .8)}" rx="${f(F * .25)}" fill="#1F4E8C"/></g>`
+        // un bracelet tout neuf, qui brille au poignet
+        + `<g class="prop prop-bracelet"><ellipse cx="0" cy="${f(B.foreLen - F * .05)}" rx="${f(F * .62)}" ry="${f(F * .26)}" fill="none" stroke="#F4B63F" stroke-width="${f(F * .22)}"/><circle cx="${f(F * .5)}" cy="${f(B.foreLen - F * .1)}" r="${f(F * .16)}" fill="#E86A8A"/></g>`
+        // une lampe de poche allumée
+        + `<g class="prop prop-torch"><rect x="${f(-F * .22)}" y="${f(y - F * .2)}" width="${f(F * .44)}" height="${f(F * 1.3)}" rx="${f(F * .1)}" fill="#3A444E"/><ellipse cx="0" cy="${f(y + F * 1.25)}" rx="${f(F * .3)}" ry="${f(F * .12)}" fill="#FFF3C8"/><path d="M${f(-F * .3)},${f(y + F * 1.3)} L${f(-F * 1.4)},${f(y + F * 4)} L${f(F * 1.4)},${f(y + F * 4)} L${f(F * .3)},${f(y + F * 1.3)} Z" fill="#FFF3C8" opacity=".35"/></g>`
+        // une guitare (Bastien, à la veillée)
+        + `<g class="prop prop-guitar"><path d="M0,${f(y - F * .6)} L0,${f(y + F * 1.6)}" stroke="#6B4A35" stroke-width="${f(F * .42)}"/><ellipse cx="0" cy="${f(y + F * 3.0)}" rx="${f(F * 1.35)}" ry="${f(F * 1.75)}" fill="#C98A4B" stroke="#7A5236" stroke-width=".5"/><circle cx="0" cy="${f(y + F * 2.7)}" r="${f(F * .38)}" fill="#3A2A1E"/></g>`
+        // un micro
+        + `<g class="prop prop-mic"><rect x="${f(-F * .14)}" y="${f(y - F * .9)}" width="${f(F * .28)}" height="${f(F * 1.1)}" fill="#2A3540"/><circle cx="0" cy="${f(y - F * 1.0)}" r="${f(F * .36)}" fill="#5A6470"/></g>`;
+    };
     // bras : épaule > avant-bras (pivot coude) > main
     const arm = (side, back) => {
       const x = side * (B.shW - B.upArm * .35), sl = back ? topD : `url(#${u}t)`, skin = back ? skD : sk;
@@ -89,7 +113,7 @@
             ${limb(B.upArm * .9, B.foreArm, B.foreLen, sleeveLong ? sl : skin)}
             ${sleeveLong ? `<rect x="${(-B.foreArm / 2).toFixed(1)}" y="${(B.foreLen - 2.2).toFixed(1)}" width="${B.foreArm.toFixed(1)}" height="2.4" rx="1" fill="${back ? tone(top, -.3) : topD}"/>` : ""}
             <g class="hand"><ellipse cx="0" cy="${(B.foreLen + B.foreArm * .55).toFixed(1)}" rx="${(B.foreArm * .62).toFixed(1)}" ry="${(B.foreArm * .72).toFixed(1)}" fill="${skin}"/>
-            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? `<g class="prop-paddle"><rect x="${(-B.foreArm * .22).toFixed(1)}" y="${(B.foreLen + B.foreArm * .3).toFixed(1)}" width="${(B.foreArm * .44).toFixed(1)}" height="${(B.foreArm * 1.5).toFixed(1)}" rx=".6" fill="#B07A4E"/><ellipse cx="0" cy="${(B.foreLen + B.foreArm * 2.9).toFixed(1)}" rx="${(B.foreArm * 1.25).toFixed(1)}" ry="${(B.foreArm * 1.45).toFixed(1)}" fill="#C62828" stroke="#1F1F1F" stroke-width=".5"/></g>` : ""}</g>
+            <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? handProps(B) : ""}</g>
           </g></g></g></g>`;
     };
     // buste : vêtement qui suit l'épaule et la taille
@@ -539,21 +563,29 @@
     },
     // les bouches de « who » : sur le plan, dans sa pastille, et le visage à côté de sa réplique
     targets(w, e) {
-      const T = [...document.querySelectorAll(`#world .actor[data-who="${w}"], #world .ractor[data-who="${w}"], .portrait.chip[data-who="${w}"]`)];
+      // sur le plan, dans une salle, sur la carte de la visite (Nour qui marche avec vous) : partout où la personne est visible
+      const T = [...document.querySelectorAll(`#world .actor[data-who="${w}"], #world .ractor[data-who="${w}"], .walker[data-who="${w}"], .actor.walker[data-who="${w}"], .portrait.chip[data-who="${w}"]`)];
       const row = e && (e.closest(".line, .said, .bubble, .npcline, .nl, .msg") || e);
       if (row) row.querySelectorAll(".mini, .rig-bust").forEach((m) => { if (!T.includes(m)) T.push(m); });
       return T;
     },
     on(it) { this.off(); if (!it || !it.w || it.w === "narr") return; this.cur = it; this.slot = this.envelope(it.u); this.els = this.targets(it.w, it.e); this.els.forEach((x) => { x.classList.add("lip"); x.style.setProperty("--mo", "0"); }); this.mo = 0; },
+    // la personne peut apparaître pendant qu'elle parle (on entre dans une salle, la scène se monte) : ses bouches sont recherchées souvent
+    refresh(sim) {
+      const it = this.cur || this._simw; if (!it) return;
+      this.targets(it.w, it.e).forEach((x) => { if (!this.els.includes(x)) { x.classList.add(sim ? "lipsim" : "lip"); if (!sim) x.style.setProperty("--mo", this.mo.toFixed(2)); this.els.push(x); } });
+    },
     frame(it, t) {
-      if (this.cur !== it || !this.els.length) return;
+      if (this.cur !== it) return;
+      if ((this._fc = (this._fc || 0) + 1) % 8 === 0) this.refresh(false);
+      if (!this.els.length) return;
       const a = this.slot && this.slot.a; let v;
       if (a) { const i = Math.floor(t / this.FR); v = Math.max(a[i] || 0, (a[i + 1] || 0) * .8); v = v < .12 ? 0 : Math.min(1, (v - .12) / .7); }
       else v = .35 + .35 * Math.sin(t * 17) * Math.sin(t * 5.3 + 1);           // voix pas encore analysée : mouvement de parole
       this.mo += (v - this.mo) * (v > this.mo ? .65 : .4);                      // la bouche s'ouvre vite, se referme un peu moins vite
       const m = this.mo.toFixed(2); this.els.forEach((x) => x.style.setProperty("--mo", m));
     },
-    off() { this.cur = null; this.els.forEach((x) => { x.classList.remove("lip", "lipsim"); x.style.removeProperty("--mo"); }); this.els = []; },
+    off() { this.cur = null; this._simw = null; clearInterval(this._sri); this.els.forEach((x) => { x.classList.remove("lip", "lipsim"); x.style.removeProperty("--mo"); }); this.els = []; },
     // sans voix : on fait parler chaque personne le temps de lire sa réplique, l'une après l'autre
     silent(list) {
       clearTimeout(this._st); this._sk = (this._sk || 0) + 1; const k = this._sk;
@@ -574,8 +606,8 @@
           const step = () => { if (k !== this._sk || this._se !== e) return; const f = (performance.now() - t0) / d; ws.forEach((x, j) => { if ((j === 0 || cum[j - 1] / c <= f) && !x.classList.contains("sp")) x.classList.add("sp"); }); if (f < 1) requestAnimationFrame(step); };
           requestAnimationFrame(step);
         }
-        if (w && w !== "narr") { World.talk(w, t); this.els = this.targets(w, e); this.els.forEach((x) => x.classList.add("lipsim")); }
-        else Mise.play(t, d / 1000);   // sans voix : la situation décrite se joue quand même, le temps de la lire
+        if (w && w !== "narr") { World.talk(w, t); this.els = this.targets(w, e); this.els.forEach((x) => x.classList.add("lipsim")); this._simw = { w, e, t }; clearInterval(this._sri); this._sri = setInterval(() => { if (k !== this._sk || !this._simw) return clearInterval(this._sri); this.refresh(true); }, 300); }
+        else { this._simw = null; Mise.play(t, d / 1000); }   // sans voix : la situation décrite se joue quand même, le temps de la lire
         this._st = setTimeout(next, d + 250);
       };
       next();
@@ -598,6 +630,15 @@
     say(who, text, target, cb) { this.seq([[who, text, target instanceof Element ? target : null, cb]]); },
     seq(list) {
       if (!list || !list.length) return;
+      // les personnes de la scène se rapprochent d'abord (elles arrivent, se rejoignent) ; la conversation commence ensuite
+      const gw = (World._settle || 0) - performance.now();
+      if (gw > 80 && !calm()) {
+        if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return;
+        list.forEach((x) => x[2] && !x[2].classList.contains("said") && x[2].classList.add("vpend"));
+        const tk = this._gtk = (this._gtk || 0) + 1;
+        setTimeout(() => { if (tk !== this._gtk) return; if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return; this.seq(list); }, gw);
+        return;
+      }
       if (!this.ok || !this.ready || !st.settings.voice) { Lip.silent(list); return; }
       Lip.silent(null);
       const all = list.map(([w, t, e, cb]) => ({ u: t && this.url(w, t), e: e || null, w, t, cb }));
@@ -1248,6 +1289,7 @@
         `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64" overflow="visible">${R0 || m[pose || "stand"] || m.stand}</svg>`);
       const setPose = (ps) => { const r = a.querySelector(".rig"); if (r) r.setAttribute("class", "rig " + (RIG.POSE[ps] || "p-idle")); else a.querySelector("svg").innerHTML = m[ps] || m.stand; };
       a._pose = setPose;
+      { const pr = opts.prop || (this._props || {})[who]; if (pr) a.classList.add("pp-" + pr); }
       // entrée : la personne arrive en marchant depuis la porte ou le bord de la scène, puis prend son attitude
       if (from && !reduce()) {
         a.style.setProperty("--fx", from[0] + "%"); a.style.setProperty("--fy", from[1] + "%");
@@ -1275,6 +1317,7 @@
     },
     show(S, sc) {
       this.init(); if (!this.el) return;
+      this._props = (S && S.props) || {};   // les objets de la scène : le ballon, le téléphone, la feuille… dans la main de qui les tient
       if (sc) { this._sc = sc; this._moods = {}; (S && S.cast || []).forEach(([w, , p, md]) => { const m = moodFor(w, p, md); if (m) this._moods[w] = m; }); }
       // la vie autour de la conversation : de temps en temps, un parent ou un enfant fait un geste qui lui ressemble
       clearInterval(this._amb);
@@ -1296,7 +1339,9 @@
       const quick = this.quick || false; this.quick = false;
       const IN0 = S && S.room && A.dio.inner && A.dio.inner[S.room];
       const wasOn = this.el.classList.contains("on"), inBld = this.lid && this.lid.G;
-      const cross = wasOn && this.cur !== S && (IN0 ? inBld !== IN0.G : !!inBld);
+      // le temps libre monte tout de suite son plan (il remplit aussitôt la foule et vous) : jamais de fondu différé qui
+      // redessinerait le plan après coup et effacerait tout le monde (bug : après une salle visitée, plus personne au temps libre)
+      const cross = !(S && S.free) && wasOn && this.cur !== S && (IN0 ? inBld !== IN0.G : !!inBld);
       if (cross && !quick && !reduce()) {
         const me = this._dv = (this._dv || 0) + 1, c0 = this.cv;
         if (c0) { const tgt = IN0 ? { x: (IN0.l + IN0.w / 2) / 100, y: (IN0.t + IN0.w * A.dio.ratio / IN0.r * .52) / 100 } : { x: c0.x, y: c0.y }; this.camTo(tgt, Math.min(5.2, c0.z * 1.5), 520); }
@@ -1346,6 +1391,10 @@
             if (w === "you" && others.length) { p = w2f(ax + .95, ay + .55); face = -1; }
             else if (duo && w === others[1][0]) { p = w2f(ax + 1.0, ay + .15); face = -1; }
             else if (others[0] && w === others[0][0]) face = 1;
+            else if (w !== "you") {   // les autres : resserrés autour d'elle (on se parle de près, pas à deux mètres)
+              const [sx, sy] = f2w(p[0], p[1]), dx = sx - ax, dy = sy - ay, d = Math.hypot(dx, dy) || 1, k2 = Math.max(.85, Math.min(d, 1.25)) / d;
+              p = w2f(ax + dx * k2, ay + dy * k2);
+            }
           }
           const a = this.actor(w, pose === "wave" && !greetNow() ? "stand" : pose, p, sz, false, k < 3 ? from : null, { back, mood: (this._moods || {})[w] });
           if (a && face) { a.classList.toggle("flip", face < 0); a.dataset.faced = "1"; }
@@ -1355,6 +1404,9 @@
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
+        // tant que les personnes arrivent et se rejoignent, la conversation attend
+        const nArr = Math.min(3, cast.length);
+        this._settle = cast.length > 1 && !reduce() && !quick ? performance.now() + 1500 + 500 + (nArr - 1) * 180 : 0;
         { const first = (S.cast || []).find(([w]) => w !== "you"); if (first) setTimeout(() => this.gaze(first[0]), 60); }
       }
       // intérieur : on lève le toit du bâtiment, la salle est là, dans le plan, avec ses occupants
@@ -1428,6 +1480,16 @@
           place.you = { ...place.you, x: Pm.x + side * 13, y: Pm.y + (Pm.sit ? 18 : 13), d: Pm.d + .7 };
         }
       }
+      // les autres personnes debout se rapprochent de celle qui parle : la place libre la plus proche d'elle (on ne se parle
+      // pas d'un bout à l'autre de la salle)
+      { const main = npcs.find((c) => c[2] === "talk") || npcs[0], Pm = main && place[main[0]];
+        if (Pm) npcs.forEach(([who]) => {
+          const P = place[who]; if (!P || who === main[0] || P.sit || Math.hypot(P.x - Pm.x, P.y - Pm.y) < 40) return;
+          const taken = Object.entries(place).filter(([k]) => k !== who).map(([, q]) => q);
+          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board/.test(k) && !taken.some((u) => Math.abs(u.x - q.x) < 7 && Math.abs(u.y - q.y) < 9))
+            .map(([, q]) => q).sort((a, b) => Math.hypot(a.x - Pm.x, a.y - Pm.y) - Math.hypot(b.x - Pm.x, b.y - Pm.y))[0];
+          if (alt && Math.hypot(alt.x - Pm.x, alt.y - Pm.y) < Math.hypot(P.x - Pm.x, P.y - Pm.y) - 6) place[who] = alt;
+        }); }
       const free = (P) => !used.some((u) => Math.abs(u.x - P.x) < 7 && Math.abs(u.y - P.y) < 9);
       castL.forEach(([who]) => {
         let P = place[who]; if (!P) return;
@@ -1445,6 +1507,7 @@
         const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
         g.setAttribute("class", "ractor" + (pose === "pingpong" ? " paddle" : "") + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
+        if ((S.props || {})[who]) g.classList.add("pp-" + S.props[who]);
         if (seat) g.setAttribute("style", seat.css);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
@@ -1472,6 +1535,9 @@
       host.appendChild(w);
       requestAnimationFrame(() => w.classList.add("in"));
       if (room === "sanitaires" && (S.cast || []).some((c) => c[0] !== "you")) this.passage(w, svg, IN, S);
+      // on entre dans la salle pendant que quelqu'un parle (la visite : Nour décrit la salle) : sa bouche et ses gestes continuent ici
+      const cur = Lip.cur || Lip._simw;
+      if (cur && cur.w && castL.some((q) => q[0] === cur.w)) setTimeout(() => { if ((Lip.cur || Lip._simw) !== cur) return; World.talk(cur.w, cur.t); Lip.refresh(!Lip.cur); }, 80);
     },
     // aux sanitaires, pendant la scène, des enfants vont et viennent : on entre, on ressort, la vie continue
     passage(w, svg, IN, S) {
@@ -3562,7 +3628,7 @@
       if (di === 0) Flash.on("Retour sur la semaine");   // une seule fois : on rembobine, puis on reste dans le présent
       // sur le plan : là où ça se passe aujourd'hui, pour la première décision du jour
       const id0 = dIds[0], R0 = REPLAY[id0], t0 = tierOf(id0);
-      if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t0].cast }, { id: "retour-" + id0, type: "story", ch: 6 });
+      if (R0) World.show({ at: R0.at, room: R0.room, cast: R0.tiers[t0].cast, props: R0.tiers[t0].props || R0.props }, { id: "retour-" + id0, type: "story", ch: 6 });
       else World.show(stageOf(id0), { id: "retour-" + id0, type: "story", ch: 6 });
       const C = dIds.map(card);
       body.innerHTML = `<p class="rp-day">${esc(CHAPTERS[ch - 1].day)}</p>${C.map((c) => c.html).join("")}`;
@@ -4111,7 +4177,7 @@
     },
     // un figurant qui va et vient sur un parcours, avec des pauses et des gestes
     loop(who, pts, opts = {}) {
-      const W = this.add(Walker(who, pts[0][0], pts[0][1], "stand"));
+      const W = this.add(Walker(who, pts[0][0], pts[0][1], "stand", { prop: opts.prop }));
       const g = { t: 0, W }; this.agents.push(g); let i = 0;
       // chacun son couloir : un léger décalage propre à chaque figurant, pour qu'ils ne se rentrent pas dedans
       const off = ((this.walkers.length * 37) % 7 - 3) * .14;
@@ -4128,7 +4194,9 @@
     },
     // une personne sur place (elle discute, joue, attend) : un geste de temps en temps
     idle(who, x, y, gests, opts = {}) {
-      const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back }));
+      // le visage dit ce que la personne vit (triste, en colère, ravie…) : on le voit dès qu'on l'aperçoit
+      const md = { sad: "sad", upset: "angry", angry: "angry", big: "big", smile: "big", laugh: "big" }[opts.pose];
+      const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back, prop: opts.prop, mood: md }));
       if (opts.face) W.face(opts.face);
       const kid = KIDS.has(who) || /^k\d/.test(who), par = /^pa\d|^parent/.test(who);
       gests = (gests || []).filter((g) => g !== "wave");   // pas de « coucou » en dehors de l'accueil et du départ
@@ -4216,8 +4284,9 @@
       CROWD.forEach(([w, loop, speed, pose]) => { if (busyW.has(w)) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); acts.appendChild(W.el); });
       // les scènes en cours se voient de loin : les personnes sont là, elles bougent
       sc.events.filter((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided)).forEach((e) => {
+        ground(e);   // un objet au sol, qui fait partie de la scène (le ballon entre deux enfants)
         (e.spots || []).forEach(([w, x, y, pose, gests]) => {
-          const W = Life.idle(w, x, y, gests || ["point", "fist", "stomp"], { pose, face: SPOTS[e.at] });
+          const W = Life.idle(w, x, y, gests || ["point", "fist", "stomp"], { pose, face: SPOTS[e.at], prop: (e.props || {})[w] });
           W.ev = e.id; acts.appendChild(W.el);
         });
       });
@@ -4407,9 +4476,19 @@
       dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
       drawCard();
     }
+    // un objet posé au sol, sur le plan : ev.ground = [[objet, x, y], …]
+    function ground(e) {
+      const acts = World.cam && World.cam.querySelector(".wacts"); if (!acts || !e.ground) return;
+      e.ground.forEach(([k, x, y]) => {
+        if (acts.querySelector(`.wprop[data-ev="${e.id}"][data-k="${k}"]`)) return;
+        const f = w2f(x, y), o = el("i", { class: "wprop wp-" + k, "data-ev": e.id, "data-k": k, "aria-hidden": "true", style: `left:${f[0]}%;top:${f[1]}%;z-index:${zOf(x, y)}` });
+        acts.appendChild(o);
+      });
+    }
     let ev0 = null;
     function scene(ev) {
-      ev0 = ev;
+      ev0 = ev; let gT = 0;
+      actT = ev.act && !reduce() ? Math.max(...ev.act.map((x) => x[0])) + 900 : 0;
       if (n._scene === ev.id && n.querySelector(".roamscene")) return;   // déjà en cours
       n._scene = ev.id;
       const E = tune(SCREENS.find((x) => x.id === ev.id));   // niveau Moyen et plus : réponses plus nuancées
@@ -4419,7 +4498,7 @@
       Snd.setMood(ev.tense ? "stress" : "grave");   // la musique se tend pendant la scène
       if (ev.room) {
         Life.clear();
-        STAGE["roam-" + ev.id] = { at: ev.at, room: ev.room, cast: ev.cast, z: 3.1 };
+        STAGE["roam-" + ev.id] = { at: ev.at, room: ev.room, cast: ev.cast, z: 3.1, props: ev.props };
         World.stage({ id: "roam-" + ev.id, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       } else {
         // dehors : on reste dans le plan vivant ; vous vous placez face à la personne qui parle, de dos
@@ -4428,12 +4507,27 @@
         Life.agents.forEach((g) => { if (g.W && sp.includes(g.W)) clearTimeout(g.t); });
         if (first) {
           const tx = first.x + .7, ty = first.y + 1.15;
+          gT = Math.max(gT, dist([you.x, you.y], [tx, ty]) / 1.5 * 1000);
           you.go([[tx, ty]], 1.5, () => { you.setBack(true); you.face([first.x - .4, first.y]); });
           aim(first.x + .3, first.y + .5, 3.0, wide() ? .3 : .5, wide() ? .62 : .3, 1500);   // la scène à gauche, le texte à droite
-          sp.forEach((W) => W.face([tx, ty]));
+          // d'abord, on se rejoint : celles et ceux qui sont loin de la personne qui parle viennent près d'elle (en arc de
+          // cercle, face à vous), puis la conversation commence ; les deux qui s'affrontent (duel) se jouent leur scène
+          const ARC = [[-.95, .2], [.05, -.85], [-.85, -.7], [1.0, -.45], [-1.5, -.25], [.9, .35]], usedA = new Set();
+          sp.forEach((W) => {
+            if (W === first || (ev.duel && ev.duel.includes(W.who))) return;
+            if (dist([W.x, W.y], [first.x, first.y]) < 1.3) return;
+            // la place libre du cercle la plus proche de là où elle arrive (on ne traverse pas le groupe)
+            const o = ARC.map((q, i) => [i, q]).filter(([i]) => !usedA.has(i)).sort((A1, B1) => dist([W.x, W.y], [first.x + A1[1][0], first.y + A1[1][1]]) - dist([W.x, W.y], [first.x + B1[1][0], first.y + B1[1][1]]))[0];
+            if (!o) return; usedA.add(o[0]);
+            const to = [first.x + o[1][0], first.y + o[1][1]];
+            gT = Math.max(gT, dist([W.x, W.y], to) / 1.9 * 1000);
+            W.go([to], 1.9, () => { W.face([tx, ty]); gesture(W.el, W.gests && W.gests[0] || "nod"); }, "walk");
+          });
+          sp.forEach((W) => { if (!W.path) W.face([tx, ty]); });
         }
-        play(sp);
-        setTimeout(() => n.isConnected && act(sp, first, ev.duel), actT);   // une fois l'action jouée, chacun reste vivant (sans revenir en arrière)
+        gT = reduce() ? 0 : Math.min(3500, gT + 250);
+        World._settle = gT + actT ? performance.now() + gT + actT : 0;   // la conversation attend qu'on se soit rejoints et que l'action se soit jouée
+        setTimeout(() => { if (!n.isConnected) return; play(sp); setTimeout(() => n.isConnected && act(sp, first, ev.duel), actT); }, gT);   // une fois rejoints, l'action se joue, puis chacun reste vivant
       }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
@@ -4443,7 +4537,7 @@
       if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
-      setTimeout(() => n.isConnected && Voice.seq(seq), ev.room ? 150 : 450 + actT);   // en salle : la scène se lance dès l’entrée
+      setTimeout(() => n.isConnected && Voice.seq(seq), ev.room ? 150 : 450);   // en salle : la scène se lance dès l’entrée ; dehors, après qu'on s'est rejoints (Voice attend World._settle)
       // son coupé : Voice.seq fait quand même jouer les répliques (bouche, gestes, visage, émotion), le temps de les lire
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);

@@ -1483,8 +1483,9 @@
       // les autres personnes debout se rapprochent de celle qui parle : la place libre la plus proche d'elle (on ne se parle
       // pas d'un bout à l'autre de la salle)
       { const main = npcs.find((c) => c[2] === "talk") || npcs[0], Pm = main && place[main[0]];
-        if (Pm) npcs.forEach(([who]) => {
+        if (Pm) npcs.forEach(([who, slot, pose]) => {
           const P = place[who]; if (!P || who === main[0] || P.sit || Math.hypot(P.x - Pm.x, P.y - Pm.y) < 40) return;
+          if (/^(p|w|s|t)\d|board/.test(slot || "") || pose === "pingpong" || pose === "sit") return;   // un joueur à sa table, quelqu'un dans une cabine : il reste à sa place
           const taken = Object.entries(place).filter(([k]) => k !== who).map(([, q]) => q);
           const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board/.test(k) && !taken.some((u) => Math.abs(u.x - q.x) < 7 && Math.abs(u.y - q.y) < 9))
             .map(([, q]) => q).sort((a, b) => Math.hypot(a.x - Pm.x, a.y - Pm.y) - Math.hypot(b.x - Pm.x, b.y - Pm.y))[0];
@@ -2310,7 +2311,7 @@
         if (inRoomPanel) { inRoomPanel.remove(); inRoomPanel = null; }
         wrap.classList.remove("visit-in");
         World.stage(sc);
-        if (tour) { tour.inside(false); setTimeout(() => tour.door(s.key, false), 900); }
+        if (tour) { tour.inside(false); setTimeout(() => tour.out && tour.out(s.key), 250); setTimeout(() => tour.door(s.key, false), 1300); }
       });
     }
     function open(s, i, b) {
@@ -4010,6 +4011,13 @@
         if (!walk(N, t, 5.6, 0, () => { N.face([Y.x, Y.y]); fin(); })) fin();
         setTimeout(() => { if (!walk(Y, t, 5.6, 1, () => { Y.face([N.x, N.y]); fin(); })) fin(); }, 350);
       },
+      // en ressortant : on s'écarte de la porte, tous les deux bien devant elle (on vous voit, la porte se referme derrière)
+      out(key) {
+        const d = TOUR_AT[key], q = d && NODES[d]; if (!q) return;
+        const nx = d === "dSoins" ? 1 : 0, ny = d === "dSoins" ? 0 : 1;   // la porte de l'infirmerie est sur le pignon
+        N.go([[q[0] + nx * .9 - ny * .35, q[1] + ny * .9 - nx * .35]], 1.4, () => N.face([Y.x, Y.y]), "walk");
+        Y.go([[q[0] + nx * 1.3 + ny * .45, q[1] + ny * 1.25 + nx * .45]], 1.4, () => Y.face([N.x, N.y]), "walk");
+      },
       // la porte de la salle s'ouvre (ou se referme)
       door(key, open) { map.querySelectorAll(doorOf(key)).forEach((d) => d.classList.toggle("open", open)); },
       // Nour, puis vous, passez la porte
@@ -4083,8 +4091,8 @@
     [9.95, 5.25, 10.5, 7.15], [18.55, 5.15, 19.1, 7.05],            // bancs du parc
     [10.25, 2.45, 10.55, 2.75], [12.05, 1.6, 12.35, 1.9], [18.15, 2.05, 18.45, 2.35], [9.85, 8.15, 10.15, 8.45],   // troncs
     [13.35, 19.25, 14.35, 19.95], [16.55, 19.25, 17.55, 19.95],     // jardinières de l'entrée
-    [4.2, 22.85, 8.9, 24.2], [11.6, 22.3, 13.8, 24.5],              // toboggan, pyramide de cordes
-    [4.25, 25.2, 4.8, 26.3], [8.6, 25.2, 9.1, 26.3],                // les deux cages du mini-foot
+    [12.0, 23.6, 14.2, 25.8],                                         // l'araignée de cordes
+    [3.85, 24.05, 4.4, 25.55], [11.2, 24.05, 11.75, 25.55],         // les deux cages du terrain de foot
   ];
   const inZ = (p, R, e = 0) => p[0] > R[0] + e && p[0] < R[2] - e && p[1] > R[1] + e && p[1] < R[3] - e;
   // le segment A→B passe-t-il dans la zone (et pas seulement sur son bord) ?

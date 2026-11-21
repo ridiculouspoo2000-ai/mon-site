@@ -988,7 +988,12 @@
     else if (DEt) DC.t = DEt;
     else if (h) DC.t = `${h[1]} h ${h[2] || "00"}`;
     else if (d !== DC.d || !DC.t) DC.t = heritee(sc) || "8 h 30";   // reprise de partie : l'heure du dernier écran daté de la journée
-    if (!show) { DC.d = d; return; }   // écran sans horloge (visite, recherche) : l'heure avance quand même, en coulisses
+    if (!show) {
+      // écran sans horloge (recherche, visite) : un grand saut d'heure se voit quand même, avec la grande horloge sur le flou
+      const mn = (x) => { const q = /(\d+) h (\d+)/.exec(x || ""); return q ? +q[1] * 60 + +q[2] : null; }, b0 = mn(t0), b1 = mn(DC.t);
+      if (h && st.rev && st.rev.clock && d === DC.d && b0 != null && b1 != null && b1 - b0 >= 30 && !calm()) bigClock(b0, b1, DAYS[d], { pre: true });
+      DC.d = d; return;
+    }   // écran sans horloge (visite, recherche) : l'heure avance quand même, en coulisses
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
     const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
     const tm = /(\d+) h (\d+)/.exec(DC.t) || [0, 8, 30], hh = +tm[1], mm = +tm[2];
@@ -1000,7 +1005,7 @@
     // l'heure défile jusqu'à la nouvelle heure
     const toMin = (x) => { const m = /(\d+) h (\d+)/.exec(x || ""); return m ? +m[1] * 60 + +m[2] : null; };
     const a0 = toMin(t0), a1 = toMin(DC.t), sp = DC.el.querySelector(".dc-top span");
-    if (a0 != null && a1 != null && a1 - a0 >= 30 && d === DCprev && sc.type !== "roam") bigClock(a0, a1, DAYS[d]);   // le temps passe : la grande horloge
+    if (a0 != null && a1 != null && a1 - a0 >= 30 && d === DCprev && sc.type !== "roam" && !calm()) bigClock(a0, a1, DAYS[d], { pre: true });   // le temps passe : la grande horloge
     if (sp && a0 != null && a1 != null && a1 > a0 && d === DCprev && !calm()) {
       const T0 = performance.now(), dur = Math.min(2200, 300 + (a1 - a0) * 6);
       const H = DC.el.querySelector(".hh"), M = DC.el.querySelector(".mh");
@@ -1077,9 +1082,14 @@
     Snd.windAt(sc.id);
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
+    // l'heure d'abord : si le temps fait un grand saut, le flou et l'horloge se posent avant le changement de lieu
+    // (le lieu change sous le flou, sans passer par le noir)
+    dayclock(sc);
     camera(sc);
     document.querySelectorAll(".cr-pop, .intr").forEach((x) => x.remove());   // une interruption (appel, personne venue vous chercher) ne reste jamais d'un écran à l'autre
-    unlockDocs(sc); Phone.check(sc); dayclock(sc);
+    unlockDocs(sc); Phone.check(sc);
+    // départ des familles au portail : les lumières montent pendant tout l'écran, pas d'un coup
+    if (sc.id === "portail") setTimeout(() => { if (World.el && World.el.classList.contains("on")) World.lights(Math.min(2, (World.lit || 0) + .6), 32000); }, 1400);
     hud(true);
     const old = stage.firstElementChild;
     vprep();
@@ -1142,6 +1152,15 @@
     return litURL.c[lvl];
   }
   const LIT = { golden: 1, evening: 2, night: 2 };
+  // niveau des lumières selon l'heure lue à l'écran : éteint avant 16 h 30, puis tout s'allume peu à peu jusqu'à 18 h
+  function litLevel(sc, amb) {
+    if (amb === "night" || amb === "evening") return 2;
+    let s0 = sc; if (sc && sc.type === "explain") { const d = afterDayEnd(sc); if (d) s0 = { kicker: dayEndT(d) }; }
+    const m = String((s0 && (s0.hour || s0.kicker || "")) || "").match(/(\d{1,2})\s*h\s*(\d{2})?/);
+    if (!m) return LIT[amb] || 0;
+    const t = +m[1] * 60 + (+m[2] || 0);
+    return Math.max(0, Math.min(2, (t - 990) / 45));   // 16 h 30 → 0 ; 17 h 15 → 1 ; 18 h → 2
+  }
   // Nom du lieu affiché dans la barre : celui de la salle (dessins du jeu) ou, dehors, l'étiquette validée de la visite « Œil de lynx »
   function placeName(S) {
     if (!S || !S.at || S.at === "ensemble") return "";
@@ -1165,7 +1184,7 @@
     url: {},
     of(at) { const L = A.dio.lids || {}; for (const G in L) if (L[G].rooms.includes(at)) return G; return null; },
     src(G, mode, hl) {
-      const lvl = World.lit || 0;
+      const lvl = Math.max(0, Math.min(2, Math.round(World.lit || 0)));   // toit levé : la version la plus proche du niveau de lumière
       const k = G + "|" + mode + "|" + (hl || "") + "|" + lvl; if (this.url[k]) return this.url[k];
       const L = A.dio.lids[G], all = [G, ...(L.also || [])], q = (a) => all.map((g) => `[${a}="${g}"]`).join(",");
       const nx = hl && A.dio.inner && A.dio.inner[hl] ? A.dio.inner[hl].next : null;
@@ -1409,11 +1428,18 @@
       // Entrer dans une salle ou en sortir : un zoom, un bref écran noir, et le lieu s'affiche directement
       // (plus de retour sur le bâtiment, de second zoom ni de toit qui se soulève sous nos yeux).
       const quick = this.quick || false; this.quick = false;
+      const noBlack = performance.now() < (this.noBlack || 0);   // grand saut d'heure : le lieu change sous le flou de l'horloge
       const IN0 = S && S.room && A.dio.inner && A.dio.inner[S.room];
       const wasOn = this.el.classList.contains("on"), inBld = this.lid && this.lid.G;
       // le temps libre monte tout de suite son plan (il remplit aussitôt la foule et vous) : jamais de fondu différé qui
       // redessinerait le plan après coup et effacerait tout le monde (bug : après une salle visitée, plus personne au temps libre)
       const cross = !(S && S.free) && wasOn && this.cur !== S && (IN0 ? inBld !== IN0.G : !!inBld);
+      if (cross && !quick && !reduce() && noBlack) {
+        // pas de noir : on laisse au flou le temps de se poser (¼ s), puis le nouveau lieu s'affiche directement dessous
+        const me = this._dv = (this._dv || 0) + 1;
+        setTimeout(() => { if (me !== this._dv) return; this.quick = true; this.show(S, sc); }, 260);
+        return;
+      }
       if (cross && !quick && !reduce()) {
         const me = this._dv = (this._dv || 0) + 1, c0 = this.cv;
         if (c0) { const tgt = IN0 ? { x: (IN0.l + IN0.w / 2) / 100, y: (IN0.t + IN0.w * A.dio.ratio / IN0.r * .52) / 100 } : { x: c0.x, y: c0.y }; this.camTo(tgt, Math.min(5.2, c0.z * 1.5), 520); }
@@ -1431,7 +1457,7 @@
       const same = this.cur === S; this.cur = S;
       const amb = S.night ? "night" : timeOf(sc);
       const gateOpen = sc && (sc.endday || (sc.type === "explain" && afterDayEnd(sc)) || sc.type === "chapter" || sc.type === "dayend" || sc.type === "bilan" || sc.type === "replay" || ["intro", "parent1", "parent2", "portail", "aurevoir", "dafter"].includes(sc.id));   // le portail est ouvert à l’arrivée, aux départs et aux bilans
-      this.lights(LIT[amb] || 0); this.glows();
+      this.lights(litLevel(sc, amb), noBlack ? 2600 : undefined); this.glows();   // grand saut d'heure : les lumières suivent l'horloge
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "") + (S.meal ? " meal" : "");
       { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
@@ -1503,20 +1529,47 @@
       void add;
     },
     // fenêtres éclairées : on passe par le niveau intermédiaire (les lumières s'allument une à une)
-    lights(lv) {
-      if (lv === this.lit) return;
-      const im = this.el.querySelector(".wcam>.dio-img"), from = this.lit || 0; this.lit = lv; if (!im) return;
-      clearTimeout(this._lt);
-      const fade = (src) => {
-        if (reduce()) { im.src = src; return; }
-        const ov = im.cloneNode(); ov.classList.add("lit-ov"); ov.src = src; ov.style.opacity = "0";
-        ov.style.transition = "opacity 5s ease";
-        im.after(ov); requestAnimationFrame(() => requestAnimationFrame(() => (ov.style.opacity = "1")));
-        setTimeout(() => { im.src = src; setTimeout(() => ov.remove(), 160); }, 5100);
+    // Lumières du soir, progressives : un niveau continu (0 = jour, 1 = fenêtres et lampadaires qui s'allument, 2 = tout allumé).
+    // Deux calques déjà décodés (niveau 1, niveau 2) posés sur le plan, dont l'opacité suit une rampe image par image :
+    // aucun échange d'image (plus de saut ni de clignement), et les têtes de lampadaires suivent la même rampe (--lamp).
+    lights(lv, ms) {
+      lv = Math.max(0, Math.min(2, +lv || 0));
+      const im = this.el.querySelector(".wcam>.dio-img");
+      const cur = this._L != null ? this._L : (this.lit || 0);
+      this.lit = lv; if (!im) { this._L = lv; this.setLamp(lv); return; }
+      cancelAnimationFrame(this._lf);
+      const layer = (k) => {
+        let ov = im.parentNode.querySelector(".lit-ov.l" + k);
+        if (!ov) { ov = im.cloneNode(); ov.classList.add("lit-ov", "l" + k); ov.removeAttribute("style"); ov.style.opacity = "0"; ov.style.transition = "none"; ov.src = litURL(k);
+          (k === 2 ? (im.parentNode.querySelector(".lit-ov.l1") || im) : im).after(ov); }
+        return ov;
       };
-      if (lv === 2 && from === 0 && !reduce()) { fade(litURL(1)); this._lt = setTimeout(() => { if (this.lit === 2) fade(litURL(2)); }, 5300); }
-      else fade(litURL(lv));
+      const apply = (L) => {
+        this._L = L;
+        const a = Math.max(0, Math.min(1, L)), b = Math.max(0, Math.min(1, L - 1));
+        if (a > 0 || L > 0) layer(1).style.opacity = a.toFixed(3); else { const o = im.parentNode.querySelector(".lit-ov.l1"); if (o) o.style.opacity = "0"; }
+        if (b > 0) layer(2).style.opacity = b.toFixed(3); else { const o = im.parentNode.querySelector(".lit-ov.l2"); if (o) o.style.opacity = "0"; }
+        this.setLamp(L);
+      };
+      const D = ms != null ? ms : 1200 + Math.abs(lv - cur) * 3600;
+      if (reduce() || D <= 0 || Math.abs(lv - cur) < .005 || !this.el.classList.contains("on")) { this._ltok = (this._ltok || 0) + 1; apply(lv); return; }
+      // on attend que les calques soient décodés avant de démarrer : la rampe commence sans à-coup
+      const need = [lv > 0 || cur > 0 ? layer(1) : null, lv > 1 || cur > 1 ? layer(2) : null].filter(Boolean);
+      const tok = this._ltok = (this._ltok || 0) + 1;
+      const go = () => {
+        if (tok !== this._ltok) return;   // une autre rampe a pris la main entre-temps
+        const t0 = performance.now();
+        const f = (now) => {
+          if (tok !== this._ltok) return;
+          const t = Math.min(1, (now - t0) / D), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          apply(cur + (lv - cur) * e);
+          if (t < 1) this._lf = requestAnimationFrame(f);
+        };
+        this._lf = requestAnimationFrame(f);
+      };
+      Promise.all(need.map((x) => (x.decode ? x.decode().catch(() => {}) : null))).then(go);
     },
+    setLamp(L) { if (this.el) this.el.style.setProperty("--lamp", (L <= 1 ? .6 * L : .6 + .4 * (L - 1)).toFixed(3)); },
     // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
     // point visé (zoom) au lieu de faire glisser le plan. ms = 0 : tout de suite.
     camTo(p, z, ms) {
@@ -4139,6 +4192,8 @@
   // fondu au noir bref : on passe d'un lieu à l'autre (dehors → salle, salle → dehors)
   function blackout(fn) {
     if (reduce() || st.settings.calm) return fn();
+    // pendant la grande horloge (saut d'heure), jamais de noir : on change de lieu sous le flou
+    if (performance.now() < (World.noBlack || 0)) { World.quick = true; try { fn(); } finally { World.quick = false; } return; }
     const b = el("div", { class: "roomfade", "aria-hidden": "true" }); document.body.appendChild(b);
     requestAnimationFrame(() => b.classList.add("on"));
     // pendant le noir, le lieu suivant s'affiche directement (World.quick : ni second zoom, ni toit qui se soulève)
@@ -4992,10 +5047,12 @@
   function bigClock(a0, a1, label, o = {}) {
     if (calm() || a1 - a0 < 30 || document.querySelector(".bigclock")) return;
     // pendant un passage au noir (on change de lieu), l'horloge attend : elle paraît une fois le nouveau lieu affiché
-    if (document.querySelector(".roomfade.on") && (o.tries || 0) < 16) { setTimeout(() => bigClock(a0, a1, label, { ...o, tries: (o.tries || 0) + 1 }), 250); return; }
+    // grand saut d'heure annoncé avant le changement de lieu (o.pre) : pas de noir du tout, le flou se pose tout de suite
+    if (o.pre) { World.noBlack = performance.now() + (o.dur || 2600) + 1000; document.querySelectorAll(".roomfade.on").forEach((f) => f.classList.remove("on")); }
+    else if (document.querySelector(".roomfade.on") && (o.tries || 0) < 16) { setTimeout(() => bigClock(a0, a1, label, { ...o, tries: (o.tries || 0) + 1 }), 250); return; }
     const k = el("div", { class: "bigclock" + (o.night ? " night" : ""), "aria-hidden": "true" }, `<svg viewBox="-60 -60 120 120"><circle r="56" class="bf"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-48" x2="0" y2="${i % 3 ? -43 : -39}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="6" x2="0" y2="-26"/><line class="mh" x1="0" y1="8" x2="0" y2="-40"/><circle r="3.2" class="bc"/></svg><p></p>`);
     // en grand, au centre, sur un fond flouté (sauf la nuit, qui a déjà sa propre page)
-    const veil = o.night ? null : el("div", { class: "bc-veil", "aria-hidden": "true" });
+    const veil = o.night ? null : el("div", { class: "bc-veil" + (o.pre ? " pre" : ""), "aria-hidden": "true" });
     if (veil) document.body.appendChild(veil);
     document.body.appendChild(k); requestAnimationFrame(() => { k.classList.add("on"); if (veil) veil.classList.add("on"); });
     const hh = k.querySelector(".hh"), mh = k.querySelector(".mh"), p = k.querySelector("p"), t0 = performance.now(), D = o.dur || 2600;
@@ -5013,6 +5070,8 @@
     const c = CHAPTERS[sc.ch - 1], B = (typeof DAYEND !== "undefined" && DAYEND[sc.ch]) || { t: "", learn: [] };
     World.show({ at: "cour", cast: [], z: 2.1 }, { type: "dayend", kicker: B.t || "17 h 15" });
     if (B.fam !== false) setTimeout(() => families("evening"), 400);
+    // pendant que les enfants partent, la lumière baisse et les lampadaires s'allument peu à peu (rampe continue, sans saut)
+    if (B.fam !== false) setTimeout(() => { if (World.el && World.el.classList.contains("on")) World.lights(Math.min(2, (World.lit || 0) + .75), 26000); }, 900);
     const L = SCREENS.filter((x) => x.ch === sc.ch && x.comp && st.res[x.id] != null && x.type !== "dayend");
     const items = L.map((x) => `<li><b>${esc((x.kicker || "").split("·").pop().trim() || "")}</b><span>${esc(x.title || x.prompt || "")}</span></li>`).join("");
     n.innerHTML = `<div class="panel dayend">${kicker(`${c.day}, ${B.t || "17 h 15"} · fin de journée`)}<h2 id="h-${sc.id}">Bilan de la journée</h2>

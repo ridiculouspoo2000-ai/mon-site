@@ -14,6 +14,8 @@
   let UID = 0;
 
   // Gabarit selon l'âge : la tête est plus grande chez l'enfant, les jambes plus courtes.
+  // chacun son rythme : un déphasage propre à la personne (clignement, respiration, marche ne tombent jamais ensemble)
+  const phaseOf = (spec) => { const k = JSON.stringify([spec.skin, spec.hair, spec.hairStyle, spec.top, spec.age, spec.sex]); let h = 7; for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) % 100003; return (-(h % 4600) / 1000).toFixed(2) + "s"; };
   function body(age) {
     const kid = age < 12, teen = age >= 12 && age < 18;
     const H = kid ? 92 + age * 4.2 : teen ? 150 + (age - 12) * 3 : 172;
@@ -286,7 +288,7 @@
     const H = body(spec.age || 30).H, k = 50 / 172;   // échelle du plan : un adulte mesure environ 1,90 m à l'échelle des portes et des bâtiments
     const m = /viewBox="([^"]+)"/.exec(svg)[1].split(" ").map(Number);
     const w = m[2] * k, h = m[3] * k, x = m[0] * k, y = m[1] * k;
-    return svg.replace('<svg class="rig"', `<svg class="rig ${POSE[pose] || "p-idle"}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}"`);
+    return svg.replace('<svg class="rig"', `<svg class="rig ${POSE[pose] || "p-idle"}" style="--ph:${phaseOf(spec)}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}"`);
   }
   // Portrait (buste) : le même personnage, cadré sur le haut du corps
   function bust(spec, cls = "") {
@@ -1446,7 +1448,7 @@
           if (a && face) { a.classList.toggle("flip", face < 0); a.dataset.faced = "1"; }
           // personne ne marche sur place : une fois arrivé, on se tient debout
           if (a && (pose === "walk" || pose === "run") && a._pose && !a.classList.contains("walker")) a._pose("stand");
-          if (a && pose === "wave" && a._pose) { a._pose("stand"); if (greetNow()) setTimeout(() => a.isConnected && gesture(a, "wave", { greet: true }), 800 + k * 250); }   // un salut bref, pas une main levée qui dure
+          if (a && pose === "wave" && a._pose) { a._pose("stand"); if (greetNow()) setTimeout(() => a.isConnected && gesture(a, "wave", { greet: true }), 700 + k * 380 + Math.random() * 600); }   // un salut bref, pas une main levée qui dure
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
@@ -1556,7 +1558,7 @@
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
         if ((S.props || {})[who]) g.classList.add("pp-" + S.props[who]);
         if (seat) g.setAttribute("style", seat.css);
-        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
+        g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody" style="animation-delay:-${(Math.random() * 3.8).toFixed(2)}s;animation-duration:${(3.4 + Math.random() * .9).toFixed(2)}s"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
         svg.insertBefore(g, after || null);
@@ -1877,7 +1879,7 @@
           });
           const g = (c.acts.find((A) => A.g) || {}).g; if (g) gesture(a, g);
           if (c.acts.some((A) => A.hit) && tgt) { this.tm.push(setTimeout(() => gesture(tgt, "stagger"), 450)); }
-        }, i * 160))));
+        }, i * 220 + Math.random() * 520))));
       }, Math.max(150, c.pos * D * .92))));
     },
   };
@@ -1963,8 +1965,30 @@
       } }));
     return left;
   }
+  // Jamais deux personnes qui font le même geste au même moment : si ce geste vient d'être lancé par quelqu'un d'autre, on
+  // en prend un de la même famille (même sens), sinon on le décale un peu. Chacun garde aussi son propre rythme de respiration.
+  const GFAM = [
+    ["laugh", "clap", "jumpjoy", "tilt", "hop", "thumb"], ["nod", "nodhand", "tilt", "chin", "lean", "weight"], ["point", "beckon", "explain", "present", "open"],
+    ["explain", "explain2", "count", "spread", "palmup", "open", "offer", "steeple"], ["fist", "stomp", "hips", "chop", "wag"], ["downcast", "lookaway", "sigh", "fidget", "cover", "hug", "cross"],
+    ["sway", "kick", "tugsleeve", "rub", "scratch", "neck", "stretch"], ["checkwatch", "texting", "bagstrap", "phone", "watch"], ["raise", "lift", "highfive", "jumpjoy", "clap"],
+    ["shrug", "facepalm", "scratch", "chin"], ["stop", "calm", "stepback", "cover"], ["welcome", "open", "nodhand"], ["note", "chin", "nod", "lean"], ["cross", "hips", "weight", "lean"],
+  ];
+  const G_KEEP = new Set(["eat", "push", "stagger", "wave", "crouch"]);   // gestes de l'action (choréographie), jamais remplacés
+  const _gRecent = {}, _gSub = {};
   function gesture(a, g, opt) {
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
+    if (!G_KEEP.has(g) && !(opt && opt.exact)) {
+      const who = (a.dataset && a.dataset.who) || a.getAttribute("data-who") || a, now = performance.now(), busy = (x) => _gRecent[x] && now - _gRecent[x].t < 1700 && _gRecent[x].w !== who;
+      const sub = _gSub[who + "|" + g];
+      if (sub && now - sub.t < 400) g = sub.g;   // la même personne (corps et jambes dessinés à part) : le même geste
+      else if (busy(g)) {
+        const g0 = g;
+        const fam = GFAM.filter((F) => F.includes(g)).flat().filter((x) => x !== g && GESTS.includes(x) && !busy(x));
+        if (fam.length) { g = fam[Math.floor(Math.random() * fam.length)]; _gSub[who + "|" + g0] = { g, t: now }; }
+        else if (!(opt && opt._late)) { const d = 450 + Math.random() * 900; setTimeout(() => a.isConnected && gesture(a, g, { ...(opt || {}), _late: 1 }), d); return; }
+      }
+      _gRecent[g] = { t: now, w: who };
+    }
     if (g === "wave" && !(opt && opt.greet) && !a._greet && !greetNow()) g = "nodhand";
     const cur = GESTS.find((x) => r.classList.contains("g-" + x));
     if (cur) {   // un geste joue encore : il s'achève en accéléré, puis le nouveau enchaîne
@@ -4204,6 +4228,7 @@
   function Walker(who, x, y, pose = "stand", opts = {}) {
     const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
     a.classList.add("walker");
+    a.style.animationDelay = "-" + (Math.random() * 2.4).toFixed(2) + "s"; a.style.animationDuration = (2.1 + Math.random() * .7).toFixed(2) + "s";   // chacun son pas
     if (!opts.free) [x, y] = outZ([x, y]);   // personne ne reste planté dans le potager ou un massif
     const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null }; a._w = W;
     W.place = () => { const f = w2f(W.x, W.y); a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; a.style.zIndex = W.zb != null ? W.zb : zOf(W.x, W.y) + 1; };

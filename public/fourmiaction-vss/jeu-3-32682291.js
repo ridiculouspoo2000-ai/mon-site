@@ -354,7 +354,7 @@
   // Animateur ou animatrice : les textes qui désignent le joueur s'accordent (GENRE_M, dans le scénario). On garde
   // l'original de chaque texte modifié, pour pouvoir revenir au féminin si l'on change d'avis.
   const G_ORIG = new WeakMap();
-  const isM = () => !!(st && st.look && st.look.g === "m");
+  const isM = () => !!(st && ((st.g || (st.look && st.look.g)) === "m"));
   const G = (t) => (isM() && typeof genreM === "function" ? genreM(t) : t);
   function applyGender() {
     if (typeof genreM !== "function") return;
@@ -666,14 +666,18 @@
       if (gw > 80 && !calm()) {
         if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return;
         list.forEach((x) => x[2] && !x[2].classList.contains("said") && x[2].classList.add("vpend"));
+        vprep(gw + 900);   // pendant qu'on se rejoint, ni texte ni choix : tout viendra avec la voix
         const tk = this._gtk = (this._gtk || 0) + 1;
         setTimeout(() => { if (tk !== this._gtk) return; if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return; this.seq(list); }, gw);
         return;
       }
-      if (!this.ok || !this.ready || !st.settings.voice) { Lip.silent(list); return; }
+      if (!this.ok || !this.ready || !st.settings.voice) { Lip.silent(list); if (Lip._sl && !calm()) document.body.classList.add("vlock"); vgo(); return; }
       Lip.silent(null);
       const all = list.map(([w, t, e, cb]) => ({ u: t && this.url(w, t), e: e || null, w, t, cb }));
       all.filter((x) => !x.u && x.cb).forEach((x) => setTimeout(x.cb, 0));   // une réplique sans voix : son action se fait quand même
+      all.filter((x) => x.u && x.e).forEach((x) => x.e.classList.add("vpend"));   // ce qui va être dit reste caché jusqu'à sa voix
+      all.filter((x) => !x.u && x.e).forEach((x) => x.e.classList.remove("vpend"));   // une réplique sans voix enregistrée : lisible tout de suite
+      document.body.classList.add("vlock"); vgo();
       const items = all.filter((x) => x.u); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
@@ -681,7 +685,7 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on) { c.e.classList.add("kara", "said"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on && !c.shown) { c.e.classList.add("kara", "said"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
           if (c && !c.on) { c.on = 1; if (c.cb) { const f = c.cb; c.cb = null; try { f(); } catch (e) { } } World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
@@ -700,7 +704,7 @@
       const now = Date.now(); this._h = (this._h || []).filter((t) => now - t < 10000); this._h.push(now);
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
       World.talk(null); Lip.off();
-      clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 2500);   // si la voix tarde, le texte paraît quand même
+      clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.shown = 1; it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 6000);   // si la voix tarde vraiment, le texte paraît quand même (et ne sera plus effacé)
       this._cur = it; if (it.e) { it.e.classList.add("kara", "said"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
@@ -1026,6 +1030,27 @@
   // On écoute jusqu'au bout : tant que le narrateur ou quelqu'un parle (ou, sans le son, le temps de lire sa réplique), les
   // choix, les boutons de la scène et les lieux du plan restent cachés ou inactifs. On ne peut ni entrer dans une autre salle
   // ni avancer avant la fin. Les réglages, le carnet et le téléphone restent accessibles (on peut toujours couper le son).
+  // Avant que la voix ne démarre (les quelques dixièmes de seconde où l'écran se monte), les mots, les choix et les
+  // boutons de la scène restent cachés : rien ne s'affiche pour disparaître aussitôt. La voix (ou, sans le son, la
+  // lecture mot à mot) lève ce voile dès qu'elle commence ; à défaut, il se lève de lui-même.
+  // Anti double clic : deux clics rapprochés sur un bouton de la scène (Suivant, Continuer, un choix) n'en font qu'un —
+  // on ne saute jamais une réplique ni un écran en cliquant deux fois
+  let _clk0 = 0;
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest && e.target.closest("#stage button, #stage .opt, #stage [role=button]"); if (!b || b.classList.contains("vg-btn")) return;
+    const sc0 = st && SCREENS[st.idx]; if (sc0 && ((sc0.type === "order" && sc0.crisis) || (sc0.type === "sort" && sc0.cats && sc0.cats.length <= 3))) return;   // épreuves chronométrées : clics rapides permis
+    const now = performance.now();
+    if (now - _clk0 < 700) { e.stopImmediatePropagation(); e.preventDefault(); return; }
+    _clk0 = now;
+  }, true);
+  let _vpT = 0;
+  function vprep(ms = 1600) {
+    if (calm()) return;
+    document.body.classList.add("vprep"); clearTimeout(_vpT);
+    _vpT = setTimeout(() => document.body.classList.remove("vprep"), ms);
+  }
+  const vgo = () => { clearTimeout(_vpT); document.body.classList.remove("vprep"); };
+  window.__vprep = vprep;
   let _vl0 = 0;
   setInterval(() => {
     const on = !calm() && !!((typeof Voice !== "undefined" && Voice.busy && Voice.busy()) || (typeof Lip !== "undefined" && Lip._sl));
@@ -1057,6 +1082,7 @@
     unlockDocs(sc); Phone.check(sc); dayclock(sc);
     hud(true);
     const old = stage.firstElementChild;
+    vprep();
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
     if (sc.bridge) node.dataset.bridge = "1";
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
@@ -2137,7 +2163,7 @@
         <p class="lead">${esc(ROLE.voice)} Créez le personnage qui vous ressemble : il vous suivra toute la semaine.</p></div>
         <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div>
           <p class="su-mlab">Partir d’un modèle</p><div class="avs" role="group" aria-label="Modèles de départ"></div></div>
-        <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez">${[["f", "Une animatrice"], ["m", "Un animateur"]].map(([v, t]) => `<button type="button" class="ch${(st.look && st.look.g === "m" ? "m" : "f") === v ? " sel" : ""}" data-g="${v}" aria-pressed="${(st.look && st.look.g === "m" ? "m" : "f") === v}">${t}</button>`).join("")}</div>
+        <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez">${[["f", "Une animatrice"], ["m", "Un animateur"]].map(([v, t]) => `<button type="button" class="ch${((st.g || (st.look && st.look.g)) === "m" ? "m" : "f") === v ? " sel" : ""}" data-g="${v}" aria-pressed="${((st.g || (st.look && st.look.g)) === "m" ? "m" : "f") === v}">${t}</button>`).join("")}</div>
           <label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
           <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="Sam" value="${esc(st.name || "")}">
           <div class="tabs" role="tablist" aria-label="Personnaliser">${[["visage", "Visage"], ["cheveux", "Cheveux"], ["tenue", "Tenue"], ["accessoires", "Accessoires"]].map(([k, t]) => `<button type="button" role="tab" class="tab${k === tab ? " sel" : ""}" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("")}</div>
@@ -2147,11 +2173,11 @@
       const fillTab = () => { panel.innerHTML = TABS[tab](); };
       LOOK.PRESETS.forEach((p, i) => {
         const b = el("button", { class: "av", type: "button", "aria-label": "Modèle " + (i + 1) }, LOOK.bust(p));
-        b.addEventListener("click", () => { const g = st.look && st.look.g; st.look = { ...p }; if (g) st.look.g = g; st.av = i; fillTab(); draw(true); Snd.click(); });
+        b.addEventListener("click", () => { const g = st.g || (st.look && st.look.g); st.look = { ...p }; if (g) st.look.g = g; st.av = i; fillTab(); draw(true); Snd.click(); });
         models.appendChild(b);
       });
       su.querySelectorAll(".su-genre button").forEach((b) => b.addEventListener("click", () => {
-        st.look.g = b.dataset.g; applyGender(); save(); Snd.click();
+        st.look.g = st.g = b.dataset.g; applyGender(); save(); Snd.click();
         su.querySelectorAll(".su-genre button").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-pressed", on); });
         const ld = su.querySelector(".lead"); if (ld) ld.textContent = ROLE.voice + " Créez le personnage qui vous ressemble : il vous suivra toute la semaine.";
       }));
@@ -2214,7 +2240,7 @@
       </div>`;
     n.querySelector(".chap").appendChild(btn(c.n === 1 ? "C’est parti" : "Commencer la journée", next));
     Snd.page();
-    if (prev && !calm()) { n.dataset.novoice = "1"; setTimeout(() => { if (n.isConnected) Voice.seq(VOICE_TXT.parts(sc)); }, 4200); }
+    if (prev && !calm()) { n.dataset.novoice = "1"; vprep(4800); setTimeout(() => { if (n.isConnected) Voice.seq(VOICE_TXT.parts(sc)); }, 4200); }
     // la nuit tombe sur la veille (sur le plan : soleil couchant, fenêtres qui s'allument, lune), puis le jour se lève :
     // les familles arrivent au portail
     const go1 = n.querySelector(".chap > button");
@@ -3021,7 +3047,7 @@
     hud(true);
     n.innerHTML = `<div class="page-note"><div class="pn-ant">${faceOf("nour", "big")}</div><div class="pn-body"><p class="kicker">${isNew ? "Nouvelle page dans votre carnet" : "Page du carnet"}</p><h2 id="h-${sc.id}">${esc(p.title)}</h2>${p.quote ? `<blockquote>${esc(p.quote)}</blockquote>` : ""}<ul>${p.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${p.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></div></div>`;
     n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Finir la journée" : "Continuer", next));
-    if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
+    if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; vprep(); setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
     // Chaque point de la page est illustré par une image (de nouveaux personnages qui montrent ce que dit le point) :
     // plus de flash-back sur le plan, on reste dans le présent
@@ -3151,7 +3177,7 @@
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
       <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
     { const NU = st.level === 1 ? NUANCE_KID : NUANCE; const box = n.querySelector(".bilan .bhead"); if (box) box.insertAdjacentHTML("afterend", `<div class="nuance"><p class="kicker">Le mot de Bafaël</p><p>${esc(NU)}</p></div>`);
-      n.dataset.novoice = "1"; setTimeout(() => n.isConnected && Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [], FW)), 700); }
+      n.dataset.novoice = "1"; vprep(); setTimeout(() => n.isConnected && Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [], FW)), 700); }
     const b = n.querySelector(".bilan");
     if (typeof SOURCES !== "undefined" && SOURCES.length) n.querySelector(".bilan").appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
     b.appendChild(rankBox(defi));
@@ -3719,7 +3745,7 @@
       body.scrollTop = 0;
       const V = dayT ? [["narr", dayT]] : [];   // le pont d’entrée présente déjà la rétrospective
       // le narrateur annonce le jour ; les cartes se lisent d'un coup d'œil (rapide)
-      setTimeout(() => n.isConnected && Voice.seq(V), 400);
+      vprep(); setTimeout(() => n.isConnected && Voice.seq(V), 400);
       nb.textContent = di < days.length - 1 ? `${CHAPTERS[days[di + 1] - 1].day} →` : "Voir le bilan";
       Snd.page && Snd.page();
     }
@@ -4418,7 +4444,7 @@
       const fin = btn("Finir l’après-midi", finish, "ghost"); fin.disabled = !!mustLeft().length && !atEnd;
       row.appendChild(fin); card.appendChild(row);
       n.appendChild(card);
-      if (first && guideOnly() && sc.guide) { coach(sc.guide[1], card); card.classList.add("coached"); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 600); }
+      if (first && guideOnly() && sc.guide) { coach(sc.guide[1], card); card.classList.add("coached"); vprep(); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 600); }
       else if (first) setTimeout(() => Voice.say("narr", sc.intro), 600);
       sc.events.forEach((e) => { if (e.nudge && !S.done[e.id] && !S.nudged[e.id] && S.t >= toMin(e.nudge) && S.guided) { S.nudged[e.id] = 1; save(); toastMsg(`SMS de ${NAMES[e.nudgeLine[0]]} : ${e.nudgeLine[1]}`); Voice.say(e.nudgeLine[0], e.nudgeLine[1]); } });
       if (atEnd) { busy = true; setTimeout(finish, mustLeft().length ? 2600 : 900); }   // l'heure est passée : la suite arrive d'elle-même
@@ -4601,7 +4627,6 @@
         Life.agents.forEach((g) => { if (g.W && sp.includes(g.W)) clearTimeout(g.t); });
         if (first) {
           const tx = first.x + .7, ty = first.y + 1.15;
-          gT = Math.max(gT, dist([you.x, you.y], [tx, ty]) / 1.5 * 1000);
           you.go([[tx, ty]], 1.5, () => { you.setBack(true); you.face([first.x - .4, first.y]); });
           aim(first.x + .3, first.y + .5, 3.0, wide() ? .3 : .5, wide() ? .62 : .3, 1500);   // la scène à gauche, le texte à droite
           // d'abord, on se rejoint : celles et ceux qui sont loin de la personne qui parle viennent près d'elle (en arc de
@@ -4614,14 +4639,14 @@
             const o = ARC.map((q, i) => [i, q]).filter(([i]) => !usedA.has(i)).sort((A1, B1) => dist([W.x, W.y], [first.x + A1[1][0], first.y + A1[1][1]]) - dist([W.x, W.y], [first.x + B1[1][0], first.y + B1[1][1]]))[0];
             if (!o) return; usedA.add(o[0]);
             const to = [first.x + o[1][0], first.y + o[1][1]];
-            gT = Math.max(gT, dist([W.x, W.y], to) / 1.9 * 1000);
-            W.go([to], 1.9, () => { faceUp(); gesture(W.el, W.gests && W.gests[0] || "nod"); }, "walk");
+            gT = Math.max(gT, dist([W.x, W.y], to) / 2.6 * 1000);
+            W.go([to], 2.6, () => { faceUp(); gesture(W.el, W.gests && W.gests[0] || "nod"); }, "walk");
           });
           // les deux qui se parlent (ou se disputent) se font face ; les autres regardent la personne qui parle
           const faceUp = () => { const two = sp[1]; sp.forEach((W) => { if (W.path) return; if (W === first) W.face(two ? [two.x, two.y] : [tx, ty]); else W.face([first.x, first.y]); }); };
           faceUp();
         }
-        gT = reduce() ? 0 : Math.min(3500, gT + 250);
+        gT = reduce() ? 0 : Math.min(1800, gT + 150);   // on se rejoint vite : la voix démarre presque aussitôt
         World._settle = gT + actT ? performance.now() + gT + actT : 0;   // la conversation attend qu'on se soit rejoints et que l'action se soit jouée
         setTimeout(() => { if (!n.isConnected) return; play(sp); setTimeout(() => n.isConnected && act(sp, first, ev.duel), actT); }, gT);   // une fois rejoints, l'action se joue, puis chacun reste vivant
       }
@@ -4633,7 +4658,7 @@
       if (ev.kind === "board") return board();
       const seq = [];
       ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); seq.push([w, t, r]); });
-      setTimeout(() => n.isConnected && Voice.seq(seq), ev.room ? 150 : 450);   // en salle : la scène se lance dès l’entrée ; dehors, après qu'on s'est rejoints (Voice attend World._settle)
+      vprep(); setTimeout(() => n.isConnected && Voice.seq(seq), 150);   // en salle : la scène se lance dès l’entrée ; dehors, après qu'on s'est rejoints (Voice attend World._settle)
       // son coupé : Voice.seq fait quand même jouer les répliques (bouche, gestes, visage, émotion), le temps de les lire
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
       const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
@@ -4679,7 +4704,7 @@
       // « Le panneau » : épingler les trois bonnes affiches
       function board() {
         const S0 = []; ev.lines.forEach(([w, t]) => { const r = line(w, t); log.appendChild(r); S0.push([w, t, r]); });
-        setTimeout(() => n.isConnected && Voice.seq(S0), ev0 && ev0.room ? 150 : 600);   // avec ou sans voix : bouche et gestes le temps de chaque réplique
+        vprep(); setTimeout(() => n.isConnected && Voice.seq(S0), ev0 && ev0.room ? 150 : 600);   // avec ou sans voix : bouche et gestes le temps de chaque réplique
         const grid = el("div", { class: "bd-grid" }), sel = new Set();
         const seed = [...ev.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
         ev.posters.map((p, k) => k).sort((x, y) => ((x * 29 + seed) % 13) - ((y * 29 + seed) % 13)).forEach((k) => {
@@ -4997,6 +5022,7 @@
       <p class="kicker">À retenir</p><ul class="de-learn">${B.learn.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
     n.querySelector(".panel").appendChild(btn("Continuer", next));
     n.dataset.novoice = "1";
+    vprep();
     setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."]].concat(B.vu ? [["narr", B.vu]] : [], [["narr", "À retenir. " + B.learn.join(" ")]])); }, 900);
   };
 
@@ -5392,14 +5418,17 @@
       <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
 
       <div class="hbtns"></div>
+      <p class="small fsadv">Nous vous conseillons de mettre en plein écran si vous êtes sur ordinateur. <button type="button" class="linkbtn fs-go">Plein écran</button></p>
       <p class="small warn">Situations fictives, sans aucune représentation de violence : niveaux Adulte et Expert pour les adultes en formation, niveau Enfants dès 9 ans, idéalement avec un adulte. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
 `;
+    { const fb = n.querySelector(".fs-go"); if (fb) { if (!document.documentElement.requestFullscreen) fb.remove(); else fb.addEventListener("click", () => { const p = document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(() => {}); }); } }
     const hb = n.querySelector(".hbtns");
     // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)
     const allOn = () => { st.settings.sound = true; st.settings.voice = true; applySettings(); save(); };
     // l'écran « Activez le son » vient après le clic de lancement (jamais avant, sur l'accueil)
-    const launch = (go2) => soundGate((on) => { if (on) allOn(); else { st.settings.sound = false; st.settings.voice = false; applySettings(); save(); } begin(); go2(); });
+    // dans l'ordre : le son, puis animatrice ou animateur (avant toute parole qui vous désigne), puis la partie
+    const launch = (go2) => soundGate((on) => { if (on) allOn(); else { st.settings.sound = false; st.settings.voice = false; applySettings(); save(); } begin(); genderGate(() => go2()); });
     st.settings.sound = true; st.settings.voice = true;
     if (canResume) {
       const sc = SCREENS[prev.idx];
@@ -5450,6 +5479,19 @@
   function begin() { Snd.init(); try { if (Snd.ctx && Snd.ctx.state !== "running") Snd.ctx.resume(); } catch (e) { } Snd.startAmb(); Snd.good(); }
 
   // Consigne plein écran à l'arrivée : activer le son (à l'écran et à l'oral). Le bouton sert aussi de « geste » pour lancer la musique.
+  // Animatrice ou animateur : demandé une fois, au lancement, avant la première réplique (Nour, le narrateur s'accordent)
+  function genderGate(then) {
+    if (st.g || (st.look && st.look.g)) { if (!st.g) st.g = st.look.g; applyGender(); then(); return; }
+    const g = el("div", { class: "sgate ggate", role: "dialog", "aria-modal": "true", "aria-labelledby": "gg-h" },
+      `<div class="sg-in"><h2 id="gg-h">Vous jouez…</h2><p>Les personnages s’adresseront à vous selon votre choix.</p>
+       <div class="sg-b"><button type="button" class="cta" data-g="f">Une animatrice</button><button type="button" class="cta" data-g="m">Un animateur</button></div></div>`);
+    g.querySelectorAll("[data-g]").forEach((b) => b.addEventListener("click", () => {
+      st.g = b.dataset.g; if (st.look) st.look.g = st.g; applyGender(); save(); Snd.click && Snd.click();
+      g.classList.add("out"); setTimeout(() => g.remove(), 500); then();
+    }, { once: true }));
+    document.body.appendChild(g); requestAnimationFrame(() => g.classList.add("in"));
+    g.querySelector("[data-g]").focus();
+  }
   function soundGate(then) {
     const done = (on) => { if (then) { const f = then; then = null; f(on); } };
     if (sessionStorage.getItem("hh-son")) { done(sessionStorage.getItem("hh-son") !== "0"); return; }

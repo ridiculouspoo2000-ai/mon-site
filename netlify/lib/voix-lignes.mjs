@@ -834,11 +834,11 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Le menu, et les affiches des animateurs et des jeunes, avec les sensibilisations des activités de la journée et de la semaine. Certains enfants adorent venir voir."
  },
- "8fd4e1aefc74": {
+ "4082427ad00f": {
   "who": "nour",
   "mood": "",
   "kind": "visite-calme",
-  "text": "Bon, l’aire de jeux, là où les enfants se défoulent. Idéalement, il faut deux animateurs : l’un joue avec les enfants, et l’autre joue avec ceux qui sont un peu à l’écart, tout en gardant un œil sur l’ensemble."
+  "text": "L’aire de jeux des 6-11 ans : le mini-foot, la pyramide de cordes, le toboggan. Idéalement, deux animateurs : l’un joue avec le groupe, l’autre avec ceux qui restent à l’écart."
  },
  "eb795c8847f3": {
   "who": "nour",

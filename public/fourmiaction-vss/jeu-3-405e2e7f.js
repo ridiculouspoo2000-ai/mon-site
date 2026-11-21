@@ -4007,15 +4007,76 @@
 
   /* ---- marcheurs : un personnage qui se déplace au sol (vous, les figurants, les personnes d'une scène) ---- */
   const SZ = () => (44 / A.dio.vbw) * 100 * .77;
+  /* ---- zones où l'on ne marche pas (potager, massifs, table de pique-nique, buissons, jeux…) : on les contourne ----
+     [x0, y0, x1, y1] en mètres, au sol (marge comprise) */
+  const NOGO = [
+    [15.85, 27.05, 20.15, 29.35],                                    // le potager
+    [13.1, 4.2, 15.3, 6.4], [12.7, 3.8, 13.05, 4.15],               // table de pique-nique, poubelle du parc
+    [9.7, 3.6, 10.9, 4.8], [17.4, 3.0, 18.6, 4.2], [15.65, 1.35, 16.75, 2.45],   // massifs de fleurs du parc
+    [8.95, 2.55, 9.85, 3.45], [8.85, 6.6, 9.65, 7.4], [18.75, 3.15, 19.65, 4.05], [11.2, 8.3, 12.0, 9.1], [18.15, 8.25, 19.05, 9.15],   // buissons
+    [9.95, 5.25, 10.5, 7.15], [18.55, 5.15, 19.1, 7.05],            // bancs du parc
+    [10.25, 2.45, 10.55, 2.75], [12.05, 1.6, 12.35, 1.9], [18.15, 2.05, 18.45, 2.35], [9.85, 8.15, 10.15, 8.45],   // troncs
+    [13.35, 19.25, 14.35, 19.95], [16.55, 19.25, 17.55, 19.95],     // jardinières de l'entrée
+    [4.2, 22.85, 8.9, 24.2], [11.6, 22.3, 13.8, 24.5],              // toboggan, pyramide de cordes
+    [4.25, 25.2, 4.8, 26.3], [8.6, 25.2, 9.1, 26.3],                // les deux cages du mini-foot
+  ];
+  const inZ = (p, R, e = 0) => p[0] > R[0] + e && p[0] < R[2] - e && p[1] > R[1] + e && p[1] < R[3] - e;
+  // le segment A→B passe-t-il dans la zone (et pas seulement sur son bord) ?
+  function hitZ(A, B, R) {
+    const e = .02, x0 = R[0] + e, y0 = R[1] + e, x1 = R[2] - e, y1 = R[3] - e;
+    let t0 = 0, t1 = 1; const dx = B[0] - A[0], dy = B[1] - A[1];
+    for (const [p, q] of [[-dx, A[0] - x0], [dx, x1 - A[0]], [-dy, A[1] - y0], [dy, y1 - A[1]]]) {
+      if (Math.abs(p) < 1e-9) { if (q < 0) return false; continue; }
+      const r = q / p; if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return t1 - t0 > 1e-6 ? t0 : false;
+  }
+  // un point tombé dans une zone en est sorti par le bord le plus proche
+  function outZ(p) {
+    for (const R of NOGO) if (inZ(p, R)) {
+      const c = [[R[0] - .08, p[1], p[0] - R[0]], [R[2] + .08, p[1], R[2] - p[0]], [p[0], R[1] - .08, p[1] - R[1]], [p[0], R[3] + .08, R[3] - p[1]]].sort((a, b) => a[2] - b[2])[0];
+      p = [c[0], c[1]].concat(p.slice(2));
+    }
+    return p;
+  }
+  // contourner la zone R pour aller de A à B : par un coin, ou par deux coins voisins, au plus court
+  function around(A, B, R) {
+    const m = .1, C = [[R[0] - m, R[1] - m], [R[2] + m, R[1] - m], [R[2] + m, R[3] + m], [R[0] - m, R[3] + m]];
+    const ok = (P, Q) => hitZ(P, Q, R) === false, L = (q) => q.reduce((s, c, i) => s + dist(i ? q[i - 1] : A, c), 0) + dist(q[q.length - 1], B);
+    let best = null;
+    C.forEach((c, i) => {
+      if (ok(A, c) && ok(c, B)) { const q = [c]; if (!best || L(q) < L(best)) best = q; }
+      [C[(i + 1) % 4], C[(i + 3) % 4]].forEach((d) => { if (ok(A, c) && ok(d, B)) { const q = [c, d]; if (!best || L(q) < L(best)) best = q; } });
+    });
+    return best || [];
+  }
+  function keepOff(start, pts) {
+    const out = []; let cur = start;
+    pts.forEach((p0) => {
+      const p = outZ(p0);
+      for (let k = 0; k < 6; k++) {
+        let hit = null, ht = 2;
+        NOGO.forEach((R) => { if (inZ(cur, R)) return; const t = hitZ(cur, p, R); if (t !== false && t < ht) { ht = t; hit = R; } });
+        if (!hit) break;
+        const d = around(cur, p, hit); if (!d.length) break;
+        d.forEach((q) => out.push(q)); cur = d[d.length - 1];
+      }
+      out.push(p); cur = p;
+    });
+    return out;
+  }
+  window.__keepOff = keepOff;
+
   function Walker(who, x, y, pose = "stand", opts = {}) {
     const a = World.actor(who, pose, w2f(x, y), SZ(), false, null, opts);
     a.classList.add("walker");
+    if (!opts.free) [x, y] = outZ([x, y]);   // personne ne reste planté dans le potager ou un massif
     const W = { who, el: a, x, y, pose, back: !!opts.back, path: null, speed: 1.6, onDone: null }; a._w = W;
     W.place = () => { const f = w2f(W.x, W.y); a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; a.style.zIndex = W.zb != null ? W.zb : zOf(W.x, W.y) + 1; };
     W.set = (px, py) => { W.x = px; W.y = py; W.place(); };
     W.setPose = (ps) => { if (W.pose === ps) return; W.pose = ps; a._pose(ps); };
     W.face = (tx) => { const s0 = w2f(W.x, W.y)[0], s1 = w2f(tx[0], tx[1])[0]; if (Math.abs(s1 - s0) > .05) a.classList.toggle("flip", s1 < s0); };
-    W.go = (pts, speed, onDone, pose) => { W.path = pts.slice(); W.speed = speed || 1.6; W.onDone = onDone || null; W.setPose(pose || (W.speed > 2.4 ? "run" : "walk")); Life.wake(); };
+    W.go = (pts, speed, onDone, pose) => { W.path = keepOff([W.x, W.y], pts); W.speed = speed || 1.6; W.onDone = onDone || null; W.setPose(pose || (W.speed > 2.4 ? "run" : "walk")); Life.wake(); };
     W.stop = () => { W.path = null; W.setPose("stand"); };
     W.setBack = (b) => {
       if (W.back === !!b) return; W.back = !!b;
@@ -4138,16 +4199,16 @@
       const CROWD = [
         ["k10", [[4.6, 25.0], [7.6, 22.9], [9.2, 26.4]], 2.6, "run"], ["k11", [[13.2, 23.2], [11.0, 26.6], [6.4, 26.6]], 2.9, "run"],
         ["k12", [[6.0, 26.0], [6.8, 25.8]], 1.0, "walk"], ["k13", [[3.8, 22.8], [12.8, 22.6]], 3.0, "run"],
-        ["k14", [[22.4, 20.4], [11.0, 20.6], [4.2, 20.3]], 1.6, "walk"], ["k15", [[16.6, 3.6], [11.6, 6.9], [15.2, 8.6], [18.0, 5.4]], 1.4, "walk"],
-        ["k16", [[17.0, 27.6], [19.2, 28.4]], 1.0, "walk"], ["t6", [[28.2, 6.0], [28.3, 17.0]], 1.3, "walk"],
+        ["k14", [[22.4, 20.4], [11.0, 20.6], [4.2, 20.3]], 1.6, "walk"], ["k15", [[16.3, 3.2], [17.17, 5.3], [16.3, 7.4], [14.2, 8.27], [12.1, 7.4], [11.23, 5.3], [12.1, 3.2], [14.2, 2.33]], 1.4, "walk"],
+        ["k16", [[15.5, 27.3], [15.5, 28.9]], 1.0, "walk"], ["t6", [[28.2, 6.0], [28.3, 17.0]], 1.3, "walk"],
         ["t7", [[5.0, 10.0], [26.0, 10.1]], 1.4, "walk"], ["t8", [[21.8, 24.6], [27.2, 23.0], [24.4, 19.4]], 1.2, "walk"],
         ["lea", [[3.6, 20.5], [20.8, 20.4]], 1.3, "walk"], ["yanis", [[14.0, 9.9], [28.0, 10.0], [28.3, 18.0]], 1.4, "walk"],
-        ["k7", [[10.4, 4.4], [17.6, 6.2]], 1.2, "walk"], ["k9", [[22.6, 22.0], [26.4, 26.4]], 2.4, "run"],
-        ["k8", [[5.2, 24.0], [8.4, 24.3]], 2.2, "run"], ["t3", [[19.0, 22.6], [23.8, 23.8]], 1.0, "walk"],
+        ["k7", [[11.23, 5.3], [12.1, 7.4], [14.2, 8.27], [16.3, 7.4], [17.17, 5.3], [16.3, 7.4], [14.2, 8.27], [12.1, 7.4]], 1.2, "walk"], ["k9", [[22.6, 22.0], [26.4, 26.4]], 2.4, "run"],
+        ["k8", [[5.4, 24.42], [8.3, 24.42]], 2.2, "run"], ["t3", [[19.0, 22.6], [23.8, 23.8]], 1.0, "walk"],
         // plus d'enfants et d'adultes, partout sur le centre
         ["k1", [[24.0, 20.0], [27.4, 24.8], [22.6, 25.6]], 2.4, "run"], ["k2", [[9.0, 22.8], [5.0, 23.4], [7.0, 27.0]], 2.0, "run"],
-        ["k3", [[12.6, 4.2], [16.2, 2.6], [17.8, 7.0]], 1.2, "walk"], ["k4", [[8.0, 10.0], [20.0, 9.9]], 1.5, "walk"],
-        ["k5", [[28.3, 12.0], [28.2, 4.6]], 1.4, "walk"], ["k6", [[14.4, 27.0], [16.2, 28.0]], .9, "walk"],
+        ["k3", [[14.2, 2.33], [16.3, 3.2], [17.17, 5.3], [16.3, 3.2]], 1.2, "walk"], ["k4", [[8.0, 10.0], [20.0, 9.9]], 1.5, "walk"],
+        ["k5", [[28.3, 12.0], [28.2, 4.6]], 1.4, "walk"], ["k6", [[14.4, 27.0], [15.4, 28.2]], .9, "walk"],
         ["t1", [[26.2, 21.0], [6.0, 20.6]], 1.3, "walk"], ["t2", [[29.4, 7.2], [32.6, 7.3]], 1.1, "walk"],
         ["t4", [[25.0, 26.2], [28.6, 22.0]], 1.2, "walk"], ["t5", [[30.6, 16.1], [34.4, 16.2]], 1.1, "walk"],
         ["hugo", [[18.0, 9.9], [5.6, 10.0]], 1.2, "walk"], ["samia", [[6.2, 24.6], [11.2, 25.4]], 1.1, "walk"],

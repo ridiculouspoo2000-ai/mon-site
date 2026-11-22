@@ -191,3 +191,31 @@ html.ap-motion .cj-ring:not(.ap-in){transform:rotate(-25deg) scale(.9)}
   .ap-faq summary{font-size:17px;padding:18px 56px 18px 20px}
   .ap-faq details p{padding:0 20px 18px}
 }
+/* Résumé du collectif, aligné sur la fin de la vidéo V15 : 3 colonnes, logo au centre, une illustration par carte */
+.cj-bento.cj-v15{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-areas:"a b c" "d L e" "f L g" "h k i"}
+.cj-v15 .cj-tile strong{padding-right:84px}
+.cj-v15 .cj-vis{position:absolute;right:18px;top:50%;transform:translateY(-50%);display:block;line-height:0}
+.cj-v15 .cj-vis svg{display:block;height:auto}
+.cj-v15 .v-a svg{width:78px}.cj-v15 .v-b svg{width:36px}.cj-v15 .v-c svg{width:64px}.cj-v15 .v-d svg{width:80px}.cj-v15 .v-e svg{width:84px}
+.cj-v15 .v-f svg{width:62px}.cj-v15 .v-g svg{width:100px}.cj-v15 .v-h svg{width:58px}.cj-v15 .v-k svg{width:70px}.cj-v15 .v-i svg{width:64px}
+.cj-v15 .cj-tile.logo strong{font-size:clamp(40px,4.3vw,70px)}
+@media (max-width:980px){.cj-bento.cj-v15{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"L L" "a b" "c d" "e f" "g h" "k i"}}
+@media (max-width:560px){.cj-v15 .cj-tile strong{padding-right:0;margin-top:12px}.cj-v15 .cj-vis{position:static;transform:none;margin-top:12px}.cj-v15 .cj-vis svg{width:auto!important;height:40px;max-width:100%}.cj-v15 .v-b svg,.cj-v15 .v-k svg{height:54px}}
+/* Accès rapide aux inscriptions, juste après la vidéo */
+.cj-urgent{display:inline-flex;align-items:center;gap:8px;margin:14px auto 0;padding:7px 14px 7px 12px;border-radius:999px;background:#FFF1E6;color:#B4521A;font-weight:700;font-size:14px;text-decoration:none;letter-spacing:-.005em;box-shadow:0 0 0 1px rgba(226,112,42,.22)}
+.cj-urgent i{width:8px;height:8px;border-radius:50%;background:#E2702A;box-shadow:0 0 0 0 rgba(226,112,42,.5);animation:cj-pulse 1.8s ease-out infinite}
+@keyframes cj-pulse{0%{box-shadow:0 0 0 0 rgba(226,112,42,.5)}100%{box-shadow:0 0 0 10px rgba(226,112,42,0)}}
+@media (prefers-reduced-motion:reduce){.cj-urgent i{animation:none}}
+.cj-hero .cj-urgent{display:flex;width:max-content;margin:12px auto 0}
+.cj-video-meta .cj-urgent{margin:0}
+.cj-quick{padding-top:56px;padding-bottom:24px}
+.cj-quick .cj-head{margin-bottom:0}.cj-quick .cj-head .cj-urgent{margin:0 auto 14px}
+.cj-quick .cj-forms{margin-top:36px}
+/* Le détail du projet, replié : la page reste courte, on l'ouvre si on veut */
+.cj-more{max-width:1200px;margin:24px auto 0;padding:0 20px}
+.cj-more>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;margin:0 auto;width:max-content;max-width:100%;padding:16px 28px;border-radius:999px;background:var(--card,#fff);box-shadow:var(--sh,0 8px 24px rgba(0,0,0,.08));text-align:center}
+.cj-more>summary::-webkit-details-marker{display:none}
+.cj-more>summary span{font-weight:700;font-size:17px}.cj-more>summary span::after{content:" +";color:var(--fa-blue-hi,#2b5bd7)}
+.cj-more[open]>summary span::after{content:" −"}
+.cj-more>summary small{color:var(--soft,#6e6e73);font-size:13px}
+.cj-more>.section,.cj-more>.cj-dark{margin-left:-20px;margin-right:-20px}

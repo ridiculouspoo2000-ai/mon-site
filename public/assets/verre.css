@@ -131,3 +131,10 @@ html.theme-verre header nav a,html.theme-verre .nav-big small{text-shadow:0 0 12
 /* Adhérer : l’orange du logo (« ACTION ») */
 html.theme-verre header nav a.nav-join{background:#D35A0B!important;color:#fff!important;border:0!important;text-shadow:none!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 8px 20px -10px rgba(211,90,11,.75)!important}
 html.theme-verre header nav a.nav-join:hover{background:#B84C08!important;transform:translateY(-1px)}
+
+/* ---------- Fluidité ----------
+   Sur les appareils légers les flous d’arrière-plan sont plus courts (un flou se recalcule à chaque image du défilement). */
+html.perf-lite header,html.perf-lite.theme-verre header,html.perf-lite header nav{-webkit-backdrop-filter:blur(10px) saturate(160%)!important;backdrop-filter:blur(10px) saturate(160%)!important}
+html.perf-lite .nav-dim,html.perf-lite .anchors,html.perf-lite .ap-lb{-webkit-backdrop-filter:blur(6px)!important;backdrop-filter:blur(6px)!important}
+html.perf-lite .lg-orbs{will-change:auto}
+html.perf-lite .hero-visual:before{filter:blur(30px)}

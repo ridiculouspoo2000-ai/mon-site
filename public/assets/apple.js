@@ -3,6 +3,15 @@
 (() => {
   'use strict';
   const root = document.documentElement;
+  /* ---------- Fluidité : on adapte les effets à la puissance de l’appareil ----------
+     Écran tactile, petit processeur, peu de mémoire ou économie de données : version « légère »
+     (pas de loupe de verre, flous réduits, lumières de fond immobiles). Les animations restent,
+     en transform/opacity, calculées par la carte graphique. */
+  const nav_ = navigator, cores = nav_.hardwareConcurrency || 4, mem = nav_.deviceMemory || 8;
+  const coarse = matchMedia('(pointer: coarse)').matches, saveData = !!(nav_.connection && nav_.connection.saveData);
+  const lite = coarse || cores <= 4 || mem <= 4 || saveData;
+  const strong = !coarse && cores >= 8 && mem >= 8 && !/Android/.test(nav_.userAgent);
+  root.classList.toggle('perf-lite', lite);
   const systemReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const KEY = 'fourmiaction-reduced-motion';
   let preference = null;
@@ -67,7 +76,7 @@
     let introIndex = 0;
     els.forEach(el => {
       el.classList.add('ap-r');
-      if (el.matches('.page-intro h1, .ap-hero-title')) el.classList.add('ap-blur-lg');
+      if (el.matches('.page-intro h1, .ap-hero-title') && !lite) el.classList.add('ap-blur-lg'); // flou animé : appareils puissants seulement
       const r = el.getBoundingClientRect();
       if (r.top < vh && r.bottom > 0) {
         el.style.setProperty('--ap-d', (0.06 + introIndex++ * 0.09).toFixed(2) + 's');
@@ -430,7 +439,7 @@
      Navigateurs Chromium uniquement ; ailleurs, verre dépoli classique. */
   const Lens = (() => {
     const ua = navigator.userAgent;
-    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\./.test(ua) && !/iPhone|iPad|iPod/.test(ua) && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced'); // effet de loupe : moteur Chrome (ordinateur et Android) ; Safari ne sait pas déformer l’arrière-plan
+    const ok = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS|SamsungBrowser\/[0-9]\./.test(ua) && !/iPhone|iPad|iPod/.test(ua) && CSS.supports('backdrop-filter', 'blur(1px)') && !root.classList.contains('ap-reduced') && strong; // ordinateurs puissants seulement (recalculé à chaque image du défilement) ; effet de loupe : moteur Chrome (ordinateur et Android) ; Safari ne sait pas déformer l’arrière-plan
     if (!ok) return { on() {}, off() {} };
     const NS = 'http://www.w3.org/2000/svg';
     const defs = document.createElementNS(NS, 'svg');
@@ -537,7 +546,8 @@
     orbs.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(4)})`;
   };
   // Nappe masquée (cas actuel) : la boucle ne tourne pas du tout, rien n’est recalculé à chaque image.
-  if (getComputedStyle(orbs).display !== 'none') requestAnimationFrame(t => { lastT = t; orbTick(t); });
+  // Appareils légers : la nappe reste en place (aucun calcul à chaque image).
+  if (!lite && getComputedStyle(orbs).display !== 'none') requestAnimationFrame(t => { lastT = t; orbTick(t); });
 
   /* ---------- Apparence : Épuré ou Verre liquide ---------- */
   const LG = ['.cards article', '.news-teaser', '.commitments article', '.pillars article', '.steps article', '.testimonials article', '.prices article',

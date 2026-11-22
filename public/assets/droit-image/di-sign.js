@@ -20,7 +20,7 @@
     // Le lien ne doit pas rester dans l'historique partagé de l'appareil plus que nécessaire.
     $('#di-hello').textContent = `Bonjour ${view.moi.prenom}`;
     $('#di-who').textContent = view.role === 'jeune'
-      ? `Ton accord personnel pour l’image et la voix, dans le cadre du Collectif jeune.`
+      ? `Ton accord personnel pour l’image et la voix, dans le cadre du Collectif jeunes.`
       : `Votre accord pour l’image et la voix de ${view.jeune.prenom} ${view.jeune.nom}, en tant que ${view.moi.qualite.toLowerCase()}.`;
     $('#di-signers').replaceChildren(...view.signataires.map(s => h('li', { class: s.signe ? 'ok' : '' }, h('i'), `${roles[s.role]} · ${s.prenom}`, h('small', {}, s.signe ? 'a signé' : 'en attente'))));
     $('#di-email').textContent = view.moi.email;

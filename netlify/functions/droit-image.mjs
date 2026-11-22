@@ -133,8 +133,8 @@ async function start(req, ctx, b) {
     const m = layout({
       title: "Autorisation de droit à l’image et à la voix",
       lines: [who, x.role === "jeune"
-        ? "Fourmi’Action te demande ton accord personnel pour les photos, vidéos et enregistrements réalisés pendant les activités du Collectif jeunes. Ton choix est libre : un refus ne change rien à ta participation."
-        : `Fourmi’Action vous demande votre accord pour les photos, vidéos et enregistrements de ${jeune.prenom} ${jeune.nom} réalisés pendant les activités du Collectif jeunes. Votre choix est libre : un refus ne change rien à sa participation.`,
+        ? "Fourmi’Action te demande ton accord personnel pour les photos, vidéos et enregistrements réalisés pendant les activités du Collectif jeune. Ton choix est libre : un refus ne change rien à ta participation."
+        : `Fourmi’Action vous demande votre accord pour les photos, vidéos et enregistrements de ${jeune.prenom} ${jeune.nom} réalisés pendant les activités du Collectif jeune. Votre choix est libre : un refus ne change rien à sa participation.`,
         "Ce lien est personnel : il vous permet de lire le document, de recevoir un code de confirmation, d’exprimer vos choix et de signer, depuis l’appareil de votre choix.",
         `Il reste valable ${EXPIRE_DAYS} jours.`],
       button: { label: "Lire et signer", href: link(req, tokens[x.role]) },
@@ -341,7 +341,7 @@ async function admin(req, ctx, b) {
   }
   if (b.a === "admin-majorite") {
     if (!d.jeune.email) return fail("Aucune adresse pour le jeune.");
-    await mail(s, { to: d.jeune.email, subject: "Tes droits sur ton image · Fourmi’Action", ...layout({ title: `${d.jeune.prenom}, tu es majeur(e)`, lines: [`Bonjour ${d.jeune.prenom},`, "Pendant ta minorité, une autorisation de droit à l’image et à la voix a été signée pour les activités du Collectif jeunes de Fourmi’Action. Désormais, tu exerces seul(e) tes droits.", "Tu peux confirmer cette autorisation, la limiter ou la retirer à tout moment en répondant à ce message ou en écrivant à fourmi.action@gmail.com. Sans retrait, elle continue de s’appliquer aux contenus réalisés pendant ta minorité, jusqu’au terme prévu. Toute nouvelle photo ou vidéo, ou toute campagne te mettant personnellement en avant, nécessitera ton accord."] }) });
+    await mail(s, { to: d.jeune.email, subject: "Tes droits sur ton image · Fourmi’Action", ...layout({ title: `${d.jeune.prenom}, tu es majeur(e)`, lines: [`Bonjour ${d.jeune.prenom},`, "Pendant ta minorité, une autorisation de droit à l’image et à la voix a été signée pour les activités du Collectif jeune de Fourmi’Action. Désormais, tu exerces seul(e) tes droits.", "Tu peux confirmer cette autorisation, la limiter ou la retirer à tout moment en répondant à ce message ou en écrivant à fourmi.action@gmail.com. Sans retrait, elle continue de s’appliquer aux contenus réalisés pendant ta minorité, jusqu’au terme prévu. Toute nouvelle photo ou vidéo, ou toute campagne te mettant personnellement en avant, nécessitera ton accord."] }) });
     await event(s, id, "jeune", "Information de majorité envoyée au jeune", req, ctx); return out({ ok: true });
   }
   if (b.a === "admin-delete") {

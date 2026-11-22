@@ -2,7 +2,7 @@
 export const TEXTE = {
  "ref": "FA-CJ-IMAGE-2026-11",
  "titre": "Autorisation de droit à l’image et à la voix",
- "sousTitre": "Collectif jeunes · 14 à 17 ans",
+ "sousTitre": "Collectif jeune · 14 à 17 ans",
  "asso": {
   "nom": "Fourmi’Action",
   "statut": "association régie par la loi du 1er juillet 1901",
@@ -16,7 +16,7 @@ export const TEXTE = {
   {
    "h": "1. Contenus concernés",
    "p": [
-    "Fourmi’Action peut photographier et filmer le jeune et enregistrer sa voix lors des activités du Collectif jeunes et des autres activités de l’association auxquelles il participe : rencontres, réunions, formations, événements, actions d’autofinancement, projets collectifs, sorties et séjours.",
+    "Fourmi’Action peut photographier et filmer le jeune et enregistrer sa voix lors des activités du Collectif jeune et des autres activités de l’association auxquelles il participe : rencontres, réunions, formations, événements, actions d’autofinancement, projets collectifs, sorties et séjours.",
     "Sont concernés : photographies individuelles et de groupe, portraits, interviews, témoignages audiovisuels, films et vidéos, captations d’événements, enregistrements sonores, productions pédagogiques et médiatiques réalisées avec les jeunes.",
     "Fourmi’Action peut procéder aux adaptations techniques usuelles (montage, recadrage, sous-titrage, habillage graphique, changement de format, extraits), sans dénaturer les propos du jeune ni porter atteinte à sa dignité, à sa réputation ou à sa vie privée."
    ]

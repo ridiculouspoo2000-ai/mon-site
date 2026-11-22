@@ -80,7 +80,7 @@ export function layout({ title, lines, button, foot }) {
   const html = `<!doctype html><html lang="fr"><body style="margin:0;background:#f5f5f7;font-family:-apple-system,Segoe UI,Arial,sans-serif;color:#1d2a36">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 14px">
 <table role="presentation" width="100%" style="max-width:560px;background:#fff;border-radius:18px;padding:30px"><tr><td>
-<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d9661f;font-weight:700">Fourmi’Action · Collectif jeunes</p>
+<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d9661f;font-weight:700">Fourmi’Action · Collectif jeune</p>
 <h1 style="margin:0 0 18px;font-size:24px;line-height:1.2;color:#142f46">${esc(title)}</h1>
 ${lines.map((l) => `<p style="margin:0 0 14px;font-size:16px;line-height:1.55;color:#36434f">${esc(l)}</p>`).join("")}
 ${button ? `<p style="margin:22px 0"><a href="${esc(button.href)}" style="display:inline-block;background:#205391;color:#fff;text-decoration:none;font-weight:600;padding:13px 24px;border-radius:999px">${esc(button.label)}</a></p>` : ""}

@@ -126,7 +126,7 @@
     index: 'Une question sur l’association ou le BAFA ? Je cherche la réponse dans nos documents.',
     bafa: 'Dates, tarifs, paiement en plusieurs fois : posez votre question.',
     'formation-bafa-orleans': 'Une question sur le BAFA à Orléans ? Je connais tous les documents.',
-    'collectif-jeunes': 'Une question sur le Collectif jeunes (14-17 ans) ? Je cherche pour vous.',
+    'collectif-jeunes': 'Une question sur le Collectif jeune (14-17 ans) ? Je cherche pour vous.',
     contact: 'Je peux aussi transmettre votre message à l’équipe.',
     'projet-educatif': 'Je peux retrouver un passage du projet éducatif pour vous.'
   };
@@ -307,7 +307,7 @@
     return w;
   }
   const SUGG = {
-    index: ['Où passer son BAFA à Orléans ?', 'Combien coûte le BAFA ?', 'C’est quoi le Collectif jeunes ?', 'Écrire à l’équipe'],
+    index: ['Où passer son BAFA à Orléans ?', 'Combien coûte le BAFA ?', 'C’est quoi le Collectif jeune ?', 'Écrire à l’équipe'],
     bafa: ['Quelles sont les dates 2027 ?', 'Peut-on payer en plusieurs fois ?', 'Comment trouver un stage pratique ?', 'Écrire à l’équipe'],
     'formation-bafa-orleans': ['Quelles aides pour financer ?', 'Peut-on payer en plusieurs fois ?', 'Les inscriptions sont-elles ouvertes ?', 'Écrire à l’équipe'],
     'collectif-jeunes': ['Combien ça coûte ?', 'Comment s’inscrire au collectif ?', 'Droit à l’image', 'Écrire à l’équipe']
@@ -329,7 +329,7 @@
     animation: ['Pour Fourmi’Action, encadrer des enfants et des jeunes n’est ni une garderie ni un simple travail d’appoint : c’est une mission d’intérêt général, essentielle pour construire les citoyens de demain. D’où une animation exigeante, concrète et sécurisante.', 'Notre histoire', 'fourmi-action.html#histoire'],
     bafa: ['Pour Fourmi’Action, le BAFA s’apprend en faisant : expérimenter, observer, échanger, puis essayer à nouveau, dans un cadre bienveillant et avec un vrai accompagnement jusqu’au stage pratique.', 'Découvrir le BAFA', 'bafa.html#decouvrir'],
     education: ['L’éducation populaire, pour Fourmi’Action, c’est permettre à chacun de développer sa capacité à comprendre, à choisir et à agir, à tout âge, en reliant la réflexion à l’action.', 'Le projet éducatif', 'fourmi-action.html#projet'],
-    jeune: ['Fourmi’Action croit au pouvoir d’agir des jeunes : dans le Collectif jeunes, ce sont eux qui choisissent et organisent leur projet, avec un adulte référent à leurs côtés.', 'Le Collectif jeunes', 'collectif-jeunes.html'],
+    jeune: ['Fourmi’Action croit au pouvoir d’agir des jeunes : dans le Collectif jeune, ce sont eux qui choisissent et organisent leur projet, avec un adulte référent à leurs côtés.', 'Le Collectif jeune', 'collectif-jeunes.html'],
     cooperation: ['Comme dans une fourmilière, Fourmi’Action pense qu’un groupe solidaire, diversifié et bienveillant produit des réponses plus riches qu’une personne seule.', 'Nos valeurs', 'fourmi-action.html#projet'],
     benevol: ['Chaque coup de main compte : Fourmi’Action défend une vie associative participative, avec une vraie place pour chacun dans les décisions.', 'Écrire à l’équipe', '#ecrire']
   };
@@ -372,7 +372,7 @@
     [/\b(tu aimes quoi|t aimes quoi|qu est ce que tu aimes|ce que tu aimes|ton truc prefere|tu preferes quoi|ta passion)\b/, ['Ce que je préfère ? Quand quelqu’un trouve enfin la réponse qu’il cherchait. Et les grands jeux en plein air, évidemment.']],
     [/\b(tu dors|tu es fatiguee|t es fatiguee|tu te reposes|tu fais quoi|que fais tu|tu fais quoi de beau)\b/, ['Je ne dors jamais : je reste en bas à droite, prête à chercher pour vous, de jour comme de nuit.', 'Là ? Je relis nos documents en attendant vos questions !']],
     [/\b(meteo|il fait beau|il pleut|le temps qu il fait|quel temps)\b/, ['Je ne vois pas la fenêtre d’ici, mais une chose est sûre : il fait toujours beau dans une bonne équipe d’animation !']],
-    [/\b(je m ennuie|j m ennuie|ennui|je m embete|on s ennuie)\b/, ['Un animateur dirait : « On invente un jeu ! » En attendant, je peux vous faire découvrir le BAFA ou le Collectif jeunes.']],
+    [/\b(je m ennuie|j m ennuie|ennui|je m embete|on s ennuie)\b/, ['Un animateur dirait : « On invente un jeu ! » En attendant, je peux vous faire découvrir le BAFA ou le Collectif jeune.']],
     [/\b(blague|drole|rigole|humour|fais moi rire)\b/, ['Quel est le comble pour un animateur ? Perdre le fil… de son jeu de piste !', 'Une fourmi peut soulever bien plus que son propre poids. Une équipe d’animation soudée, elle, soulève des montagnes.', 'Que fait une fourmi en colo le soir ? Une veillée fourmidable, bien sûr !']],
     [/\b(je t aime|tu es (mignonne|belle|jolie|trop chou|adorable)|t es (mignonne|belle|jolie|trop chou|adorable)|trop mignonne)\b/, ['Oh, merci ! Vous allez me faire rougir… déjà que je suis orange !']],
     [/\b(bravo|genial|trop bien|merci beaucoup|tu es (top|geniale|forte|intelligente)|t es (top|geniale|forte|intelligente)|bien joue|excellent)\b/, ['Merci, ça me fait très plaisir ! N’hésitez pas si vous avez une autre question.']],
@@ -420,8 +420,8 @@
       if (h && rep[0] === 'Moi ? Toujours en forme, et prête à chercher pour vous !') return;
       if (rep[0] === '__ACK__') { if (!parts.length && !mood) parts.push(/\bmerci\b/.test(n) ? pick(['Avec plaisir ! Je reste disponible en bas à droite pour toute autre question.', 'De rien, c’est un plaisir !']) : pick(['Ça marche !', 'Très bien !', 'D’accord !']) + ' Je reste là si vous avez une question.'); return; }
       if (rep[0] === '__HUMAN__') { parts.push(AI ? 'Non, je suis une intelligence artificielle. Pour parler à un humain, l’équipe vous répond volontiers par mail.' : 'Ni humaine ni intelligence artificielle : je suis un petit programme qui cherche dans les pages et documents du site. Pour parler à un humain, l’équipe vous répond volontiers par mail.'); link1 = ['Écrire à l’équipe', '#ecrire']; return; }
-      if (rep[0] === '__NEWS__') { parts.push('Du nouveau, oui ! Le Collectif jeunes des 14–17 ans vient d’être lancé à Saint-Jean-le-Blanc, et les dates prévues des sessions BAFA 2027 à Orléans sont en ligne.'); link1 = ['Voir les actualités', 'actualites.html']; return; }
-      if (rep[0] === '__CAN__') { parts.push('Je peux vous expliquer le BAFA, vous montrer les prochaines sessions et leurs tarifs, présenter l’association et le Collectif jeunes, ou transmettre un message à l’équipe. Essayez par exemple :'); chipsOn = true; return; }
+      if (rep[0] === '__NEWS__') { parts.push('Du nouveau, oui ! Le Collectif jeune des 14–17 ans vient d’être lancé à Saint-Jean-le-Blanc, et les dates prévues des sessions BAFA 2027 à Orléans sont en ligne.'); link1 = ['Voir les actualités', 'actualites.html']; return; }
+      if (rep[0] === '__CAN__') { parts.push('Je peux vous expliquer le BAFA, vous montrer les prochaines sessions et leurs tarifs, présenter l’association et le Collectif jeune, ou transmettre un message à l’équipe. Essayez par exemple :'); chipsOn = true; return; }
       parts.push(pick(rep));
     });
     if (!parts.length) return null;

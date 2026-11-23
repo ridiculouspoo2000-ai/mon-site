@@ -357,18 +357,20 @@
   // Animateur ou animatrice : les textes qui désignent le joueur s'accordent (GENRE_M, dans le scénario). On garde
   // l'original de chaque texte modifié, pour pouvoir revenir au féminin si l'on change d'avis.
   const G_ORIG = new WeakMap();
-  const isM = () => !!(st && ((st.g || (st.look && st.look.g)) === "m"));
-  const G = (t) => (isM() && typeof genreM === "function" ? genreM(t) : t);
+  const gMode = () => (st && (st.g || (st.look && st.look.g))) || "f";   // f : elle · m : il · n : de façon neutre
+  const isM = () => gMode() === "m";
+  const gT = (t, md = gMode()) => md === "m" && typeof genreM === "function" ? genreM(t) : md === "n" && typeof genreN === "function" ? genreN(t) : t;
+  const G = (t) => gT(t);
   function applyGender() {
     if (typeof genreM !== "function") return;
-    const m = isM(), seen = new Set();
+    const md = gMode(), seen = new Set();
     const walk = (o) => {
       if (!o || typeof o !== "object" || seen.has(o)) return; seen.add(o);
       let O = G_ORIG.get(o);
       for (const k of Object.keys(o)) {
         const v = o[k];
         if (typeof v === "string") {
-          const orig = O && k in O ? O[k] : v, nv = m ? genreM(orig) : orig;
+          const orig = O && k in O ? O[k] : v, nv = gT(orig, md);
           if (nv !== orig && !O) { O = {}; G_ORIG.set(o, O); }
           if (O && !(k in O) && nv !== orig) O[k] = orig;
           if (nv !== v) o[k] = nv;
@@ -632,7 +634,7 @@
         if (i >= L.length || calm()) { this._sl = 0; L.forEach((x) => x[2] && x[2].classList.remove("vpend", "kara")); this._se = null; return; }
         // une page du carnet lue par Nour (texte long) garde un vrai rythme de lecture : ses images suivent chaque point
         const [w, t, e, cb] = L[i++], d = Math.min(w === "nour" && String(t).length > 300 ? 32000 : 7000, Math.max(1200, String(t).length * 48));
-        this._spr = { t, t0: performance.now(), d };   // où en est la lecture (pour suivre une longue réplique, phrase par phrase)
+        this._spr = { t, t0: performance.now(), d, rest: L.slice(i).reduce((a, x) => a + Math.min(7000, Math.max(1200, String(x[1]).length * 48)) / 1000 + .25, 0) };   // où en est la lecture (pour suivre une longue réplique, phrase par phrase)
         if (cb) try { cb(); } catch (x) { }
         if (this._se) { this._se.classList.remove("kara"); this._se.classList.remove("vpend"); }
         this._se = e || null;
@@ -669,7 +671,7 @@
       // les personnes de la scène se rapprochent d'abord (elles arrivent, se rejoignent) ; la conversation commence ensuite
       const gw = (World._settle || 0) - performance.now();
       if (gw > 80 && !calm()) {
-        if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return;
+        // (la réplique peut être demandée avant que son texte soit posé dans la page : on ne l'abandonne pas, on attend)
         list.forEach((x) => x[2] && !x[2].classList.contains("said") && x[2].classList.add("vpend"));
         vprep(gw + 900);   // pendant qu'on se rejoint, ni texte ni choix : tout viendra avec la voix
         const tk = this._gtk = (this._gtk || 0) + 1;
@@ -1054,6 +1056,7 @@
   // on ne saute jamais une réplique ni un écran en cliquant deux fois
   let _clk0 = 0;
   document.addEventListener("click", (e) => {
+    if (e.target.closest && e.target.closest(".vw")) { e.stopImmediatePropagation(); e.preventDefault(); return; }   // bouton en attente de la fin de la voix
     const b = e.target.closest && e.target.closest("#stage button, #stage .opt, #stage [role=button]"); if (!b || b.classList.contains("vg-btn")) return;
     const sc0 = st && SCREENS[st.idx]; if (sc0 && ((sc0.type === "order" && sc0.crisis) || (sc0.type === "sort" && sc0.cats && sc0.cats.length <= 3))) return;   // épreuves chronométrées : clics rapides permis
     const now = performance.now();
@@ -1076,10 +1079,49 @@
     const sc0 = st && SCREENS[st.idx], timed = sc0 && ((sc0.type === "order" && sc0.crisis) || (sc0.type === "sort" && sc0.cats && sc0.cats.length <= 3));   // les épreuves chronométrées (crise, réflexes) se jouent pendant qu'on parle
     const lock = on && !timed && now - _vl0 < 45000;   // garde-fou : jamais bloqué plus de 45 s d'affilée
     if (document.body.classList.contains("vlock") !== lock) document.body.classList.toggle("vlock", lock);
+    vwaitUI(lock);
   }, 150);
-  let _gm = false;
+  // Combien de temps la voix parle encore (réplique en cours + celles qui attendent), en secondes
+  function voiceLeft() {
+    const est = (t) => String(t || "").length * .066 + .35;
+    let left = 0;
+    if (Voice._cur) {
+      const a = Voice.el, d = a && Voice._cur.on && !a.paused ? audDur(a, Voice._cur.t) : 0;
+      left += d ? Math.max(0, d - a.currentTime) : est(Voice._cur.t);
+      (Voice._q || []).forEach((x) => (left += est(x.t)));
+    } else if (Lip._sl && Lip._spr) left = Math.max(0, (Lip._spr.d - (performance.now() - Lip._spr.t0)) / 1000) + (Lip._spr.rest || 0);
+    return left;
+  }
+  // Pendant que l'on vous parle : le bouton pour continuer reste visible, grisé, avec le temps qu'il reste ;
+  // les réponses à choisir attendent, annoncées par une petite pastille qui décompte.
+  function vwaitUI(lock) {
+    const now = performance.now();
+    document.querySelectorAll(".vw[data-vmin]").forEach((b) => { if (+b.dataset.vmin > now) lock = true; });
+    const n = Math.ceil(voiceLeft()), lab = n > 0 ? `Écoutez… ${n} s` : "Écoutez…";
+    if (lock) {
+      document.querySelectorAll("#stage .row, #stage .panel, #stage .ec-end").forEach((g) => {
+        const bs = [...g.querySelectorAll(":scope > .cta, :scope > .btn, :scope > button")].filter((b) => !b.classList.contains("vg-btn") && !b.closest(".opts"));
+        if (!bs.length) return;
+        const main = bs.filter((b) => b.classList.contains("cta") && !b.classList.contains("ghost")).pop();
+        bs.forEach((b) => { if (b !== main) b.classList.add("vwh"); });   // les boutons secondaires (outils, carnet) attendent, cachés
+        if (!main) return;
+        if (!main.classList.contains("vw")) { main.dataset.vl = main.innerHTML; main.classList.add("vw"); main.setAttribute("aria-disabled", "true"); }
+        if (main.textContent !== lab) main.textContent = lab;
+      });
+      document.querySelectorAll("#stage .opts").forEach((o) => {
+        let p = o.previousElementSibling; if (!p || !p.classList.contains("vwait")) { p = el("p", { class: "vwait", "aria-live": "off" }, ""); o.before(p); }
+        const t = n > 0 ? `Écoutez… les réponses arrivent dans ${n} s` : "Écoutez… les réponses arrivent";
+        if (p.textContent !== t) p.textContent = t;
+      });
+    } else {
+      document.querySelectorAll(".vw").forEach((b) => { if (b.dataset.vmin && +b.dataset.vmin > now) return; b.classList.remove("vw"); b.removeAttribute("aria-disabled"); if (b.dataset.vl != null) { b.innerHTML = b.dataset.vl; delete b.dataset.vl; } delete b.dataset.vmin; });
+      document.querySelectorAll(".vwh").forEach((b) => b.classList.remove("vwh"));
+      document.querySelectorAll(".vwait").forEach((p) => p.remove());
+    }
+  }
+  let _gm = "f";
   function render(dir = 1) {
-    if (isM() !== _gm) { _gm = isM(); applyGender(); }   // partie reprise, ou changement en cours de route : les accords suivent
+    if (gMode() !== _gm) { _gm = gMode(); applyGender(); }   // partie reprise, ou changement en cours de route : les accords suivent
     document.body.classList.remove("athome", "roaming");
     Flash.off();   // un flash-back ne déborde jamais sur l'écran suivant
     if (typeof Life !== "undefined") Life.clear();   // la promenade s'arrête quand on change d'écran
@@ -1200,7 +1242,7 @@
       const k = G + "|" + mode + "|" + (hl || "") + "|" + lvl; if (this.url[k]) return this.url[k];
       const L = A.dio.lids[G], all = [G, ...(L.also || [])], q = (a) => all.map((g) => `[${a}="${g}"]`).join(",");
       const nx = hl && A.dio.inner && A.dio.inner[hl] ? A.dio.inner[hl].next : null;
-      const st = mode === "nob" ? `[data-shut="${G}"],[data-lid="${G}"]{display:none!important}` : mode === "ghost" ? `*{visibility:hidden}[data-shut="${G}"],[data-shut="${G}"] *,[data-lid="${G}"],[data-lid="${G}"] *{visibility:visible}` : mode === "open" ? `${q("data-open")}{display:inline}${q("data-lid")},${q("data-shut")}{display:none}${nx ? `[data-wl="${nx}"],[data-wld="${nx}"]{display:none}[data-wlo="${nx}"]{display:inline}` : ""}`
+      const st = mode === "nob" ? `[data-shut="${G}"],[data-lid="${G}"]{display:none!important}` : mode === "ghost" ? `*{visibility:hidden}[data-shut="${G}"],[data-shut="${G}"] *,[data-lid="${G}"],[data-lid="${G}"] *{visibility:visible}` : mode === "open" ? `${q("data-open")}{display:inline}${q("data-lid")},[data-shut="${G}"]{display:none}${(L.also || []).map((g) => `[data-shut="${g}"]`).join(",")}${(L.also || []).length ? "{opacity:.3}" : ""}${nx ? `[data-wl="${nx}"],[data-wld="${nx}"]{display:none}[data-wlo="${nx}"]{display:inline}` : ""}`
         : `*{visibility:hidden}${all.map((g) => `[data-lid="${g}"],[data-lid="${g}"] *`).join(",")}{visibility:visible}`;
       const svg = litStyle(A.dio.img || A.dio.svg, lvl).replace(/viewBox="[^"]*"/, `viewBox="${L.vb}"`).replace("</style>", st + "</style>");
       try { this.url[k] = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); } catch (e) { this.url[k] = ""; }
@@ -1470,6 +1512,7 @@
       const amb = S.night ? "night" : timeOf(sc);
       const gateOpen = sc && (sc.endday || (sc.type === "explain" && afterDayEnd(sc)) || sc.type === "chapter" || sc.type === "dayend" || sc.type === "bilan" || sc.type === "replay" || ["intro", "parent1", "parent2", "portail", "aurevoir", "dafter"].includes(sc.id));   // le portail est ouvert à l’arrivée, aux départs et aux bilans
       this.lights(litLevel(sc, amb), noBlack ? 2600 : undefined); this.glows();   // grand saut d'heure : les lumières suivent l'horloge
+      this.el.dataset.room = S.room || "";   // la salle où l'on est (les bâtiments devant elle se font discrets)
       this.el.className = "on amb-" + amb + (S.room ? " inside" : "") + (["cour", "entree"].includes(S.at) && (S.cast || []).length ? " busy-gate" : "") + (gateOpen ? " gate-open" : "") + (S.meal ? " meal" : "");
       { const wp = $("#wplace"); if (wp) { const nm = placeName(S); wp.hidden = !nm; if (nm) wp.querySelector("span").textContent = nm; } }
       if (same) return;
@@ -1587,15 +1630,19 @@
     camTo(p, z, ms) {
       const set = (x, y, k) => { this.cv = { x, y, z: k }; this.cam.style.setProperty("--camz", k.toFixed(3)); this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
       cancelAnimationFrame(this._cf); this.cam.style.transitionProperty = "left, top";
+      // Netteté : pendant le mouvement, le plan est une image que la carte graphique déplace ; une fois arrivé,
+      // on la laisse se redessiner à la bonne taille (sinon, zoomé, le plan reste flou comme une photo agrandie)
+      const sharp = () => { clearTimeout(this._shp); this._shp = setTimeout(() => { if (this.cam) this.cam.style.willChange = "auto"; }, 160); };
+      if (this.cam) { clearTimeout(this._shp); this.cam.style.willChange = "transform"; }
       const c0 = this.cv, D = ms != null ? ms : 1500;
-      if (!c0 || reduce() || D <= 0 || !this.el.classList.contains("on")) { set(p.x, p.y, z); return; }
+      if (!c0 || reduce() || D <= 0 || !this.el.classList.contains("on")) { set(p.x, p.y, z); sharp(); return; }
       const t0 = performance.now(), dz = Math.abs(1 / c0.z - 1 / z) > 1e-4;
       const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
       const f = (now) => {
         const t = Math.min(1, (now - t0) / D), e = ease(t), k = c0.z * Math.pow(z / c0.z, e);
         const r = dz ? (1 / c0.z - 1 / k) / (1 / c0.z - 1 / z) : e;
         set(c0.x + (p.x - c0.x) * r, c0.y + (p.y - c0.y) * r, k);
-        if (t < 1) this._cf = requestAnimationFrame(f);
+        if (t < 1) this._cf = requestAnimationFrame(f); else sharp();
       };
       this._cf = requestAnimationFrame(f);
     },
@@ -2290,7 +2337,7 @@
         <p class="lead">${esc(ROLE.voice)} Créez le personnage qui vous ressemble : il vous suivra toute la semaine.</p></div>
         <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div>
           <p class="su-mlab">Partir d’un modèle</p><div class="avs" role="group" aria-label="Modèles de départ"></div></div>
-        <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez">${[["f", "Une animatrice"], ["m", "Un animateur"]].map(([v, t]) => `<button type="button" class="ch${((st.g || (st.look && st.look.g)) === "m" ? "m" : "f") === v ? " sel" : ""}" data-g="${v}" aria-pressed="${((st.g || (st.look && st.look.g)) === "m" ? "m" : "f") === v}">${t}</button>`).join("")}</div>
+        <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez : animatrice, animateur ou de façon neutre">${[["f", "Animatrice · elle"], ["m", "Animateur · il"], ["n", "De façon neutre"]].map(([v, t]) => `<button type="button" class="ch${gMode() === v ? " sel" : ""}" data-g="${v}" aria-pressed="${gMode() === v}">${t}</button>`).join("")}</div><p class="su-ghint">Le narrateur et les personnages s’adressent à vous de cette façon.</p>
           <label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
           <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="Sam" value="${esc(st.name || "")}">
           <div class="tabs" role="tablist" aria-label="Personnaliser">${[["visage", "Visage"], ["cheveux", "Cheveux"], ["tenue", "Tenue"], ["accessoires", "Accessoires"]].map(([k, t]) => `<button type="button" role="tab" class="tab${k === tab ? " sel" : ""}" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("")}</div>
@@ -2319,7 +2366,8 @@
         else if (k === "earring") L.earring = !!v;
         else if (v === "") delete L[k]; else L[k] = v;
         grp.querySelectorAll("button").forEach((x) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-pressed", on); });
-        draw(k === "hair" || k === "mood"); Snd.click(); save();
+        // le personnage est redessiné à l'image suivante, l'enregistrement attend un moment calme : le clic reste instantané
+        Snd.click(); const pop = k === "hair" || k === "mood"; requestAnimationFrame(() => draw(pop)); clearTimeout(n._sv); n._sv = setTimeout(save, 400);
       });
       fillTab(); draw(true);
       su.querySelector(".su-form").appendChild(btn("Continuer", () => { st.name = (inp.value || "").trim().slice(0, 20); save(); stepGoal(); }));
@@ -2470,7 +2518,7 @@
       const z = dio ? dio.zones[s.key] : s;
       const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}` : "";
       const b = el("button", { class: "spot" + (dio ? " hidden-spot" : ""), type: "button", style: `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%${shape}`, "aria-label": "Examiner : " + s.label },
-        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/></svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
+        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${z.hid ? `<path class="zh" d="${z.hid}"/>` : ""}<polygon points="${z.pts}"/></svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
       b.addEventListener("click", () => open(s, i, b));
       map.appendChild(b);
     });
@@ -2534,7 +2582,16 @@
     function enterRoom(s) {
       blackout(() => {
         card.hidden = true; wrap.classList.add("visit-in");
-        World.show({ at: s.key, room: s.key, cast: [["nour", "a", "talk"], ["you", "b"]] }, { id: "visit-" + s.key, type: "story", ch: sc.ch, kicker: "Lundi, 9 h 30" });
+        // lundi matin : les enfants qui ne sont pas dehors sont dans leur salle, avec leurs animateurs ; on les voit en passant
+        const VISIT = {
+          petits: [["jade", "c", "talk"], ["k1", "s1", "sit"], ["k2", "s2", "sit"], ["k3", "d"], ["k6", "e"], ["k8", "f"]],
+          grands: [["ines", "c", "talk"], ["yanis", "d"], ["sacha", "s1", "sit"], ["t7", "s2", "sit"], ["t5", "e"]],
+          ados: [["kevin", "d", "talk"], ["t1", "p1", "pingpong"], ["t2", "p2", "pingpong"], ["t3", "s1"], ["bastien", "e"]],
+          libre: [["lea", "c", "talk"], ["k9", "d"], ["k7", "e"]],
+          radio: [["hugo", "c", "talk"], ["lena", "s2", "sit"], ["k10", "s1", "sit"]],
+          cuisine: [["samia", "c", "talk"], ["k11", "d"], ["k12", "e"]],
+        };
+        World.show({ at: s.key, room: s.key, cast: [...(VISIT[s.key] || []), ["nour", "a", "talk"], ["you", "b"]] }, { id: "visit-" + s.key, type: "story", ch: sc.ch, kicker: "Lundi, 9 h 30" });
         inRoomPanel = el("div", { class: "panel visit-room", role: "dialog", "aria-label": s.title }, `<p class="kicker">Nour vous fait visiter</p><h3>${esc(s.title)}</h3><p>${esc(s.t)}</p>`);
         const out = btn("Ressortir", () => leaveRoom(s));
         inRoomPanel.appendChild(el("div", { class: "row" })).appendChild(out);
@@ -3546,7 +3603,7 @@
       field.classList.add("done"); end.hidden = false; outP.innerHTML = words(ECHOES.outro);
       requestAnimationFrame(() => end.classList.add("on"));
       say(ECHOES.outro);
-      end.appendChild(btn("Entrer aux Hautes Herbes", finish));
+      { const eb = btn("Entrer aux Hautes Herbes", finish); if (voiceOn && !calm()) { eb.dataset.vl = eb.innerHTML; eb.classList.add("vw"); eb.dataset.vmin = String(performance.now() + 1400); eb.textContent = "Écoutez…"; } end.appendChild(eb); }
       Voice.prefetch([["narr", ROLE.voice], ["narr", ROLE.goalVoice]]);
       if (voiceOn) { Snd.duck(false); setTimeout(() => { if (alive) Voice.say("narr", ECHOES.outro, outP); }, 500); }
     }
@@ -4679,7 +4736,7 @@
       you.onStep = () => checkSpots();
       // le terrain de foot : un vrai match dès qu'aucune situation ne s'y joue (les enfants du terrain jouent, deux animateurs encadrent)
       const PITCH = (q) => q[0] > 3.6 && q[0] < 14.6 && q[1] > 22.4 && q[1] < 27.2;
-      const footOn = !reduce() && !calm() && !sc.events.some((e) => e.at === "jeux" && !e.room && evLive0(e));
+      const footOn = !reduce() && !(st.settings && st.settings.calm) && !sc.events.some((e) => e.at === "jeux" && !e.room && evLive0(e));
       const STAFF = new Set(["samia", "hugo", "yanis", "lea", "tom", "jade", "ines", "kevin", "bastien", "nour"]);
       const fKids = [], fStaff = [];
       // l'accueil vit autour de vous
@@ -4771,7 +4828,9 @@
     /* -- se déplacer : on touche le sol près de soi -- */
     function onTap(e) {
       if ((busy && !moving) || !document.body.classList.contains("roaming") || e.button > 0) return;   // en marchant, on peut recliquer plus loin
-      if (document.body.classList.contains("vlock")) return;   // on écoute d'abord jusqu'au bout, puis on repart
+      // on écoute d'abord jusqu'au bout, puis on repart ; seule exception : le tout début du temps libre du lundi,
+      // où l'on peut déjà se mettre en marche pendant que Nour et la voix présentent l'après-midi
+      if (document.body.classList.contains("vlock") && !(sc.id === "lundi-libre" && !S.went)) { toastOnce(); return; }
       if (World._drag) return;
       const r = World.cam.getBoundingClientRect(); if (!r.width) return;
       const fx = (e.clientX - r.left) / r.width * 100, fy = (e.clientY - r.top) / r.height * 100, [wx, wy] = f2w(fx, fy);
@@ -5017,7 +5076,10 @@
       });
     }
     let ev0 = null;
+    let _tw = 0;
+    const toastOnce = () => { const t = performance.now(); if (t - _tw > 2500) { _tw = t; toastMsg("Écoutez jusqu’au bout : vous pourrez avancer juste après."); } };
     function scene(ev) {
+      if (!S.went) { S.went = 1; save(); }   // la première situation vécue clôt le « tout début » du lundi
       ev0 = ev; let gT = 0;
       actT = ev.act && !reduce() ? Math.max(...ev.act.map((x) => x[0])) + 900 : 0;
       if (n._scene === ev.id && n.querySelector(".roamscene")) return;   // déjà en cours
@@ -5890,6 +5952,8 @@
   /* ---------- accueil ---------- */
   const HOME_STAGE = { at: "entree", cast: [["parent", "a", "walk"], ["petit", "b", "wave"], ["nour", "d", "wave"], ["sacha", "c", "walk"], ["zoe", "e"], ["kevin", "f", "talk"]] };
   // Hautes herbes de nuit (comme l’affiche du jeu) : brins lumineux qui ondulent, lucioles.
+  // Les herbes de l'accueil : chaque brin est un petit élément à part, balancé par la carte graphique (transform) :
+  // le mouvement reste fluide même quand la page travaille (un clic, un personnage qu'on redessine).
   function nightGrass(N) {
     let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     const C = [["#2B6FD6", "#7FB0FF"], ["#8A4FD0", "#C59BFF"], ["#E2702A", "#FFB37A"]];
@@ -5897,11 +5961,12 @@
     C.forEach(([a, b], i) => { defs += `<linearGradient id="gb${i}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${a}" stop-opacity="0"/><stop offset=".45" stop-color="${a}" stop-opacity=".75"/><stop offset="1" stop-color="${b}" stop-opacity=".95"/></linearGradient>`; });
     for (let i = 0; i < N; i++) {
       const x = 40 + rnd() * 1360, h = 260 + rnd() * 560, lean = (rnd() - .45) * 220, w = 3 + rnd() * 9, c = (rnd() * 3) | 0;
-      const y0 = 920, y1 = y0 - h, cx = x + lean * .25, cy = y0 - h * .55;
-      blades += `<path class="bl" style="--d:${(5 + rnd() * 5).toFixed(2)}s;--dl:${(-rnd() * 6).toFixed(2)}s;--a:${(1.2 + rnd() * 2.2).toFixed(2)}deg;opacity:${(.35 + rnd() * .55).toFixed(2)}" d="M${x.toFixed(0)} ${y0} Q${cx.toFixed(0)} ${cy.toFixed(0)} ${(x + lean).toFixed(0)} ${y1.toFixed(0)}" stroke="url(#gb${c})" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none"/>`;
+      const d = (5 + rnd() * 5).toFixed(2), dl = (-rnd() * 6).toFixed(2), an = (1.2 + rnd() * 2.2).toFixed(2), op = (.35 + rnd() * .55).toFixed(2);
+      const x0 = Math.min(0, lean * .25, lean) - w, x1 = Math.max(0, lean * .25, lean) + w, vw = x1 - x0;
+      blades += `<i class="blw" style="left:${((x + x0) / 14.4).toFixed(2)}%;height:${(h / 9).toFixed(2)}%;aspect-ratio:${(vw / h).toFixed(4)};transform-origin:${(-x0 / vw * 100).toFixed(1)}% 100%;--d:${d}s;--dl:${dl}s;--a:${an}deg;opacity:${op}"><svg viewBox="${x0.toFixed(1)} ${(-h).toFixed(1)} ${vw.toFixed(1)} ${h.toFixed(1)}" preserveAspectRatio="none"><path d="M0 0 Q${(lean * .25).toFixed(0)} ${(-h * .55).toFixed(0)} ${lean.toFixed(0)} ${(-h).toFixed(0)}" stroke="url(#gb${c})" stroke-width="${w.toFixed(1)}" stroke-linecap="round" fill="none"/></svg></i>`;
     }
-    for (let i = 0; i < 14; i++) flies += `<circle class="fly" cx="${(80 + rnd() * 1280).toFixed(0)}" cy="${(260 + rnd() * 560).toFixed(0)}" r="${(1.6 + rnd() * 2.2).toFixed(1)}" style="--d:${(6 + rnd() * 6).toFixed(2)}s;--dl:${(-rnd() * 8).toFixed(2)}s;--fx:${((rnd() - .5) * 90).toFixed(0)}px;--fy:${(-30 - rnd() * 70).toFixed(0)}px"/>`;
-    return `<svg class="ngrass" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice"><defs>${defs}</defs><g class="blades">${blades}</g><g class="flies">${flies}</g></svg>`;
+    for (let i = 0; i < 14; i++) { const r = 1.6 + rnd() * 2.2; flies += `<i class="flw" style="left:${((80 + rnd() * 1280) / 14.4).toFixed(2)}%;top:${((260 + rnd() * 560) / 9).toFixed(2)}%;width:${(r * 2).toFixed(1)}px;height:${(r * 2).toFixed(1)}px;--d:${(6 + rnd() * 6).toFixed(2)}s;--dl:${(-rnd() * 8).toFixed(2)}s;--fx:${((rnd() - .5) * 90).toFixed(0)}px;--fy:${(-30 - rnd() * 70).toFixed(0)}px"></i>`; }
+    return `<div class="ngrass ngrass2"><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${defs}</defs></svg>${blades}${flies}</div>`;
   }
   function home() {
     if (DC.el) DC.el.hidden = true;
@@ -5928,17 +5993,15 @@
       <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
 
       <div class="hbtns"></div>
-      <p class="small fsadv">Nous vous conseillons de mettre en plein écran si vous êtes sur ordinateur. <button type="button" class="linkbtn fs-go">Plein écran</button></p>
       <p class="small warn">Situations fictives, sans aucune représentation de violence : niveaux Adulte et Expert pour les adultes en formation, niveau Enfants dès 9 ans, idéalement avec un adulte. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
       <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
 `;
-    { const fb = n.querySelector(".fs-go"); if (fb) { if (!document.documentElement.requestFullscreen) fb.remove(); else fb.addEventListener("click", () => { const p = document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(() => {}); }); } }
     const hb = n.querySelector(".hbtns");
     // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)
     const allOn = () => { st.settings.sound = true; st.settings.voice = true; applySettings(); save(); };
     // l'écran « Activez le son » vient après le clic de lancement (jamais avant, sur l'accueil)
     // dans l'ordre : le son, puis animatrice ou animateur (avant toute parole qui vous désigne), puis la partie
-    const launch = (go2) => soundGate((on) => { if (on) allOn(); else { st.settings.sound = false; st.settings.voice = false; applySettings(); save(); } begin(); genderGate(() => go2()); });
+    const launch = (go2) => soundGate((on) => { if (on) allOn(); else { st.settings.sound = false; st.settings.voice = false; applySettings(); save(); } begin(); fsGate(() => go2()); });
     st.settings.sound = true; st.settings.voice = true;
     if (canResume) {
       const sc = SCREENS[prev.idx];
@@ -5990,17 +6053,20 @@
 
   // Consigne plein écran à l'arrivée : activer le son (à l'écran et à l'oral). Le bouton sert aussi de « geste » pour lancer la musique.
   // Animatrice ou animateur : demandé une fois, au lancement, avant la première réplique (Nour, le narrateur s'accordent)
-  function genderGate(then) {
-    if (st.g || (st.look && st.look.g)) { if (!st.g) st.g = st.look.g; applyGender(); then(); return; }
-    const g = el("div", { class: "sgate ggate", role: "dialog", "aria-modal": "true", "aria-labelledby": "gg-h" },
-      `<div class="sg-in"><h2 id="gg-h">Vous jouez…</h2><p>Les personnages s’adresseront à vous selon votre choix.</p>
-       <div class="sg-b"><button type="button" class="cta" data-g="f">Une animatrice</button><button type="button" class="cta" data-g="m">Un animateur</button></div></div>`);
-    g.querySelectorAll("[data-g]").forEach((b) => b.addEventListener("click", () => {
-      st.g = b.dataset.g; if (st.look) st.look.g = st.g; applyGender(); save(); Snd.click && Snd.click();
-      g.classList.add("out"); setTimeout(() => g.remove(), 500); then();
-    }, { once: true }));
+  // À la place de l'ancienne question « animatrice ou animateur » (qui se règle maintenant dans la personnalisation) :
+  // le conseil de passer en plein écran, pour profiter du jeu (proposé seulement si l'appareil le permet)
+  function fsGate(then) {
+    const de = document.documentElement, can = !!(de.requestFullscreen || de.webkitRequestFullscreen);
+    if (!can || document.fullscreenElement || document.webkitFullscreenElement || sessionStorage.getItem("hh-fs")) { then(); return; }
+    const g = el("div", { class: "sgate fsgate", role: "dialog", "aria-modal": "true", "aria-labelledby": "fs-h" },
+      `<div class="sg-in"><span class="fs-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></span>
+       <h2 id="fs-h">Passez en plein écran</h2><p>Pour une expérience optimale, nous vous conseillons de jouer en plein écran.</p>
+       <div class="sg-b"><button type="button" class="cta fs-on">Passer en plein écran</button><button type="button" class="btn ghost fs-off">Continuer ainsi</button></div></div>`);
+    const close = () => { sessionStorage.setItem("hh-fs", "1"); g.classList.add("out"); setTimeout(() => g.remove(), 500); Snd.click && Snd.click(); then(); };
+    g.querySelector(".fs-on").addEventListener("click", () => { try { const p = (de.requestFullscreen || de.webkitRequestFullscreen).call(de); if (p && p.catch) p.catch(() => { }); } catch (e) { } close(); }, { once: true });
+    g.querySelector(".fs-off").addEventListener("click", close, { once: true });
     document.body.appendChild(g); requestAnimationFrame(() => g.classList.add("in"));
-    g.querySelector("[data-g]").focus();
+    g.querySelector(".fs-on").focus();
   }
   function soundGate(then) {
     const done = (on) => { if (then) { const f = then; then = null; f(on); } };

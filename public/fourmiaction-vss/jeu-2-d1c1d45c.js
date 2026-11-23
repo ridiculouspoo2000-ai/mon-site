@@ -91,6 +91,19 @@ const GENRE_M = [
   ["Rester gentille", "Rester gentil"], ["L’animatrice a dit que c’était rien", "L’animateur a dit que c’était rien"],
 ];
 const genreM = (t) => typeof t !== "string" ? t : GENRE_M.reduce((x, [a, b]) => x.split(a).join(b), t);
+// Façon neutre (ni « il » ni « elle ») : des tournures épicènes, qui se disent aussi à voix haute (pas de point médian).
+const GENRE_N = [
+  ["Vous êtes recrutée comme animatrice volante", "Vous rejoignez l’équipe en renfort volant"], ["Tu nous rejoins comme animatrice volante", "Tu nous rejoins en renfort volant"],
+  ["tu es notre animatrice volante", "tu es notre renfort volant"], ["être vigilante", "rester en alerte"], ["tu restes vigilante", "tu restes en alerte"],
+  ["vous a recrutée et vous fait confiance", "vous a confié ce poste et vous fait confiance"], ["vous a recrutée", "vous a confié ce poste"],
+  ["tu t’es formée", "tu as suivi une formation"], ["tu gères seule", "tu gères sans renfort"], ["vous êtes seule", "vous êtes sans collègue"],
+  ["vous laisse seule", "vous laisse"], ["Seule en salle des animateurs", "Dans la salle des animateurs vide"], ["Pas seule aux sanitaires", "Jamais sans collègue aux sanitaires"],
+  ["assurer seule", "assurer sans renfort"], ["en volante", "en renfort volant"], ["restez attentive à", "gardez un œil sur"], ["restez attentive", "restez à l’écoute"],
+  ["en restant concentrée", "sans vous disperser"], ["vous êtes restée concentrée", "vous n’avez pas perdu le fil"], ["quand vous êtes prête", "quand vous voulez"],
+  ["vous êtes prête", "c’est bon pour vous"], ["faire l’animatrice ?", "faire l’adulte ?"], ["L’animatrice apprend elle-même", "L’adulte apprend"],
+  ["Rester gentille", "Rester à l’écoute"], ["L’animatrice a dit que c’était rien", "L’adulte a dit que c’était rien"],
+];
+const genreN = (t) => typeof t !== "string" ? t : GENRE_N.reduce((x, [a, b]) => x.split(a).join(b), t);
 const SCREENS = [
   { id: "avatar", ch: 1, type: "avatar" },
   { id: "c1", ch: 1, type: "chapter" },

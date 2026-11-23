@@ -4014,11 +4014,23 @@ export const LIGNES = {
   "kind": "recit",
   "text": "Vous êtes recruté comme animateur volant pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : être vigilant, et agir."
  },
+ "98ff7dcef868": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Vous rejoignez l’équipe en renfort volant pour une semaine de vacances à l’accueil de loisirs des Hautes Herbes. Sans groupe attitré, vous allez là où l’équipe a besoin de vous, avec une mission : rester en alerte, et agir."
+ },
  "393032e7de58": {
   "who": "nour",
   "mood": "big",
   "kind": "replique",
   "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins comme animateur volant pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
+ },
+ "2fa5b5f88ea9": {
+  "who": "nour",
+  "mood": "big",
+  "kind": "replique",
+  "text": "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins en renfort volant pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi."
  },
  "3ea333ed644e": {
   "who": "nour",
@@ -4026,11 +4038,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV : tu t’es formé aux VSS."
  },
+ "3bac2bed3cfe": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV : tu as suivi une formation aux VSS."
+ },
  "9f9373832f88": {
   "who": "nour",
   "mood": "smile",
   "kind": "replique",
   "text": "Ce que j’attends de toi, donc : tu es notre animateur volant pour la semaine des vacances. Tu circules partout, tu restes vigilant, et quand quelque chose te paraît anormal, tu agis et tu me le transmets."
+ },
+ "ac39538ce0d0": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Ce que j’attends de toi, donc : tu es notre renfort volant pour la semaine des vacances. Tu circules partout, tu restes en alerte, et quand quelque chose te paraît anormal, tu agis et tu me le transmets."
  },
  "9604147a8e3e": {
   "who": "nour",
@@ -4038,11 +4062,23 @@ export const LIGNES = {
   "kind": "replique",
   "text": "On fait avec. Ce matin, tu gères seul les petits, et l’accompagnement aux sanitaires."
  },
+ "13949bf43f1e": {
+  "who": "nour",
+  "mood": "calm",
+  "kind": "replique",
+  "text": "On fait avec. Ce matin, tu gères sans renfort les petits, et l’accompagnement aux sanitaires."
+ },
  "9beca840bc83": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Nour vous laisse seul un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
+ },
+ "2edd66c0737d": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Nour vous laisse un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
  },
  "4d528084a9d9": {
   "who": "narr",
@@ -4050,11 +4086,23 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Vous circulez dans l’accueil, en animateur volant. Avancez sur les chemins, entrez dans les salles, et restez attentif à ce qui se passe autour de vous."
  },
+ "7a7d3ae1db42": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vous circulez dans l’accueil, en renfort volant. Avancez sur les chemins, entrez dans les salles, et gardez un œil sur ce qui se passe autour de vous."
+ },
  "a7f0e777b06f": {
   "who": "narr",
   "mood": "",
   "kind": "retour-faible",
   "text": "À 9 h 40, vous êtes seul aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
+ },
+ "115a29a448f7": {
+  "who": "narr",
+  "mood": "",
+  "kind": "retour-faible",
+  "text": "À 9 h 40, vous êtes sans collègue aux sanitaires avec un enfant en pleurs, et dix petits sans adulte dans la salle. Accepter d’être seul, c’est laisser à la fois l’accompagnement et le groupe sans cadre. Le taux d’encadrement et le binôme ne sont pas négociables."
  },
  "ad9b3c52ae4d": {
   "who": "narr",
@@ -4062,16 +4110,34 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, en restant concentré : d’autres demandes vont arriver."
  },
+ "09b0c7fe1ada": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Il est 16 h 06. Lou vient de parler, l’adulte désigné arrive à 17 h. Agissez dans l’ordre qui protège Lou, sans vous disperser : d’autres demandes vont arriver."
+ },
  "832a0c0ed3e7": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
   "text": "Vendredi, 17 h 30. Les enfants sont partis. Seul en salle des animateurs, au calme, vous retrouvez les questions du premier jour."
  },
+ "ad282d1efa38": {
+  "who": "narr",
+  "mood": "",
+  "kind": "situation",
+  "text": "Vendredi, 17 h 30. Les enfants sont partis. Dans la salle des animateurs vide, au calme, vous retrouvez les questions du premier jour."
+ },
  "d80d073a884b": {
   "who": "enzo",
   "mood": "",
   "kind": "replique",
   "text": "Ben quoi ? L’animateur a dit que c’était rien."
+ },
+ "dd1e60b089e9": {
+  "who": "enzo",
+  "mood": "",
+  "kind": "replique",
+  "text": "Ben quoi ? L’adulte a dit que c’était rien."
  }
 };

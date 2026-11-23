@@ -820,9 +820,9 @@
   $("#btn-carnet").addEventListener("click", () => openCarnet());
   $("#btn-phone").addEventListener("click", () => Phone.list());
   $("#btn-level").addEventListener("click", () => {
-    st.level = ((st.level || 2) % 3) + 1; save(); Snd.click();
+    st.level = (st.level || 2) === 3 ? 2 : 3; save(); Snd.click();   // deux niveaux : adulte, adulte expert
     $("#btn-level .lbl").textContent = LV().name;
-    toastMsg(`Niveau ${LV().name} : ${["", "des mots simples, sans chrono (dès 9 ans).", "niveau standard, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`);
+    toastMsg(`Niveau ${LV().name} : ${["", "", "niveau standard, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`);
   });
   $("#btn-home").addEventListener("click", () => { Snd.click(); home(); });
   // Refonte : les réglages (niveau, son, voix, animations) quittent la barre et se rangent dans un menu « Réglages ».
@@ -924,8 +924,8 @@
 
   // Niveau de difficulté : Découverte (1), Standard (2), Expert (3). Il se change à tout moment depuis la barre du haut.
   const LEVELS = [null, { name: "Enfants", t: 1.6, hints: 4, pen: 0, speed: 1.5, crisis: 1.35, help: true },
-    { name: "Adulte", t: 1, hints: 2, pen: 5, speed: 1, crisis: 1 }, { name: "Expert", t: .7, hints: 1, pen: 8, speed: .7, crisis: .8, timeAll: 25 }];
-  const LV = () => LEVELS[st.level || 2];
+    { name: "Adulte", t: 1, hints: 2, pen: 5, speed: 1, crisis: 1 }, { name: "Adulte expert", t: .7, hints: 1, pen: 8, speed: .7, crisis: .8, timeAll: 25 }];
+  const LV = () => LEVELS[st.level === 3 ? 3 : 2];   // le niveau « enfants » n'existe plus : une ancienne partie repart en adulte
   function tune(sc) {
     const L = LV(), x = { ...sc };
     if (sc.timer) x.timer = Math.max(8, Math.round(sc.timer * L.t));
@@ -2446,7 +2446,7 @@
         <div class="su-grid goal"><ol class="goals">${ROLE.goal.map(([t, d], i) => `<li style="--i:${i}"><span>${i + 1}</span><div><b>${esc(t)}</b><p>${esc(d)}</p></div></li>`).join("")}</ol><div class="su-form"></div></div>`;
       const form = su.querySelector(".su-form");
       const fmt = seg("Format de l’accueil", [[false, "Sans hébergement", "ALSH · les enfants repartent chaque soir avec leur famille."], [true, "Avec hébergement", "ALAH · une nuit sur place le mercredi, un parcours en plus sur les risques de la nuit."]], () => !!st.nuitee, (v) => { st.nuitee = v; }, "two");
-      const lvl = seg("Niveau de difficulté", [[1, "Enfants", "Repérer les situations et réagir en sécurité, avec les documents de référence."], [2, "Adulte", "Niveau standard : des choix nuancés, on hésite vraiment."], [3, "Expert", "Pour affiner : des situations très précises et nuancées."]], () => st.level || 2, (v) => { st.level = v; }, "three");
+      const lvl = seg("Niveau de difficulté", [[2, "Adulte", "Niveau standard : des choix nuancés, on hésite vraiment."], [3, "Adulte expert", "Pour affiner : des situations très précises et nuancées, tout est chronométré."]], () => st.level === 3 ? 3 : 2, (v) => { st.level = v; }, "two");
       form.append(el("p", { class: "flabel" }, "Format de l’accueil"), fmt, el("p", { class: "flabel" }, "Niveau <span>(modifiable à tout moment)</span>"), lvl,
         btn("Commencer la semaine", () => { save(); next(); }), btn("Revenir à mon personnage", () => { Voice.stop(); stepLook(); }, "linkb"));
       su.querySelector("h2").focus({ preventScroll: true }); n.scrollIntoView({ block: "start" });
@@ -2499,6 +2499,12 @@
       const mom = MOMENT[sc.id] && L.who === MOMENT[sc.id] ? () => moment(sc, L.who, L.t) : null;
       if (L.reveal) { st.rev = st.rev || {}; st.rev[L.reveal] = 1; save(); hud(true); dayclock(sc); const t = L.reveal === "clock" ? DC.el : $("#btn-phone"); if (t) { t.classList.remove("revealed"); void t.offsetWidth; t.classList.add("revealed"); } }
       say((nm ? nm + " : " : "") + L.t);
+      // un zoom doux sur l'échange (Nour qui vous accueille)
+      if (L.zoom && World.cam && World.cv && !calm()) {
+        const pos = (w) => { const a = World.cam.querySelector(`.actor[data-who="${w}"]`); if (!a || !a.style.left) return null; return [parseFloat(a.style.left) / 100, parseFloat(a.style.top) / 100 - .012]; };
+        const P = [L.who, "you"].map(pos).filter(Boolean);
+        if (P.length) { const x = P.reduce((t, q) => t + q[0], 0) / P.length, y = P.reduce((t, q) => t + q[1], 0) / P.length; World.camTo({ x, y }, Math.min(4.6, World.cv.z * 1.4), 1800); }
+      }
       // une scène à regarder en direct sur le plan : le récit se fait discret pendant que la vie se déroule
       document.body.classList.toggle("watch", !!L.live);
       if (L.live === "portail" && typeof families === "function") families("morning");
@@ -2577,9 +2583,18 @@
       const cen = dio && z.pts ? (() => { const q = z.pts.split(" ").map((v) => v.split(",").map(Number)); return [q.reduce((t, v) => t + v[0], 0) / q.length, q.reduce((t, v) => t + v[1], 0) / q.length]; })() : null;
       const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}${cen ? `;--bx:${cen[0].toFixed(1)}%;--by:${cen[1].toFixed(1)}%` : ""}` : "";
       const b = el("button", { class: "spot" + (dio ? " hidden-spot" : ""), type: "button", style: `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%${shape}`, "aria-label": "Examiner : " + s.label },
-        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/>${z.vis ? `<path class="zv" d="${z.vis}"/>` : ""}</svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
+        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/>${z.vis ? `<path class="zv" d="${z.vis}"/>` : ""}</svg>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
       b.addEventListener("click", () => open(s, i, b));
       map.appendChild(b);
+      // le nom du lieu : posé sur le plan, hors du contour découpé (il n'est plus jamais coupé)
+      if (dio && z.pts) {
+        const q = z.pts.split(" ").map((v) => v.split(",").map(Number)), cx = q.reduce((t, v) => t + v[0], 0) / q.length, cy = q.reduce((t, v) => t + v[1], 0) / q.length;
+        const tg = el("span", { class: "spot-tag", "aria-hidden": "true", style: `left:${(z.x + cx * z.w / 100).toFixed(2)}%;top:${(z.y + cy * z.h / 100).toFixed(2)}%` }, esc(s.label));
+        const on = (v) => () => tg.classList.toggle("on", v || b.classList.contains("cur") || b.classList.contains("missed"));
+        b.addEventListener("mouseenter", on(true)); b.addEventListener("mouseleave", on(false)); b.addEventListener("focus", on(true)); b.addEventListener("blur", on(false));
+        new MutationObserver(on(false)).observe(b, { attributes: true, attributeFilter: ["class"] });
+        map.appendChild(tg);
+      }
     });
     const mapbox = el("div", { class: "mapbox" });
     mapbox.append(map, card);
@@ -3355,7 +3370,7 @@
     const m = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0;
     return Math.min(1700, Math.round(m * 1500 * ({ 1: .7, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
   }
-  const LVN = { 1: "Enfants", 2: "Adulte", 3: "Expert" };
+  const LVN = { 1: "Adulte", 2: "Adulte", 3: "Adulte expert" };
   const GRP = (n) => (Number(n) === 1 ? "enfants" : "adultes");
   const GRPN = { enfants: "Niveau enfants", adultes: "Niveau adultes" };
   // la mention du mode : « expert » s'il a été activé, sinon « standard » (podium adultes)
@@ -3374,7 +3389,7 @@
     const id = "rkb" + Math.random().toString(36).slice(2, 7);
     const tab = (g) => `<button type="button" role="tab" class="rk-tab${g === g0 ? " on" : ""}" aria-selected="${g === g0}" aria-controls="${id}-${g}" data-g="${g}">${GRPN[g]}</button>`;
     const pane = (g) => `<div class="rk-pane" role="tabpanel" id="${id}-${g}"${g === g0 ? "" : " hidden"}>${boardList(j[g], g === mine ? me : null)}</div>`;
-    return `<div class="rk-tabs" role="tablist" aria-label="Podiums">${tab("adultes")}${tab("enfants")}</div>${pane("adultes")}${pane("enfants")}`;
+    return pane("adultes");   // un seul podium : les deux niveaux sont des niveaux adultes
   }
   function wireTabs(root) {
     root.addEventListener("click", (e) => { const t = e.target.closest(".rk-tab"); if (!t) return; const box = t.closest(".rk-tabs").parentElement;
@@ -4994,7 +5009,7 @@
     // le couloir du bâtiment principal : on choisit la salle
     function hall(fromMap) {
       // le choix de la salle s'affiche par-dessus la vue actuelle (le plan, ou la salle où l'on est) : pas de détour par le bâtiment
-      document.body.classList.remove("roaming"); Life.clear();
+      document.body.classList.remove("roaming"); if (!fromMap) Life.clear();   // depuis le plan, la vie continue autour (les enfants marchent, jouent)
       n.innerHTML = "";
       const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
       const g = el("div", { class: "opts" });
@@ -5386,7 +5401,13 @@
     const B = (A.dio && A.dio.blds) || [], K = PJ[2] / .8660254, zp = (z) => z * K / PJ[7] * 100;
     const P2 = (x, y, z) => { const f = w2f(x, y); return [f[0], f[1] - zp(z)]; };
     const inPoly = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
-    const SIL = W._sil || (W._sil = B.map(([x0, y0, x1, y1, h, k]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] })));
+    // la vraie silhouette de chaque bâtiment (toit à deux pans compris) : l'enveloppe des points de son volume, vue de la caméra
+    const hull = (P) => { P = P.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+      const lo = [], up = []; for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+      for (let i = P.length - 1; i >= 0; i--) { const p = P[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+      return lo.slice(0, -1).concat(up.slice(0, -1)); };
+    const SIL = W._sil || (W._sil = (A.dio.sil && A.dio.sil.length ? A.dio.sil.map(([k, [x0, y0, x1, y1], p3]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: hull(p3.map(([x, y, z]) => P2(x, y, z))) }))
+      : B.map(([x0, y0, x1, y1, h, k]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] }))));
     const inRoom = !!W.querySelector(".inroom-w"), ghost = new Set(), hidden = [];
     W.querySelectorAll(".wacts .walker").forEach((a) => {
       const w = a._w; if (!w || w.entering) return;
@@ -5406,7 +5427,8 @@
     const halo = hidden.filter(([a, k]) => ghost.has(k) && a._w && (a._w.who === "you" || a._w.ev)).map(([a]) => a._w);
     hidden.forEach(([a, k]) => { const w = a._w;
       // (avec une marge : on entre dans le halo à 1,6 m, on n'en sort qu'à 2,2 m — sinon on clignote en bordure)
-      const g = ghost.has(k) && halo.some((h) => h === w || Math.hypot(h.x - w.x, h.y - w.y) < (w._inHalo ? 2.2 : 1.6)); w._inHalo = g;
+      // seuls vous (ou la personne de la scène) restez visibles dans le halo ; les autres, derrière le bâtiment, restent cachés
+      const g = ghost.has(k) && halo.includes(w);
       // caché seulement là où le bâtiment le cache : si la tête dépasse du toit, on la voit marcher
       const cut = g ? 0 : w._hid >= .97 ? 1 : w._hid;
       a.classList.toggle("behind", cut === 1);
@@ -5456,8 +5478,8 @@
   /* ======================= La vie de l'accueil : familles, voitures, jour et nuit, horloge ======================= */
   // Une voiture : copie du dessin de voiture du plan, qu'on déplace le long de la voie du parking (axe x du sol)
   function Car(dx0) {
-    const src = World.cam.querySelector(".dio-ov.dio-car"); if (!src) return null;
-    const c = src.cloneNode(true); c.classList.remove("dio-car"); c.classList.add("dio-car2");
+    const all = World.cam.querySelectorAll(".dio-ov.dio-car"), src = all[(Car.n = (Car.n || 0) + 1) % (all.length || 1)]; if (!src) return null;   // un modèle différent à chaque voiture
+    const c = src.cloneNode(true); c.classList.remove("dio-car", "dio-cv1", "dio-cv2"); c.classList.add("dio-car2");
     const L0 = parseFloat(src.style.left), T0 = parseFloat(src.style.top);
     const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 27.3) + 2; } };
     C.drive = (to, sec, done) => {
@@ -6142,7 +6164,7 @@
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
       <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
       <p class="tag">Une semaine dans un accueil de loisirs pour apprendre à repérer, protéger, alerter et prévenir les violences sexistes et sexuelles.</p>
-      <div class="meta"><span>Environ 40 minutes</span><span>Pour tous, dès 9 ans</span></div>
+      <div class="meta"><span>Environ 40 minutes</span><span>Deux niveaux : adulte, adulte expert</span></div>
 
       <div class="hbtns"></div>
       <p class="small warn">Situations fictives, sans aucune violence montrée. Si ce sujet vous touche : 119 (moins de 18 ans), 3919 ou 116 006.</p>
@@ -6168,8 +6190,8 @@
     place(); try { mq.addEventListener("change", place); } catch (e) { }
     const hrow = (e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${expTag(e)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`;
     const hlist = (top) => (top && top.length ? top.slice(0, 10).map(hrow).join("") : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`);
-    rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Les podiums</h2>
-      <div class="rk-tabs hr-tabs" role="tablist" aria-label="Podiums"><button type="button" role="tab" class="rk-tab on" aria-selected="true" aria-controls="hrp-adultes">Adultes</button><button type="button" role="tab" class="rk-tab" aria-selected="false" aria-controls="hrp-enfants">Enfants</button></div>
+    rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Le podium</h2>
+      <div class="rk-tabs hr-tabs" role="tablist" aria-label="Podiums" hidden><button type="button" role="tab" class="rk-tab on" aria-selected="true" aria-controls="hrp-adultes">Adultes</button><button type="button" role="tab" class="rk-tab" aria-selected="false" aria-controls="hrp-enfants">Enfants</button></div>
       <div class="rk-pane" role="tabpanel" id="hrp-adultes"><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><div class="rk-pane" role="tabpanel" id="hrp-enfants" hidden><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><p class="hr-foot"></p>`;
     wireTabs(rk);
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
@@ -6183,6 +6205,7 @@
   // Le son et la musique démarrent d'eux-mêmes au premier geste (les navigateurs interdisent le son avant)
   const GESTES = ["pointerup", "touchend", "click", "keydown"]; let begun = false;
   const firstGesture = () => {   // gestes autorisés par iPhone et Android pour lancer le son ; on réessaie tant qu’il n’est pas lancé
+    if (st.level === 1) st.level = 2;   // plus de niveau « enfants »
     if (st.settings.sound === undefined) st.settings.sound = true;
     if (!st.settings.sound) return;
     Snd.unlock && Snd.unlock();

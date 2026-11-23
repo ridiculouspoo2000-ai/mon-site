@@ -869,6 +869,44 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { e.stopPropagation(); close(true); } });
   }
 
+  // Les repères cités en bas des pages du carnet : on clique dessus pour lire ce qu'ils disent (d'après le kit Fourmi'Action)
+  const REFS = {
+    R01: ["Sexisme et agissement sexiste", "Un stéréotype attribue des aptitudes ou des rôles à tout un groupe. Il devient un levier d’inégalité lorsqu’il guide les décisions. Au travail, l’agissement sexiste peut dégrader la dignité ou le climat. Les mots et leurs effets s’examinent dans leur contexte.", "Code du travail L1142-2-1 ; Code pénal R625-8-3 et 222-33-1-1."],
+    R02: ["Discrimination", "Une décision défavorable liée à un critère interdit (sexe, orientation sexuelle, identité de genre, handicap, notamment). Une qualification pénale demande aussi un acte visé par la loi, par exemple un refus d’embauche. Une parole sexiste et une discrimination ne sont pas interchangeables.", "Code pénal 225-1 et 225-2. Défenseur des droits : 3928."],
+    R03: ["Harcèlement sexuel", "Des propos ou comportements sexuels ou sexistes répétés peuvent constituer un harcèlement s’ils dégradent la dignité ou créent une situation intimidante, hostile ou offensante. Plusieurs personnes peuvent y contribuer. Une pression grave pour obtenir un acte sexuel peut suffire dès la première fois.", "Code pénal 222-33."],
+    R04: ["Agressions sexuelles", "Un acte sexuel imposé peut constituer une agression sexuelle. Des règles spécifiques concernent certains actes d’un majeur sur un mineur. Le caractère sexuel se comprend au regard des gestes et du contexte. Le viol est une forme d’agression sexuelle.", "Code pénal 222-22 et suivants."],
+    R05: ["Viol", "Le viol comprend une pénétration sexuelle ou un acte bucco-génital ou bucco-anal dans les conditions prévues par la loi. Une relation antérieure, une amitié ou le silence ne constituent pas une autorisation.", "Code pénal 222-22, 222-23, 222-23-1 et 222-23-2."],
+    R06: ["Consentement", "Un accord se donne librement, en comprenant ce qui est proposé, avant un acte déterminé. Il peut être retiré. Un accord pour un geste ne s’étend pas aux suivants. Le silence ou l’absence de réaction ne prouvent pas l’accord. Le contexte, l’âge et une éventuelle autorité comptent aussi.", "Code pénal 222-22."],
+    R07: ["Mineurs et autorité", "Un accord exprimé ne suffit pas à rendre licite tout acte sexuel entre un adulte et un mineur. Le droit protège selon l’âge, l’écart d’âge, l’inceste et l’autorité. Un animateur majeur ne peut pas justifier une relation avec un jeune qu’il encadre par son seul accord.", "Code pénal 222-23-1, 222-29-2, 227-25 et 227-27."],
+    R08: ["Intimité et numérique", "Une photo partagée en privé ne peut pas être rediffusée. Filmer une agression peut constituer une complicité. Ne pas télécharger ni faire transférer des images sexuelles de mineurs, même pour l’équipe. Le 3018 aide à faire retirer un contenu.", "Code pénal 222-33-3, 226-2-1, 227-23 et 227-23-1."],
+    R09: ["Bizutage", "Une épreuve humiliante ou dégradante imposée dans un cadre socio-éducatif peut relever du bizutage, même si la personne dit l’accepter.", "Code pénal 225-16-1."],
+    R10: ["Protection et incertitude", "Un signe d’inquiétude ne prouve pas à lui seul une agression, mais mérite attention et transmission. Une révélation de violence appelle une protection et une alerte, sans enquête personnelle. On peut agir avant de connaître la qualification exacte.", "Code pénal 434-3 ; CASF R227-11."],
+    "Code pénal 222-22": ["Code pénal, article 222-22", "Définit l’agression sexuelle et, depuis la loi du 6 novembre 2025, ce qu’est le consentement. Le viol en est une forme (repères R04, R05, R06).", "Légifrance"],
+    "Code pénal 222-33": ["Code pénal, article 222-33", "Le harcèlement sexuel : propos ou comportements à connotation sexuelle ou sexiste répétés, ou pression grave même unique, dans le but d’obtenir un acte sexuel (repère R03).", "Légifrance"],
+    "Code pénal 225-1 et 225-2": ["Code pénal, articles 225-1 et 225-2", "Définissent la discrimination (critères interdits) et les actes discriminatoires punis, comme le refus d’embauche ou de fournir un service (repère R02).", "Légifrance"],
+    "Code pénal 227-27": ["Code pénal, article 227-27", "Protège notamment le mineur de plus de 15 ans face à un majeur qui a autorité sur lui, comme un animateur, hors viol ou autre agression sexuelle (repère R07).", "Légifrance"],
+    "Code pénal 434-3": ["Code pénal, article 434-3", "Réprime, dans les conditions qu’il prévoit, le fait de ne pas informer les autorités de mauvais traitements, d’agressions ou d’atteintes sexuelles infligés à un mineur dont on a connaissance.", "Légifrance"],
+    "Code du travail L1142-2-1": ["Code du travail, article L1142-2-1", "Nul ne doit subir d’agissement sexiste : un agissement lié au sexe d’une personne, qui porte atteinte à sa dignité ou crée un environnement intimidant, hostile, dégradant, humiliant ou offensant (repère R01).", "Légifrance"],
+    "Code du travail L1153-5": ["Code du travail, article L1153-5", "L’employeur doit prévenir le harcèlement sexuel, y mettre un terme et le sanctionner.", "Légifrance"],
+    "CASF R227-11": ["Code de l’action sociale et des familles, article R227-11", "L’organisateur d’un accueil collectif de mineurs (ou son représentant) informe sans délai le préfet des accidents graves et des situations présentant des risques graves pour la santé ou la sécurité des mineurs.", "Légifrance"],
+    "CASF L226-8": ["Code de l’action sociale et des familles, article L226-8", "Les coordonnées du 119 (Allô enfance en danger) doivent être affichées dans les établissements qui reçoivent habituellement des mineurs.", "Légifrance"],
+    "A01 à A10": ["Les cartes d’action A01 à A10", "Les dix actions possibles de l’atelier de décision du kit : on les classe entre « à engager », « à écarter » et « à organiser dans la durée ».", "Kit Fourmi’Action"],
+    "Carte des domaines de prévention": ["La carte des domaines de prévention", "La prévention se joue dans tout l’accueil : locaux, organisation, recrutement, règles, communication avec les familles. Une mesure préventive désigne un changement, un responsable et un indicateur.", "Kit Fourmi’Action"],
+  };
+  function refChip(r) { return REFS[r] ? `<button type="button" class="chip refb" data-ref="${esc(r)}" aria-haspopup="dialog">${esc(r)}</button>` : `<span class="chip">${esc(r)}</span>`; }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest && e.target.closest(".refb");
+    document.querySelectorAll(".ref-pop").forEach((x) => { if (!b || x._b !== b) x.remove(); });
+    if (!b || b._open) { if (b) b._open = false; return; }
+    const R = REFS[b.dataset.ref]; if (!R) return;
+    const pop = el("div", { class: "ref-pop", role: "dialog", "aria-label": R[0] }, `<b>${esc(R[0])}</b><p>${esc(R[1])}</p><small>${esc(R[2])}</small>`);
+    pop._b = b; b._open = true; document.body.appendChild(pop);
+    const r = b.getBoundingClientRect(), pw = Math.min(340, innerWidth - 24);
+    pop.style.width = pw + "px"; pop.style.left = Math.max(12, Math.min(innerWidth - pw - 12, r.left)) + "px";
+    const below = r.bottom + 8 + pop.offsetHeight < innerHeight; pop.style.top = (below ? r.bottom + 8 : Math.max(12, r.top - 8 - pop.offsetHeight)) + "px";
+    Snd.click && Snd.click();
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.querySelectorAll(".ref-pop").forEach((x) => { if (x._b) x._b._open = false; x.remove(); }); });
   function syncLv() { document.querySelectorAll(".hm-lv").forEach((b) => { const on = +b.dataset.lv === (st.level === 3 ? 3 : 2); b.classList.toggle("sel", on); b.setAttribute("aria-checked", String(on)); }); }
   function hud(show) {
     $("#hud").hidden = !show;
@@ -1536,7 +1574,7 @@
       const a = el("div", { class: "actor" + (flip ? " flip" : "") + (R0 ? " rigged" : ""), "data-who": who === "you" ? "you" : who, style: `left:${pct[0]}%;top:${pct[1]}%;width:${size}%;--br:${(Math.random() * 3).toFixed(2)}s` },
         `<span class="abub"><i></i><i></i><i></i></span><svg viewBox="-22 -60 44 64" overflow="visible">${R0 || m[pose || "stand"] || m.stand}</svg>`);
       const setPose = (ps) => { const r = a.querySelector(".rig"); if (r) r.setAttribute("class", "rig " + (RIG.POSE[ps] || "p-idle")); else a.querySelector("svg").innerHTML = m[ps] || m.stand; };
-      a._pose = setPose;
+      a._pose = setPose; a._pct = pct;
       { const pr = opts.prop || (this._props || {})[who]; if (pr) a.classList.add("pp-" + pr); }
       // entrée : la personne arrive en marchant depuis la porte ou le bord de la scène, puis prend son attitude
       if (from && !reduce()) {
@@ -1793,11 +1831,14 @@
       const npcs = castL.filter((c) => c[0] !== "you"), youC = castL.find((c) => c[0] === "you");
       const place = {};
       castL.forEach(([who, slot]) => { place[who] = IN.sp[slot] || IN.sp.a; });
-      if (youC && npcs.length && place.you && !place.you.sit) {
-        const main = npcs.find((c) => c[2] === "talk") || npcs[0], Pm = place[main[0]];
+      if (youC && npcs.length && place.you && !place.you.sit && !S.keepSlots) {
+        const main = npcs.find((c) => c[2] === "talk") || npcs[0], Pm = place[main[0]], M = IN.sp._m;
         if (Pm && place.you.d <= Pm.d + .25) {
           const side = Pm.x > vbw / 2 ? -1 : 1;
-          place.you = { ...place.you, x: Pm.x + side * 13, y: Pm.y + (Pm.sit ? 18 : 13), d: Pm.d + .7 };
+          if (M && Pm.wx != null) {   // à un bon mètre devant la personne qui parle (pas collé à elle), dans la salle
+            const wx = Math.max(.35, Math.min(M.W - .35, Pm.wx + (side > 0 ? .75 : .2))), wy = Math.max(.35, Math.min(M.D - .3, Pm.wy + (side > 0 ? .2 : .8)));
+            place.you = { ...place.you, wx, wy, x: +(M.o[0] + M.ax[0] * wx + M.ay[0] * wy).toFixed(1), y: +(M.o[1] + M.ax[1] * wx + M.ay[1] * wy).toFixed(1), d: +(wx + wy).toFixed(2) };
+          } else place.you = { ...place.you, x: Pm.x + side * 13, y: Pm.y + (Pm.sit ? 18 : 13), d: Pm.d + .7, wx: undefined, wy: undefined };
         }
       }
       // les autres personnes debout se rapprochent de celle qui parle : la place libre la plus proche d'elle (on ne se parle
@@ -1807,11 +1848,11 @@
           const P = place[who]; if (!P || who === main[0] || P.sit || Math.hypot(P.x - Pm.x, P.y - Pm.y) < 40) return;
           if (/^(p|w|s|t)\d|board/.test(slot || "") || pose === "pingpong" || pose === "sit") return;   // un joueur à sa table, quelqu'un dans une cabine : il reste à sa place
           const taken = Object.entries(place).filter(([k]) => k !== who).map(([, q]) => q);
-          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board|^_/.test(k) && !taken.some((u) => Math.abs(u.x - q.x) < 7 && Math.abs(u.y - q.y) < 9))
+          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board|^_/.test(k) && !taken.some((u) => Math.hypot(u.x - q.x, (u.y - q.y) * 1.3) < 16))
             .map(([, q]) => q).sort((a, b) => Math.hypot(a.x - Pm.x, a.y - Pm.y) - Math.hypot(b.x - Pm.x, b.y - Pm.y))[0];
           if (alt && Math.hypot(alt.x - Pm.x, alt.y - Pm.y) < Math.hypot(P.x - Pm.x, P.y - Pm.y) - 6) place[who] = alt;
         }); }
-      const free = (P) => !used.some((u) => Math.abs(u.x - P.x) < 7 && Math.abs(u.y - P.y) < 9);
+      const free = (P) => !used.some((u) => Math.hypot(u.x - P.x, (u.y - P.y) * 1.3) < 13);   // chacun garde un peu d'espace autour de lui
       castL.forEach(([who]) => {
         let P = place[who]; if (!P) return;
         if (!P.sit && !free(P)) {
@@ -1828,7 +1869,9 @@
         const P = place[who]; if (!P) return;
         const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose === "pingpong" ? "listen" : pose || "stand");
         // assis : on s'assoit sur la chaise du décor (pas de seconde chaise dessinée par-dessus), le corps posé à sa hauteur
-        const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit) || !!P.bk, chair: false, mood: (World._moods || {})[who] }); if (!m && !R0) return;
+        // vous êtes de dos quand vous êtes devant les autres (on regarde la scène par-dessus votre épaule) ; au fond de la salle, de face
+        const othersD = Object.entries(place).filter(([k]) => k !== "you").map(([, q]) => q.d), youFront = !othersD.length || P.d >= othersD.reduce((a, b) => a + b, 0) / othersD.length - .2;
+        const R0 = rigMini(who, ps, { back: (who === "you" && (S.cast || []).length > 1 && !P.sit && youFront) || !!P.bk, chair: false, mood: (World._moods || {})[who] }); if (!m && !R0) return;
         const g = document.createElementNS(NS, "g"), seat = P.sit && R0 ? sitPose(who, P) : null;
         g.setAttribute("class", "ractor" + (pose === "pingpong" ? " paddle" : "") + (P.bk ? " isback" : "") + (seat ? " seated" + (P.fc === "-y" || P.fc === "-x" ? " sitback" : "") : ""));
         g.dataset.who = who; g.setAttribute("transform", `translate(${P.x},${seat ? (P.y + seat.dy).toFixed(2) : P.y})`);
@@ -1837,8 +1880,6 @@
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody" style="animation-delay:-${(Math.random() * 3.8).toFixed(2)}s;animation-duration:${(3.4 + Math.random() * .9).toFixed(2)}s"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
         let Pd = !P.sit && P.wx != null ? standDepth(IN.sp, P.wx, P.wy, P.d) : P.d;
-        // les joueurs de ping-pong : bras et raquette au-dessus du plateau, devant la table
-        if (pose === "pingpong" && P.wx != null) (IN.sp._bx || []).forEach((b) => { if (P.wx > b[0] - .9 && P.wx < b[2] + .9 && P.wy > b[1] - .9 && P.wy < b[3] + .9) Pd = Math.max(Pd, b[4] + .004); });
         const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > Pd);
         svg.insertBefore(g, after || null);
         // assis de dos : la jambe gauche passe derrière l'assise et les pieds de la chaise (calque glissé sous la chaise),
@@ -1857,7 +1898,7 @@
           const pts_ = route || [[0, 0], [1, 1]], segL = pts_.slice(1).map((q, i) => Math.hypot(q[0] - pts_[i][0], q[1] - pts_[i][1])), LEN = segL.reduce((a, b) => a + b, 0) || 1;
           const proj = (x, y) => [M.o[0] + M.ax[0] * x + M.ay[0] * y, M.o[1] + M.ax[1] * x + M.ay[1] * y];
           const at = (u) => { let r = u * LEN; for (let i = 0; i < segL.length; i++) { if (r <= segL[i] || i === segL.length - 1) { const k = Math.min(1, r / (segL[i] || 1)); return [pts_[i][0] + (pts_[i + 1][0] - pts_[i][0]) * k, pts_[i][1] + (pts_[i + 1][1] - pts_[i][1]) * k]; } r -= segL[i]; } return pts_[pts_.length - 1]; };
-          const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = route ? 900 + LEN * 1250 : 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
+          const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = route ? 700 + LEN * 700 : 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
           if (rg && pc) rg.classList.replace(pc, "p-walk");
           g.setAttribute("transform", `translate(${D0.x},${D0.y})`); g.style.opacity = "0";
           let lastAfter = undefined;
@@ -2866,9 +2907,11 @@
   function waPhone(o) {
     const col = ["#1F7A5A", "#B5446E", "#2B6FD6", "#A86A1F", "#6B4FA0", "#C2412A"], cOf = (w) => col[[...(w || "")].reduce((a, c) => a + c.charCodeAt(0), 0) % col.length];
     return `<div class="wa" role="log" aria-label="Messages : ${esc(o.title)}"><div class="wa-dev"><div class="wa-notch"></div>
-      <div class="wa-top"><span class="wa-back" aria-hidden="true">‹</span><span class="wa-av" aria-hidden="true">${o.face || esc((o.title || "?")[0])}</span><span class="wa-id"><b>${esc(o.title)}</b><small>${esc(o.sub || "en ligne")}</small></span></div>
-      <div class="wa-body">${o.msgs.map((m, i) => `<div class="wa-m ${m.me ? "me" : ""}" style="animation-delay:${(i * .35).toFixed(2)}s">${o.group && !m.me ? `<b style="color:${cOf(m.who)}">${esc(m.who)}</b>` : ""}<span>${esc(m.t)}</span><i>${m.time || ""}${m.me ? " ✓✓" : ""}</i></div>`).join("")}</div>
-      <div class="wa-in" aria-hidden="true"><span>Message</span><i></i></div></div></div>`;
+      <div class="wa-status" aria-hidden="true"><b>${esc(o.clock || ((o.msgs || []).map((m) => m.time).filter(Boolean).pop()) || "18:00")}</b><span><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2.5" y="2.5" width="15" height="7" rx="1.5"/><rect x="23.5" y="4" width="2" height="4" rx="1"/></svg></span></div>
+      <div class="wa-top"><span class="wa-back" aria-hidden="true"><svg viewBox="0 0 12 20"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wa-av" aria-hidden="true">${o.face || (o.group ? `<svg viewBox="0 0 36 36"><rect width="36" height="36" fill="#CFD8DC"/><circle cx="13" cy="14" r="5" fill="#fff"/><circle cx="24" cy="13" r="4.2" fill="#fff" opacity=".85"/><path d="M4 31c1-6 5-9 9-9s8 3 9 9z" fill="#fff"/><path d="M19 23c1.5-1.4 3.2-2 5-2 3.6 0 7 2.6 8 8h-9" fill="#fff" opacity=".85"/></svg>` : esc((o.title || "?")[0]))}</span><span class="wa-id"><b>${esc(o.title)}</b><small>${esc(o.sub || "en ligne")}</small></span>
+      <span class="wa-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h8A2.5 2.5 0 0 1 16 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-8A2.5 2.5 0 0 1 3 16.5zM16 10.5l5-3v9l-5-3z" fill="currentColor"/></svg><svg viewBox="0 0 24 24"><path d="M6.6 3.5 9 3l1.6 4.2-1.9 1.3a12 12 0 0 0 6.8 6.8l1.3-1.9L21 15l-.5 2.4A2.6 2.6 0 0 1 18 19.6C10.3 19.3 4.7 13.7 4.4 6a2.6 2.6 0 0 1 2.2-2.5z" fill="currentColor"/></svg></span></div>
+      <div class="wa-body">${o.msgs.map((m, i) => `<div class="wa-m ${m.me ? "me" : ""}" style="animation-delay:${(i * .35).toFixed(2)}s">${o.group && !m.me ? `<b style="color:${cOf(m.who)}">${esc(m.who)}</b>` : ""}<span>${esc(m.t)}</span><i>${m.time || ""}${m.me ? ` <svg class="wa-ck" viewBox="0 0 18 11"><path d="M1 6l3 3 6-7M7 9l1 1 7-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ""}</i></div>`).join("")}</div>
+      <div class="wa-in" aria-hidden="true"><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="15" cy="10" r="1.2" fill="currentColor"/><path d="M8 14.5c2.2 2.4 5.8 2.4 8 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Message<svg viewBox="0 0 24 24"><path d="M16.5 6.5 8 15a2.1 2.1 0 0 0 3 3l8.5-8.5a3.6 3.6 0 0 0-5-5L6 13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><svg viewBox="0 0 24 24"><path d="M4 8h3l1.6-2h6.8L17 8h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span><i><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="#fff"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></i></div></div></div>`;
   }
   function sideArt(sc) {
     return sc.npc ? portrait(sc.npc, sc.mood) : null;
@@ -3440,7 +3483,7 @@
     const isNew = !st.carnet.includes(sc.id);
     if (isNew) { st.carnet.push(sc.id); save(); }
     hud(true);
-    n.innerHTML = `<div class="page-note"><div class="pn-ant">${faceOf("nour", "big")}</div><div class="pn-body"><p class="kicker">${isNew ? "Nouvelle page dans votre carnet" : "Page du carnet"}</p><h2 id="h-${sc.id}">${esc(p.title)}</h2>${p.quote ? `<blockquote>${esc(p.quote)}</blockquote>` : ""}<ul>${p.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${p.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></div></div>`;
+    n.innerHTML = `<div class="page-note"><div class="pn-ant">${faceOf("nour", "big")}</div><div class="pn-body"><p class="kicker">${isNew ? "Nouvelle page dans votre carnet" : "Page du carnet"}</p><h2 id="h-${sc.id}">${esc(p.title)}</h2>${p.quote ? `<blockquote>${esc(p.quote)}</blockquote>` : ""}<ul>${p.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${p.refs.map((r) => refChip(r)).join("")}</p></div></div>`;
     n.querySelector(".pn-body").appendChild(btn(st.idx + 1 < SCREENS.length && SCREENS[st.idx + 1].type === "chapter" ? "Finir la journée" : "Continuer", next));
     if (!sc.nuitee) { const d = debrief(sc.ch); if (d) { n.prepend(d.box); n.dataset.novoice = "1"; vprep(); setTimeout(() => Voice.seq(d.V.concat(VOICE_TXT.parts(sc))), 400); } }
     if (isNew) { Snd.page(); setTimeout(() => flyToCarnet(n.querySelector(".pn-ant")), 500); }
@@ -3915,7 +3958,8 @@
       document.querySelectorAll(".ph-modal").forEach((x) => x.remove());
       const m = el("div", { class: "ph-modal", role: "dialog", "aria-modal": "true", "aria-label": "Téléphone" },
         `<div class="wa ph-wa"><div class="wa-dev"><div class="wa-notch"></div>
-           <div class="wa-top"><span class="wa-back" aria-hidden="true">‹</span><span class="wa-av">${face(p.av)}</span><span class="wa-id"><b>${esc(p.from)}</b><small>${esc(p.app === "SMS" ? "SMS" : "en ligne")}</small></span><button type="button" class="ph-x" aria-label="Fermer le téléphone">✕</button></div>
+           <div class="wa-status" aria-hidden="true"><b>${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2, "0")}</b><span><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2.5" y="2.5" width="15" height="7" rx="1.5"/><rect x="23.5" y="4" width="2" height="4" rx="1"/></svg></span></div>
+           <div class="wa-top"><span class="wa-back" aria-hidden="true"><svg viewBox="0 0 12 20"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="wa-av">${face(p.av)}</span><span class="wa-id"><b>${esc(p.from)}</b><small>${esc(p.app === "SMS" ? "SMS" : "en ligne")}</small></span><button type="button" class="ph-x" aria-label="Fermer le téléphone">✕</button></div>
            <div class="wa-body ph-chat"><div class="wa-m">${esc(p.t)}<i>maintenant</i></div></div>
            <div class="ph-opts wa-opts"></div></div></div>`);
       const opts = m.querySelector(".ph-opts"), chat = m.querySelector(".ph-chat");
@@ -3923,7 +3967,7 @@
         const b = el("button", { class: "ph-o", type: "button" }, esc(o.t));
         b.addEventListener("click", () => {
           opts.innerHTML = "";
-          chat.appendChild(el("div", { class: "wa-m me" }, `${esc(o.t)}<i>maintenant ✓✓</i>`));
+          chat.appendChild(el("div", { class: "wa-m me" }, `${esc(o.t)}<i>maintenant <svg class="wa-ck" viewBox="0 0 18 11"><path d="M1 6l3 3 6-7M7 9l1 1 7-8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i>`));
           record({ id: "tel-" + p.id, comp: p.comp }, o.q);
           const v = verdict(o.q); v.s();
           chat.appendChild(el("div", { class: "ph-fb wa-fb " + v.cls }, esc(o.fb))); chat.scrollTop = chat.scrollHeight;
@@ -5482,7 +5526,7 @@
       const evH = sc.events.find((e) => e.room === key), txt = C.before && evH && !S.done[evH.id] && S.t < toMin(evH.from) ? C.before : C.t;
       document.body.classList.remove("roaming"); Life.clear();
       const room = C.room || (A.dio.inner && A.dio.inner[key] ? key : null);
-      STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3, greet: /signe de la main|coucou/.test(C.t || "") };
+      STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3, keepSlots: !!C.keepSlots, greet: /signe de la main|coucou/.test(C.t || "") };
       World.stage({ id: "roam-calm-" + key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
       S.t += 8; save();
@@ -5529,11 +5573,11 @@
   let last = 0;
   // la découpe par le toit d'une personne à moitié cachée : le bord du toit à sa hauteur, recalculé à chaque image (elle marche)
   function clipFor(a, pr0) {
-    const w = a._w; if (!w || !w._hitP || !a.parentElement) return "";
+    const w = a._w || a._ow; if (!w || !w._hitP || !a.parentElement) return "";
     // la boîte de la personne, en fractions du calque : mesurée de temps en temps seulement (elle suit sa position au sol,
     // et le zoom de la caméra agrandit le calque et la personne ensemble) : pas de mise en page forcée à chaque image
     const now = performance.now(), f = w2f(w.x, w.y);
-    if (!a._bx || now - a._bx.t > 700) {
+    if (!a._bx) {   // (ensuite rafraîchie par see(), avec les autres mesures : pas de mise en page forcée image par image)
       const r0 = a.getBoundingClientRect(), p0 = pr0 || a.parentElement.getBoundingClientRect(); if (!r0.width || !p0.width) return "";
       a._bx = { t: now, dx: (r0.left - p0.left) / p0.width * 100 - f[0], dy: (r0.top - p0.top) / p0.height * 100 - f[1], w: r0.width / p0.width * 100, h: r0.height / p0.height * 100 };
     }
@@ -5548,18 +5592,107 @@
   }
   function frame(t) {
     requestAnimationFrame(frame);
-    // toutes les mesures d'abord, toutes les écritures ensuite : une seule mise en page par image (au lieu d'une par personne)
-    const PL = document.querySelectorAll(".wacts .walker.partial");
-    if (PL.length) {
-      const cps = [...PL].map((a) => clipFor(a));
-      PL.forEach((a, i) => { if (a._cut !== cps[i]) { a._cut = cps[i]; a.style.clipPath = cps[i]; } });
-    }
+    // une image sur deux (30 fois par seconde) : imperceptible, et deux fois moins de découpes à redessiner
+    if ((frame._n = (frame._n || 0) + 1) % 2 === 0) { const W0 = document.getElementById("world"); if (W0 && W0.classList.contains("on")) occlude(W0); document.querySelectorAll(".map.dio.tourlive").forEach(occlude); }
     if (t - last < 220) return; last = t;
     // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
     const W0 = document.getElementById("world"), roots = [];
     if (W0 && W0.classList.contains("on")) roots.push(W0);
     document.querySelectorAll(".map.dio.tourlive").forEach((m) => roots.push(m));
     roots.forEach(see);
+  }
+  // Derrière un bâtiment, image par image (pas de retard en bordure) : chaque personne est découpée exactement par la
+  // silhouette du bâtiment ; là où le bâtiment s'efface autour de vous (le halo), les personnes apparaissent peu à peu,
+  // avec le même dégradé que le halo, et disparaissent de même en en sortant.
+  const boxIn = (a) => {   // la boîte de la personne, en % du calque (mesurée de temps en temps : elle suit sa position au sol)
+    const w = a._w || a._ow, now = performance.now(), f = w2f(w.x, w.y);
+    if (!a._bx) {
+      const r0 = a.getBoundingClientRect(), p0 = a.parentElement.getBoundingClientRect(); if (!r0.width || !p0.width) return null;
+      a._bx = { t: now, dx: (r0.left - p0.left) / p0.width * 100 - f[0], dy: (r0.top - p0.top) / p0.height * 100 - f[1], w: r0.width / p0.width * 100, h: r0.height / p0.height * 100 };
+    }
+    const B = a._bx; return { l: f[0] + B.dx, t: f[1] + B.dy, w: B.w, h: B.h };
+  };
+  function occlude(W) {
+    const B = (A.dio && A.dio.blds) || [], K = PJ[2] / .8660254, zp = (z) => z * K / PJ[7] * 100;
+    const P2 = (x, y, z) => { const f = w2f(x, y); return [f[0], f[1] - zp(z)]; };
+    const inPoly = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+    // la vraie silhouette de chaque bâtiment (toit à deux pans compris) : l'enveloppe des points de son volume, vue de la caméra
+    const hull = (P) => { P = P.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+      const lo = [], up = []; for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+      for (let i = P.length - 1; i >= 0; i--) { const p = P[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+      return lo.slice(0, -1).concat(up.slice(0, -1)); };
+    const SIL = W._sil || (W._sil = (A.dio.sil && A.dio.sil.length ? A.dio.sil.map(([k, [x0, y0, x1, y1], p3]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: hull(p3.map(([x, y, z]) => P2(x, y, z))) }))
+      : B.map(([x0, y0, x1, y1, h, k]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] }))));
+    const lay = W.querySelector(".wacts"); if (!lay) return;
+    const bsz = boxOf(lay); if (!bsz) return; const LW = bsz[0], LH = bsz[1];
+    const inRoom = !!W.querySelector(".inroom-w"), ghost = new Set(), hidden = [];
+    W.querySelectorAll(".wacts .walker, .wacts .actor").forEach((a) => {
+      // les personnes d'une scène (immobiles) sont cachées de la même façon que celles qui marchent
+      if (!a._w && a._pct && !a.classList.contains("arriving")) { if (!a._ow || a._ow.p !== a._pct) { const q = f2w(a._pct[0], a._pct[1]), who = a.dataset.who; a._ow = { p: a._pct, x: q[0], y: q[1], who, h: KIDS.has(who) || /^[kt]\d/.test(who) ? 1.4 : 1.7 }; } }
+      const w = a._w || a._ow; if (!w || w.entering) return;
+      const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
+      const foot = P2(w.x, w.y, .05);
+      const Hw = w.h || (/^k|^t/.test(w.who) ? 1.4 : 1.7);
+      // touché si les pieds OU la tête sont dans la silhouette (sinon la tête disparaissait d'un coup en passant le faîte)
+      const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && (inPoly(foot, b.poly) || inPoly(P2(w.x, w.y, Hw), b.poly)));
+      if (!hit || inRoom) {
+        if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; }
+        a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } if (w.zb != null && w.place) { w.zb = null; w.place(); } return;
+      }
+      let lo = 0, hi = Hw; if (inPoly(P2(w.x, w.y, Hw), hit.poly)) lo = Hw; else for (let it = 0; it < 7; it++) { const m = (lo + hi) / 2; if (inPoly(P2(w.x, w.y, m), hit.poly)) lo = m; else hi = m; }
+      w._hid = lo / Hw; w._hitP = hit.poly;
+      if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
+      hidden.push([a, hit]);
+    });
+    // le halo : autour de vous (ou de la personne de la scène), en pixels du calque
+    const HALO = {};
+    hidden.forEach(([a, hit]) => { const w = a._w || a._ow; if (!ghost.has(hit.k) || !(w.who === "you" || w.ev) || HALO[hit.k]) return; const bx = boxIn(a); if (!bx) return;
+      const hpx = bx.h / 100 * LH; HALO[hit.k] = [(bx.l + bx.w / 2) / 100 * LW, (bx.t + bx.h * .55) / 100 * LH, Math.max(44, hpx * 1.55)]; });
+    hidden.forEach(([a, hit]) => { const w = a._w || a._ow, k = hit.k, me = w.who === "you" || w.ev;
+      if (me && ghost.has(k)) { if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; } a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } return; }
+      const bx = boxIn(a); if (!bx) return;
+      const px = bx.l / 100 * LW, py = bx.t / 100 * LH, pw = bx.w / 100 * LW, ph = bx.h / 100 * LH, H = HALO[k];
+      const nearH = H && Math.hypot(px + pw / 2 - H[0], py + ph / 2 - H[1]) < H[2] + ph * .6;
+      if (w._hid >= .97 && !nearH) {   // entièrement derrière, loin du halo : caché (en fondu)
+        if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; } a.classList.add("behind"); a.classList.remove("partial"); return;
+      }
+      a.classList.remove("behind"); a.classList.add("partial");
+      if (!nearH) {   // loin du halo : une simple découpe au bord du toit (moins coûteuse qu'un masque)
+        if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; }
+        const cp = clipFor(a); if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; }
+        if (w.zb != null && w.place) { w.zb = null; w.place(); } return;
+      }
+      if (a._cut) { a._cut = 0; a.style.clipPath = ""; }
+      // le masque de la personne : visible hors de la silhouette du bâtiment, et dans le halo (dégradé identique à celui du halo)
+      const X = (q) => Math.round((q[0] / 100 * LW - px) / pw * 100), Y = (q) => Math.round((q[1] / 100 * LH - py) / ph * 100);
+      const poly = hit.poly.map((q) => X(q) + "," + Y(q)).join(" ");
+      let circ = "";
+      if (nearH) { const cx = Math.round((H[0] - px) / pw * 100), cy = Math.round((H[1] - py) / ph * 100), rx = Math.round(H[2] / pw * 100), ry = Math.round(H[2] / ph * 100);
+        circ = `<ellipse cx='${cx}' cy='${cy}' rx='${rx}' ry='${ry}' fill='url(%23g)'/>`; }
+      const mk = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><defs><radialGradient id='g'><stop offset='0' stop-color='white'/><stop offset='.38' stop-color='white'/><stop offset='.66' stop-color='white' stop-opacity='.55'/><stop offset='1' stop-color='white' stop-opacity='0'/></radialGradient><mask id='m'><rect x='-50' y='-50' width='200' height='200' fill='white'/><polygon points='${poly}' fill='black'/>${circ}</mask></defs><rect x='-50' y='-50' width='200' height='200' fill='black' mask='url(%23m)'/></svg>")`;
+      if (a._mk !== mk) { a._mk = mk; a.style.webkitMaskImage = a.style.maskImage = mk; a.style.webkitMaskSize = a.style.maskSize = "100% 100%"; a.style.webkitMaskRepeat = a.style.maskRepeat = "no-repeat"; }
+      if (w.zb != null && w.place) { w.zb = null; w.place(); }
+    });
+    const host = W.querySelector(".wanim");
+    if (host) {
+      ghost.forEach((k) => {
+        let g = host.querySelector(`.dio-ghost[data-k="${k}"]`);
+        if (!g) { const L = A.dio.lids[k], pos = `left:${L.l}%;top:${L.t}%;width:${L.w}%;aspect-ratio:${L.r}`; host.appendChild(el("img", { class: "dio-ghost under", "data-k": k, alt: "", src: Lids.src(k, "nob"), style: pos + ";z-index:4" })); g = el("img", { class: "dio-ghost", "data-k": k, alt: "", src: Lids.src(k, "ghost"), style: pos + ";z-index:6" }); host.appendChild(g); }
+        const L = A.dio.lids[k], H = HALO[k], gl = L.l / 100 * LW, gt = L.t / 100 * LH, gw = L.w / 100 * LW, gh = gw / L.r;
+        host.querySelectorAll(`.dio-ghost[data-k="${k}"]`).forEach((x) => {
+          if (!x.classList.contains("on") && !x.classList.contains("snap")) { x.classList.add("snap"); requestAnimationFrame(() => requestAnimationFrame(() => x.classList.remove("snap"))); }
+          if (H) { const mx = ((H[0] - gl) / gw * 100).toFixed(1) + "%", my = ((H[1] - gt) / gh * 100).toFixed(1) + "%", mr = Math.round(H[2]) + "px";
+            if (x._m !== mx + my + mr) { x._m = mx + my + mr; x.style.setProperty("--mx", mx); x.style.setProperty("--my", my); x.style.setProperty("--mr", mr); } }
+          if (!x.classList.contains("under")) { const zs = hidden.filter(([a, h]) => h.k === k && !a.classList.contains("behind")).map(([a]) => +a.style.zIndex || 0); if (zs.length) { const z = String(Math.max(...zs) + 2); if (x.style.zIndex !== z) x.style.zIndex = z; } }
+          x.classList.add("on");
+        });
+      });
+      host.querySelectorAll(".dio-ghost.on").forEach((g) => { if (!ghost.has(g.dataset.k)) g.classList.remove("on"); });
+      const gk = [...ghost].sort().join(",");
+      if (W._gk !== gk) { W._gk = gk;
+        W.querySelectorAll(".dio-slide").forEach((d) => d.classList.toggle("ghosted", ghost.has("direction") || ghost.has("main")));
+        W.querySelectorAll(".dio-door").forEach((d) => { const c = [...d.classList].find((x) => x.startsWith("dk-")); const k = c && c.slice(3); d.classList.toggle("ghosted", !!k && (ghost.has(k) || (ghost.has("main") && (k === "cuisine" || k === "soins")))); }); }
+    }
   }
   function see(W) {
     // la porte coulissante de l'entrée s'ouvre (vers la gauche) quand quelqu'un arrive devant, puis se referme
@@ -5579,73 +5712,10 @@
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,
     // pour qu'on voie toujours le chemin et ce qui s'y passe ; un simple figurant, lui, passe derrière le mur
-    const B = (A.dio && A.dio.blds) || [], K = PJ[2] / .8660254, zp = (z) => z * K / PJ[7] * 100;
-    const P2 = (x, y, z) => { const f = w2f(x, y); return [f[0], f[1] - zp(z)]; };
-    const inPoly = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
-    // la vraie silhouette de chaque bâtiment (toit à deux pans compris) : l'enveloppe des points de son volume, vue de la caméra
-    const hull = (P) => { P = P.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-      const lo = [], up = []; for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
-      for (let i = P.length - 1; i >= 0; i--) { const p = P[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
-      return lo.slice(0, -1).concat(up.slice(0, -1)); };
-    const SIL = W._sil || (W._sil = (A.dio.sil && A.dio.sil.length ? A.dio.sil.map(([k, [x0, y0, x1, y1], p3]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: hull(p3.map(([x, y, z]) => P2(x, y, z))) }))
-      : B.map(([x0, y0, x1, y1, h, k]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] }))));
-    const inRoom = !!W.querySelector(".inroom-w"), ghost = new Set(), hidden = [];
-    W.querySelectorAll(".wacts .walker").forEach((a) => {
-      const w = a._w; if (!w || w.entering) return;
-      const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
-      const foot = P2(w.x, w.y, .05);
-      const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(foot, b.poly));
-      if (!hit || inRoom) { a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } if (w.zb != null) { w.zb = null; w.place(); } return; }
-      // jusqu'où le bâtiment cache-t-il le corps ? (on cherche la hauteur où la silhouette du bâtiment s'arrête)
-      const Hw = w.h || (/^k|^t/.test(w.who) ? 1.4 : 1.7);
-      let lo = 0, hi = Hw; if (inPoly(P2(w.x, w.y, Hw), hit.poly)) lo = Hw; else for (let it = 0; it < 7; it++) { const m = (lo + hi) / 2; if (inPoly(P2(w.x, w.y, m), hit.poly)) lo = m; else hi = m; }
-      w._hid = lo / Hw; w._hitP = hit.poly;   // 1 : entièrement caché ; entre 0 et 1 : seule la tête (ou le haut du corps) dépasse
-      if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
-      hidden.push([a, hit.k]);
-    });
-    // la personne derrière passe sous la copie transparente du bâtiment ; ceux qui sont devant restent au-dessus
-    // le halo transparent n'entoure que vous (ou la personne de la scène) : les autres, plus loin derrière le bâtiment, restent cachés
-    const halo = hidden.filter(([a, k]) => ghost.has(k) && a._w && (a._w.who === "you" || a._w.ev)).map(([a]) => a._w);
-    const HS = hidden.filter(([a]) => halo.includes(a._w)).map(([a]) => { const r = a.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .55, Math.max(70, r.height * 1.35)]; });
-    hidden.forEach(([a, k]) => { const w = a._w;
-      // (avec une marge : on entre dans le halo à 1,6 m, on n'en sort qu'à 2,2 m — sinon on clignote en bordure)
-      // dans le halo transparent (là où le bâtiment s'efface vraiment, à l'écran), on voit aussi ceux qui sont derrière ;
-      // hors du halo, le bâtiment est plein : ils restent cachés (ou seulement leur tête dépasse)
-      const g = ghost.has(k) && (halo.includes(w) || HS.some(([cx, cy, R]) => { const r = a.getBoundingClientRect(); return Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) < R * .5; }));
-      // caché seulement là où le bâtiment le cache : si la tête dépasse du toit, on la voit marcher
-      const cut = g ? 0 : w._hid >= .97 ? 1 : w._hid;
-      a.classList.toggle("behind", cut === 1);
-      // la découpe suit exactement le bord du toit (en biais, comme le toit) : le toit passe par-dessus le corps
-      const part = cut > 0 && cut < 1; a.classList.toggle("partial", part);
-      const cp = part ? clipFor(a) : "";
-      if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; } if (w.zb != null) { w.zb = null; w.place(); } if (g) a._ghostK = k; });   // on garde sa vraie profondeur (les portes, clôtures, panneaux devant restent devant)
-    const host = W.querySelector(".wanim");
-    if (host) {
-      ghost.forEach((k) => {
-        let g = host.querySelector(`.dio-ghost[data-k="${k}"]`);
-        // dessous : le plan sans le bâtiment (on voit le chemin derrière) ; dessus : le bâtiment, à demi transparent
-        if (!g) { const L = A.dio.lids[k], pos = `left:${L.l}%;top:${L.t}%;width:${L.w}%;aspect-ratio:${L.r}`; host.appendChild(el("img", { class: "dio-ghost under", "data-k": k, alt: "", src: Lids.src(k, "nob"), style: pos + ";z-index:4" })); g = el("img", { class: "dio-ghost", "data-k": k, alt: "", src: Lids.src(k, "ghost"), style: pos + ";z-index:6" }); host.appendChild(g); }
-        // transparence progressive : seul un halo autour de la personne s'efface, et il se fond peu à peu dans le bâtiment
-        const who = hidden.find(([a, kk]) => kk === k && a._w && (a._w.who === "you" || a._w.ev)), ar = who && who[0].getBoundingClientRect();
-        host.querySelectorAll(`.dio-ghost[data-k="${k}"]`).forEach((x) => {
-          // le halo apparaît directement sur la personne (il ne « vient » pas d'ailleurs) : pas de glissement à l'apparition
-          if (!x.classList.contains("on") && !x.classList.contains("snap")) { x.classList.add("snap"); requestAnimationFrame(() => requestAnimationFrame(() => x.classList.remove("snap"))); }
-          if (ar && ar.width) { const ir = x.getBoundingClientRect(); if (ir.width) {
-            x.style.setProperty("--mx", ((ar.left + ar.width / 2 - ir.left) / ir.width * 100).toFixed(1) + "%");
-            x.style.setProperty("--my", ((ar.top + ar.height * .55 - ir.top) / ir.height * 100).toFixed(1) + "%");
-            x.style.setProperty("--mr", Math.round(Math.max(70, ar.height * 1.35)) + "px"); } }
-          // le bâtiment transparent passe juste au-dessus de la personne (et non sous tout le décor)
-          if (!x.classList.contains("under")) { const zs = hidden.filter(([a, kk]) => kk === k && !a.classList.contains("behind")).map(([a]) => +a.style.zIndex || 0); if (zs.length) x.style.zIndex = String(Math.max(...zs) + 2); }
-          x.classList.add("on");
-        });
-      });
-      host.querySelectorAll(".dio-ghost.on").forEach((g) => { if (!ghost.has(g.dataset.k)) g.classList.remove("on"); });
-      // le bâtiment devenu transparent emporte ses portes : on ne voit plus la porte vitrée de l'entrée flotter devant
-      // (seul le petit toit reste lisible), et les battants des salles se font discrets comme leur mur
-      W.querySelectorAll(".dio-slide").forEach((d) => d.classList.toggle("ghosted", ghost.has("direction") || ghost.has("main")));
-      W.querySelectorAll(".dio-door").forEach((d) => { const c = [...d.classList].find((x) => x.startsWith("dk-")); const k = c && c.slice(3); d.classList.toggle("ghosted", !!k && (ghost.has(k) || (ghost.has("main") && (k === "cuisine" || k === "soins")))); });
-    }
     const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
+    { const lay = W.querySelector(".wacts"), p0 = lay && lay.getBoundingClientRect(), now = performance.now();
+      if (p0 && p0.width) acts.forEach((a, i) => { const w = a._w || a._ow; if (!w) return; const r0 = R[i][0]; if (!r0.width) return; const f = w2f(w.x, w.y);
+        a._bx = { t: now, dx: (r0.left - p0.left) / p0.width * 100 - f[0], dy: (r0.top - p0.top) / p0.height * 100 - f[1], w: r0.width / p0.width * 100, h: r0.height / p0.height * 100 }; }); }
     const vw = innerWidth, vh = innerHeight;
     acts.forEach((a, i) => { if (!a.classList.contains("walker")) return; const b = R[i][0], off = b.right < -40 || b.left > vw + 40 || b.bottom < -40 || b.top > vh + 40; if (a.classList.contains("offs") !== off) a.classList.toggle("offs", off); });
     occ.forEach((o) => {
@@ -6293,7 +6363,7 @@
     Snd.page(); $("#btn-carnet").classList.remove("ping");
     const pages = SCREENS.filter((s) => s.type === "explain" && st.carnet.includes(s.id));
     const body = $("#carnet-body");
-    body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? ' class="cp-ill"' : ""}>${s.page.pts.map((x, k) => `<li>${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? `<figure class="pn-art cp-art" aria-hidden="true"><div class="pn-frame">${NoteArt.svg(s.id, k)}</div></figure>` : ""}<span>${esc(x)}</span></li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
+    body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? ' class="cp-ill"' : ""}>${s.page.pts.map((x, k) => `<li>${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? `<figure class="pn-art cp-art" aria-hidden="true"><div class="pn-frame">${NoteArt.svg(s.id, k)}</div></figure>` : ""}<span>${esc(x)}</span></li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => refChip(r)).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
 ;
     if (st.done && pages.length) { const d = el("section", { class: "cpage dl-row" }, `<h3>Garder le carnet</h3><p>Votre cible et toutes ces pages, avec leurs images, dans un document PDF.</p>`); d.appendChild(cibleBtn()); body.appendChild(d); }
     const docs = (st.docs || []).filter((k) => DOCS[k]);

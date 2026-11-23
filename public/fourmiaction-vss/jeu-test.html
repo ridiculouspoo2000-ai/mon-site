@@ -2394,6 +2394,43 @@ body.flashback #world::after{content:"";position:absolute;inset:0;z-index:6;poin
 #hudmenu .hm-lv{border:0;border-radius:99px;padding:7px 12px;font:600 13px/1 inherit;font-family:inherit;background:#EEF1F4;color:#1E2733;cursor:pointer}
 #hudmenu .hm-lv.sel{background:#1E2733;color:#fff}
 #hudmenu .hm-lv:focus-visible{outline:2px solid #E2702A;outline-offset:2px}
+
+/* l'interface de messagerie, plus fidèle : barre d'état, avatar bien rond, icônes d'appel, bulles à pointe, saisie complète */
+.wa-status{display:flex;justify-content:space-between;align-items:center;padding:12px 26px 0 30px;background:#075E54;color:#fff;border-radius:34px 34px 0 0;font:600 12.5px/1 'Inter',sans-serif;flex:0 0 auto}
+.wa-status span{display:flex;gap:5px;align-items:center}.wa-status svg{height:10px;width:auto;fill:currentColor}
+.wa-dev .wa-status+.wa-top{border-radius:0;padding-top:10px}
+.wa-dev .wa-notch{top:12px;width:78px;height:22px;margin-left:-39px;border-radius:14px}
+.wa-back svg{width:10px;height:17px;display:block}
+.wa-av{flex:0 0 36px;width:36px!important;height:36px!important;aspect-ratio:1;border-radius:50%!important}
+.wa-id{flex:1 1 auto;min-width:0}.wa-id small{max-width:none}
+.wa-ic{display:flex;gap:14px;margin-left:auto;flex:0 0 auto}.wa-ic svg{width:21px;height:21px}
+.wa-top .ph-x{margin-left:6px}
+.wa-body{background-color:#EFE7DE;background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1.3px);background-size:14px 14px}
+.wa-m{position:relative}
+.wa-m:not(.me):before{content:"";position:absolute;left:-6px;top:0;border:6px solid transparent;border-top-color:#fff;border-right-color:#fff;border-width:0 7px 9px 0}
+.wa-m.me:before{content:"";position:absolute;right:-6px;top:0;border-style:solid;border-color:#D9FDD3 transparent transparent #D9FDD3;border-width:0 0 9px 7px}
+.wa-m i{display:flex;justify-content:flex-end;align-items:center;gap:3px}
+.wa-ck{width:15px;height:10px;color:#53BDEB}
+.wa-in span{display:flex;align-items:center;gap:8px}.wa-in span svg{width:20px;height:20px;color:#8696A0;flex:0 0 auto}
+.wa-in span svg:nth-of-type(2){margin-left:auto}
+.wa-in i{flex:0 0 40px;width:40px!important;height:40px!important;display:flex;align-items:center;justify-content:center}.wa-in i svg{width:21px;height:21px}
+
+/* repères cliquables du carnet */
+.refs .refb{cursor:pointer;border:0;font:inherit;font-size:inherit;transition:background .15s,box-shadow .15s}
+.refs .refb:hover,.refs .refb:focus-visible{box-shadow:0 0 0 2px #E2702A inset;outline:none}
+.ref-pop{position:fixed;z-index:9600;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 18px 40px rgba(20,30,50,.22);font:400 14px/1.45 'Inter',sans-serif;color:#1E2733;animation:refIn .18s ease both}
+.ref-pop b{display:block;font-size:15px;margin-bottom:4px}.ref-pop p{margin:0 0 6px}.ref-pop small{color:#6B7380}
+@keyframes refIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* « Construisez votre mesure » : titres dans leur carte (plus de pastille ni de titre qui débordent), une colonne quand
+   l'écran est étroit, options compactes */
+.canvas{gap:12px}
+.slot{padding:16px 14px 14px;margin:0;min-width:0}
+.slot legend{float:left;width:100%;padding:0;margin:0 0 10px;display:flex;align-items:flex-start;gap:10px;font-size:16px;line-height:1.3;color:#1E2733}
+.slot legend+*{clear:both}
+.slot .sn{flex:0 0 26px;width:26px;height:26px;margin-top:-1px;font-size:13px}
+.slot .opt{padding:10px 12px;font-size:14.5px;line-height:1.35;align-items:center}
+body.live .canvas,.solo .canvas{grid-template-columns:1fr}
+@media (min-width:1100px){body:not(.live) .solo.wide .canvas{grid-template-columns:1fr 1fr}}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -3709,6 +3746,10 @@ body.swap .screen.leaving{display:none}
 #hud #btn-carnet{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* les personnes hors de l'écran ne bougent plus bras et jambes (on ne les voit pas) : autant d'animations en moins */
 .walker.offs,.walker.offs *{animation-play-state:paused!important}
+/* une personne d'une scène, entièrement derrière un bâtiment (loin du halo) : cachée en fondu, comme celles qui marchent */
+#world .wacts .actor:not(.walker){transition:opacity .25s ease}
+#world .wacts .actor.behind:not(.walker){opacity:0!important}
+#world .wacts .actor.behind[data-who="you"]:not(.walker){opacity:.35!important}
 </style></head>
 <body>
 <div id="app"><div class="ambient" aria-hidden="true"><i style="left:0%;animation-delay:-0.0s;width:5px;height:5px;background:#F4B63F"></i><i style="left:37%;animation-delay:-1.4s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:74%;animation-delay:-2.8s;width:9px;height:9px;background:#F2C48A"></i><i style="left:11%;animation-delay:-4.2s;width:5px;height:5px;background:#F4B63F"></i><i style="left:48%;animation-delay:-5.6s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:85%;animation-delay:-7.0s;width:9px;height:9px;background:#F2C48A"></i><i style="left:22%;animation-delay:-8.4s;width:5px;height:5px;background:#F4B63F"></i><i style="left:59%;animation-delay:-9.8s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:96%;animation-delay:-11.2s;width:9px;height:9px;background:#F2C48A"></i><i style="left:33%;animation-delay:-12.6s;width:5px;height:5px;background:#F4B63F"></i><i style="left:70%;animation-delay:-14.0s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:7%;animation-delay:-15.4s;width:9px;height:9px;background:#F2C48A"></i><i style="left:44%;animation-delay:-16.8s;width:5px;height:5px;background:#F4B63F"></i><i style="left:81%;animation-delay:-18.2s;width:7px;height:7px;background:#9CC9EA"></i><div class="grassline"><svg viewBox="0 0 1600 70" preserveAspectRatio="none"><path d="M0,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M11,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M22,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M33,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M44,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M55,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M66,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M77,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M88,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M99,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M110,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M121,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M132,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M143,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M154,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M165,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M176,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M187,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M198,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M209,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M220,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M231,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M242,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M253,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M264,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M275,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M286,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M297,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M308,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M319,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M330,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M341,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M352,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M363,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M374,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M385,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M396,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M407,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M418,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M429,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M440,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M451,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M462,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M473,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M484,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M495,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M506,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M517,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M528,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M539,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M550,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M561,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M572,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M583,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M594,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M605,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M616,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M627,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M638,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M649,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M660,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M671,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M682,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M693,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M704,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M715,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M726,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M737,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M748,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M759,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M770,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M781,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M792,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M803,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M814,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M825,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M836,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M847,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M858,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M869,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M880,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M891,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M902,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M913,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M924,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M935,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M946,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M957,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M968,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M979,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M990,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1001,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1012,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1023,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1034,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1045,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1056,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1067,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1078,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1089,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1100,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1111,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1122,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1133,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1144,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1155,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1166,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1177,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1188,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1199,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1210,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1221,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1232,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1243,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1254,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1265,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M1276,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M1287,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M1298,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M1309,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M1320,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1331,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1342,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1353,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1364,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1375,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1386,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1397,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1408,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1419,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1430,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1441,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1452,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1463,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1474,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1485,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1496,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1507,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1518,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1529,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1540,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1551,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1562,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1573,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1584,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1595,70 q4,-33 9,0" fill="#A5D3B3"/></svg></div></div>
@@ -3730,7 +3771,7 @@ body.swap .screen.leaving{display:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-5dca8932.js"></script>
-<script src="jeu-2-c61242e5.js"></script>
-<script src="jeu-3-146b552f.js"></script>
+<script src="jeu-1-52ac1b1a.js"></script>
+<script src="jeu-2-8293f758.js"></script>
+<script src="jeu-3-931ac4b8.js"></script>
 </body></html>

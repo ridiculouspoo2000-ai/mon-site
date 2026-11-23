@@ -815,6 +815,8 @@
   const app = $("#app"), stage = $("#stage"), live = $("#live");
   const say = (t) => { live.textContent = ""; setTimeout(() => (live.textContent = t), 30); };
   function applySettings() {
+    // plus de bouton : les animations réduites suivent uniquement le réglage du système
+    try { st.settings.calm = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); } catch (e) { }
     document.body.classList.toggle("calm", !!st.settings.calm);
     const bs = $("#btn-sound"), bm = $("#btn-motion");
     bs.setAttribute("aria-pressed", st.settings.sound ? "true" : "false");
@@ -844,19 +846,11 @@
     const H = $("#hud"), more = el("button", { class: "hbtn", id: "btn-more", type: "button", "aria-haspopup": "true", "aria-expanded": "false", "aria-controls": "hudmenu", "aria-label": "Réglages : niveau, son, voix, animations" },
       `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="lbl">Réglages</span>`);
     const menu = el("div", { id: "hudmenu", role: "group", "aria-label": "Réglages", hidden: true }, `<p class="hm-k">Réglages</p>`);
-    ["#btn-level", "#btn-sound", "#btn-voice", "#btn-motion"].forEach((s) => { const b = $(s); if (b) menu.appendChild(b); });
+    // le niveau se choisit à l'accueil, avant de lancer la partie : il ne change plus ensuite (pour passer en expert,
+    // on termine ou on recommence la partie). Les animations réduites suivent le réglage du système (prefers-reduced-motion).
+    ["#btn-sound", "#btn-voice"].forEach((s) => { const b = $(s); if (b) menu.appendChild(b); });
+    ["#btn-level", "#btn-motion"].forEach((s) => { const b = $(s); if (b) { b.hidden = true; b.setAttribute("aria-hidden", "true"); b.tabIndex = -1; } });
     H.appendChild(more); H.appendChild(menu);
-    // le niveau se choisit d'un geste, en cours de partie : deux pastilles, celle du niveau en cours est cochée
-    { const bl = $("#btn-level");
-      if (bl) {
-        const box = el("div", { class: "hm-level", role: "radiogroup", "aria-label": "Niveau de difficulté" }, `<span class="hm-lk">Niveau</span>`);
-        [[2, "Adulte"], [3, "Adulte expert"]].forEach(([v, t]) => {
-          const b = el("button", { type: "button", class: "hm-lv", role: "radio", "data-lv": String(v) }, t);
-          b.addEventListener("click", (e) => { e.stopPropagation(); if ((st.level === 3 ? 3 : 2) !== v) bl.click(); syncLv(); });
-          box.appendChild(b);
-        });
-        bl.hidden = true; bl.after(box);
-      } }
     // pastilles séparées (maquette) : marque + avatar + journée à gauche, puis l'horloge et le lieu, puis les outils
     const left = el("div", { class: "hpill hp-left" }); H.insertBefore(left, H.firstChild);
     ["#btn-home", "#hudav", ".chapbox"].forEach((q) => { const n = H.querySelector(q); if (n) left.appendChild(n); });
@@ -1408,19 +1402,20 @@
   // du personnage et la hauteur de l'assise : plus personne ne flotte au-dessus d'une chaise.
   // un chemin dans une salle (en mètres), de la porte jusqu'à une place, qui contourne les meubles :
   // grille de 10 cm, meubles grossis de la largeur d'une personne, plus court chemin, puis lissé (lignes droites)
-  function roomRoute(sp, A_, B_, lat) {
-    const M = sp._m, ob = sp._ob || [], S = .1, R = .2, nx = Math.ceil(M.W / S), ny = Math.ceil(M.D / S);
-    const blk = new Uint8Array(nx * ny);
-    const inside = (r, x, y) => x >= r[0] - R && x <= r[2] + R && y >= r[1] - R && y <= r[3] + R;
-    const near = (r, q) => q[0] >= r[0] - .3 && q[0] <= r[2] + .3 && q[1] >= r[1] - .3 && q[1] <= r[3] + .3;
-    const obs = ob.filter((r) => !near(r, B_) && !near(r, A_));   // la place d'arrivée (au bord d'une table) reste atteignable
-    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-      const x = (i + .5) * S, y = (j + .5) * S;
-      if (x < .2 || y < .2 || x > M.W - .15 || y > M.D - .1 || obs.some((r) => inside(r, x, y))) blk[j * nx + i] = 1;
-    }
+  function roomRoute(sp, A_, B_, lat, people) {
+    // grille de 10 cm. Les meubles (et les personnes déjà là) sont des obstacles ; seuls les abords immédiats du départ
+    // et de l'arrivée sont dégagés (on peut s'arrêter au bord d'une table, jamais la traverser). On préfère l'allée de
+    // devant (on passe devant les tables et devant les autres), puis le chemin est tendu et arrondi : pas de zigzag.
+    const M = sp._m, S = .1, nx = Math.ceil(M.W / S), ny = Math.ceil(M.D / S);
+    const ob = (sp._ob || []).concat((people || []).map(([x, y]) => [x - .12, y - .12, x + .12, y + .12]));
+    const grid = (R) => { const g = new Uint8Array(nx * ny);
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const x = (i + .5) * S, y = (j + .5) * S;
+        if (x < .2 || y < .2 || x > M.W - .15 || y > M.D - .1 || ob.some((r) => x >= r[0] - R && x <= r[2] + R && y >= r[1] - R && y <= r[3] + R)) g[j * nx + i] = 1; }
+      return g; };
+    const blk = grid(.24), los = grid(.13);
     const cell = (q) => [Math.max(0, Math.min(nx - 1, Math.floor(q[0] / S))), Math.max(0, Math.min(ny - 1, Math.floor(q[1] / S)))];
-    const [ai, aj] = cell(A_), [bi, bj] = cell(B_); blk[aj * nx + ai] = 0; blk[bj * nx + bi] = 0;
-    // Dijkstra (8 voisins) ; on préfère un peu l'allée de devant (y grand) : on passe devant les meubles, pas derrière
+    [A_, B_].forEach((q) => { const [ci, cj] = cell(q); for (let dj = -3; dj <= 3; dj++) for (let di = -3; di <= 3; di++) { const i = ci + di, j = cj + dj; if (i >= 0 && j >= 0 && i < nx && j < ny && Math.hypot(di, dj) <= 3.2) { blk[j * nx + i] = 0; los[j * nx + i] = 0; } } });
+    const [ai, aj] = cell(A_), [bi, bj] = cell(B_);
     const dist = new Float32Array(nx * ny).fill(1e9), prev = new Int32Array(nx * ny).fill(-1), done = new Uint8Array(nx * ny);
     const s0 = aj * nx + ai, t0 = bj * nx + bi; dist[s0] = 0; const open = [s0];
     while (open.length) {
@@ -1431,16 +1426,24 @@
         if (!di && !dj) continue; const i = ci + di, j = cj + dj; if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
         const n = j * nx + i; if (blk[n] || done[n]) continue;
         if (di && dj && (blk[cj * nx + i] || blk[j * nx + ci])) continue;
-        const w = Math.hypot(di, dj) * (1 + (lat || 0) * (1 - j / ny)), nd = dist[c] + w;
+        const w = Math.hypot(di, dj) * (1 + (lat || 0) * Math.pow(1 - j / ny, 1.5)), nd = dist[c] + w;
         if (nd < dist[n]) { dist[n] = nd; prev[n] = c; open.push(n); }
       }
     }
     if (prev[t0] < 0 && t0 !== s0) return null;
     const path = []; for (let c = t0; c >= 0; c = prev[c]) path.unshift([(c % nx + .5) * S, ((c / nx) | 0) * S + S / 2]);
     path[0] = A_.slice(); path[path.length - 1] = B_.slice();
-    const clear = (p, q) => { const n = Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / (S / 2)); for (let k = 1; k < n; k++) { const [i, j] = cell([p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n]); if (blk[j * nx + i]) return false; } return true; };
-    const out = [path[0]]; let k = 0;
+    const clear = (p, q) => { const n = Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / (S / 3)); for (let k = 1; k < n; k++) { const [i, j] = cell([p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n]); if (los[j * nx + i]) return false; } return true; };
+    let out = [path[0]]; let k = 0;
     while (k < path.length - 1) { let m = path.length - 1; while (m > k + 1 && !clear(path[k], path[m])) m--; out.push(path[m]); k = m; }
+    // arrondir les virages (coins coupés, deux passes), sans jamais entrer dans un meuble
+    for (let it = 0; it < 2 && out.length > 2; it++) {
+      const sm = [out[0]];
+      for (let i = 0; i < out.length - 1; i++) { const p = out[i], q = out[i + 1], u = [p[0] * .75 + q[0] * .25, p[1] * .75 + q[1] * .25], v = [p[0] * .25 + q[0] * .75, p[1] * .25 + q[1] * .75];
+        if (i > 0) sm.push(u); if (i < out.length - 2) sm.push(v); }
+      sm.push(out[out.length - 1]);
+      if (sm.every((q, i) => i === 0 || clear(sm[i - 1], q))) out = sm; else break;
+    }
     return out;
   }
   // profondeur d'affichage d'une personne debout en (x, y) : devant une table quand elle se tient du côté salle de la table
@@ -1892,7 +1895,7 @@
         g.querySelector(".rmove").style.animation = "none";
         if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
           const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
-          const M = IN.sp._m, route = M && D0.wx != null && P.wx != null ? roomRoute(IN.sp, [D0.wx, D0.wy], [P.wx, P.wy], who === "you" ? .0 : .25) : null;
+          const M = IN.sp._m, route = M && D0.wx != null && P.wx != null ? roomRoute(IN.sp, [D0.wx, D0.wy], [P.wx, P.wy], who === "you" ? .35 : .9, Object.entries(place).filter(([k, q]) => k !== who && !walkIn.has(k) && q && q.wx != null).map(([, q]) => [q.wx, q.wy])) : null;
           // le chemin, en mètres dans la salle : on contourne les tables et les meubles ; à chaque pas, la personne est
           // rangée à sa profondeur (devant une table quand elle passe devant, derrière quand elle passe derrière)
           const pts_ = route || [[0, 0], [1, 1]], segL = pts_.slice(1).map((q, i) => Math.hypot(q[0] - pts_[i][0], q[1] - pts_[i][1])), LEN = segL.reduce((a, b) => a + b, 0) || 1;
@@ -2570,7 +2573,7 @@
         <div class="su-grid"><div class="su-pick"><div class="su-stage" aria-hidden="true"><i class="su-spot"></i><div class="su-big"></div></div>
           <p class="su-mlab">Partir d’un modèle</p><div class="avs" role="group" aria-label="Modèles de départ"></div></div>
         <div class="su-form"><p class="flabel">Vous jouez</p><div class="chs su-genre" role="group" aria-label="Vous jouez : animatrice, animateur ou de façon neutre">${[["f", "Animatrice · elle"], ["m", "Animateur · il"], ["n", "De façon neutre"]].map(([v, t]) => `<button type="button" class="ch${gMode() === v ? " sel" : ""}" data-g="${v}" aria-pressed="${gMode() === v}">${t}</button>`).join("")}</div><p class="su-ghint">Le narrateur et les personnages s’adressent à vous de cette façon.</p>
-          <label for="pname" class="flabel">Votre prénom <span>(facultatif)</span></label>
+          <label for="pname" class="flabel">Votre prénom ou un pseudo <span>(il sera affiché sur le podium)</span></label>
           <input id="pname" type="text" maxlength="20" autocomplete="off" placeholder="Sam" value="${esc(st.name || "")}">
           <div class="tabs" role="tablist" aria-label="Personnaliser">${[["visage", "Visage"], ["cheveux", "Cheveux"], ["tenue", "Tenue"], ["accessoires", "Accessoires"]].map(([k, t]) => `<button type="button" role="tab" class="tab${k === tab ? " sel" : ""}" data-t="${k}" aria-selected="${k === tab}">${t}</button>`).join("")}</div>
           <div class="tabp" role="tabpanel"></div></div></div>`;
@@ -2714,7 +2717,7 @@
     const check = () => { ok.disabled = DQ.some((d) => !store[d.id]); };
     DQ.forEach((d) => {
       const row = el("fieldset", { class: "dq" });
-      row.innerHTML = `<legend><b>${d.id}.</b> ${esc(d.t)}</legend>`;
+      row.innerHTML = `<legend><b>${d.id}.</b> ${esc(d.t)}</legend>${d.comp && COMPS[d.comp] ? `<p class="dq-c">${esc(COMPS[d.comp])}</p>` : ""}`;
       const g = el("div", { class: "seg" });
       ["D’accord", "Pas d’accord", "Je ne sais pas"].forEach((o) => {
         const b = el("button", { type: "button", class: "segb" + (store[d.id] === o ? " sel" : ""), "aria-pressed": store[d.id] === o ? "true" : "false" }, o);
@@ -2728,12 +2731,15 @@
     function showCompare() {
       Snd.page();
       list.innerHTML = "";
+      const isRight = (d, v) => (d.truth === "Vrai" && v === "D’accord") || (d.truth === "Faux" && v === "Pas d’accord");
+      const nB = DQ.filter((d) => isRight(d, st.dB[d.id])).length, nA = DQ.filter((d) => isRight(d, store[d.id])).length;
+      list.appendChild(el("div", { class: "cmp-sum", role: "status" }, `<p><b>Lundi : ${nB} / ${DQ.length}</b> réponses justes · <b>Vendredi : ${nA} / ${DQ.length}</b>${nA > nB ? ` · <span class="up">+ ${nA - nB}</span>` : ""}</p>`));
       DQ.forEach((d) => {
         const right = (d.truth === "Vrai" && store[d.id] === "D’accord") || (d.truth === "Faux" && store[d.id] === "Pas d’accord");
         const before = st.dB[d.id] || "—";
         const moved = before !== store[d.id];
         list.appendChild(el("div", { class: "cmp " + (right ? "good" : "mid") }, `<p class="q"><b>${d.id}.</b> ${esc(d.t)}</p>
-          <p class="chips"><span class="chip">Lundi : ${esc(before)}</span><span class="chip">Vendredi : ${esc(store[d.id])}</span><span class="chip strong">${d.truth}</span>${moved ? '<span class="chip new">Évolution</span>' : ""}</p><p>${esc(d.why)}</p>`));
+          <p class="chips"><span class="chip">Lundi : ${esc(before)}</span><span class="chip">Vendredi : ${esc(store[d.id])}</span><span class="chip strong">${d.truth}</span>${moved ? '<span class="chip new">Évolution</span>' : ""}</p>${d.goal ? `<p class="dq-goal"><b>Objectif :</b> ${esc(d.goal)} ${right ? "Atteint." : "À consolider."}</p>` : ""}<p>${esc(d.why)}</p>`));
       });
       ok.remove();
       box.appendChild(btn("Voir mon bilan", next));
@@ -2744,7 +2750,7 @@
     // « Œil de lynx » : trouver les points à risque dans le diorama, avec un chrono et des indices limités.
     const dio = A.dio && sc.spots.every((s) => s.key && A.dio.zones[s.key]) ? A.dio : null;
     const found = new Set(), seenDecoy = new Set();
-    let hints = 0, left = sc.timer || 0, over = false, timerId = 0, decoys = 0;
+    let hints = 0, left = sc.timer || 0, over = false, timerId = 0, decoys = 0, late = false;
     const need = sc.spots.filter((s) => s.real).length, maxHints = sc.hints == null ? 99 : sc.hints;
     const wrap = el("div", { class: "mapwrap lynx" });
     wrap.innerHTML = `<div class="maphead"><div><p class="kicker">Œil de lynx</p><h2 id="h-${sc.id}">${esc(sc.title)}</h2><p class="lead">${esc(sc.intro)}</p></div>
@@ -2783,13 +2789,17 @@
     const hb = btn(`Un indice (${maxHints})`, () => {
       if (hints >= maxHints) return;
       hints++; Snd.click(); hb.textContent = `Un indice (${maxHints - hints})`; if (hints >= maxHints) hb.disabled = true;
-      const idx = sc.spots.findIndex((s, i) => s.real && !found.has(i));
+      const sp = map.querySelectorAll(".spot"); let idx = sc.spots.findIndex((s, i) => s.real && !found.has(i));
+      if (idx < 0) idx = sc.spots.findIndex((s, i) => !sp[i].classList.contains("seen"));   // ensuite : un lieu pas encore visité
       if (idx >= 0) { const b = map.querySelectorAll(".spot")[idx]; b.classList.add("hinted"); b.focus(); say("Regardez du côté de : " + sc.spots[idx].label); }
     }, "ghost");
     // fin de visite : un fondu au noir bref, puis la suite (le grand plan ne « glisse » plus hors de l'écran)
-    const nb = btn("Terminer la visite", () => { if (!over) { Voice.stop(); finish(false); return; } stop(); Snd.click();
+    // on termine la visite une fois TOUS les lieux visités (le bouton reste inactif avant, avec le nombre restant)
+    const allSeen = () => map.querySelectorAll(".spot.seen").length >= sc.spots.length;
+    const syncNb = () => { if (over) return; const r = sc.spots.length - map.querySelectorAll(".spot.seen").length; nb.disabled = r > 0; nb.textContent = r > 0 ? `Encore ${r} lieu${r > 1 ? "x" : ""} à visiter` : "Terminer la visite"; };
+    const nb = btn("Terminer la visite", () => { if (!over) { if (!allSeen()) return; Voice.stop(); finish(false); return; } stop(); Snd.click();
       blackout(() => { document.body.classList.add("swap"); go(st.idx + 1, 1); setTimeout(() => document.body.classList.remove("swap"), 700); }); });
-    bar.append(hb, nb);
+    bar.append(hb, nb); setTimeout(syncNb, 0);
     wrap.append(mapbox, el("p", { class: "lx-swipe", "aria-hidden": "true" }, "Faites glisser le plan pour voir tout l’accueil."), bar);
     n.appendChild(wrap);
     requestAnimationFrame(() => { if (mapbox.scrollWidth > mapbox.clientWidth) mapbox.scrollLeft = (mapbox.scrollWidth - mapbox.clientWidth) / 2; });
@@ -2803,7 +2813,10 @@
       left = Math.max(0, left - 1);
       const t = wrap.querySelector("#lx-t"); if (t) t.textContent = left;
       if (clock) { clock.querySelector(".t1").style.strokeDashoffset = (100 - (left / sc.timer) * 100).toFixed(1); clock.classList.toggle("hurry", left <= 20); }
-      if (left <= 0) finish(true);
+      if (left <= 0) {   // le temps est écoulé : on continue quand même la visite jusqu'au dernier lieu (sans étoile de rapidité)
+        clearInterval(timerId); late = true; if (clock) clock.classList.add("late");
+        say("Le temps est écoulé, mais continuez la visite : il reste des lieux à découvrir.");
+      }
     };
     if (left) { const go = () => (timerId = setInterval(tick, 1000)); if (st.tut && st.tut.map) setTimeout(() => readyGate(wrap.querySelector(".maphead") || wrap, go, "Lancer le chrono"), 0); else go(); }
     function stop() { clearInterval(timerId); over = true; }
@@ -2811,7 +2824,7 @@
       if (over && !timeout) return;
       stop();
       const nf = found.size;
-      const stars = nf < need ? (nf >= need - 1 ? 1 : 0) : (hints === 0 ? 3 : hints <= 1 ? 2 : 1);
+      const stars = Math.max(1, (nf < need ? (nf >= need - 1 ? 1 : 0) : (hints === 0 ? 3 : hints <= 1 ? 2 : 1)) - (late ? 1 : 0));
       const q = Math.max(0, Math.min(1, nf / need - hints * 0.1));
       record(sc, Math.round(q * 100) / 100);
       // révèle ce qui a été manqué
@@ -2868,7 +2881,8 @@
           if (!ok || vk !== visitTok || !wrap.isConnected) return;
           tour.nour.face([tour.nour.x - 1, tour.nour.y - 1]); gesture(tour.nour.el, "point");
           tour.door(s.key, true);
-          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 2600); }, 650);
+          setTimeout(() => { if (vk !== visitTok) return; let gone = 0; const inn = () => { if (!gone++ && vk === visitTok) enterRoom(s); };
+            tour.inside(true, s.key, inn); setTimeout(inn, 6000); }, 650);
         });
         else tour.go(s.key);
       }
@@ -2877,7 +2891,7 @@
       else if (!seenDecoy.has(i)) {
         seenDecoy.add(i); decoys++;
       }
-      $("#cnt", wrap).textContent = map.querySelectorAll(".spot.seen").length;
+      $("#cnt", wrap).textContent = map.querySelectorAll(".spot.seen").length; syncNb();
       card.hidden = false;
       card.className = "spotcard";
       // pendant la visite, Nour décrit les lieux, sans commentaire ; l'analyse n'apparaît qu'une fois la visite finie
@@ -3576,12 +3590,14 @@
       box.querySelectorAll(".rk-pane").forEach((p) => { p.hidden = p.id !== t.getAttribute("aria-controls"); }); });
   }
   const norm2 = (j) => (j && j.ok ? { ...j, adultes: j.adultes || j.top || [], enfants: j.enfants || [] } : null);
+  // le nom sur le podium : celui choisi pour le personnage au début du jeu (pas de nouvelle saisie)
+  function podName() { return (String(st.name || "").trim() || "Anonyme").slice(0, 16); }
   function rankBox(defi) {
     const score = finalScore(defi);
     const box = el("section", { class: "rank", "aria-labelledby": "rk-h" });
     box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>points</small></h3>
-      <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Inscrivez-vous sur le podium ${st.level === 1 ? "des enfants" : "des adultes"} avec un pseudo : pas votre nom complet.</p></div></div>
-      <form class="rk-form"><label class="sr-only" for="rk-pseudo">Votre pseudo</label><input id="rk-pseudo" maxlength="16" autocomplete="nickname" placeholder="Votre pseudo" value="${esc((st.name || "").slice(0, 16))}"><button class="cta" type="submit">M’inscrire sur le podium</button></form>
+      <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Vous serez inscrit·e sous le nom de votre personnage : <b>${esc(podName())}</b>.</p></div></div>
+      <form class="rk-form"><button class="cta" type="submit">M’inscrire sur le podium</button></form>
       <p class="rk-msg" role="status"></p><div class="rk-board"></div>`;
     const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
     if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
@@ -3589,7 +3605,7 @@
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang, GRP(st.level || 2)) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const pseudo = box.querySelector("#rk-pseudo").value.trim(); const sb = form.querySelector("button");
+      const pseudo = podName(); const sb = form.querySelector("button");
       sb.disabled = true; msg.textContent = "Envoi…";
       fetch("/api/classement", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pseudo, score, niveau: st.level || 2, defi: !!defi, nuitee: !!st.nuitee }) })
         .then((r) => r.json().catch(() => ({}))).then((j) => {
@@ -3683,7 +3699,14 @@
     // page 1 : la cible
     page();
     text("Ma cible", 64, 800, NAVY, { after: 6 });
-    text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 30 });
+    text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 18 });
+    // les points, comme à l'écran de fin : le score, et s'il y a lieu le défi relevé
+    { const rf0 = reflexState(), defi0 = rf0.find((r) => r.id === "protect").ok && rf0.find((r) => r.id === "alert").ok && !st.flags.secret, sc0 = finalScore(defi0);
+      x.fillStyle = "#FFF3EA"; x.beginPath(); x.roundRect ? x.roundRect(M, y, PW - 2 * M, 92, 20) : x.rect(M, y, PW - 2 * M, 92); x.fill();
+      x.fillStyle = "#E2702A"; x.font = `800 52px ${F}`; const st0 = String(sc0); x.fillText(st0, M + 28, y + 18); const w0 = x.measureText(st0).width;
+      x.fillStyle = NAVY; x.font = `700 26px ${F}`; x.fillText("points", M + 40 + w0, y + 36);
+      x.fillStyle = MUT; x.font = `400 20px ${F}`; const sub0 = `Moyenne de vos décisions${defi0 ? ", défi relevé (+ 50)" : ""}${st.ranked ? ` · ${st.ranked.rang}${st.ranked.rang === 1 ? "er" : "e"} au podium` : ""}`;
+      x.fillText(sub0, PW - M - 28 - x.measureText(sub0).width, y + 40); y += 92 + 30; }
     const P = compProgress(), cx = M + 210, cy = y + 210;
     P.forEach(([c, p], i) => { const r = 190 - i * 44; x.lineWidth = 32; x.lineCap = "round"; x.strokeStyle = RING[c] + "2E"; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.stroke();
       if (p > 0) { x.strokeStyle = RING[c]; x.beginPath(); x.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(.02, p)); x.stroke(); } });
@@ -3698,6 +3721,12 @@
     h2("Mes réflexes professionnels");
     reflexState().forEach((r) => text(`${r.ok ? "✓  Acquis" : "↻  À consolider"} · ${r.label}`, 22, r.ok ? 600 : 400, r.ok ? "#1F7A4D" : INK, { after: 8 }));
     if (st.build) { h2("Ma mesure de prévention"); text(`${st.build.sit} : ${st.build.change}`, 22, 600, INK, { after: 6 }); text(`Indicateur : ${st.build.ind}`, 22, 400, INK, { after: 6 }); text("À proposer à ma direction lors de mon prochain accueil.", 20, 400, MUT); }
+    // vos convictions, lundi puis vendredi : ce qui a bougé
+    if (Object.keys(st.dB || {}).length) {
+      h2("Mes convictions, lundi et vendredi");
+      DQ.forEach((d) => { const b0 = st.dB[d.id] || "—", a0 = (st.dA || {})[d.id] || "—", right = (d.truth === "Vrai" && a0 === "D’accord") || (d.truth === "Faux" && a0 === "Pas d’accord");
+        text(`${d.id}. ${d.t}`, 21, 600, INK, { after: 2 }); text(`Lundi : ${b0} · Vendredi : ${a0} · Réponse : ${d.truth}${right ? "  ✓" : ""}`, 19, 400, right ? "#1F7A4D" : MUT, { after: 12 }); });
+    }
     // les numéros, sur deux colonnes (ils tiennent avec la cible sur la première page)
     if (y > PH - 120 - 60 - Math.ceil(NUMBERS.length / 2) * 62) page();
     h2("Les numéros à garder");
@@ -4727,12 +4756,13 @@
       const g = `linear-gradient(${deg.toFixed(0)}deg,#000 ${Math.max(0, m - 12).toFixed(1)}%,transparent ${m.toFixed(1)}%)`;
       el0.style.webkitMaskImage = el0.style.maskImage = p > 0 ? g : "";
       if (t < 1) requestAnimationFrame(f);
-      else { el0.style.opacity = "0"; el0.style.webkitMaskImage = el0.style.maskImage = ""; W._stepped = 0; W.setPose("stand"); if (done) done(); }
+      // passé dans le noir : on ne le voit plus du tout (le masque reste entièrement transparent, et pas de fondu qui le ferait réapparaître)
+      else { el0.style.transition = "none"; el0.style.opacity = "0"; el0.style.webkitMaskImage = el0.style.maskImage = "linear-gradient(transparent,transparent)"; W._stepped = 0; W.setPose("stand"); if (done) done(); }
     };
     requestAnimationFrame(f);
   }
   // ressortir : l'inverse (on réapparaît en passant la porte)
-  function unhide(W) { if (!W) return; W.entering = false; W.el.style.opacity = ""; W.el.style.webkitMaskImage = W.el.style.maskImage = ""; }
+  function unhide(W) { if (!W) return; W.entering = false; W.el.style.transition = ""; W.el.style.opacity = ""; W.el.style.webkitMaskImage = W.el.style.maskImage = ""; }
   function tourGuide(map) {
     if (!A.dio || reduce()) return null;
     map.classList.add("tourlive");
@@ -4767,9 +4797,9 @@
       // la porte de la salle s'ouvre (ou se referme)
       door(key, open) { map.querySelectorAll(doorOf(key)).forEach((d) => d.classList.toggle("open", open)); },
       // Nour, puis vous, passez la porte
-      inside(on, key) {
-        const dk = key && TOUR_AT[key];
-        [N, Y].forEach((W, i) => { if (on) setTimeout(() => { if (dk && DPLANE[dk]) passDoor(W, dk, 900); else W.el.classList.add("tour-in"); }, i * 750); else { unhide(W); W.el.classList.remove("tour-in"); if (W.back) W.setBack(false); } });
+      inside(on, key, cb) {   // cb : appelé quand les deux sont passés (on n'entre dans la salle qu'à ce moment-là)
+        const dk = key && TOUR_AT[key]; let n = 0; const one = () => { if (++n === 2 && cb) setTimeout(cb, 250); };
+        [N, Y].forEach((W, i) => { if (on) setTimeout(() => { if (dk && DPLANE[dk]) passDoor(W, dk, 900, one); else { W.el.classList.add("tour-in"); setTimeout(one, 450); } }, i * 750); else { unhide(W); W.el.classList.remove("tour-in"); if (W.back) W.setBack(false); } });
       },
       nour: N,
       isRoom: (key) => !!(TOUR_AT[key] && TOUR_AT[key] !== "gate" && A.dio.inner && A.dio.inner[key]),
@@ -5592,8 +5622,8 @@
   }
   function frame(t) {
     requestAnimationFrame(frame);
-    // une image sur deux (30 fois par seconde) : imperceptible, et deux fois moins de découpes à redessiner
-    if ((frame._n = (frame._n || 0) + 1) % 2 === 0) { const W0 = document.getElementById("world"); if (W0 && W0.classList.contains("on")) occlude(W0); document.querySelectorAll(".map.dio.tourlive").forEach(occlude); }
+    // à chaque image : la découpe suit exactement la personne (sinon elle « tremble » d'une image à l'autre)
+    { const W0 = document.getElementById("world"); if (W0 && W0.classList.contains("on")) occlude(W0); document.querySelectorAll(".map.dio.tourlive").forEach(occlude); }
     if (t - last < 220) return; last = t;
     // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
     const W0 = document.getElementById("world"), roots = [];
@@ -5644,16 +5674,21 @@
       if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
       hidden.push([a, hit]);
     });
+    // le halo reste allumé un court instant après qu'on a quitté l'arrière du bâtiment (pas de clignotement à la limite)
+    { const now = performance.now(), GH = W._gh || (W._gh = {}); ghost.forEach((k) => (GH[k] = now)); Object.keys(GH).forEach((k) => { if (now - GH[k] < 450) ghost.add(k); else delete GH[k]; }); }
     // le halo : autour de vous (ou de la personne de la scène), en pixels du calque
     const HALO = {};
     hidden.forEach(([a, hit]) => { const w = a._w || a._ow; if (!ghost.has(hit.k) || !(w.who === "you" || w.ev) || HALO[hit.k]) return; const bx = boxIn(a); if (!bx) return;
       const hpx = bx.h / 100 * LH; HALO[hit.k] = [(bx.l + bx.w / 2) / 100 * LW, (bx.t + bx.h * .55) / 100 * LH, Math.max(44, hpx * 1.55)]; });
+    { const LH0 = W._lastHalo || (W._lastHalo = {}); ghost.forEach((k) => { if (HALO[k]) LH0[k] = HALO[k]; else if (LH0[k]) HALO[k] = LH0[k]; }); }
     hidden.forEach(([a, hit]) => { const w = a._w || a._ow, k = hit.k, me = w.who === "you" || w.ev;
       if (me && ghost.has(k)) { if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; } a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } return; }
       const bx = boxIn(a); if (!bx) return;
       const px = bx.l / 100 * LW, py = bx.t / 100 * LH, pw = bx.w / 100 * LW, ph = bx.h / 100 * LH, H = HALO[k];
-      const nearH = H && Math.hypot(px + pw / 2 - H[0], py + ph / 2 - H[1]) < H[2] + ph * .6;
-      if (w._hid >= .97 && !nearH) {   // entièrement derrière, loin du halo : caché (en fondu)
+      // avec une marge (hystérésis) : pas de bascule d'un mode à l'autre, image après image, à la limite
+      const dH = H ? Math.hypot(px + pw / 2 - H[0], py + ph / 2 - H[1]) : 1e9, nearH = H && dH < H[2] + ph * (a._nearH ? .9 : .6); a._nearH = !!nearH;
+      const full = w._hid >= (a.classList.contains("behind") ? .95 : .985);
+      if (full && !nearH) {   // entièrement derrière, loin du halo : caché (en fondu)
         if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; } a.classList.add("behind"); a.classList.remove("partial"); return;
       }
       a.classList.remove("behind"); a.classList.add("partial");

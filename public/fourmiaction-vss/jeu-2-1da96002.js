@@ -36,11 +36,34 @@ const COMPS = {
   C4: "Proposer une prévention concrète dans l’accueil",
 };
 
+// Le recueil des conceptions initiales : huit affirmations, deux par compétence de la semaine. Chacune vise un objectif
+// précis, atteint à la fin du jeu si l'on y répond juste le vendredi. Elles reprennent des idées reçues crédibles
+// (autant de « vrai » que de « faux »), et la même série est reposée en fin de semaine pour mesurer le progrès.
 const DQ = [
-  { id: "D1", t: "Une plaisanterie devient acceptable dès que son auteur dit ne pas vouloir blesser.", truth: "Faux", why: "Une plaisanterie annoncée comme telle peut blesser et constituer un comportement interdit : c’est l’effet qui compte, pas l’intention affichée." },
-  { id: "D2", t: "Plusieurs personnes peuvent contribuer à un harcèlement même si chacune n’intervient qu’une fois.", truth: "Vrai", why: "Oui, sous conditions : quand les propos sont imposés de manière concertée, ou par des personnes qui savent qu’ils caractérisent une répétition (Code pénal, art. 222-33)." },
-  { id: "D3", t: "Le silence suffit pour conclure qu’une personne accepte un geste sexuel.", truth: "Faux", why: "Le consentement ne peut être déduit du seul silence ou de la seule absence de réaction (Code pénal, art. 222-22)." },
-  { id: "D4", t: "On peut protéger et demander de l’aide sans savoir nommer exactement l’infraction.", truth: "Vrai", why: "On n’attend pas d’être certain du nom de l’infraction pour agir : la qualification appartient aux autorités compétentes." },
+  { id: "D1", comp: "C1", t: "Quand un enfant se confie, on l’écoute et on note ses mots, sans lui poser de questions pour vérifier ce qu’il dit.", truth: "Vrai",
+    goal: "Recueillir une parole sans enquêter, ni orienter le récit.",
+    why: "Vérifier n’est pas votre rôle : des questions orientées peuvent fragiliser la parole de l’enfant et la suite de la procédure." },
+  { id: "D2", comp: "C1", t: "Dans l’écrit que l’on transmet, ajouter son impression sur l’adulte mis en cause aide les professionnels à y voir clair.", truth: "Faux",
+    goal: "Séparer ce qui est observé, ce qui est rapporté et ce qui est supposé.",
+    why: "On écrit les faits observés et les mots rapportés, datés, sans interprétation ni étiquette : la suite appartient aux professionnels." },
+  { id: "D3", comp: "C2", t: "Face à un jeune qui dit « c’était pour rire », on recadre tout de suite, sans attendre de savoir s’il voulait blesser.", truth: "Vrai",
+    goal: "Réagir sur le moment, à partir de l’effet produit.",
+    why: "C’est l’effet sur la personne qui compte, pas l’intention affichée : on arrête, on protège, puis on parle avec chacun." },
+  { id: "D4", comp: "C2", t: "Si un enfant ne dit pas non et ne se débat pas, on peut considérer qu’il accepte un geste.", truth: "Faux",
+    goal: "Savoir ce qu’est le consentement, et ce qu’il n’est pas.",
+    why: "Le consentement ne se déduit ni du silence ni de l’absence de réaction ; il est libre, éclairé, préalable et révocable (Code pénal, art. 222-22)." },
+  { id: "D5", comp: "C3", t: "Pour qu’un enfant ose parler, on peut lui promettre de garder le secret.", truth: "Faux",
+    goal: "Protéger sans promettre le secret, en expliquant à l’enfant ce qui va se passer.",
+    why: "On ne promet jamais le secret : on dit à l’enfant qu’on va en parler à des adultes qui peuvent le protéger." },
+  { id: "D6", comp: "C3", t: "Un animateur qui a un doute sérieux peut appeler lui-même le 119, même si sa direction pense qu’il n’y a rien.", truth: "Vrai",
+    goal: "Connaître les relais, et savoir qu’on peut alerter soi-même.",
+    why: "Le 119 est ouvert à tous, jour et nuit : on prévient sa direction, mais on n’a pas besoin de son accord pour demander conseil ou alerter." },
+  { id: "D7", comp: "C4", t: "Un adulte qui range seul le matériel avec un jeune, porte fermée, crée une situation à risque, même s’il est de toute confiance.", truth: "Vrai",
+    goal: "Repérer les situations à risque dans l’organisation, sans soupçonner les personnes.",
+    why: "La prévention porte sur les situations, pas sur la confiance qu’on accorde : on range à plusieurs, porte ouverte, et l’équipe sait qui est où." },
+  { id: "D8", comp: "C4", t: "Une affiche « Ici, on est égaux », validée par toute l’équipe, est une mesure de prévention suffisante.", truth: "Faux",
+    goal: "Construire une mesure concrète : un changement, une personne responsable, un moment, un indicateur.",
+    why: "Une affiche sensibilise, mais ne change rien à elle seule : une mesure dit ce qui change, qui s’en charge, quand, et comment on le vérifie." },
 ];
 
 // Prélude (nouvelle partie) : des phrases entendues tous les jours, qui résonnent avant d’entrer aux Hautes Herbes.
@@ -120,7 +143,7 @@ const SCREENS = [
       { who: "nour", mood: "calm", t: "À chaque étape, je te laisse une page de mon carnet. Tu pourras l’ouvrir à tout moment, en haut de l’écran." },
     ] },
   { id: "dbefore", ch: 1, type: "positions", mode: "before", title: "Avant de commencer : vos convictions",
-    intro: "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine." },
+    intro: "Huit affirmations, deux pour chacun des objectifs de la semaine. Répondez avec vos idées d’aujourd’hui, sans chercher la « bonne » réponse : rien n’est noté, et vous les retrouverez vendredi pour mesurer ce qui a changé." },
   { id: "map", ch: 1, type: "hotspots", comp: "C1", title: "Le tour de l’accueil",
     intro: "C’est l’heure de la visite. Nour, la directrice, vous fait découvrir l’accueil. Touchez un bâtiment ou un lieu : elle vous dit à quoi il sert et ce qui s’y passe. Vous avez quatre minutes, et le temps s’arrête pendant qu’elle parle.", timer: 240, hints: 2,
     spots: [
@@ -871,7 +894,7 @@ const SCREENS = [
     ], refs: ["Carte des domaines de prévention", "CASF L226-8"] } },
 
   { id: "dafter", ch: 5, type: "positions", mode: "after", kicker: "Vendredi, 17 h 30", title: "Tes convictions, une semaine plus tard",
-    intro: "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez." },
+    intro: "Les mêmes huit affirmations qu’au premier jour. Répondez à nouveau, puis comparez : vous verrez, pour chaque objectif, ce qui a bougé." },
   { id: "souvenirs", ch: 5, type: "replay", kicker: "Vendredi, 18 h · fin de la semaine", title: "Vous vous souvenez ?" },
   { id: "bilan", ch: 5, type: "bilan" }
 ];

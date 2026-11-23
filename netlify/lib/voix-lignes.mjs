@@ -792,11 +792,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Nour vous laisse seule un moment dans la salle des animateurs, vide à cette heure-ci. Les enfants ont rejoint leur groupe, et l’équipe a commencé sa journée."
  },
- "1b77d962ceba": {
+ "6a1ce5dcdb21": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Répondez avec vos idées d’aujourd’hui. Rien n’est noté : vous les retrouverez à la fin de la semaine."
+  "text": "Huit affirmations, deux pour chacun des objectifs de la semaine. Répondez avec vos idées d’aujourd’hui, sans chercher la bonne réponse : rien n’est noté, et vous les retrouverez vendredi pour mesurer ce qui a changé."
  },
  "9950896bce49": {
   "who": "narr",
@@ -2196,11 +2196,11 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Vendredi, 17 h 30. Les enfants sont partis. Seule en salle des animateurs, au calme, vous retrouvez les questions du premier jour."
  },
- "abbe2c6b9de5": {
+ "43af2d1d00d4": {
   "who": "narr",
   "mood": "",
   "kind": "situation",
-  "text": "Mêmes affirmations qu’au premier jour. Répondez à nouveau, puis comparez."
+  "text": "Les mêmes huit affirmations qu’au premier jour. Répondez à nouveau, puis comparez : vous verrez, pour chaque objectif, ce qui a bougé."
  },
  "ae001f4384bd": {
   "who": "narr",

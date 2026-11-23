@@ -248,10 +248,12 @@
             <path d="M${look - R * .16},${ey + R * .66} q${R * .16},${R * .1} ${R * .32},0" stroke="${tone(sk, -.45)}" stroke-width="${(R * .06).toFixed(2)}" fill="none" stroke-linecap="round"/>
             <path d="M${-R * .55},${headY + R * .85} q${R * .1},${R * .12} ${R * .22},${R * .16} M${R * .55},${headY + R * .85} q${-R * .1},${R * .12} ${-R * .22},${R * .16} M${-R * .1},${headY + R * 1.05} v${R * .12} M${R * .12},${headY + R * 1.04} v${R * .12}" stroke="${bd}" stroke-width="${(R * .05).toFixed(2)}" stroke-linecap="round" opacity=".7"/>`; })() : ""}
       </g></g>`;
+    // cheveux longs : les mèches qui tombent sur les épaules passent DEVANT l'épaule (et le bras) de devant
+    const drape = !spec.back && ["long", "braids", "wavy"].includes(spec.hairStyle) ? `<g class="head" style="transform-origin:0px ${neckY.toFixed(1)}px"><clipPath id="${u}dr"><rect x="${(-R * 3).toFixed(1)}" y="${(headY + R * .95).toFixed(1)}" width="${(R * 6).toFixed(1)}" height="${(R * 4).toFixed(1)}"/></clipPath><g clip-path="url(#${u}dr)">${hairBack}</g></g>` : "";
     const shadow = `<ellipse cx="0" cy="1" rx="${(B.H * .14).toFixed(1)}" ry="${(B.H * .035).toFixed(1)}" fill="#1B2A22" opacity=".18"/>`;
     const ex0 = (spec.hairStyle === "bun" || spec.hairStyle === "afro" ? R * .6 : 0), vb = `${-H * .32} ${-H * 1.02 - ex0} ${H * .64} ${H * 1.06 + ex0}`;
     return `<svg class="rig" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" overflow="visible">${defs}${shadow}
-      <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(-1, false)}${leg(1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}`}</g></g></svg>`;
+      <g class="fig${spec.back ? " back" : ""}"><g class="bob">${spec.back ? `${leg(-1, false)}${leg(1, false)}${torso}${arm(1, false)}${arm(-1, false)}${head}` : `${arm(1, true)}${leg(1, true)}${leg(-1, false)}${torso}${head}${arm(-1, false)}${drape}`}</g></g></svg>`;
   }
   // La distribution du jeu : âge, sexe, coiffure, vêtements (couleurs reprises des anciens personnages)
   const HS = { chignon: "bun", court: "short", ondule: "wavy", carre: "bob", rase: "buzz", chauve: "bald", boucles: "curly", herisse: "spiky", couettes: "pigtails", tresses: "braids", long: "long", queue: "ponytail", afro: "afro" };
@@ -1651,7 +1653,8 @@
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
     people(room, S, instant) {
       const IN = A.dio.inner[room], host = this.cam.querySelector(".wlids");
-      const old = host.querySelector(".inroom-w"); if (old) old.remove();
+      const old = host.querySelector(".inroom-w"), fresh = !(old && this._pplRoom === room); if (old) old.remove();
+      this._pplRoom = room;   // on entre (fresh) ; un nouvel écran dans la même salle : chacun est déjà là
       const w = el("div", { class: "inroom-w", style: `left:${IN.l}%;top:${IN.t}%;width:${IN.w}%;aspect-ratio:${IN.r};z-index:${IN.z}` }, IN.svg);
       const svg = w.querySelector("svg"), NS = "http://www.w3.org/2000/svg", L = [];
       let youLab = null;
@@ -1675,7 +1678,7 @@
           const P = place[who]; if (!P || who === main[0] || P.sit || Math.hypot(P.x - Pm.x, P.y - Pm.y) < 40) return;
           if (/^(p|w|s|t)\d|board/.test(slot || "") || pose === "pingpong" || pose === "sit") return;   // un joueur à sa table, quelqu'un dans une cabine : il reste à sa place
           const taken = Object.entries(place).filter(([k]) => k !== who).map(([, q]) => q);
-          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board/.test(k) && !taken.some((u) => Math.abs(u.x - q.x) < 7 && Math.abs(u.y - q.y) < 9))
+          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^p\d|board|^_/.test(k) && !taken.some((u) => Math.abs(u.x - q.x) < 7 && Math.abs(u.y - q.y) < 9))
             .map(([, q]) => q).sort((a, b) => Math.hypot(a.x - Pm.x, a.y - Pm.y) - Math.hypot(b.x - Pm.x, b.y - Pm.y))[0];
           if (alt && Math.hypot(alt.x - Pm.x, alt.y - Pm.y) < Math.hypot(P.x - Pm.x, P.y - Pm.y) - 6) place[who] = alt;
         }); }
@@ -1683,11 +1686,15 @@
       castL.forEach(([who]) => {
         let P = place[who]; if (!P) return;
         if (!P.sit && !free(P)) {
-          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d/.test(k) && free(q)).map(([, q]) => q).sort((a, b) => Math.hypot(a.x - P.x, a.y - P.y) - Math.hypot(b.x - P.x, b.y - P.y))[0];
+          const alt = Object.entries(IN.sp).filter(([k, q]) => q && !q.sit && !/^w\d|^_/.test(k) && free(q)).map(([, q]) => q).sort((a, b) => Math.hypot(a.x - P.x, a.y - P.y) - Math.hypot(b.x - P.x, b.y - P.y))[0];
           if (alt) P = place[who] = alt;
         }
         used.push(P);
       });
+      // seules deux personnes entrent par la porte : vous, et la personne qui vous parle (Nour pendant la visite) ;
+      // les autres sont déjà dans la salle, à leur place (personne ne « glisse » dans la pièce)
+      const talker = (castL.find((c) => c[0] === "nour" && c[2] === "talk") || castL.find((c) => c[0] !== "you" && c[2] === "talk") || [])[0];
+      const walkIn = new Set(IN.sp._door && !calm() && !reduce() && fresh ? ["you", talker].filter(Boolean) : []);
       castL.forEach(([who, slot, pose], k) => {
         const P = place[who]; if (!P) return;
         const key = who === "you" ? youKey() : who, m = A.minis[key], ps = P.sit ? "sit" : (pose === "walk" || pose === "run" || pose === "wave" ? "stand" : pose === "pingpong" ? "listen" : pose || "stand");
@@ -1709,6 +1716,21 @@
           const under = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d >= P.d - .0051);
           svg.insertBefore(lg, under || g);
         }
+        g.querySelector(".rmove").style.animation = "none";
+        if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
+          const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
+          const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
+          if (rg && pc) rg.classList.replace(pc, "p-walk");
+          g.setAttribute("transform", `translate(${D0.x},${D0.y})`); g.style.opacity = "0";
+          const f = (now) => {
+            if (!g.isConnected) return;
+            const t = Math.max(0, Math.min(1, (now - t0) / DUR)), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+            g.setAttribute("transform", `translate(${(D0.x + (x1 - D0.x) * e).toFixed(2)},${(D0.y + (y1 - D0.y) * e).toFixed(2)})`);
+            g.style.opacity = String(Math.min(1, t / .22));
+            if (t < 1) requestAnimationFrame(f); else { g.style.opacity = ""; if (rg && pc) rg.classList.replace("p-walk", pc); }
+          };
+          requestAnimationFrame(f);
+        }
         L.push([g, [P.x, 0], P, seat]);
       });
       // l'étiquette « Vous » est posée au-dessus de tout le décor de la salle : un meuble devant les pieds ne la coupe plus
@@ -1716,7 +1738,7 @@
         const gL = document.createElementNS(NS, "g"); gL.setAttribute("class", "rlab-top");
         const r = document.createElementNS(NS, "rect"); r.setAttribute("class", "rlab-bg"); r.setAttribute("x", youLab[0] - 8.6); r.setAttribute("y", youLab[1] + 3.1); r.setAttribute("width", 17.2); r.setAttribute("height", 6.6); r.setAttribute("rx", 3.3);
         const t = document.createElementNS(NS, "text"); t.setAttribute("class", "rlab"); t.setAttribute("x", youLab[0]); t.setAttribute("y", youLab[1] + 7.9); t.setAttribute("text-anchor", "middle"); t.textContent = "Vous";
-        gL.append(r, t); svg.appendChild(gL); }
+        gL.append(r, t); if (walkIn.has("you")) gL.style.animationDelay = "2.4s"; svg.appendChild(gL); }
       // assis : le sens est donné par la chaise (les jambes partent vers l'avant de l'assise), pas par la place dans la salle
       if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P, seat]) => g.querySelector(".rbody").classList.toggle("flip", seat ? false : P && P.sit ? !!P.fx : p[0] > cx + 2)); }
       else L.forEach(([g, , P, seat]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", seat ? false : !!P.fx));
@@ -1769,33 +1791,33 @@
         if (!w.isConnected) return;
         const inv = svg.getScreenCTM && svg.getScreenCTM(); if (!inv) return;
         const M = inv.inverse(), toSvg = (x, y) => { const q = svg.createSVGPoint(); q.x = x; q.y = y; return q.matrixTransform(M); };
-        const H = [], D = [];
+        const H = [], D = [], F = [];
         for (const g of pl.slice(0, 2)) {
           const pd = g.querySelector(".aR .prop-paddle"), r = pd && pd.getBoundingClientRect(), rb = g.getBoundingClientRect();
           if (!r || !r.width) return;
           const c = toSvg(r.left + r.width / 2, r.top + r.height * .62), top = toSvg(rb.left, rb.top), bot = toSvg(rb.left, rb.bottom);
-          H.push([c.x, c.y]); D.push(Math.abs(bot.y - top.y));
+          H.push([c.x, c.y]); D.push(Math.abs(bot.y - top.y)); F.push(bot.y);
         }
-        if (H[0][0] > H[1][0]) { H.reverse(); pl.reverse(); }
-        const fig = (D[0] + D[1]) / 2, tab = fig * .13, arc = fig * .16;   // le plateau, un peu sous la main ; la balle passe au-dessus du filet
+        if (H[0][0] > H[1][0]) { H.reverse(); pl.reverse(); D.reverse(); F.reverse(); }
+        const fig = (D[0] + D[1]) / 2, arc = fig * .16;
+        // le plateau de la table (76 cm, pour des jeunes d'environ 1,65 m), sous chaque raquette : la balle rebondit DESSUS
+        const T0 = F[0] - D[0] * .46, T1 = F[1] - D[1] * .46, hA = Math.max(fig * .05, T0 - H[0][1]), hB = Math.max(fig * .05, T1 - H[1][1]);
         const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
         ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .021).toFixed(2)}" fill="#F28C28" stroke="#FFFFFF" stroke-width=".18"/>`;
-        // la balle passe juste devant le joueur le plus en avant (au-dessus de la table, sous ce qui est devant)
-        const last = pl[0].compareDocumentPosition(pl[1]) & Node.DOCUMENT_POSITION_FOLLOWING ? pl[1] : pl[0];
-        last.after(ball);
+        // la balle est toujours au-dessus du plateau : on la dessine par-dessus la table (jamais « à travers »)
+        const lab = svg.querySelector(":scope > .rlab-top"); svg.insertBefore(ball, lab || null);
         const bl = ball.querySelector(".pp-ball"), sh = ball.querySelector(".pp-shadow");
-        // les raquettes frappent en rythme : l'un frappe quand la balle arrive chez lui, l'autre se prépare
         pl.forEach((g, i) => { g.classList.add("pp-live"); g.style.setProperty("--ppT", T + "ms"); g.style.setProperty("--ppD", (i ? -T / 2 : 0) + "ms"); });
         const t0 = performance.now();
         const f = (now) => {
           if (!ball.isConnected) return;
           const p = ((now - t0) % T) / T, fw = p < .5, u = fw ? p * 2 : (p - .5) * 2;
-          const A = fw ? H[0] : H[1], B = fw ? H[1] : H[0];
-          const x = A[0] + (B[0] - A[0]) * u, base = A[1] + (B[1] - A[1]) * u + tab;   // le plateau sous la trajectoire
-          // départ de la raquette, un arc au-dessus du filet, rebond sur la moitié adverse (70 %), puis remontée vers l'autre raquette
-          const b = .7, h = u < b ? (1 - u / b) * tab + 4 * arc * (u / b) * (1 - u / b) : ((u - b) / (1 - b)) * tab + 2.2 * arc * ((u - b) / (1 - b)) * (1 - (u - b) / (1 - b));
-          bl.setAttribute("cx", x.toFixed(2)); bl.setAttribute("cy", (base - h).toFixed(2));
-          sh.setAttribute("cx", x.toFixed(2)); sh.setAttribute("cy", base.toFixed(2)); sh.setAttribute("opacity", (.28 - Math.min(.2, h / arc * .1)).toFixed(2));
+          const A0 = fw ? H[0] : H[1], B0 = fw ? H[1] : H[0], ta = fw ? T0 : T1, tb = fw ? T1 : T0, ha = fw ? hA : hB, hb = fw ? hB : hA;
+          const x = A0[0] + (B0[0] - A0[0]) * u, base = ta + (tb - ta) * u;   // le plateau sous la trajectoire
+          // départ de la raquette, un arc au-dessus du filet, rebond SUR la moitié adverse (70 %), puis remontée vers l'autre raquette
+          const b = .7, v = (u - b) / (1 - b), h = u < b ? (1 - u / b) * ha + 4 * arc * (u / b) * (1 - u / b) : v * hb + 2.2 * arc * v * (1 - v);
+          bl.setAttribute("cx", x.toFixed(2)); bl.setAttribute("cy", (base - h - fig * .021).toFixed(2));
+          sh.setAttribute("cx", x.toFixed(2)); sh.setAttribute("cy", base.toFixed(2)); sh.setAttribute("opacity", (.3 - Math.min(.22, h / arc * .12)).toFixed(2));
           requestAnimationFrame(f);
         };
         requestAnimationFrame(f);
@@ -2522,7 +2544,9 @@
     const card = el("div", { class: "spotcard", hidden: true, role: "dialog", "aria-modal": "false", "aria-labelledby": "spot-t" });
     sc.spots.forEach((s, i) => {
       const z = dio ? dio.zones[s.key] : s;
-      const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}` : "";
+      // la pastille « vu » se pose au centre du lieu (dans sa forme) : jamais coupée par le contour
+      const cen = dio && z.pts ? (() => { const q = z.pts.split(" ").map((v) => v.split(",").map(Number)); return [q.reduce((t, v) => t + v[0], 0) / q.length, q.reduce((t, v) => t + v[1], 0) / q.length]; })() : null;
+      const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}${cen ? `;--bx:${cen[0].toFixed(1)}%;--by:${cen[1].toFixed(1)}%` : ""}` : "";
       const b = el("button", { class: "spot" + (dio ? " hidden-spot" : ""), type: "button", style: `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%${shape}`, "aria-label": "Examiner : " + s.label },
         dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/>${z.vis ? `<path class="zv" d="${z.vis}"/>` : ""}</svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
       b.addEventListener("click", () => open(s, i, b));
@@ -2623,7 +2647,7 @@
           if (!ok || vk !== visitTok || !wrap.isConnected) return;
           tour.nour.face([tour.nour.x - 1, tour.nour.y - 1]); gesture(tour.nour.el, "point");
           tour.door(s.key, true);
-          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 650); }, 700);
+          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 1250); }, 650);
         });
         else tour.go(s.key);
       }
@@ -4449,6 +4473,31 @@
     });
     return lay;
   }
+  // Passer une porte : la personne avance à travers l'embrasure et son corps disparaît peu à peu, à mesure qu'il entre
+  // (le côté déjà passé s'efface le premier), au lieu de s'évanouir d'un coup devant la porte.
+  const DPLANE = { dMain: ["y", 18.66], dCuis: ["y", 18.6], dSoins: ["x", 27.02], dLib: ["y", 8.2], dRad: ["y", 8.2], dSan: ["y", 8.6], dLoc: ["y", 6.4], dRef: ["y", 15.2], dAdo: ["y", 4.3] };
+  function passDoor(W, dk, ms, done) {
+    const q = NODES[dk], P = DPLANE[dk];
+    if (!q || !P || !W || reduce()) { if (W) W.el.style.opacity = "0"; if (done) done(); return; }
+    const ax = P[0] === "x" ? 0 : 1, sg = Math.sign(P[1] - q[ax]) || -1, DEEP = .9;
+    const a = [W.x, W.y], b = a.slice(); b[ax] = P[1] + sg * DEEP;
+    const fa = w2f(a[0], a[1]), fb = w2f(b[0], b[1]), deg = Math.atan2(fb[0] - fa[0], -(fb[1] - fa[1])) * 180 / Math.PI;
+    W.path = null; W.entering = true; W.setPose("walk"); W.face(b); if (sg < 0) W.setBack(true);
+    const el0 = W.el, t0 = performance.now(), D = ms || 1100, cross = Math.abs(P[1] - a[ax]), tot = cross + DEEP;
+    const f = (now) => {
+      if (!el0.isConnected) return;
+      const t = Math.min(1, (now - t0) / D), x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
+      W.set(x, y);
+      const p = Math.max(0, Math.min(1, (t * tot - cross) / DEEP)), m = (1 - p) * 100;   // part du corps déjà passée
+      const g = `linear-gradient(${deg.toFixed(0)}deg,#000 ${Math.max(0, m - 12).toFixed(1)}%,transparent ${m.toFixed(1)}%)`;
+      el0.style.webkitMaskImage = el0.style.maskImage = p > 0 ? g : "";
+      if (t < 1) requestAnimationFrame(f);
+      else { el0.style.opacity = "0"; el0.style.webkitMaskImage = el0.style.maskImage = ""; W.setPose("stand"); if (done) done(); }
+    };
+    requestAnimationFrame(f);
+  }
+  // ressortir : l'inverse (on réapparaît en passant la porte)
+  function unhide(W) { if (!W) return; W.entering = false; W.el.style.opacity = ""; W.el.style.webkitMaskImage = W.el.style.maskImage = ""; }
   function tourGuide(map) {
     if (!A.dio || reduce()) return null;
     map.classList.add("tourlive");
@@ -4483,7 +4532,10 @@
       // la porte de la salle s'ouvre (ou se referme)
       door(key, open) { map.querySelectorAll(doorOf(key)).forEach((d) => d.classList.toggle("open", open)); },
       // Nour, puis vous, passez la porte
-      inside(on) { [N, Y].forEach((W, i) => setTimeout(() => W.el.classList.toggle("tour-in", on), on ? i * 260 : 0)); },
+      inside(on, key) {
+        const dk = key && TOUR_AT[key];
+        [N, Y].forEach((W, i) => { if (on) setTimeout(() => { if (dk && DPLANE[dk]) passDoor(W, dk, 1000); else W.el.classList.add("tour-in"); }, i * 280); else { unhide(W); W.el.classList.remove("tour-in"); if (W.back) W.setBack(false); } });
+      },
       nour: N,
       isRoom: (key) => !!(TOUR_AT[key] && TOUR_AT[key] !== "gate" && A.dio.inner && A.dio.inner[key]),
     };
@@ -4903,8 +4955,9 @@
       if (reduce() || st.settings.calm) { you.el.classList.add("indoor"); return go(); }
       World.cam.querySelectorAll(`.dio-door.dk-${key}`).forEach((d) => d.classList.add("open"));   // la porte s'ouvre devant vous
       aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 700);
-      setTimeout(() => you.el.classList.add("indoor"), 200);
-      setTimeout(() => blackout(go), 380);
+      const dk = Object.keys(DOORS).find((d) => DOORS[d] === key);
+      if (dk && DPLANE[dk]) { passDoor(you, dk, 950); setTimeout(() => blackout(go), 900); }   // on voit son corps passer la porte, puis la salle
+      else { setTimeout(() => you.el.classList.add("indoor"), 200); setTimeout(() => blackout(go), 380); }
     }
     // le couloir du bâtiment principal : on choisit la salle
     function hall(fromMap) {
@@ -5304,7 +5357,7 @@
     const SIL = W._sil || (W._sil = B.map(([x0, y0, x1, y1, h, k]) => ({ k, d: x1 + y1, x0, y0, x1, y1, poly: [P2(x0, y1, 0), P2(x1, y1, 0), P2(x1, y0, 0), P2(x1, y0, h), P2(x0, y0, h), P2(x0, y1, h)] })));
     const inRoom = !!W.querySelector(".inroom-w"), ghost = new Set(), hidden = [];
     W.querySelectorAll(".wacts .walker").forEach((a) => {
-      const w = a._w; if (!w) return;
+      const w = a._w; if (!w || w.entering) return;
       const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
       const mid = P2(w.x, w.y, .9);
       const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(mid, b.poly));
@@ -5313,7 +5366,9 @@
       hidden.push([a, hit.k]);
     });
     // la personne derrière passe sous la copie transparente du bâtiment ; ceux qui sont devant restent au-dessus
-    hidden.forEach(([a, k]) => { const g = ghost.has(k), w = a._w; a.classList.toggle("behind", !g); const zb = g ? 5 : null; if (w.zb !== zb) { w.zb = zb; w.place(); } });
+    // le halo transparent n'entoure que vous (ou la personne de la scène) : les autres, plus loin derrière le bâtiment, restent cachés
+    const halo = hidden.filter(([a, k]) => ghost.has(k) && a._w && (a._w.who === "you" || a._w.ev)).map(([a]) => a._w);
+    hidden.forEach(([a, k]) => { const w = a._w, g = ghost.has(k) && halo.some((h) => h === w || Math.hypot(h.x - w.x, h.y - w.y) < 1.6); a.classList.toggle("behind", !g); if (w.zb != null) { w.zb = null; w.place(); } if (g) a._ghostK = k; });   // on garde sa vraie profondeur (les portes, clôtures, panneaux devant restent devant)
     const host = W.querySelector(".wanim");
     if (host) {
       ghost.forEach((k) => {
@@ -5327,6 +5382,8 @@
             x.style.setProperty("--mx", ((ar.left + ar.width / 2 - ir.left) / ir.width * 100).toFixed(1) + "%");
             x.style.setProperty("--my", ((ar.top + ar.height * .55 - ir.top) / ir.height * 100).toFixed(1) + "%");
             x.style.setProperty("--mr", Math.round(Math.max(70, ar.height * 1.35)) + "px"); } }
+          // le bâtiment transparent passe juste au-dessus de la personne (et non sous tout le décor)
+          if (!x.classList.contains("under")) { const zs = hidden.filter(([a, kk]) => kk === k && !a.classList.contains("behind")).map(([a]) => +a.style.zIndex || 0); if (zs.length) x.style.zIndex = String(Math.max(...zs) + 2); }
           x.classList.add("on");
         });
       });
@@ -5344,7 +5401,8 @@
       for (const [b, za] of R) {
         if (za >= z || !b.width) continue;
         const ix = Math.min(r.right, b.right) - Math.max(r.left, b.left), iy = Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top);
-        if (ix > b.width * .25 && iy > b.height * .25) { hit = true; break; }
+        // vraiment derrière : le corps est bien dans l'objet (pas seulement frôlé) et ses pieds sont plus haut que le pied de l'objet
+        if (ix > b.width * .45 && iy > b.height * .3 && b.bottom < r.bottom - 6) { hit = true; break; }
       }
       o.classList.toggle("see", hit);
     });

@@ -93,6 +93,8 @@
         + `<g class="prop prop-ball"><circle cx="${f(F * 1.1)}" cy="${f(y - F * .5)}" r="${f(F * 1.4)}" fill="#FFFFFF" stroke="#2A3540" stroke-width=".5"/><path d="M${f(F * 1.1)},${f(y - F * 1.05)} l${f(F * .5)},${f(F * .36)} l${f(-F * .2)},${f(F * .58)} h${f(-F * .6)} l${f(-F * .2)},${f(-F * .58)} z" fill="#2A3540"/></g>`
         // une feuille (un dessin, une affiche, une fiche) tenue à la main
         + `<g class="prop prop-paper"><rect x="${f(-F * .2)}" y="${f(y - F * 1.4)}" width="${f(F * 1.7)}" height="${f(F * 2.2)}" fill="#FFFFFF" stroke="#C9CED3" stroke-width=".4" transform="rotate(-8 0 ${f(y)})"/><path d="M${f(F * .1)},${f(y - F * .9)} h${f(F * 1.0)} M${f(F * .1)},${f(y - F * .5)} h${f(F * .8)} M${f(F * .1)},${f(y - F * .1)} h${f(F * 1.1)}" stroke="#7A8D9E" stroke-width=".5" transform="rotate(-8 0 ${f(y)})"/></g>`
+        // un livre ouvert, tenu à deux mains devant soi (coin lecture)
+        + `<g class="prop prop-book"><path d="M${f(-F * .1)},${f(y - F * .6)} L${f(-F * 1.9)},${f(y - F * 1.0)} L${f(-F * 1.9)},${f(y + F * .9)} L${f(-F * .1)},${f(y + F * 1.3)} Z" fill="#FFFFFF" stroke="#C9CED3" stroke-width=".4"/><path d="M${f(-F * .1)},${f(y - F * .6)} L${f(F * 1.7)},${f(y - F * 1.0)} L${f(F * 1.7)},${f(y + F * .9)} L${f(-F * .1)},${f(y + F * 1.3)} Z" fill="#F6F3EC" stroke="#C9CED3" stroke-width=".4"/><path d="M${f(-F * 1.9)},${f(y + F * .9)} L${f(-F * .1)},${f(y + F * 1.45)} L${f(F * 1.7)},${f(y + F * .9)}" stroke="#2B6FD6" stroke-width="${f(F * .3)}" fill="none"/></g>`
         // un porte-bloc (la feuille d'émargement)
         + `<g class="prop prop-clip"><rect x="${f(-F * .3)}" y="${f(y - F * 1.5)}" width="${f(F * 1.8)}" height="${f(F * 2.4)}" rx="${f(F * .1)}" fill="#A0703F"/><rect x="${f(-F * .15)}" y="${f(y - F * 1.25)}" width="${f(F * 1.5)}" height="${f(F * 2.0)}" fill="#FFFFFF"/><rect x="${f(F * .3)}" y="${f(y - F * 1.6)}" width="${f(F * .6)}" height="${f(F * .3)}" rx="${f(F * .1)}" fill="#9AA3AB"/></g>`
         // un sac à dos tenu par la poignée
@@ -639,7 +641,7 @@
         if (this._se) { this._se.classList.remove("kara"); this._se.classList.remove("vpend"); }
         this._se = e || null;
         if (e) {   // les mots paraissent un à un, au rythme de lecture de la réplique
-          e.classList.remove("vpend"); e.classList.add("kara", "said"); const ws = [...e.querySelectorAll(".wd")]; ws.forEach((x) => x.classList.remove("sp"));
+          e.classList.remove("vpend"); e.classList.add("kara", "said", "vdone"); const ws = [...e.querySelectorAll(".wd")]; ws.forEach((x) => x.classList.remove("sp"));
           let c = 0; const cum = ws.map((x) => (c += x.textContent.length + 1.2)); const t0 = performance.now();
           const step = () => { if (k !== this._sk || this._se !== e) return; const f = (performance.now() - t0) / d; ws.forEach((x, j) => { if ((j === 0 || cum[j - 1] / c <= f) && !x.classList.contains("sp")) x.classList.add("sp"); }); if (f < 1) requestAnimationFrame(step); };
           requestAnimationFrame(step);
@@ -672,7 +674,7 @@
       const gw = (World._settle || 0) - performance.now();
       if (gw > 80 && !calm()) {
         // (la réplique peut être demandée avant que son texte soit posé dans la page : on ne l'abandonne pas, on attend)
-        list.forEach((x) => x[2] && !x[2].classList.contains("said") && x[2].classList.add("vpend"));
+        list.forEach((x) => x[2] && !x[2].classList.contains("vdone") && x[2].classList.add("vpend"));   // (« said » est aussi la classe des répliques : on regarde si elle a déjà été dite)
         vprep(gw + 900);   // pendant qu'on se rejoint, ni texte ni choix : tout viendra avec la voix
         const tk = this._gtk = (this._gtk || 0) + 1;
         setTimeout(() => { if (tk !== this._gtk) return; if (list.some((x) => x[2]) && !list.some((x) => x[2] && x[2].isConnected)) return; this.seq(list); }, gw);
@@ -692,7 +694,7 @@
         this.el.addEventListener("pause", () => { if (!this.el.ended) Snd.duck(false); }); this.el.addEventListener("play", () => { Snd.duck(true); this._tick(); });
         // une réplique introuvable ou en échec ne bloque plus les suivantes : on passe à la personne suivante
         this.el.addEventListener("error", () => { if (!this._cur) return; this._skip(); });
-        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on && !c.shown) { c.e.classList.add("kara", "said"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
+        this.el.addEventListener("playing", () => { clearTimeout(this._wd); const c = this._cur; if (c && c.e) { if (!c.on && !c.shown) { c.e.classList.add("kara", "said", "vdone"); c.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); } c.e.classList.remove("vpend"); }
           // la bouche et les gestes démarrent avec le son (pas pendant le chargement de la voix)
           if (c && !c.on) { c.on = 1; if (c.cb) { const f = c.cb; c.cb = null; try { f(); } catch (e) { } } World.talk(c.w, c.t); Lip.on(c); if (c.w === "narr") Mise.play(c.t, audDur(this.el, c.t)); } this._tick(); });
       }
@@ -712,7 +714,7 @@
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
       World.talk(null); Lip.off();
       clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.shown = 1; it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 6000);   // si la voix tarde vraiment, le texte paraît quand même (et ne sera plus effacé)
-      this._cur = it; if (it.e) { it.e.classList.add("kara", "said"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
+      this._cur = it; if (it.e) { it.e.classList.add("kara", "said", "vdone"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
       this.el.src = it.u; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
       // garde-fou : une voix générée à la volée peut tarder ; au-delà de 14 s, on passe à la suivante
@@ -1108,15 +1110,15 @@
         if (!main.classList.contains("vw")) { main.dataset.vl = main.innerHTML; main.classList.add("vw"); main.setAttribute("aria-disabled", "true"); }
         if (main.textContent !== lab) main.textContent = lab;
       });
-      document.querySelectorAll("#stage .opts").forEach((o) => {
-        let p = o.previousElementSibling; if (!p || !p.classList.contains("vwait")) { p = el("p", { class: "vwait", "aria-live": "off" }, ""); o.before(p); }
+      document.querySelectorAll("#stage .opts:not(.why-opts)").forEach((o) => {
+        let p = o.previousElementSibling; if (!p || !p.classList.contains("vwpill")) { p = el("p", { class: "vwpill", "aria-live": "off" }, ""); o.before(p); }
         const t = n > 0 ? `Écoutez… les réponses arrivent dans ${n} s` : "Écoutez… les réponses arrivent";
         if (p.textContent !== t) p.textContent = t;
       });
     } else {
       document.querySelectorAll(".vw").forEach((b) => { if (b.dataset.vmin && +b.dataset.vmin > now) return; b.classList.remove("vw"); b.removeAttribute("aria-disabled"); if (b.dataset.vl != null) { b.innerHTML = b.dataset.vl; delete b.dataset.vl; } delete b.dataset.vmin; });
       document.querySelectorAll(".vwh").forEach((b) => b.classList.remove("vwh"));
-      document.querySelectorAll(".vwait").forEach((p) => p.remove());
+      document.querySelectorAll(".vwpill").forEach((p) => p.remove());
     }
   }
   let _gm = "f";
@@ -1150,7 +1152,7 @@
     const node = el("section", { class: "screen t-" + sc.type + (dir < 0 ? " back" : ""), "aria-labelledby": "h-" + sc.id });
     if (sc.bridge) node.dataset.bridge = "1";
     (sc.type === "sort" && sc.cats.length <= 3 && !calm() ? R.reflex : sc.type === "order" && sc.crisis && !calm() ? R.crisis : (R[sc.type] || R.story))(sc, node);
-    { const VP = VOICE_TXT.parts(sc); if (World.entered) { VP.unshift(["narr", ROOM_SAY[World.entered]]); World.entered = null; }
+    { const VP = VOICE_TXT.parts(sc); if (World.entered && World.entered.id === sc.id && !sc.bridge && ROOM_SAY[World.entered.room]) VP.unshift(["narr", ROOM_SAY[World.entered.room]]); World.entered = null;
       if (VP.length && !node.dataset.novoice) setTimeout(() => Voice.seq(bindTargets(node, VP).concat(node._afterVP || [])), 350);
       else if (node._afterVP) setTimeout(() => node.isConnected && Voice.seq(node._afterVP), 350); }
     if (sc.bridge) { const host = node.querySelector(".rm-card, .panel, .solo, .maphead > div, .page-note .pn-body") || node; host.insertBefore(el("p", { class: "bridge" }, words(sc.bridge)), host.firstChild); }
@@ -1565,7 +1567,7 @@
         { const first = (S.cast || []).find(([w]) => w !== "you"); if (first) setTimeout(() => this.gaze(first[0]), 60); }
       }
       // intérieur : on lève le toit du bâtiment, la salle est là, dans le plan, avec ses occupants
-      if (S.room && S.room !== this.lastRoom && typeof ROOM_SAY !== "undefined") this.entered = S.room;
+      if (S.room && S.room !== this.lastRoom && typeof ROOM_SAY !== "undefined") this.entered = { room: S.room, id: sc && sc.id };   // annoncé seulement sur cet écran-là (jamais en retard, sur le suivant)
       this.lastRoom = S.room || null;
       clearTimeout(this._t); clearTimeout(this._t2);
       const gen = this._gen = (this._gen || 0) + 1;
@@ -1710,7 +1712,11 @@
         L.push([g, [P.x, 0], P, seat]);
       });
       // l'étiquette « Vous » est posée au-dessus de tout le décor de la salle : un meuble devant les pieds ne la coupe plus
-      if (youLab) { const t = document.createElementNS(NS, "text"); t.setAttribute("class", "rlab rlab-top"); t.setAttribute("x", youLab[0]); t.setAttribute("y", youLab[1] + 8); t.setAttribute("text-anchor", "middle"); t.textContent = "Vous"; svg.appendChild(t); }
+      if (youLab) {   // une petite pastille, comme dehors (texte net, sans contour épais)
+        const gL = document.createElementNS(NS, "g"); gL.setAttribute("class", "rlab-top");
+        const r = document.createElementNS(NS, "rect"); r.setAttribute("class", "rlab-bg"); r.setAttribute("x", youLab[0] - 8.6); r.setAttribute("y", youLab[1] + 3.1); r.setAttribute("width", 17.2); r.setAttribute("height", 6.6); r.setAttribute("rx", 3.3);
+        const t = document.createElementNS(NS, "text"); t.setAttribute("class", "rlab"); t.setAttribute("x", youLab[0]); t.setAttribute("y", youLab[1] + 7.9); t.setAttribute("text-anchor", "middle"); t.textContent = "Vous";
+        gL.append(r, t); svg.appendChild(gL); }
       // assis : le sens est donné par la chaise (les jambes partent vers l'avant de l'assise), pas par la place dans la salle
       if (L.length > 1) { const cx = L.reduce((t, [, p]) => t + p[0], 0) / L.length; L.forEach(([g, p, P, seat]) => g.querySelector(".rbody").classList.toggle("flip", seat ? false : P && P.sit ? !!P.fx : p[0] > cx + 2)); }
       else L.forEach(([g, , P, seat]) => P && P.sit && g.querySelector(".rbody").classList.toggle("flip", seat ? false : !!P.fx));
@@ -1773,7 +1779,7 @@
         if (H[0][0] > H[1][0]) { H.reverse(); pl.reverse(); }
         const fig = (D[0] + D[1]) / 2, tab = fig * .13, arc = fig * .16;   // le plateau, un peu sous la main ; la balle passe au-dessus du filet
         const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
-        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .018).toFixed(2)}" fill="#FFF8EC" stroke="#E8DCC8" stroke-width=".15"/>`;
+        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .021).toFixed(2)}" fill="#F28C28" stroke="#FFFFFF" stroke-width=".18"/>`;
         // la balle passe juste devant le joueur le plus en avant (au-dessus de la table, sous ce qui est devant)
         const last = pl[0].compareDocumentPosition(pl[1]) & Node.DOCUMENT_POSITION_FOLLOWING ? pl[1] : pl[0];
         last.after(ball);
@@ -1793,7 +1799,7 @@
           requestAnimationFrame(f);
         };
         requestAnimationFrame(f);
-      }, 1900);
+      }, 1600);
     },
     // aux sanitaires, pendant la scène, des enfants vont et viennent : on entre, on ressort, la vie continue
     passage(w, svg, IN, S) {
@@ -2518,7 +2524,7 @@
       const z = dio ? dio.zones[s.key] : s;
       const shape = dio && z.poly ? `;clip-path:polygon(${z.poly});z-index:${Math.round(z.d * 10)}` : "";
       const b = el("button", { class: "spot" + (dio ? " hidden-spot" : ""), type: "button", style: `left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%${shape}`, "aria-label": "Examiner : " + s.label },
-        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${z.hid ? `<path class="zh" d="${z.hid}"/>` : ""}<polygon points="${z.pts}"/></svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
+        dio && z.pts ? `<svg class="zone-o" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${z.pts}"/>${z.vis ? `<path class="zv" d="${z.vis}"/>` : ""}</svg><span class="tag">${esc(s.label)}</span>` : `<span class="ring"></span><span class="tag">${esc(s.label)}</span>`);
       b.addEventListener("click", () => open(s, i, b));
       map.appendChild(b);
     });
@@ -2584,14 +2590,14 @@
         card.hidden = true; wrap.classList.add("visit-in");
         // lundi matin : les enfants qui ne sont pas dehors sont dans leur salle, avec leurs animateurs ; on les voit en passant
         const VISIT = {
-          petits: [["jade", "c", "talk"], ["k1", "s1", "sit"], ["k2", "s2", "sit"], ["k3", "d"], ["k6", "e"], ["k8", "f"]],
+          petits: [["jade", "c", "talk"], ["k1", "s1", "sit"], ["k2", "s2", "sit"], ["k3", "d"], ["k6", "e"], ["k8", "r", "sit"]],   // k8 lit, sur le pouf du coin lecture
           grands: [["ines", "c", "talk"], ["yanis", "d"], ["sacha", "s1", "sit"], ["t7", "s2", "sit"], ["t5", "e"]],
           ados: [["kevin", "d", "talk"], ["t1", "p1", "pingpong"], ["t2", "p2", "pingpong"], ["t3", "s1"], ["bastien", "e"]],
           libre: [["lea", "c", "talk"], ["k9", "d"], ["k7", "e"]],
           radio: [["hugo", "c", "talk"], ["lena", "s2", "sit"], ["k10", "s1", "sit"]],
           cuisine: [["samia", "c", "talk"], ["k11", "d"], ["k12", "e"]],
         };
-        World.show({ at: s.key, room: s.key, cast: [...(VISIT[s.key] || []), ["nour", "a", "talk"], ["you", "b"]] }, { id: "visit-" + s.key, type: "story", ch: sc.ch, kicker: "Lundi, 9 h 30" });
+        World.show({ at: s.key, room: s.key, cast: [...(VISIT[s.key] || []), ["nour", "a", "talk"], ["you", "b"]], props: s.key === "petits" ? { k8: "book" } : undefined }, { id: "visit-" + s.key, type: "story", ch: sc.ch, kicker: "Lundi, 9 h 30" });
         inRoomPanel = el("div", { class: "panel visit-room", role: "dialog", "aria-label": s.title }, `<p class="kicker">Nour vous fait visiter</p><h3>${esc(s.title)}</h3><p>${esc(s.t)}</p>`);
         const out = btn("Ressortir", () => leaveRoom(s));
         inRoomPanel.appendChild(el("div", { class: "row" })).appendChild(out);
@@ -2608,6 +2614,7 @@
       });
     }
     function open(s, i, b) {
+      map.querySelectorAll(".spot.cur").forEach((x) => x.classList.remove("cur")); b.classList.add("cur");   // seul le lieu choisi est souligné
       Snd.click(); if (!over) Voice.say(...VOICE_TXT.spot(s));
       if (tour) {
         const vk = ++visitTok;
@@ -3473,7 +3480,7 @@
     }
     // pied de page : numéro et rappel
     pages.forEach((c, i) => { const g = c.getContext("2d"); g.fillStyle = MUT; g.font = `400 18px ${F}`; g.textBaseline = "top";
-      g.fillText("Ce document est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.", M, PH - 70);
+      g.fillText("Ce document est un repère personnel. Ce n’est pas une évaluation officielle.", M, PH - 70);
       const t = `Page ${i + 1} sur ${pages.length}`; g.fillText(t, PW - M - g.measureText(t).width, PH - 70); });
     const jpgs = [];
     for (const c of pages) { const bl = await new Promise((r) => c.toBlob(r, "image/jpeg", .9)); jpgs.push({ w: c.width, h: c.height, b: new Uint8Array(await bl.arrayBuffer()) }); }
@@ -3515,7 +3522,7 @@
       <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer ${(CHAPTERS[r.ch - 1] || {}).day ? "la journée du " + CHAPTERS[r.ch - 1].day.toLowerCase() : "cette journée"}</button>`}</li>`).join("")}</ul>
       ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à ta direction lors de ton prochain accueil.</p></div>` : ""}
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
-      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation BAFA ou BAFD.</p></div>`;
+      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation officielle.</p></div>`;
     { const NU = st.level === 1 ? NUANCE_KID : NUANCE; const box = n.querySelector(".bilan .bhead"); if (box) box.insertAdjacentHTML("afterend", `<div class="nuance"><p class="kicker">Le mot de Bafaël</p><p>${esc(NU)}</p></div>`);
       n.dataset.novoice = "1"; vprep(); setTimeout(() => n.isConnected && Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [], FW)), 700); }
     const b = n.querySelector(".bilan");
@@ -4495,36 +4502,38 @@
 
   /* ---- figurants : enfants et adultes de l'accueil (personnages articulés générés) ---- */
   const FIGS = {
-    k1: { age: 8, sex: "m", skin: "doree", hair: "brun", hairStyle: "short", top: "#E2702A", bottom: "#3D5A80" },
+    k1: { age: 8, sex: "m", skin: "doree", hair: "brun", hairStyle: "short", top: "#8C6D46", bottom: "#3D5A80" },
     k2: { age: 9, sex: "f", skin: "brune", hair: "noir", hairStyle: "pigtails", top: "#2E9C8A", bottom: "#33405C" },
     k3: { age: 7, sex: "m", skin: "claire", hair: "blond", hairStyle: "curly", top: "#D94F70", bottom: "#40506A" },
-    k4: { age: 10, sex: "f", skin: "olive", hair: "chatain", hairStyle: "ponytail", top: "#F2B33D", bottom: "#4E6A8E" },
-    k5: { age: 11, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#4F79C2", bottom: "#2F4058" },
+    k4: { age: 10, sex: "f", skin: "olive", hair: "chatain", hairStyle: "ponytail", top: "#7A9E3A", bottom: "#4E6A8E" },
+    k5: { age: 11, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#1F6B8F", bottom: "#2F4058" },
     k6: { age: 6, sex: "f", skin: "rosee", hair: "roux", hairStyle: "bob", top: "#8A6BC4", bottom: "#45506A", skirt: "#8A6BC4" },
     k7: { age: 8, sex: "m", skin: "brune", hair: "noir", hairStyle: "curly", top: "#4FA3D9", bottom: "#3B4A63" },
-    k8: { age: 7, sex: "f", skin: "claire", hair: "chatain", hairStyle: "braids", top: "#E85D75", bottom: "#4A5675", skirt: "#E85D75" },
+    k8: { age: 7, sex: "f", skin: "claire", hair: "chatain", hairStyle: "braids", top: "#F7A072", bottom: "#4A5675", skirt: "#2E3A4E" },
     t3: { age: 14, sex: "m", skin: "olive", hair: "brun", hairStyle: "spiky", top: "#6B4FA0", bottom: "#2E3A4E" },
-    t4: { age: 15, sex: "m", skin: "claire", hair: "blond", hairStyle: "short", top: "#D9822B", bottom: "#33405C" },
-    k9: { age: 10, sex: "f", skin: "ebene", hair: "noir", hairStyle: "afro", top: "#F2C94C", bottom: "#3B4A63" },
+    t4: { age: 15, sex: "m", skin: "claire", hair: "roux", hairStyle: "short", top: "#B33951", bottom: "#33405C" },
+    k9: { age: 10, sex: "f", skin: "ebene", hair: "noir", hairStyle: "afro", top: "#E04F9A", bottom: "#3B4A63" },
     // la foule de l'accueil (pour qu'on cherche les gens comme dans « Où est Charlie ? »)
-    k10: { age: 8, sex: "f", skin: "olive", hair: "brun", hairStyle: "ponytail", top: "#7FC8A9", bottom: "#4E6A8E" },
-    k11: { age: 9, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#E04848", bottom: "#33405C" },
-    k12: { age: 7, sex: "f", skin: "claire", hair: "roux", hairStyle: "pigtails", top: "#9B7FD1", bottom: "#3D5A80" },
-    k13: { age: 10, sex: "m", skin: "doree", hair: "chatain", hairStyle: "short", top: "#F2B33D", bottom: "#2F3540" },
-    k14: { age: 8, sex: "m", skin: "brune", hair: "noir", hairStyle: "curly", top: "#3D7EDB", bottom: "#4A5675" },
-    k15: { age: 9, sex: "f", skin: "mate", hair: "noir", hairStyle: "braids", top: "#E86A8A", bottom: "#33405C", skirt: "#5B8DEF" },
-    k16: { age: 7, sex: "m", skin: "claire", hair: "blond", hairStyle: "spiky", top: "#5FA36A", bottom: "#40506A" },
+    k10: { age: 8, sex: "f", skin: "olive", hair: "noir", hairStyle: "bob", top: "#7FC8A9", bottom: "#4E6A8E" },
+    k11: { age: 9, sex: "m", skin: "mate", hair: "brun", hairStyle: "short", top: "#E04848", bottom: "#33405C" },
+    k12: { age: 7, sex: "f", skin: "claire", hair: "blond", hairStyle: "pigtails", top: "#3FB6C9", bottom: "#3D5A80" },
+    k13: { age: 10, sex: "m", skin: "doree", hair: "chatain", hairStyle: "short", top: "#A0522D", bottom: "#2F3540" },
+    k14: { age: 8, sex: "m", skin: "doree", hair: "chatain", hairStyle: "spiky", top: "#9E9E9E", bottom: "#4A5675" },
+    k15: { age: 9, sex: "f", skin: "mate", hair: "chatain", hairStyle: "braids", top: "#B5E35A", bottom: "#33405C", skirt: "#5B8DEF" },
+    k16: { age: 7, sex: "m", skin: "claire", hair: "blond", hairStyle: "spiky", top: "#264653", bottom: "#40506A" },
     t6: { age: 14, sex: "f", skin: "brune", hair: "noir", hairStyle: "afro", top: "#C2412A", bottom: "#2E3A4E" },
     t7: { age: 13, sex: "m", skin: "claire", hair: "brun", hairStyle: "wavy", top: "#2E3A4E", bottom: "#5A6470" },
-    t8: { age: 15, sex: "f", skin: "olive", hair: "chatain", hairStyle: "long", top: "#F4F1EC", bottom: "#3B4A63" },
+    t8: { age: 15, sex: "f", skin: "olive", hair: "chatain", hairStyle: "ponytail", top: "#F4F1EC", bottom: "#3B4A63" },
     t5: { age: 13, sex: "f", skin: "doree", hair: "chatain", hairStyle: "wavy", top: "#5B8DEF", bottom: "#2E3A4E" },
     t1: { age: 15, sex: "f", skin: "mate", hair: "noir", hairStyle: "long", top: "#3B3F48", bottom: "#2E3A4E" },
-    t2: { age: 16, sex: "m", skin: "doree", hair: "brun", hairStyle: "spiky", top: "#1F8A5B", bottom: "#33405C" },
+    t2: { age: 16, sex: "m", skin: "doree", hair: "brun", hairStyle: "curly", top: "#1F8A5B", bottom: "#33405C" },
     pa1: { age: 42, sex: "f", skin: "claire", hair: "chatain", hairStyle: "bob", top: "#C2412A", bottom: "#2E3A4E" },
     pa2: { age: 38, sex: "m", skin: "brune", hair: "noir", hairStyle: "short", top: "#4B6F8E", bottom: "#2F3540" },
     pa3: { age: 45, sex: "f", skin: "doree", hair: "noir", hairStyle: "bun", top: "#2E9C8A", bottom: "#33405C", glasses: "#3B3B3B" },
     pa4: { age: 50, sex: "m", skin: "claire", hair: "poivre", hairStyle: "short", top: "#7A5234", bottom: "#2F3540" },
     pa5: { age: 34, sex: "f", skin: "brune", hair: "noir", hairStyle: "braids", top: "#8E5AA8", bottom: "#2F3540" },
+    pa7: { age: 36, sex: "f", skin: "olive", hair: "chatain", hairStyle: "long", top: "#5C7AEA", bottom: "#2E3A4E" },
+    pa8: { age: 44, sex: "m", skin: "ebene", hair: "noir", hairStyle: "buzz", top: "#D8C3A5", bottom: "#33405C", glasses: "#3B3B3B" },
     pa6: { age: 61, sex: "m", skin: "olive", hair: "poivre", hairStyle: "buzz", top: "#5E7D4E", bottom: "#33405C", glasses: "#3B3B3B" },
     // animateurs des autres groupes : pour que les salles vivent pendant les temps libres
     yanis: { age: 23, sex: "m", skin: "mate", hair: "noir", hairStyle: "curly", top: "#2E9C8A", bottom: "#33405C", badge: true },
@@ -5279,7 +5288,12 @@
     if (sl.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 15.3, a._w.y - 19.1) < 1.7); sl.forEach((d) => d.classList.toggle("open", near)); }
     // le portail des familles glisse pour laisser passer quelqu'un, puis se referme
     const gt = W.querySelectorAll(".dio-gate");
-    if (gt.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 30.0, a._w.y - 23.4) < 2.2); gt.forEach((d) => d.classList.toggle("open", near)); }
+    // il s'ouvre bien avant que la personne n'arrive (le vantail met plus d'une seconde à glisser) et ne se referme
+    // qu'une fois tout le monde passé : personne ne traverse jamais le portail fermé
+    if (gt.length) { const now = performance.now(), near = [...W.querySelectorAll(".wacts .walker")].some((a) => { const w = a._w; if (!w || w.y < 21.2 || w.y > 27.6) return false; const dx = Math.abs(w.x - 30.0);
+        return w.path && w.path.length ? dx < 4.2 && (dx < 1 || w.path.some((p) => (p[0] - 30.0) * (w.x - 30.0) < 0)) : dx < 1;   // ceux qui marchent vers le portail, et ceux qui s'y sont arrêtés
+      });
+      if (near) W._gateT = now; const op = near || now - (W._gateT || -1e9) < 1600; gt.forEach((d) => d.classList.toggle("open", op)); }
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,
@@ -5306,9 +5320,21 @@
         let g = host.querySelector(`.dio-ghost[data-k="${k}"]`);
         // dessous : le plan sans le bâtiment (on voit le chemin derrière) ; dessus : le bâtiment, à demi transparent
         if (!g) { const L = A.dio.lids[k], pos = `left:${L.l}%;top:${L.t}%;width:${L.w}%;aspect-ratio:${L.r}`; host.appendChild(el("img", { class: "dio-ghost under", "data-k": k, alt: "", src: Lids.src(k, "nob"), style: pos + ";z-index:4" })); g = el("img", { class: "dio-ghost", "data-k": k, alt: "", src: Lids.src(k, "ghost"), style: pos + ";z-index:6" }); host.appendChild(g); }
-        host.querySelectorAll(`.dio-ghost[data-k="${k}"]`).forEach((x) => x.classList.add("on"));
+        // transparence progressive : seul un halo autour de la personne s'efface, et il se fond peu à peu dans le bâtiment
+        const who = hidden.find(([a, kk]) => kk === k && a._w && (a._w.who === "you" || a._w.ev)), ar = who && who[0].getBoundingClientRect();
+        host.querySelectorAll(`.dio-ghost[data-k="${k}"]`).forEach((x) => {
+          if (ar && ar.width) { const ir = x.getBoundingClientRect(); if (ir.width) {
+            x.style.setProperty("--mx", ((ar.left + ar.width / 2 - ir.left) / ir.width * 100).toFixed(1) + "%");
+            x.style.setProperty("--my", ((ar.top + ar.height * .55 - ir.top) / ir.height * 100).toFixed(1) + "%");
+            x.style.setProperty("--mr", Math.round(Math.max(70, ar.height * 1.35)) + "px"); } }
+          x.classList.add("on");
+        });
       });
       host.querySelectorAll(".dio-ghost.on").forEach((g) => { if (!ghost.has(g.dataset.k)) g.classList.remove("on"); });
+      // le bâtiment devenu transparent emporte ses portes : on ne voit plus la porte vitrée de l'entrée flotter devant
+      // (seul le petit toit reste lisible), et les battants des salles se font discrets comme leur mur
+      W.querySelectorAll(".dio-slide").forEach((d) => d.classList.toggle("ghosted", ghost.has("direction") || ghost.has("main")));
+      W.querySelectorAll(".dio-door").forEach((d) => { const c = [...d.classList].find((x) => x.startsWith("dk-")); const k = c && c.slice(3); d.classList.toggle("ghosted", !!k && (ghost.has(k) || (ghost.has("main") && (k === "cuisine" || k === "soins")))); });
     }
     const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
     occ.forEach((o) => {
@@ -5335,7 +5361,7 @@
     const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 27.3) + 2; } };
     C.drive = (to, sec, done) => {
       const a = C.dx, t0 = performance.now(), D = reduce() ? 1 : sec * 1000, e = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-      const f = (now) => { const t = Math.min(1, (now - t0) / D); C.dx = a + (to - a) * e(t); C.place(); if (t < 1) requestAnimationFrame(f); else if (done) done(); };
+      const f = (now) => { if (!c.isConnected) return; const t = Math.min(1, (now - t0) / D); C.dx = a + (to - a) * e(t); C.place(); if (t < 1) requestAnimationFrame(f); else if (done) done(); };
       requestAnimationFrame(f);
     };
     C.place(); World.cam.querySelector(".wanim").appendChild(c);
@@ -5354,6 +5380,11 @@
     { pa: null, kids: ["t4"], foot: [36.4, 29.8], run: [[24.8, 24.8], [22.0, 25.6], [18.8, 27.0]], g: "raise" },   // les jeunes viennent seuls ; les 6-11 ans, avec un parent
     { pa: null, kids: ["t5"], foot: [37.6, 29.8], run: [[25.2, 22.4], [21.6, 22.0], [19.0, 22.6]], g: "laugh" },
     { pa: "pa4", kids: ["k5"], car: .6, stop: [28.4, 22.4], run: [[22.0, 24.0], [12.6, 24.4], [9.6, 25.2]], g: "laugh" },
+    // d'autres enfants et des jeunes, à pied : le lundi matin, l'accueil se remplit vraiment
+    { pa: null, kids: ["t1"], foot: [37.0, 29.8], run: [[24.6, 23.6], [21.2, 24.2], [13.6, 24.0]], g: "wave" },
+    { pa: "pa7", kids: ["k10"], foot: [36.0, 29.8], stop: [28.9, 23.0], run: [[23.0, 23.0], [19.2, 23.4], [11.8, 22.9]], g: "hug" },
+    { pa: null, kids: ["t2", "t6"], foot: [37.2, 29.8], run: [[24.4, 22.2], [22.6, 21.6], [21.4, 21.2]], g: "laugh" },
+    { pa: "pa8", kids: ["k14", "k15"], foot: [35.6, 29.8], stop: [28.6, 24.6], run: [[23.6, 24.8], [18.6, 25.2], [8.4, 24.6]], g: "wave" },
   ];
   function families(mode, staff = "nour") {
     if (!World.el || !A.dio || reduce()) return;
@@ -5361,13 +5392,18 @@
     // à pied : on longe le trottoir puis le bord du parking (hors de la voie des voitures et des places)
     const SIDE = [[30.8, 29.8], [30.8, 24.4]];
     World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
+    // une seule série de voitures à la fois : un nouvel appel arrête la précédente (sinon deux voitures se croisent)
+    const tok = families.tok = {};
     // jamais deux fois la même personne à l'écran : si Nour est déjà dans la scène, c'est Jade qui accueille au portail
     if (World.cam.querySelector(`.actor[data-who="${staff}"], .walker[data-who="${staff}"]`)) staff = staff === "jade" ? "kevin" : "jade";
     const host = Life.add(Walker(staff, 27.6, 22.6, "stand")); acts.appendChild(host.el); host.face(GATE);
     // sur le parvis, des parents s'arrêtent devant le panneau d'affichage pour lire les informations
     [["pa5", 32.9, 20.4], ["pa6", 32.4, 21.6]].forEach(([w, x, y]) => { if (mode === "morning") return; const R0 = Life.idle(w, x, y, ["chin", "nod", "point", "weight"], { back: true }); acts.appendChild(R0.el); });
-    const timers = [], alive = () => World.el.classList.contains("on");
+    const timers = [], alive = () => World.el.classList.contains("on") && families.tok === tok;
+    const here = (w) => !!World.cam.querySelector(`.actor[data-who="${w}"], .walker[data-who="${w}"]`);
     const start = (F, i, from, after) => {
+      // jamais deux fois la même personne : si l'un d'eux est déjà sur le plan (dans la scène), cette famille ne vient pas
+      if ([F.pa].concat(F.kids).some((w) => w && here(w))) { if (after) setTimeout(after, 300); return; }
       const app = F.foot ? SIDE.slice() : [], back = app.slice().reverse().concat([from]);
       const stop = F.stop || [GATE[0] + .4, GATE[1] + .2];
       const P = F.pa ? Life.add(Walker(F.pa, from[0], from[1], "stand")) : null; if (P) acts.appendChild(P.el);
@@ -5399,12 +5435,13 @@
     let ci = 0;
     const nextCar = () => {
       if (ci >= cars.length || !alive()) return;
+      if (World.cam.querySelector(".dio-car2")) { timers.push(setTimeout(nextCar, 700)); return; }   // la voie est encore occupée
       const [F, i] = cars[ci++], car = Car(13); if (!car) return;
-      car.drive(F.car, 3.4, () => start(F, i, [DOOR[0] + F.car, DOOR[1]], () => car.drive(13, 3.8, () => { car.el.remove(); timers.push(setTimeout(nextCar, 900)); })));
+      car.drive(F.car, 3.4, () => { if (!alive()) { car.el.remove(); return; } start(F, i, [DOOR[0] + F.car, DOOR[1]], () => car.drive(13, 3.8, () => { car.el.remove(); if (alive()) timers.push(setTimeout(nextCar, 900)); })); });
     };
     timers.push(setTimeout(nextCar, 500));
     // à pied, en parallèle, chacun à son heure
-    FAMS.filter((F) => F.foot).forEach((F, k) => timers.push(setTimeout(() => { if (alive()) start(F, FAMS.indexOf(F), F.foot, null); }, 2600 + k * 3900)));
+    FAMS.filter((F) => F.foot).forEach((F, k) => timers.push(setTimeout(() => { if (alive()) start(F, FAMS.indexOf(F), F.foot, null); }, 2200 + k * 2700)));
     Life.agents.push({ t: 0, clear: () => timers.forEach(clearTimeout) });
   }
 
@@ -5930,7 +5967,7 @@
     Snd.page(); $("#btn-carnet").classList.remove("ping");
     const pages = SCREENS.filter((s) => s.type === "explain" && st.carnet.includes(s.id));
     const body = $("#carnet-body");
-    body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul>${s.page.pts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
+    body.innerHTML = (pages.length ? pages.map((s) => `<section class="cpage"><h3>${esc(s.page.title)}</h3>${s.page.quote ? `<blockquote>${esc(s.page.quote)}</blockquote>` : ""}<ul${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? ' class="cp-ill"' : ""}>${s.page.pts.map((x, k) => `<li>${typeof NoteArt !== "undefined" && NoteArt.has(s.id) ? `<figure class="pn-art cp-art" aria-hidden="true"><div class="pn-frame">${NoteArt.svg(s.id, k)}</div></figure>` : ""}<span>${esc(x)}</span></li>`).join("")}</ul><p class="refs">${s.page.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</p></section>`).join("") : `<p class="lead">Votre carnet est encore vide : chaque fin de chapitre y ajoute une page.</p>`)
 ;
     if (st.done && pages.length) { const d = el("section", { class: "cpage dl-row" }, `<h3>Garder le carnet</h3><p>Votre cible et toutes ces pages, avec leurs images, dans un document PDF.</p>`); d.appendChild(cibleBtn()); body.appendChild(d); }
     const docs = (st.docs || []).filter((k) => DOCS[k]);
@@ -5986,15 +6023,15 @@
     n.innerHTML = `<div class="hbg" aria-hidden="true"><i class="glow g1"></i><i class="glow g2"></i>${nightGrass(innerWidth < 700 ? 26 : 46)}</div>
       <a class="hback" href="../index.html"><span aria-hidden="true">←</span> Retour au site</a>
       <div class="hero"><div class="logo" role="img" aria-label="Fourmi’Action"></div>
-      <p class="hk">Jeu sérieux · Formation BAFA · BAFD</p>
+      <p class="hk">Serious game</p>
       <h1 id="h-home"><span class="w w1">Les</span> <span class="w w2">Hautes</span> <span class="w w3">Herbes</span></h1>
       <p class="hook">Cinq journées. Quarante-huit enfants. Et des moments où tout se joue.</p>
-      <p class="tag">Une semaine dans un accueil de loisirs, une suite de décisions professionnelles : repérer, protéger, alerter et prévenir les violences sexistes et sexuelles en accueil collectif de mineurs.</p>
-      <div class="meta"><span>Environ 40 minutes</span><span>5 journées</span><span>Progression enregistrée</span></div>
+      <p class="tag">Une semaine dans un accueil de loisirs pour apprendre à repérer, protéger, alerter et prévenir les violences sexistes et sexuelles.</p>
+      <div class="meta"><span>Environ 40 minutes</span><span>Pour tous, dès 9 ans</span></div>
 
       <div class="hbtns"></div>
-      <p class="small warn">Situations fictives, sans aucune représentation de violence : niveaux Adulte et Expert pour les adultes en formation, niveau Enfants dès 9 ans, idéalement avec un adulte. Vous pouvez faire une pause à tout moment. Si ce sujet vous touche personnellement, le 119 (moins de 18 ans), le 3919 ou France Victimes (116 006) peuvent vous écouter.</p>
-      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © Fourmi’Action 2026, tous droits réservés · à citer : « Les Hautes Herbes, un jeu Fourmi’Action ».</p></div>
+      <p class="small warn">Situations fictives, sans aucune violence montrée. Si ce sujet vous touche : 119 (moins de 18 ans), 3919 ou 116 006.</p>
+      <p class="small lic">Jeu gratuit offert par Fourmi’Action · © 2026</p></div>
 `;
     const hb = n.querySelector(".hbtns");
     // Musique et voix : toujours lancées au début d’une partie (pas de choix sur l’accueil ; on peut les couper en jeu)

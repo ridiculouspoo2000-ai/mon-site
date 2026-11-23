@@ -3570,7 +3570,7 @@ body.flashback #world .wcam{filter:none!important}body.flashback #world::before,
 .rig.g-eat .head{animation:gx-eat-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 /* on écoute jusqu'au bout : les choix et les boutons de la scène attendent la fin de la réplique, les lieux du plan ne
    répondent plus pendant que Nour parle (pas d'entrée dans une autre salle au milieu d'une explication) */
-body.vlock #stage .opts:not(.why-opts),body.vlock #stage .hall-plan{visibility:hidden!important;pointer-events:none!important}
+body.vlock #stage .opts:not(.why-opts):not(:has(.chosen)):not(:has(.opt:disabled)),body.vlock #stage .hall-plan{visibility:hidden!important;pointer-events:none!important}
 body.vlock #stage .map .spot{pointer-events:none!important}
 body.vlock #stage .map{cursor:progress}
 /* conseil « plein écran » : seulement sur ordinateur (souris, écran large) */
@@ -3667,7 +3667,7 @@ body.calm .ngrass2 .blw,body.calm .ngrass2 .flw{animation:none}
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-f968381b.js"></script>
-<script src="jeu-2-f1727ac0.js"></script>
-<script src="jeu-3-b62f763a.js"></script>
+<script src="jeu-1-f129a70c.js"></script>
+<script src="jeu-2-0cd57dc4.js"></script>
+<script src="jeu-3-ce01d4e4.js"></script>
 </body></html>

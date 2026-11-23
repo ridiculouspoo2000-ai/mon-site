@@ -415,10 +415,11 @@
     // Pendant une voix, la musique baisse (sans s'éteindre), puis remonte. Niveau de référence fixe : la musique qui vient
     // de démarrer (encore à zéro) n'est plus « mémorisée » à zéro, ce qui la rendait muette pendant tout le prélude.
     duck(on) {
+      this._duck = !!on; if (this._trkWant && this._trk && !this._trk.paused) this._trkFade(on ? .22 : .5);
       if (!this.ctx || !this.music || !this.on) return;
       const t = this.ctx.currentTime, g = this.music.gain, n = this.natBus.gain;
       g.cancelScheduledValues(t); n.cancelScheduledValues(t);
-      g.setTargetAtTime(on ? 0.42 : 1, t, on ? 0.2 : 0.6); n.setTargetAtTime(on ? 0.35 : 1, t, on ? 0.2 : 0.6);
+      g.setTargetAtTime(this._trkWant && this._trk && !this._trk.paused ? 0.0001 : on ? 0.42 : 1, t, on ? 0.2 : 0.6); n.setTargetAtTime(on ? 0.35 : 1, t, on ? 0.2 : 0.6);
     },
     unlock() { if (!this.ctx || this._unl) return; try { const b0 = this.ctx.createBuffer(1, 1, 22050), s0 = this.ctx.createBufferSource(); s0.buffer = b0; s0.connect(this.ctx.destination); s0.start(0); if (this.ctx.state !== "running") this.ctx.resume(); if (this.ctx.state === "running") this._unl = true; } catch (e) { } },
     init() {
@@ -496,9 +497,32 @@
       });
       setTimeout(() => { const t2 = c.currentTime; for (let k = 0; k < 3; k++) { const f0 = 2400 + Math.random() * 1200; for (let i = 0; i < 3; i++) this.voice(f0 * (1 + i * .07), t2 + k * .5 + i * .1, .09, { gain: 0.008, attack: .01, release: .07, cut: 8000, dest: this.sfx }); } }, 1700);
     },
+    // le vrai coq (enregistré) au lever du soleil
+    coq() {
+      if (!st.settings.sound) return;
+      try { const a = this._coq || (this._coq = new Audio("sons/coq.mp3")); a.volume = .55; a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) { }
+    },
+    // la bande-son de fin de semaine : dès que le narrateur annonce la fin de la semaine, elle tourne en boucle jusqu'au bout
+    // (la musique générée se tait pendant ce temps ; la voix la fait baisser, comme l'autre)
+    trackOn() {
+      this._trkWant = true;
+      if (!st.settings.sound) { if (this._trk) this._trk.pause(); return; }
+      try {
+        if (!this._trk) { const a = this._trk = new Audio("sons/fin-semaine.m4a"); a.loop = true; a.preload = "auto"; a.volume = 0; }
+        const a = this._trk; if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); }
+        this._trkFade(this._duck ? .22 : .5);
+        if (this.ctx && this.music) { const t = this.ctx.currentTime; this.music.gain.cancelScheduledValues(t); this.music.gain.setTargetAtTime(0.0001, t, .8); }
+      } catch (e) { }
+    },
+    trackOff() { this._trkWant = false; if (this._trk && !this._trk.paused) { this._trkFade(0, () => this._trk.pause()); } },
+    _trkFade(v, done) {
+      const a = this._trk; if (!a) return; clearInterval(this._trkI); const v0 = a.volume, t0 = performance.now(), D = 900;
+      this._trkI = setInterval(() => { const k = Math.min(1, (performance.now() - t0) / D); a.volume = Math.max(0, Math.min(1, v0 + (v - v0) * k)); if (k >= 1) { clearInterval(this._trkI); if (done) done(); } }, 60);
+    },
     // ordonnanceur musical
     scheduleBar() {
       if (!this.on || !this.ctx) return;
+      if (this._trkWant && this._trk && !this._trk.paused) { this.timer = setTimeout(() => this.scheduleBar(), 4000); return; }   // la bande-son joue : pas de musique générée par-dessus
       const m = MOODS[this.mood] || MOODS.home, c = this.ctx, beat = 60 / m.bpm, barDur = beat * 4, t0 = c.currentTime + 0.08;
       const ch = m.chords[this.bar % m.chords.length];
       const at = this._fast ? 0.12 : 1.1; this._fast = false;
@@ -570,6 +594,7 @@
       this._fast = true; this.scheduleBar();
     },
     stopAmb() {
+      if (this._trk) this._trk.pause();
       if (!this.ctx || !this.on) return;
       this.on = false; clearTimeout(this.timer);
       const t = this.ctx.currentTime;
@@ -790,7 +815,7 @@
     if (bv) { bv.hidden = !(Voice.ok && Voice.ready); bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
   }
   $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(true); applySettings(); save(); });
-  $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); } else Snd.stopAmb(); applySettings(); save(); });
+  $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); if (Snd._trkWant) Snd.trackOn(); } else Snd.stopAmb(); applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
   $("#btn-carnet").addEventListener("click", () => openCarnet());
   $("#btn-phone").addEventListener("click", () => Phone.list());
@@ -1113,6 +1138,7 @@
         if (main.textContent !== lab) main.textContent = lab;
       });
       document.querySelectorAll("#stage .opts:not(.why-opts)").forEach((o) => {
+        if (o.querySelector(".chosen, .opt:disabled") || o.closest(".panel")?.querySelector(".why")) { const q = o.previousElementSibling; if (q && q.classList.contains("vwpill")) q.remove(); return; }   // déjà répondu (« Et pourquoi ? ») : tout reste affiché, sans décompte
         let p = o.previousElementSibling; if (!p || !p.classList.contains("vwpill")) { p = el("p", { class: "vwpill", "aria-live": "off" }, ""); o.before(p); }
         const t = n > 0 ? `Écoutez… les réponses arrivent dans ${n} s` : "Écoutez… les réponses arrivent";
         if (p.textContent !== t) p.textContent = t;
@@ -1138,6 +1164,7 @@
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
     Snd.setMood(sc.type === "replay" || sc.id === "aurevoir" || sc.id === "dafter" || sc.type === "bilan" ? "nostalgie" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
     Snd.windAt(sc.id);
+    { const k5 = SCREENS.findIndex((x) => x.id === "k5"); if (k5 >= 0 && st.idx >= k5) Snd.trackOn(); else Snd.trackOff(); }   // « La semaine touche à sa fin » : la bande-son, jusqu'à la fin
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     // l'heure d'abord : si le temps fait un grand saut, le flou et l'horloge se posent avant le changement de lieu
@@ -1718,6 +1745,8 @@
         }
         g.querySelector(".rmove").style.animation = "none";
         if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
+          // celui qui entre passe DEVANT le mobilier (la table de ping-pong, les tables de la salle d'activités…)
+          requestAnimationFrame(() => { if (g.parentNode) { g.classList.add("rfront"); g.parentNode.appendChild(g); const lb = g.parentNode.querySelector(":scope > .rlab-top"); if (lb) g.parentNode.appendChild(lb); } });
           const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
           const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
           if (rg && pc) rg.classList.replace(pc, "p-walk");
@@ -3960,7 +3989,7 @@
       Voice.say("narr", c.t);
       // M. Rey, pressé : une grosse barre de temps sous pression oblige à choisir vite
       if (c.press && !calm()) {
-        const secs = Math.max(8, Math.round(c.press * (LV().t || 1))), bar = el("div", { class: "mt-press", role: "timer", "aria-label": `${secs} secondes pour décider` }, `<i></i><span><em>${c.pressT || "M. Rey s’impatiente"}</em><b>${secs} s</b></span>`);
+        const secs = Math.max(5, Math.round(c.press * (LV().t || 1))), bar = el("div", { class: "mt-press", role: "timer", "aria-label": `${secs} secondes pour décider` }, `<i></i><span><em>${c.pressT || "M. Rey s’impatiente"}</em><b>${secs} s</b></span>`);
         k.before(bar); Snd.setMood("stress"); bar.scrollIntoView({ block: "nearest", behavior: "smooth" });
         let left = secs, started = false;
         c._tm = setInterval(() => {
@@ -4135,13 +4164,14 @@
       <div class="lx-hud"><div class="lx-clock" role="timer"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="t0" cx="22" cy="22" r="19"/><circle class="t1" cx="22" cy="22" r="19" pathLength="100"/></svg><b>${sc.timer}</b></div></div></div>`;
     const box = el("div", { class: "mapbox" }), map = el("div", { class: "map dio" }, dioHTML());
     box.appendChild(map);
-    const people = [[sc.who, sc.at[0], sc.at[1], true]].concat(sc.decoys.map(([w, x, y]) => [w, x, y, false]));
+    // autour de la personne cherchée, d'autres enfants font autre chose (ils discutent, montrent, sont assis sur le banc)
+    const people = [[sc.who, sc.at[0], sc.at[1], true]].concat(sc.decoys.map(([w, x, y]) => [w, x, y, false])).concat((sc.around || []).map(([w, x, y, ps]) => [w, x, y, false, ps]));
     let left = sc.timer, misses = 0, done = false, tId = 0; const asked = new Set();
     const size = (44 / A.dio.vbw) * 100 * .84;
-    people.forEach(([w, x, y, ok]) => {
+    people.forEach(([w, x, y, ok, pose0]) => {
       const p = isoPct(x, y);
       const b = el("button", { class: "fperson", type: "button", style: `left:${p[0]}%;top:${p[1]}%;width:${size}%;z-index:${Math.round((x + y) * 10) + 10}`, "aria-label": ok ? "Une jeune fille près du parc" : "Un enfant" },
-        `<svg viewBox="-22 -60 44 64" overflow="visible">${(() => { const ps = ok ? "stand" : (["walk", "listen", "talk"][Math.floor(Math.random() * 3)]); return rigMini(w, ps) || A.minis[w][ps]; })()}</svg>`);
+        `<svg viewBox="-22 -60 44 64" overflow="visible">${(() => { const ps = pose0 || (ok ? "stand" : (["walk", "listen", "talk"][Math.floor(Math.random() * 3)])); return rigMini(w, ps) || A.minis[w][ps]; })()}</svg>`);
       b.addEventListener("click", () => {
         if (done || (!tId && !free)) return;
         if (!ok && free) {   // on demande autour de soi : chacun répond à sa façon, sans que l'on dise pourquoi on cherche
@@ -4189,7 +4219,7 @@
       const top = nameOf(sp.top), hair = [HAIR[sp.hair] || "", STY[sp.hairStyle] || ""].filter(Boolean).join(", ");
       const clue = el("div", { class: "fd-clue", role: "note" }, `<div class="fd-face" aria-hidden="true">${faceOf(sc.who)}</div><div><p class="kicker">Indice · comment ${fem ? "la" : "le"} reconnaître</p><p><b>${esc(NAMES[sc.who] || "")}</b> porte un haut <b>${esc(top)}</b>${hair ? `, cheveux ${esc(hair)}` : ""}.</p></div>`);
       wrap.insertBefore(clue, box);
-      const taken = new Set([sc.who, ...sc.decoys.map((d) => d[0])]);
+      const taken = new Set([sc.who, ...sc.decoys.map((d) => d[0]), ...(sc.around || []).map((d) => d[0])]);
       const POOL = ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11", "k12", "k13", "k14", "k15", "k16", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "hugo", "samia", "yanis", "lea", "tom", "ines"];
       const ids = POOL.filter((w) => !taken.has(w)).slice(0, 24);
       if (typeof crowdOn === "function") crowdOn(map, ids, (w) => {
@@ -4455,7 +4485,7 @@
     if (!A.dio || reduce()) return null;
     map.classList.add("tourlive");
     const lay = el("div", { class: "wacts tour-acts crowd-acts" }); map.appendChild(lay);
-    const NK = Object.keys(NODES);
+    const NK = Object.keys(NODES).filter((k) => k !== "gate");   // personne ne va se coller au portail (il est fermé pendant le temps libre)
     ids.forEach((w, i) => {
       const n0 = NODES[NK[(i * 7 + 3) % NK.length]];
       const W = Life.add(Walker(w, n0[0], n0[1], "stand")); lay.appendChild(W.el);
@@ -4677,7 +4707,9 @@
       if (sz) { if (!a._tf) { a._tf = 1; a.style.left = "0"; a.style.top = "0"; a.style.willChange = "transform"; }
         a.style.transform = `translate3d(${(f[0] * sz[0] / 100).toFixed(2)}px,${(f[1] * sz[1] / 100).toFixed(2)}px,0)`; }
       else { if (a._tf) { a._tf = 0; a.style.transform = ""; } a.style.left = f[0] + "%"; a.style.top = f[1] + "%"; }
-      if (a._z !== z) { a._z = z; a.style.zIndex = z; }
+      // une profondeur « collante » : deux personnes côte à côte ne passent plus devant/derrière l'une l'autre à chaque pas
+      // (on ne change de plan qu'après avoir vraiment avancé ou reculé de 30 cm)
+      if (a._z !== z && (W.zb != null || a._z == null || Math.abs(z - a._z) >= 3 || a._zb !== W.zb)) { a._z = z; a._zb = W.zb; a.style.zIndex = z; }
     };
     W.set = (px, py) => { W.x = px; W.y = py; W.place(); };
     W.setPose = (ps) => { if (W.pose === ps) return; W.pose = ps; a._pose(ps); };
@@ -5359,16 +5391,27 @@
     W.querySelectorAll(".wacts .walker").forEach((a) => {
       const w = a._w; if (!w || w.entering) return;
       const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
-      const mid = P2(w.x, w.y, .9);
-      const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(mid, b.poly));
-      if (!hit || inRoom) { a.classList.remove("behind"); if (w.zb != null) { w.zb = null; w.place(); } return; }
+      const foot = P2(w.x, w.y, .05);
+      const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(foot, b.poly));
+      if (!hit || inRoom) { a.classList.remove("behind"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } if (w.zb != null) { w.zb = null; w.place(); } return; }
+      // jusqu'où le bâtiment cache-t-il le corps ? (on cherche la hauteur où la silhouette du bâtiment s'arrête)
+      const Hw = w.h || (/^k|^t/.test(w.who) ? 1.4 : 1.7);
+      let lo = 0, hi = Hw; if (inPoly(P2(w.x, w.y, Hw), hit.poly)) lo = Hw; else for (let it = 0; it < 7; it++) { const m = (lo + hi) / 2; if (inPoly(P2(w.x, w.y, m), hit.poly)) lo = m; else hi = m; }
+      w._hid = lo / Hw;   // 1 : entièrement caché ; entre 0 et 1 : seule la tête (ou le haut du corps) dépasse
       if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
       hidden.push([a, hit.k]);
     });
     // la personne derrière passe sous la copie transparente du bâtiment ; ceux qui sont devant restent au-dessus
     // le halo transparent n'entoure que vous (ou la personne de la scène) : les autres, plus loin derrière le bâtiment, restent cachés
     const halo = hidden.filter(([a, k]) => ghost.has(k) && a._w && (a._w.who === "you" || a._w.ev)).map(([a]) => a._w);
-    hidden.forEach(([a, k]) => { const w = a._w, g = ghost.has(k) && halo.some((h) => h === w || Math.hypot(h.x - w.x, h.y - w.y) < 1.6); a.classList.toggle("behind", !g); if (w.zb != null) { w.zb = null; w.place(); } if (g) a._ghostK = k; });   // on garde sa vraie profondeur (les portes, clôtures, panneaux devant restent devant)
+    hidden.forEach(([a, k]) => { const w = a._w;
+      // (avec une marge : on entre dans le halo à 1,6 m, on n'en sort qu'à 2,2 m — sinon on clignote en bordure)
+      const g = ghost.has(k) && halo.some((h) => h === w || Math.hypot(h.x - w.x, h.y - w.y) < (w._inHalo ? 2.2 : 1.6)); w._inHalo = g;
+      // caché seulement là où le bâtiment le cache : si la tête dépasse du toit, on la voit marcher
+      const cut = g ? 0 : w._hid >= .97 ? 1 : w._hid;
+      a.classList.toggle("behind", cut === 1);
+      const cp = cut > 0 && cut < 1 ? `inset(0 0 ${Math.min(100, 4 + cut * 92).toFixed(1)}% 0)` : "";
+      if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; } if (w.zb != null) { w.zb = null; w.place(); } if (g) a._ghostK = k; });   // on garde sa vraie profondeur (les portes, clôtures, panneaux devant restent devant)
     const host = W.querySelector(".wanim");
     if (host) {
       ghost.forEach((k) => {
@@ -5446,7 +5489,7 @@
   ];
   function families(mode, staff = "nour") {
     if (!World.el || !A.dio || reduce()) return;
-    const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT = [31.4, 23.4], GATE = [29.0, 23.4], IN = [26.2, 23.9];
+    const acts = World.cam.querySelector(".wacts"), DOOR = [33.0, 26.0], OUT0 = [31.4, 23.4], GATE0 = [29.0, 23.4], IN0 = [26.2, 23.9], GATE = GATE0;
     // à pied : on longe le trottoir puis le bord du parking (hors de la voie des voitures et des places)
     const SIDE = [[30.8, 29.8], [30.8, 24.4]];
     World.cam.querySelectorAll(".dio-car2").forEach((x) => x.remove());
@@ -5462,7 +5505,9 @@
     const start = (F, i, from, after) => {
       // jamais deux fois la même personne : si l'un d'eux est déjà sur le plan (dans la scène), cette famille ne vient pas
       if ([F.pa].concat(F.kids).some((w) => w && here(w))) { if (after) setTimeout(after, 300); return; }
-      const app = F.foot ? SIDE.slice() : [], back = app.slice().reverse().concat([from]);
+      // chaque famille a son propre couloir (le portail fait plus de 4 m de large) : on ne marche pas tous dans les mêmes pas
+      const ln = [-.7, .5, 1.5, -.2, 1.0, -.5, 1.8, .2][i % 8], OUT = [OUT0[0], OUT0[1] + ln], GATE = [GATE0[0], GATE0[1] + ln], IN = [IN0[0], IN0[1] + ln * .8];
+      const app = F.foot ? SIDE.map(([x, y]) => [x + ln * .22, y]) : [], back = app.slice().reverse().concat([from]);
       const stop = F.stop || [GATE[0] + .4, GATE[1] + .2];
       const P = F.pa ? Life.add(Walker(F.pa, from[0], from[1], "stand")) : null; if (P) acts.appendChild(P.el);
       if (mode === "morning") {
@@ -5547,7 +5592,7 @@
       [T + 1700, () => { pill.classList.remove("on"); page.querySelector(".np-time").textContent = fmt(night0); document.body.appendChild(page); requestAnimationFrame(() => page.classList.add("on")); Snd.night(); }],
       [T + 2500, () => { page.classList.add("run"); run(night0, dawnM, 3700); }],
       [T + 6400, () => { page.classList.add("dawn"); page.querySelector(".np-k").textContent = nextDay.charAt(0).toUpperCase() + nextDay.slice(1); page.querySelector(".np-sub").textContent = "Le jour se lève sur les Hautes Herbes";
-        (Snd.dawn || Snd.rooster || (() => {})).call(Snd); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
+        (Snd.dawn || (() => {})).call(Snd); if (Snd.coq) Snd.coq(); W.classList.replace("amb-evening", "amb-morning"); World.lights(0); }],
       [T + 9000, () => { page.classList.remove("on"); document.body.classList.remove("dusk"); setTimeout(() => { page.remove(); pill.remove(); }, 1100); done(); }],
     ];
     // si l'on quitte l'écran en cours de route, la nuit s'efface tout de suite (elle ne déborde jamais sur l'écran suivant)
@@ -5729,9 +5774,9 @@
         // décider contre quelqu'un à cause de son sexe : les garçons jouent, la fille est mise à l'écart
         () => { const g = F("girl", "sad", 52, { mood: "sad" });
           return BG.out() + F("boy", "run", 0, { move: [70, 360, 4.2], at: 214 }).svg + ball(0, 149, { move: [96, 386, 4.2], at: 240 }) + F("kid", "run", 0, { move: [-14, 276, 4.2], at: 170 }).svg + g.svg + bub(g, "Et moi ?", { side: 1 }) + no(88, 96, 10) + chip("Exclue parce que c’est une fille : interdit", { ic: "×", col: C.red, y: 154 }); },
-        // on change l'organisation : un tableau « qui fait quoi », chacun a accès à tout
-        () => { const a = F("anim", "point", 186);
-          return BG.in() + board(18, 26, 146, 86, "Qui fait quoi ?", [["✓", "Console : tout le monde"], ["✓", "Ballons : à tour de rôle"], ["✓", "Rangement : chacun"]]) + a.svg + F("boy", "run", 0, { move: [150, 340, 3.8], at: 236 }).svg + F("girl", "run", 0, { move: [196, 386, 3.8], at: 278 }).svg + ball(0, 149, { move: [216, 406, 3.8], at: 298 }) + chip("On change l’organisation", { ic: "✓", col: C.green, y: 154 }); },
+        // on change l'organisation : un tableau « qui fait quoi » ; la fille et le garçon choisissent leur rôle (personne ne court)
+        () => { const a = F("anim", "point", 178), g = F("girl", "point", 234, { flip: true, mood: "big" }), b = F("boy", "listen", 286, { flip: true });
+          return BG.in() + board(18, 26, 146, 86, "Qui fait quoi ?", [["✓", "Console : tout le monde"], ["✓", "Ballons : à tour de rôle"], ["✓", "Rangement : chacun"]]) + a.svg + g.svg + b.svg + bub(g, "Moi, la console !", { side: 1, y: 14 }) + chip("On change l’organisation", { ic: "✓", col: C.green, y: 154 }); },
       ],
       k2: [
         // des remarques sexistes répétées
@@ -5771,7 +5816,19 @@
         () => { const g = F("girl", "sad", 196, { flip: true, mood: "sad" }), a = F("anim", "listen", 116, { mood: "calm" });
           return BG.in() + a.svg + g.svg + bub(g, "Je peux te dire un secret ?", { side: 1, y: 44 }) + bub(a, "Je t’écoute. Je ne peux pas promettre.", { side: -1, y: 6 }) + chip("J’écoute, je protège, je ne promets pas le secret", { ic: "♥", col: C.blue, y: 154 }); },
         // noter sans enquêter
-        () => BG.in() + table(98, 106, 138) + book(150, 74, 4) + chair(82) + F("anim", "sit", 82).svg + tag(272, 34, "ses mots exacts", C.blue) + tag(272, 58, "l’heure, le lieu", C.blue) + tag(272, 82, "pas d’enquête", C.red, { fill: "#FFECEB" }) + chip("Je note ce que j’ai entendu, sans enquêter", { ic: "✎", col: C.blue, y: 154 }),
+        // une page de carnet bien tenue : l'heure et le lieu, les mots exacts entre guillemets, ce qu'on a vu ; et pas d'enquête
+        () => { const a = F("anim", "listen", 286, { flip: true, mood: "calm" }), L0 = 40;
+          const line = (y, dot, t, c, o = {}) => `<circle cx="${L0 + 14}" cy="${y - 3}" r="3.2" fill="${dot}"/>` + T(L0 + 24, y, t, { a: "start", fs: 8.6, fw: o.fw || 600, c }) + `<line x1="${L0 + 10}" y1="${y + 6}" x2="${L0 + 166}" y2="${y + 6}" stroke="#E3E8EE" stroke-width=".8"/>`;
+          const spiral = [36, 52, 68, 84, 100, 116, 132].map((y) => `<circle cx="${L0 + 1}" cy="${y}" r="3" fill="none" stroke="#9AA4AF" stroke-width="1.4"/>`).join("");
+          const page = `<g filter="url(#${u}ds)"><rect x="${L0}" y="26" width="176" height="116" rx="9" fill="#FFFFFF"/></g><rect x="${L0}" y="26" width="176" height="20" rx="9" fill="#F2F6FB"/><rect x="${L0}" y="38" width="176" height="8" fill="#F2F6FB"/>`
+            + T(L0 + 88, 40, "Ce que j’ai entendu et vu", { fs: 8.4, fw: 700, c: C.mute }) + spiral
+            + line(62, C.mute, "Mercredi, 16 h 05 · la cour", C.ink)
+            + line(82, C.blue, "« Il m’a dit de rien dire. »", C.blue, { fw: 700 })
+            + line(102, C.green, "Vu : elle pleure, à l’écart", C.ink)
+            + line(122, C.red, "Pas de questions en plus", C.red, { fw: 700 });
+          const pen = `<g transform="translate(${L0 + 150},118) rotate(-38)"><rect x="-3" y="-28" width="6" height="34" rx="2" fill="#2B6FD6"/><path d="M-3,6 L3,6 L0,13 Z" fill="#E9D7B8"/><path d="M-1,10.5 L1,10.5 L0,13 Z" fill="#1D1D1F"/><rect x="-3" y="-28" width="6" height="6" rx="2" fill="#1B4E9C"/></g>`;
+          const lens = `<g transform="translate(240,44)"><circle r="12" fill="#EAF4FF" stroke="#8A96A3" stroke-width="3"/><line x1="8.5" y1="8.5" x2="19" y2="19" stroke="#8A96A3" stroke-width="4" stroke-linecap="round"/></g>` + no(254, 32, 8.5);
+          return BG.in() + page + pen + lens + a.svg + chip("Je note ce que j’ai entendu, sans enquêter", { ic: "✎", col: C.blue, y: 154 }); },
         // les numéros d'urgence
         () => BG.in() + key(22, 34, "17", C.blue, "police") + key(68, 34, "112", C.blue, "urgences") + key(114, 34, "114", C.purple, "par SMS") + key(22, 76, "15", C.red, "SAMU") + key(68, 76, "119", C.orange, "enfance") + F("anim2", "talk", 232, { mood: "concern", flip: true }).svg + phone(166, 64, T(18, 30, "17", { fs: 13, fw: 800, c: C.blue }), 1) + chip("Danger tout de suite : 17 ou 112", { ic: "☎", col: C.red, y: 154 }),
         // violences sexuelles : la justice ; l'organisateur prévient aussi le SDJES

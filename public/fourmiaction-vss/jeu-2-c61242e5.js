@@ -111,7 +111,7 @@ const SCREENS = [
     lines: [
       { who: null, live: "portail", t: "Au portail, les parents déposent leurs enfants, échangent un mot avec l’équipe et repartent travailler. Depuis les affaires du périscolaire qui secouent Paris cette année, beaucoup posent la même question : qui encadre mon enfant, et comment ?" },
       { who: "nour", mood: "big", zoom: true, t: "Bienvenue aux Hautes Herbes ! Moi, c’est Nour, la directrice. Tu nous rejoins comme animatrice volante pour la semaine des vacances. Quarante-huit enfants et jeunes de 6 à 17 ans sont inscrits, cinquante-deux mercredi." },
-      { who: "nour", mood: "concern", t: "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi." },
+      { who: "nour", mood: "calm", t: "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi." },
       { who: "nour", mood: "calm", t: "L’équipe, je la connais à peu près, et ça devrait le faire, même si je sais qu’il y a encore des petites choses à améliorer. Moi, je n’ai pas le temps de tout gérer, et j’ai confiance en toi : j’ai lu ton CV : tu t’es formée aux VSS." },
       { who: "nour", mood: "smile", t: "Ce que j’attends de toi, donc : tu es notre animatrice volante pour la semaine des vacances. Tu circules partout, tu restes vigilante, et quand quelque chose te paraît anormal, tu agis et tu me le transmets." },
       { who: "nour", mood: "smile", t: "Il y a trois groupes : les 6-11 ans avec Jade, les 11-14 ans avec Inès et Yanis, les 14-17 ans avec Bastien et Kévin. Toi, tu n’as pas de groupe attitré : tu vas là où on a besoin de toi." },
@@ -240,7 +240,7 @@ const SCREENS = [
       parc: { cast: [["jade", "a", "wave"], ["theo", "b", "walk"], ["you", "f", "walk"]], t: "Au parc, le groupe de Jade fait un jeu de piste. Ça court, ça rit, chacun a sa place." },
       refectoire: { cast: [["you", "a", "walk"]], room: "refectoire", t: "La salle de restauration est vide : elle ne sert qu’au repas de midi. Le goûter, chaque animateur le prend avec son groupe, dans sa salle." },
       equipe: { cast: [["you", "b"]], room: "equipe", t: "La salle des animateurs est calme. Tous les animateurs semblent être avec leur groupe." },
-      cour: { cast: [["nour", "a", "talk"], ["you", "b", "walk"]], t: "Dans la cour, Nour discute avec un parent. Elle vous fait un signe de la main." },
+      cour: { cast: [["nour", "a", "wave"], ["pa1", "c", "talk"], ["you", "d"]], t: "Dans la cour, Nour discute avec un parent. Elle vous fait un signe de la main." },
       jeux: { cast: [["theo", "a", "walk"], ["zoe", "b", "walk"], ["malo", "c", "wave"], ["you", "f", "walk"]], t: "À l’aire de jeux, ça court dans tous les sens." },
       radio: { cast: [["bastien", "c", "talk"], ["lena", "s2", "sit"], ["you", "a", "walk"]], room: "radio", before: "Bastien installe le matériel : l’atelier radio commence à 14 h.", t: "L’atelier radio se poursuit. Léna est à sa table." },
       sanitaires: { cast: [["you", "d", "walk"]], room: "sanitaires", before: "Les sanitaires sont vides pour l’instant.", t: "Les sanitaires sont calmes." },

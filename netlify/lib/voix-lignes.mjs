@@ -116,7 +116,7 @@ export const LIGNES = {
  },
  "132334d9481b": {
   "who": "nour",
-  "mood": "concern",
+  "mood": "calm",
   "kind": "replique",
   "text": "Je ne sais pas si tu as entendu, mais depuis janvier, à Paris, cent trente-deux animateurs du périscolaire ont été suspendus, dont une cinquantaine pour des soupçons de violences sexuelles ou sexistes. Les parents en parlent beaucoup, ici aussi. Et c’est pour ça que j’ai besoin de toi."
  },

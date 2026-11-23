@@ -112,7 +112,12 @@
     };
     // la cuillère dans la main gauche : celle du bras qui est devant quand on est assis à table, face à nous
     const spoonL = (B) => { const F = B.foreArm, y = B.foreLen + F * .55, f = (v) => v.toFixed(1);
-      return `<g class="prop prop-spoonL"><path d="M0,${f(y - F * .2)} L${f(-F * .9)},${f(y - F * 1.6)}" stroke="#C9CED3" stroke-width="${f(F * .22)}" stroke-linecap="round"/><ellipse cx="${f(-F * 1.0)}" cy="${f(y - F * 1.75)}" rx="${f(F * .3)}" ry="${f(F * .2)}" fill="#DDE2E6"/></g>`; };
+      // une fourchette, dans le prolongement de l'avant-bras (le manche sort du poing, les dents au bout) :
+      // quand la main monte vers le visage, ce sont les dents qui arrivent dans la bouche
+      const t0 = y + F * 1.15, t1 = y + F * 1.7;
+      return `<g class="prop prop-spoonL"><path d="M0,${f(y - F * .1)} L0,${f(t0)}" stroke="#C9CED3" stroke-width="${f(F * .2)}" stroke-linecap="round"/>`
+        + `<path d="M${f(-F * .2)},${f(t0)} Q0,${f(t0 - F * .2)} ${f(F * .2)},${f(t0)} Z" fill="#C9CED3"/>`
+        + [-.17, 0, .17].map((d) => `<path d="M${f(F * d)},${f(t0 - .1)} L${f(F * d)},${f(t1)}" stroke="#DDE2E6" stroke-width="${f(F * .09)}" stroke-linecap="round"/>`).join("") + `</g>`; };
     // bras : épaule > avant-bras (pivot coude) > main
     const arm = (side, back) => {
       const x = side * (B.shW - B.upArm * .35), sl = back ? topD : `url(#${u}t)`, skin = back ? skD : sk;
@@ -226,6 +231,7 @@
       ${hairFront}${acc}
       <g class="face">
         <path d="${BROW[mood] || BROW.smile}" stroke="${grey ? "#8E8780" : hcD}" stroke-width="${(R * .085).toFixed(2)}" stroke-linecap="round" fill="none"/>
+        ${(spec.age || 30) >= 18 ? `<g class="cernes" aria-hidden="true">${[-ex, ex].map((x) => `<path d="M${x + look - R * .17},${ey + R * .12} q${R * .17},${R * .2} ${R * .34},0" stroke="${tone(sk, -.32)}" stroke-width="${(R * .07).toFixed(2)}" fill="none" stroke-linecap="round"/><path d="M${x + look - R * .12},${ey + R * .22} q${R * .12},${R * .1} ${R * .24},0" stroke="${tone(sk, -.22)}" stroke-width="${(R * .04).toFixed(2)}" fill="none" stroke-linecap="round" opacity=".7"/>`).join("")}</g>` : ""}
         <g class="eyes"><ellipse cx="${-ex + look}" cy="${ey}" rx="${R * .17}" ry="${R * .2}" fill="#fff"/><ellipse cx="${ex + look}" cy="${ey}" rx="${R * .17}" ry="${R * .2}" fill="#fff"/>
           <g class="pupils"><circle cx="${-ex + look * 2}" cy="${ey + R * .02}" r="${R * .12}" fill="${spec.eyes || "#5A3A22"}"/><circle cx="${ex + look * 2}" cy="${ey + R * .02}" r="${R * .12}" fill="${spec.eyes || "#5A3A22"}"/><circle cx="${-ex + look * 2}" cy="${ey + R * .03}" r="${R * .065}" fill="#140D09"/><circle cx="${ex + look * 2}" cy="${ey + R * .03}" r="${R * .065}" fill="#140D09"/>
           <circle cx="${-ex + look * 2 - R * .035}" cy="${ey - R * .03}" r="${R * .035}" fill="#fff"/><circle cx="${ex + look * 2 - R * .035}" cy="${ey - R * .03}" r="${R * .035}" fill="#fff"/></g>
@@ -506,10 +512,9 @@
     // (la musique générée se tait pendant ce temps ; la voix la fait baisser, comme l'autre)
     trackOn() {
       this._trkWant = true;
-      if (!st.settings.sound) { if (this._trk) this._trk.pause(); return; }
       try {
         if (!this._trk) { const a = this._trk = new Audio("sons/fin-semaine.m4a"); a.loop = true; a.preload = "auto"; a.volume = 0; }
-        const a = this._trk; if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); }
+        const a = this._trk; a.muted = !st.settings.sound; if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); }
         this._trkFade(this._duck ? .22 : .5);
         if (this.ctx && this.music) { const t = this.ctx.currentTime; this.music.gain.cancelScheduledValues(t); this.music.gain.setTargetAtTime(0.0001, t, .8); }
       } catch (e) { }
@@ -592,6 +597,11 @@
       this.natBus.gain.cancelScheduledValues(t); this.natBus.gain.setTargetAtTime(1, t, 0.6);
       this.natKind = null; this.setNature((MOODS[this.mood] || MOODS.home).nature);
       this._fast = true; this.scheduleBar();
+    },
+    // son coupé : tout continue de jouer (musique, bande-son, ambiance), au volume zéro ; son remis : le volume remonte
+    mute(m) {
+      try { if (this.ctx && this.master) { const t = this.ctx.currentTime; this.master.gain.cancelScheduledValues(t); this.master.gain.setTargetAtTime(m ? 0.0001 : 0.9, t, .12); } } catch (e) { }
+      if (this._trk) { this._trk.muted = !!m; if (!m && this._trkWant && this._trk.paused) { const p = this._trk.play(); if (p && p.catch) p.catch(() => {}); } }
     },
     stopAmb() {
       if (this._trk) this._trk.pause();
@@ -742,7 +752,7 @@
       World.talk(null); Lip.off();
       clearTimeout(this._show); if (it.e) this._show = setTimeout(() => { if (it.e && !it.on) { it.shown = 1; it.e.classList.remove("vpend"); it.e.classList.remove("kara"); } }, 6000);   // si la voix tarde vraiment, le texte paraît quand même (et ne sera plus effacé)
       this._cur = it; if (it.e) { it.e.classList.add("kara", "said", "vdone"); it.e.querySelectorAll(".wd.sp").forEach((w) => w.classList.remove("sp")); }
-      this.el.src = it.u; const p = this.el.play();
+      this.el.src = it.u; this.el.muted = !st.settings.sound; const p = this.el.play();
       if (p && p.catch) p.catch((e) => { if (e && e.name === "NotAllowedError") { Snd.duck(false); this._q = []; this._done(); } else this._skip(); });
       // garde-fou : une voix générée à la volée peut tarder ; au-delà de 14 s, on passe à la suivante
       clearTimeout(this._wd); this._wd = setTimeout(() => { if (this._cur === it && this.el.paused) this._skip(); }, 14000);
@@ -814,15 +824,18 @@
     const bv = $("#btn-voice");
     if (bv) { bv.hidden = !(Voice.ok && Voice.ready); bv.setAttribute("aria-pressed", st.settings.voice ? "true" : "false"); bv.querySelector(".lbl").textContent = st.settings.voice ? "Voix activées" : "Voix coupées"; }
   }
-  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (!st.settings.voice) Voice.stop(true); applySettings(); save(); });
-  $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); if (st.settings.sound) { Snd.startAmb(); Snd.click(); if (Snd._trkWant) Snd.trackOn(); } else Snd.stopAmb(); applySettings(); save(); });
+  // couper puis remettre le son (ou les voix) au milieu d'une phrase : rien ne s'arrête, seul le volume tombe puis revient
+  $("#btn-voice")?.addEventListener("click", () => { st.settings.voice = !st.settings.voice; if (Voice.el && Voice.el.tagName === "AUDIO") Voice.el.muted = !st.settings.voice || !st.settings.sound; applySettings(); save(); });
+  $("#btn-sound").addEventListener("click", () => { st.settings.sound = !st.settings.sound; Snd.init(); Snd.mute(!st.settings.sound);
+    if (Voice.el && Voice.el.tagName === "AUDIO") Voice.el.muted = !st.settings.sound;
+    if (st.settings.sound) { Snd.startAmb(); Snd.click(); if (Snd._trkWant) Snd.trackOn(); } applySettings(); save(); });
   $("#btn-motion").addEventListener("click", () => { st.settings.calm = !st.settings.calm; applySettings(); save(); });
   $("#btn-carnet").addEventListener("click", () => openCarnet());
   $("#btn-phone").addEventListener("click", () => Phone.list());
   $("#btn-level").addEventListener("click", () => {
     st.level = (st.level || 2) === 3 ? 2 : 3; save(); Snd.click();   // deux niveaux : adulte, adulte expert
     $("#btn-level .lbl").textContent = LV().name;
-    toastMsg(`Niveau ${LV().name} : ${["", "", "niveau standard, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`);
+    toastMsg(`Niveau ${LV().name} : ${["", "", "niveau standard, des choix nuancés.", "des situations fines, tout est chronométré."][st.level]} Il s’applique dès le prochain écran.`); syncLv();
   });
   $("#btn-home").addEventListener("click", () => { Snd.click(); home(); });
   // Refonte : les réglages (niveau, son, voix, animations) quittent la barre et se rangent dans un menu « Réglages ».
@@ -833,6 +846,17 @@
     const menu = el("div", { id: "hudmenu", role: "group", "aria-label": "Réglages", hidden: true }, `<p class="hm-k">Réglages</p>`);
     ["#btn-level", "#btn-sound", "#btn-voice", "#btn-motion"].forEach((s) => { const b = $(s); if (b) menu.appendChild(b); });
     H.appendChild(more); H.appendChild(menu);
+    // le niveau se choisit d'un geste, en cours de partie : deux pastilles, celle du niveau en cours est cochée
+    { const bl = $("#btn-level");
+      if (bl) {
+        const box = el("div", { class: "hm-level", role: "radiogroup", "aria-label": "Niveau de difficulté" }, `<span class="hm-lk">Niveau</span>`);
+        [[2, "Adulte"], [3, "Adulte expert"]].forEach(([v, t]) => {
+          const b = el("button", { type: "button", class: "hm-lv", role: "radio", "data-lv": String(v) }, t);
+          b.addEventListener("click", (e) => { e.stopPropagation(); if ((st.level === 3 ? 3 : 2) !== v) bl.click(); syncLv(); });
+          box.appendChild(b);
+        });
+        bl.hidden = true; bl.after(box);
+      } }
     // pastilles séparées (maquette) : marque + avatar + journée à gauche, puis l'horloge et le lieu, puis les outils
     const left = el("div", { class: "hpill hp-left" }); H.insertBefore(left, H.firstChild);
     ["#btn-home", "#hudav", ".chapbox"].forEach((q) => { const n = H.querySelector(q); if (n) left.appendChild(n); });
@@ -845,6 +869,7 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { e.stopPropagation(); close(true); } });
   }
 
+  function syncLv() { document.querySelectorAll(".hm-lv").forEach((b) => { const on = +b.dataset.lv === (st.level === 3 ? 3 : 2); b.classList.toggle("sel", on); b.setAttribute("aria-checked", String(on)); }); }
   function hud(show) {
     $("#hud").hidden = !show;
     if (!show) return;
@@ -858,7 +883,7 @@
     // le téléphone n'apparaît qu'une fois présenté
     $("#btn-phone").hidden = !(st.rev && st.rev.phone);
     $("#carnetcount").textContent = st.carnet.length;
-    $("#btn-level .lbl").textContent = LV().name;
+    $("#btn-level .lbl").textContent = LV().name; syncLv();
     $("#hudav").innerHTML = youBust();
     rings(false);
   }
@@ -1038,6 +1063,8 @@
       DC.d = d; return;
     }   // écran sans horloge (visite, recherche) : l'heure avance quand même, en coulisses
     const night = sc.nuitee || /nuit/i.test(sc.id), f = Math.min(95, TIRED[d] + (night ? 12 : 0));
+    // la fatigue se lit sur les visages des adultes : les cernes se creusent au fil de la semaine
+    DC.f = f; document.documentElement.style.setProperty("--cerne", Math.max(0, Math.min(.9, (f - 18) / 60)).toFixed(2));
     const changed = d !== DC.d, DCprev = DC.d; DC.d = d;
     const tm = /(\d+) h (\d+)/.exec(DC.t) || [0, 8, 30], hh = +tm[1], mm = +tm[2];
     DC.el.innerHTML = `<svg class="dc-face" viewBox="-20 -20 40 40" aria-hidden="true"><circle r="18.5" class="f"/>${Array.from({ length: 12 }, (_, i) => `<line x1="0" y1="-15.5" x2="0" y2="${i % 3 ? -13.8 : -12.6}" transform="rotate(${i * 30})"/>`).join("")}<line class="hh" x1="0" y1="2" x2="0" y2="-8.5" transform="rotate(${(hh % 12) * 30 + mm / 2})"/>${[["12", 0, -10.4], ["3", 11.2, 1.4], ["6", 0, 13.2], ["9", -11.2, 1.4]].map(([t, x, y]) => `<text x="${x}" y="${y}" class="n">${t}</text>`).join("")}<text class="dg" x="0" y="7.6">${hh}:${String(mm).padStart(2, "0")}</text><line class="mh" x1="0" y1="2.5" x2="0" y2="-13" transform="rotate(${mm * 6})"/><circle r="1.3" class="c"/></svg>
@@ -1341,6 +1368,51 @@
   // à l'horizontale vers l'avant de la chaise (selon l'axe du plan isométrique), les tibias descendent jusqu'au sol (les pieds
   // se rangent un peu sous l'assise si les jambes sont plus longues que la chaise n'est haute). Tout est calculé pour la taille
   // du personnage et la hauteur de l'assise : plus personne ne flotte au-dessus d'une chaise.
+  // un chemin dans une salle (en mètres), de la porte jusqu'à une place, qui contourne les meubles :
+  // grille de 10 cm, meubles grossis de la largeur d'une personne, plus court chemin, puis lissé (lignes droites)
+  function roomRoute(sp, A_, B_, lat) {
+    const M = sp._m, ob = sp._ob || [], S = .1, R = .2, nx = Math.ceil(M.W / S), ny = Math.ceil(M.D / S);
+    const blk = new Uint8Array(nx * ny);
+    const inside = (r, x, y) => x >= r[0] - R && x <= r[2] + R && y >= r[1] - R && y <= r[3] + R;
+    const near = (r, q) => q[0] >= r[0] - .3 && q[0] <= r[2] + .3 && q[1] >= r[1] - .3 && q[1] <= r[3] + .3;
+    const obs = ob.filter((r) => !near(r, B_) && !near(r, A_));   // la place d'arrivée (au bord d'une table) reste atteignable
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const x = (i + .5) * S, y = (j + .5) * S;
+      if (x < .2 || y < .2 || x > M.W - .15 || y > M.D - .1 || obs.some((r) => inside(r, x, y))) blk[j * nx + i] = 1;
+    }
+    const cell = (q) => [Math.max(0, Math.min(nx - 1, Math.floor(q[0] / S))), Math.max(0, Math.min(ny - 1, Math.floor(q[1] / S)))];
+    const [ai, aj] = cell(A_), [bi, bj] = cell(B_); blk[aj * nx + ai] = 0; blk[bj * nx + bi] = 0;
+    // Dijkstra (8 voisins) ; on préfère un peu l'allée de devant (y grand) : on passe devant les meubles, pas derrière
+    const dist = new Float32Array(nx * ny).fill(1e9), prev = new Int32Array(nx * ny).fill(-1), done = new Uint8Array(nx * ny);
+    const s0 = aj * nx + ai, t0 = bj * nx + bi; dist[s0] = 0; const open = [s0];
+    while (open.length) {
+      let bI = 0; for (let k = 1; k < open.length; k++) if (dist[open[k]] < dist[open[bI]]) bI = k;
+      const c = open.splice(bI, 1)[0]; if (done[c]) continue; done[c] = 1; if (c === t0) break;
+      const ci = c % nx, cj = (c / nx) | 0;
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+        if (!di && !dj) continue; const i = ci + di, j = cj + dj; if (i < 0 || j < 0 || i >= nx || j >= ny) continue;
+        const n = j * nx + i; if (blk[n] || done[n]) continue;
+        if (di && dj && (blk[cj * nx + i] || blk[j * nx + ci])) continue;
+        const w = Math.hypot(di, dj) * (1 + (lat || 0) * (1 - j / ny)), nd = dist[c] + w;
+        if (nd < dist[n]) { dist[n] = nd; prev[n] = c; open.push(n); }
+      }
+    }
+    if (prev[t0] < 0 && t0 !== s0) return null;
+    const path = []; for (let c = t0; c >= 0; c = prev[c]) path.unshift([(c % nx + .5) * S, ((c / nx) | 0) * S + S / 2]);
+    path[0] = A_.slice(); path[path.length - 1] = B_.slice();
+    const clear = (p, q) => { const n = Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / (S / 2)); for (let k = 1; k < n; k++) { const [i, j] = cell([p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n]); if (blk[j * nx + i]) return false; } return true; };
+    const out = [path[0]]; let k = 0;
+    while (k < path.length - 1) { let m = path.length - 1; while (m > k + 1 && !clear(path[k], path[m])) m--; out.push(path[m]); k = m; }
+    return out;
+  }
+  // profondeur d'affichage d'une personne debout en (x, y) : devant une table quand elle se tient du côté salle de la table
+  function standDepth(sp, x, y, d) {
+    for (const b of sp._bx || []) {
+      const front = (y >= b[3] - .02 && x >= b[0] - .6 && x <= b[2] + .6) || (x >= b[2] - .02 && y >= b[1] - .6 && y <= b[3] + .6);
+      if (front && b[4] >= d) d = b[4] + .004;
+    }
+    return d;
+  }
   function sitPose(who, P) {
     const sp = rigSpec(who); if (!sp || typeof RIG === "undefined" || !RIG.body) return null;
     const B = RIG.body(sp.age || 30), k = 50 / 172 * .96;              // unités du personnage → pixels de la salle
@@ -1367,7 +1439,7 @@
     sad: `<svg viewBox="-10 -10 20 20"><path d="M-7,-4 q2,-5 4,0 M3,-4 q2,-5 4,0" stroke="#5B8FD6" stroke-width="1.8" fill="none"/><path d="M0,1 q-3,5 0,7 q3,-2 0,-7 Z" fill="#7EC8F2"/></svg>`,
     o: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 l2,5 M0,-8 v6 M6,-6 l-2,5" stroke="#F2B33D" stroke-width="2.4" stroke-linecap="round"/></svg>`,
     big: `<svg viewBox="-10 -10 20 20"><path d="M-6,-4 l1.2,2.4 2.4,1.2 -2.4,1.2 -1.2,2.4 -1.2,-2.4 -2.4,-1.2 2.4,-1.2 Z M5,-7 l.9,1.8 1.8,.9 -1.8,.9 -.9,1.8 -.9,-1.8 -1.8,-.9 1.8,-.9 Z" fill="#F2B33D"/></svg>`,
-    concern: `<svg viewBox="-10 -10 20 20"><path d="M2,-7 q4,4 0,7 q-3,-3 0,-7 Z" fill="#9CD3F0"/></svg>`,
+    concern: `<svg viewBox="-10 -10 20 20"><circle cx="-5" cy="0" r="1.8" fill="#8A96A3"/><circle cx="0" cy="0" r="1.8" fill="#8A96A3"/><circle cx="5" cy="0" r="1.8" fill="#8A96A3"/></svg>`,   // (des points de réflexion, plus une goutte qui ressemblait à une larme)
     // nouveaux dessins d'expression
     q: `<svg viewBox="-10 -10 20 20"><path d="M-3,-5 q0,-4 4,-4 q4,0 4,3.4 q0,2.4 -3,3.4 q-1,.4 -1,2.6" stroke="#6B7A90" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="1" cy="5.6" r="1.4" fill="#6B7A90"/></svg>`,
     shy: `<svg viewBox="-10 -10 20 20"><path d="M-7,-2 l3,-3 M-3,-2 l3,-3 M1,-2 l3,-3" stroke="#F08AA0" stroke-width="2" stroke-linecap="round"/></svg>`,
@@ -1567,7 +1639,8 @@
         const cast = S.cast || [], others = cast.filter(([w]) => w !== "you"), duo = !cast.some(([w]) => w === "you") && others.length === 2;
         const anchor = others[0] && (stand[others[0][1]] || stand.a);
         cast.forEach(([w, slot, pose, md], k) => {
-          let p = stand[slot] || stand.a; const from = [k % 2 ? 260 : -260, 110];
+          // dans la cour, portail fermé : on arrive depuis l'intérieur de l'accueil (jamais à travers le portail)
+          let p = stand[slot] || stand.a; const from = S.at === "cour" && !this.el.classList.contains("gate-open") ? [-260, -40 - k * 20] : [k % 2 ? 260 : -260, 110];
           // Vous êtes à côté de la personne qui vous parle, de dos, tournée vers elle.
           // Deux personnes qui discutent entre elles : côte à côte, tournées l'une vers l'autre.
           const back = !!(w === "you" && others.length);
@@ -1582,11 +1655,12 @@
               p = w2f(ax + dx * k2, ay + dy * k2);
             }
           }
-          const a = this.actor(w, pose === "wave" && !greetNow() ? "stand" : pose, p, sz, false, k < 3 ? from : null, { back, mood: (this._moods || {})[w] });
+          const hi = greetNow() || !!S.greet;   // un salut voulu par la scène (« elle vous fait un signe de la main »)
+          const a = this.actor(w, pose === "wave" && !hi ? "stand" : pose, p, sz, false, k < 3 ? from : null, { back, mood: (this._moods || {})[w] });
           if (a && face) { a.classList.toggle("flip", face < 0); a.dataset.faced = "1"; }
           // personne ne marche sur place : une fois arrivé, on se tient debout
           if (a && (pose === "walk" || pose === "run") && a._pose && !a.classList.contains("walker")) a._pose("stand");
-          if (a && pose === "wave" && a._pose) { a._pose("stand"); if (greetNow()) setTimeout(() => a.isConnected && gesture(a, "wave", { greet: true }), 700 + k * 380 + Math.random() * 600); }   // un salut bref, pas une main levée qui dure
+          if (a && pose === "wave" && a._pose) { a._pose("stand"); if (hi) setTimeout(() => a.isConnected && gesture(a, "wave", { greet: true }), 700 + k * 380 + Math.random() * 600); }   // un salut bref, pas une main levée qui dure
           if (a) { a.style.animationDelay = (0.5 + k * 0.18) + "s"; { const [wx, wy] = f2w(p[0], p[1]); a.style.zIndex = zOf(wx, wy) + 1; } if (back) a.classList.add("isback"); acts.appendChild(a); L.push([a, p]); }
         });
         this.faceGroup(L);
@@ -1623,7 +1697,7 @@
       const im = this.el.querySelector(".wcam>.dio-img");
       const cur = this._L != null ? this._L : (this.lit || 0);
       this.lit = lv; if (!im) { this._L = lv; this.setLamp(lv); return; }
-      cancelAnimationFrame(this._lf);
+      cancelAnimationFrame(this._lf); { const hp = this.cam && this.cam.querySelector(".dio-hires"); if (hp) hp.remove(); clearTimeout(this._hiL); this._hiL = setTimeout(() => this.hires(), (ms || 0) + 300); }
       const layer = (k) => {
         let ov = im.parentNode.querySelector(".lit-ov.l" + k);
         if (!ov) { ov = im.cloneNode(); ov.classList.add("lit-ov", "l" + k); ov.removeAttribute("style"); ov.style.opacity = "0"; ov.style.transition = "none"; ov.src = litURL(k);
@@ -1663,7 +1737,7 @@
       cancelAnimationFrame(this._cf); this.cam.style.transitionProperty = "left, top";
       // Netteté : pendant le mouvement, le plan est une image que la carte graphique déplace ; une fois arrivé,
       // on la laisse se redessiner à la bonne taille (sinon, zoomé, le plan reste flou comme une photo agrandie)
-      const sharp = () => { clearTimeout(this._shp); this._shp = setTimeout(() => { if (this.cam) this.cam.style.willChange = "auto"; }, 160); };
+      const sharp = () => { clearTimeout(this._shp); this._shp = setTimeout(() => { if (this.cam) this.cam.style.willChange = "auto"; this.hires(); }, 160); };
       if (this.cam) { clearTimeout(this._shp); this.cam.style.willChange = "transform"; }
       const c0 = this.cv, D = ms != null ? ms : 1500;
       if (!c0 || reduce() || D <= 0 || !this.el.classList.contains("on")) { set(p.x, p.y, z); sharp(); return; }
@@ -1676,6 +1750,34 @@
         if (t < 1) this._cf = requestAnimationFrame(f); else sharp();
       };
       this._cf = requestAnimationFrame(f);
+    },
+    // Netteté du plan zoomé : le plan est une image (SVG) que le navigateur décode à sa taille d'affichage ; zoomé à ×4, il
+    // devient flou. Une fois la caméra posée, on redessine la seule partie visible, à la vraie résolution de l'écran, dans un
+    // calque juste au-dessus du plan (les personnages et le décor animé restent par-dessus).
+    hires() {
+      const cam = this.cam; if (!cam || !this.cv || !this.el.classList.contains("on")) return;
+      const old = cam.querySelector(".dio-hires");
+      if (this.cv.z < 1.8) { if (old) old.remove(); return; }
+      const base = cam.querySelector(".wcam>.dio-img:not(.lit-ov)"); if (!base || !base.complete || !base.naturalWidth) return;
+      const layers = [base, ...cam.querySelectorAll(".wcam>.dio-img.lit-ov")].filter((im) => im.complete && im.naturalWidth && +(im.style.opacity || 1) > .01);
+      const vr = this.el.getBoundingClientRect(), cr = cam.getBoundingClientRect(); if (!cr.width) return;
+      const mx = .12 * vr.width / cr.width, my = .12 * vr.height / cr.height;   // une petite marge autour de l'écran
+      const fx0 = Math.max(0, (vr.left - cr.left) / cr.width - mx), fy0 = Math.max(0, (vr.top - cr.top) / cr.height - my),
+        fx1 = Math.min(1, (vr.right - cr.left) / cr.width + mx), fy1 = Math.min(1, (vr.bottom - cr.top) / cr.height + my);
+      if (fx1 <= fx0 || fy1 <= fy0) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1), cw = Math.min(4096, Math.round((fx1 - fx0) * cr.width * dpr)), ch = Math.min(4096, Math.round((fy1 - fy0) * cr.height * dpr));
+      const tok = this._hiT = {};
+      const draw = () => {
+        if (tok !== this._hiT) return;
+        const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch; cv.className = "dio-hires"; cv.setAttribute("aria-hidden", "true");
+        cv.style.cssText = `position:absolute;left:${fx0 * 100}%;top:${fy0 * 100}%;width:${(fx1 - fx0) * 100}%;height:${(fy1 - fy0) * 100}%;pointer-events:none`;
+        const ctx = cv.getContext("2d");
+        try {
+          layers.forEach((im) => { const nw = im.naturalWidth, nh = im.naturalHeight; ctx.globalAlpha = +(im.style.opacity || 1); ctx.drawImage(im, fx0 * nw, fy0 * nh, (fx1 - fx0) * nw, (fy1 - fy0) * nh, 0, 0, cw, ch); });
+        } catch (e) { return; }
+        const o = cam.querySelector(".dio-hires"); (layers[layers.length - 1]).after(cv); if (o) o.remove();
+      };
+      (window.requestIdleCallback || ((f) => setTimeout(f, 30)))(draw, { timeout: 400 });
     },
     // la salle « room » vue dans le plan, avec les personnages rangés entre les meubles
     people(room, S, instant) {
@@ -1734,7 +1836,10 @@
         if (seat) g.setAttribute("style", seat.css);
         g.innerHTML = `<g class="rmove" style="animation-delay:${(0.2 + k * 0.22).toFixed(2)}s"><g class="rbody" style="animation-delay:-${(Math.random() * 3.8).toFixed(2)}s;animation-duration:${(3.4 + Math.random() * .9).toFixed(2)}s"><g transform="scale(${seat && seat.flip ? "-.96,.96" : R0 ? .96 : .84})">${R0 || m[ps] || m.stand}</g></g></g>`;
         if (who === "you") youLab = [P.x, P.y];
-        const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > P.d);
+        let Pd = !P.sit && P.wx != null ? standDepth(IN.sp, P.wx, P.wy, P.d) : P.d;
+        // les joueurs de ping-pong : bras et raquette au-dessus du plateau, devant la table
+        if (pose === "pingpong" && P.wx != null) (IN.sp._bx || []).forEach((b) => { if (P.wx > b[0] - .9 && P.wx < b[2] + .9 && P.wy > b[1] - .9 && P.wy < b[3] + .9) Pd = Math.max(Pd, b[4] + .004); });
+        const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > Pd);
         svg.insertBefore(g, after || null);
         // assis de dos : la jambe gauche passe derrière l'assise et les pieds de la chaise (calque glissé sous la chaise),
         // la droite reste devant, comme sur le modèle
@@ -1746,15 +1851,36 @@
         g.querySelector(".rmove").style.animation = "none";
         if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
           const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
-          const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
+          const M = IN.sp._m, route = M && D0.wx != null && P.wx != null ? roomRoute(IN.sp, [D0.wx, D0.wy], [P.wx, P.wy], who === "you" ? .0 : .25) : null;
+          // le chemin, en mètres dans la salle : on contourne les tables et les meubles ; à chaque pas, la personne est
+          // rangée à sa profondeur (devant une table quand elle passe devant, derrière quand elle passe derrière)
+          const pts_ = route || [[0, 0], [1, 1]], segL = pts_.slice(1).map((q, i) => Math.hypot(q[0] - pts_[i][0], q[1] - pts_[i][1])), LEN = segL.reduce((a, b) => a + b, 0) || 1;
+          const proj = (x, y) => [M.o[0] + M.ax[0] * x + M.ay[0] * y, M.o[1] + M.ax[1] * x + M.ay[1] * y];
+          const at = (u) => { let r = u * LEN; for (let i = 0; i < segL.length; i++) { if (r <= segL[i] || i === segL.length - 1) { const k = Math.min(1, r / (segL[i] || 1)); return [pts_[i][0] + (pts_[i + 1][0] - pts_[i][0]) * k, pts_[i][1] + (pts_[i + 1][1] - pts_[i][1]) * k]; } r -= segL[i]; } return pts_[pts_.length - 1]; };
+          const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = route ? 900 + LEN * 1250 : 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
           if (rg && pc) rg.classList.replace(pc, "p-walk");
           g.setAttribute("transform", `translate(${D0.x},${D0.y})`); g.style.opacity = "0";
+          let lastAfter = undefined;
+          const place_ = (wx, wy) => {   // à sa profondeur parmi le décor
+            const dd = standDepth(IN.sp, wx, wy, wx + wy), after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > dd) || null;
+            if (after !== lastAfter) { lastAfter = after; svg.insertBefore(g, after); }
+          };
           const f = (now) => {
             if (!g.isConnected) return;
             const t = Math.max(0, Math.min(1, (now - t0) / DUR)), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-            g.setAttribute("transform", `translate(${(D0.x + (x1 - D0.x) * e).toFixed(2)},${(D0.y + (y1 - D0.y) * e).toFixed(2)})`);
-            g.style.opacity = String(Math.min(1, t / .22));
-            if (t < 1) requestAnimationFrame(f); else { g.style.opacity = ""; if (rg && pc) rg.classList.replace("p-walk", pc); }
+            if (route) {
+              const u = Math.min(1, t * 1.0), q = at(t < 1 ? (t < .15 ? t * t / .3 : t > .85 ? 1 - (1 - t) * (1 - t) / .3 : t - .075) / .85 : 1), xy = proj(q[0], q[1]);
+              g.setAttribute("transform", `translate(${xy[0].toFixed(2)},${xy[1].toFixed(2)})`); place_(q[0], q[1]); void u;
+              const rb = g.querySelector(".rbody"), nx = at(Math.min(1, ((t < .15 ? t * t / .3 : t > .85 ? 1 - (1 - t) * (1 - t) / .3 : t - .075) / .85) + .02)), dx = proj(nx[0], nx[1])[0] - xy[0];
+              if (rb && Math.abs(dx) > .05) rb.classList.toggle("flip", dx < 0);
+            } else g.setAttribute("transform", `translate(${(D0.x + (x1 - D0.x) * e).toFixed(2)},${(D0.y + (y1 - D0.y) * e).toFixed(2)})`);
+            g.style.opacity = String(Math.min(1, t / .18));
+            if (t < 1) requestAnimationFrame(f);
+            else {
+              g.style.opacity = ""; g.setAttribute("transform", `translate(${P.x},${P.y})`); if (rg && pc) rg.classList.replace("p-walk", pc);
+              const after = [...svg.querySelectorAll(":scope > g[data-d]")].find((x) => +x.dataset.d > Pd); svg.insertBefore(g, after || null);
+              g.dispatchEvent(new Event("arrived"));
+            }
           };
           requestAnimationFrame(f);
         }
@@ -1830,7 +1956,7 @@
         // le plateau de la table (76 cm, pour des jeunes d'environ 1,65 m), sous chaque raquette : la balle rebondit DESSUS
         const T0 = F[0] - D[0] * .46, T1 = F[1] - D[1] * .46, hA = Math.max(fig * .05, T0 - H[0][1]), hB = Math.max(fig * .05, T1 - H[1][1]);
         const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
-        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .021).toFixed(2)}" fill="#F28C28" stroke="#FFFFFF" stroke-width=".18"/>`;
+        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .03).toFixed(2)}" fill="#FF8A1F" stroke="#FFFFFF" stroke-width=".35"/>`;
         // la balle est toujours au-dessus du plateau : on la dessine par-dessus la table (jamais « à travers »)
         const lab = svg.querySelector(":scope > .rlab-top"); svg.insertBefore(ball, lab || null);
         const bl = ball.querySelector(".pp-ball"), sh = ball.querySelector(".pp-shadow");
@@ -1843,7 +1969,7 @@
           const x = A0[0] + (B0[0] - A0[0]) * u, base = ta + (tb - ta) * u;   // le plateau sous la trajectoire
           // départ de la raquette, un arc au-dessus du filet, rebond SUR la moitié adverse (70 %), puis remontée vers l'autre raquette
           const b = .7, v = (u - b) / (1 - b), h = u < b ? (1 - u / b) * ha + 4 * arc * (u / b) * (1 - u / b) : v * hb + 2.2 * arc * v * (1 - v);
-          bl.setAttribute("cx", x.toFixed(2)); bl.setAttribute("cy", (base - h - fig * .021).toFixed(2));
+          bl.setAttribute("cx", x.toFixed(2)); bl.setAttribute("cy", (base - h - fig * .03).toFixed(2));
           sh.setAttribute("cx", x.toFixed(2)); sh.setAttribute("cy", base.toFixed(2)); sh.setAttribute("opacity", (.3 - Math.min(.22, h / arc * .12)).toFixed(2));
           requestAnimationFrame(f);
         };
@@ -1986,7 +2112,7 @@
     },
   };
   // 20 gestes de conversation (gest2.css, générés par tools/gest2.py) : leur durée propre, de 2,2 à 2,8 s
-  const GDUR = { eat: 2600, jumpjoy: 1800, hop: 2000, kick: 1800, sway: 2600, tugsleeve: 2200, highfive: 1800, checkwatch: 2400, texting: 2800, bagstrap: 2200, handhold: 2600, stretch: 2600, push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
+  const GDUR = { yawn: 2800, eat: 2600, jumpjoy: 1800, hop: 2000, kick: 1800, sway: 2600, tugsleeve: 2200, highfive: 1800, checkwatch: 2400, texting: 2800, bagstrap: 2200, handhold: 2600, stretch: 2600, push: 1400, stagger: 1600, weigh: 2600, roll: 2400, chop: 2200, spread: 2600, pinch: 2300, wag: 2200, pat: 2500, palmup: 2300, offer: 2400, sweep: 2600, clap: 2200, rub: 2600, chest: 2600, thumbk: 2400, brush: 2200, steeple: 2800, nodhand: 2200, lift: 2600, tap: 2600, earcup: 2400 };
   /* ---------- Mise en scène : ce que dit le narrateur, on le voit ----------
      Quand le narrateur décrit une situation, on repère qui est nommé (ou « les enfants », « les jeunes »…) et ce que la
      personne fait ; au moment où la phrase est dite, la personne le joue : geste, émotion sur le visage, regard vers
@@ -2014,7 +2140,7 @@
     [/hésit|n’ose|gên|timide|se tortill|se dandin/, { g: "fidget" }],
     [/se cach|cache son|cache ses|derrière ses mains/, { g: "cover" }],
     [/serr\w* dans ses bras|câlin|prend dans ses bras|enlac|bisou|embrass/, { g: "hug", to: 1 }],
-    [/salu|fait signe|coucou|agite la main/, { g: "wave", face: 1 }],
+    [/salu|fait signe|fait un signe|signe de la main|coucou|agite la main/, { g: "wave", face: 1 }],
     [/saute de joie|sautill|bondit|trépign/, { g: "hop", e: "big" }],
     [/tire (?:la|sur la) manche|tire le bras|tire par la main/, { g: "tugsleeve", to: 1 }],
     [/regarde sa montre|consulte sa montre/, { g: "checkwatch" }],
@@ -2138,7 +2264,7 @@
       }, Math.max(150, c.pos * D * .92))));
     },
   };
-  const GESTS = ["eat", "jumpjoy", "hop", "kick", "sway", "tugsleeve", "highfive", "checkwatch", "texting", "bagstrap", "handhold", "stretch", "weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch"];
+  const GESTS = ["eat", "jumpjoy", "hop", "kick", "sway", "tugsleeve", "highfive", "checkwatch", "texting", "bagstrap", "handhold", "stretch", "weigh", "roll", "chop", "spread", "pinch", "wag", "pat", "palmup", "offer", "sweep", "clap", "rub", "chest", "thumbk", "brush", "steeple", "nodhand", "lift", "tap", "earcup", "push", "stagger", "explain", "explain2", "open", "count", "shrug", "nod", "shake", "point", "pointself", "heart", "facepalm", "chin", "scratch", "wave", "cross", "hips", "raise", "calm", "stop", "beckon", "lean", "stepback", "weight", "lookaway", "downcast", "fidget", "sigh", "laugh", "cover", "stomp", "fist", "thumb", "present", "phone", "hug", "tilt", "neck", "welcome", "watch", "note", "crouch", "yawn"];
   const LISTEN = ["nod", "tilt", "weight", "chin", "lookaway", "cross", "sigh", "lean", "note"];
   const KIDS = new Set(["lou", "malo", "zoe", "theo", "sacha", "lena", "maelys", "clara", "enzo"]);
   // les gestes qui vont avec ce qui est dit
@@ -2230,6 +2356,12 @@
   ];
   const G_KEEP = new Set(["eat", "push", "stagger", "wave", "crouch"]);   // gestes de l'action (choréographie), jamais remplacés
   const _gRecent = {}, _gSub = {};
+  function isAdult(a) {
+    const who = (a.dataset && a.dataset.who) || (a.getAttribute && a.getAttribute("data-who")) || "";
+    if (!who || KIDS.has(who) || /^[kt]\d/.test(who)) return false;
+    if (who === "you") return true;
+    const sp = rigSpec(who); return !sp || (sp.age || 30) >= 18;
+  }
   function gesture(a, g, opt) {
     const r = a.querySelector(".rig"); if (!r || reduce()) return;
     if (!G_KEEP.has(g) && !(opt && opt.exact)) {
@@ -2245,6 +2377,10 @@
       _gRecent[g] = { t: now, w: who };
     }
     if (g === "wave" && !(opt && opt.greet) && !a._greet && !greetNow()) g = "nodhand";
+    // les adultes ne lèvent pas les deux bras en l'air : ça, c'est la joie des enfants. Chez eux, s'étirer ou bâiller
+    // ne vient que de la fatigue (et seulement quand on ne leur parle pas)
+    if (isAdult(a) && !(opt && opt.tired)) { if (g === "raise" || g === "jumpjoy" || g === "hop" || g === "highfive") g = "nodhand"; else if (g === "stretch" || g === "yawn") g = "sigh"; }
+    if (opt && opt.tired) { r.classList.add("tired"); setTimeout(() => r.classList.remove("tired"), (GDUR[g] || 2600) + 100); }
     const cur = GESTS.find((x) => r.classList.contains("g-" + x));
     if (cur) {   // un geste joue encore : il s'achève en accéléré, puis le nouveau enchaîne
       if (cur === g) return;
@@ -2609,7 +2745,9 @@
       const idx = sc.spots.findIndex((s, i) => s.real && !found.has(i));
       if (idx >= 0) { const b = map.querySelectorAll(".spot")[idx]; b.classList.add("hinted"); b.focus(); say("Regardez du côté de : " + sc.spots[idx].label); }
     }, "ghost");
-    const nb = btn("Terminer la visite", () => { if (!over) { Voice.stop(); finish(false); return; } stop(); next(); });
+    // fin de visite : un fondu au noir bref, puis la suite (le grand plan ne « glisse » plus hors de l'écran)
+    const nb = btn("Terminer la visite", () => { if (!over) { Voice.stop(); finish(false); return; } stop(); Snd.click();
+      blackout(() => { document.body.classList.add("swap"); go(st.idx + 1, 1); setTimeout(() => document.body.classList.remove("swap"), 700); }); });
     bar.append(hb, nb);
     wrap.append(mapbox, el("p", { class: "lx-swipe", "aria-hidden": "true" }, "Faites glisser le plan pour voir tout l’accueil."), bar);
     n.appendChild(wrap);
@@ -2689,7 +2827,7 @@
           if (!ok || vk !== visitTok || !wrap.isConnected) return;
           tour.nour.face([tour.nour.x - 1, tour.nour.y - 1]); gesture(tour.nour.el, "point");
           tour.door(s.key, true);
-          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 1750); }, 650);
+          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 2600); }, 650);
         });
         else tour.go(s.key);
       }
@@ -4522,7 +4660,10 @@
   function passDoor(W, dk, ms, done) {
     const q = NODES[dk], P = DPLANE[dk];
     if (!q || !P || !W || reduce()) { if (W) W.el.style.opacity = "0"; if (done) done(); return; }
-    const ax = P[0] === "x" ? 0 : 1, sg = Math.sign(P[1] - q[ax]) || -1, DEEP = .9;
+    // d'abord bien en face de la porte (jamais à côté, à travers le mur), puis on la franchit
+    if (Math.hypot(W.x - q[0], W.y - q[1]) > .12 && !W._aligned) { W._aligned = 1; W.go([[q[0], q[1]]], 1.3, () => passDoor(W, dk, ms, done), "walk"); return; }
+    W._aligned = 0;
+    const ax = P[0] === "x" ? 0 : 1, sg = Math.sign(P[1] - q[ax]) || -1, DEEP = .55;   // une fois le seuil passé, le mur nous cache vite
     const a = [W.x, W.y], b = a.slice(); b[ax] = P[1] + sg * DEEP;
     const fa = w2f(a[0], a[1]), fb = w2f(b[0], b[1]), deg = Math.atan2(fb[0] - fa[0], -(fb[1] - fa[1])) * 180 / Math.PI;
     W.path = null; W.entering = true; W.setPose("stand"); W.face(b); if (sg < 0) W.setBack(true);
@@ -4584,7 +4725,7 @@
       // Nour, puis vous, passez la porte
       inside(on, key) {
         const dk = key && TOUR_AT[key];
-        [N, Y].forEach((W, i) => { if (on) setTimeout(() => { if (dk && DPLANE[dk]) passDoor(W, dk, 1000); else W.el.classList.add("tour-in"); }, i * 280); else { unhide(W); W.el.classList.remove("tour-in"); if (W.back) W.setBack(false); } });
+        [N, Y].forEach((W, i) => { if (on) setTimeout(() => { if (dk && DPLANE[dk]) passDoor(W, dk, 900); else W.el.classList.add("tour-in"); }, i * 750); else { unhide(W); W.el.classList.remove("tour-in"); if (W.back) W.setBack(false); } });
       },
       nour: N,
       isRoom: (key) => !!(TOUR_AT[key] && TOUR_AT[key] !== "gate" && A.dio.inner && A.dio.inner[key]),
@@ -4786,6 +4927,13 @@
     },
     // une personne sur place (elle discute, joue, attend) : un geste de temps en temps
     idle(who, x, y, gests, opts = {}) {
+      // la fatigue de la semaine : un adulte seul (personne ne lui parle, personne à côté) bâille ou s'étire, de plus en plus souvent
+      const tiredNow = (W) => {
+        if (!isAdult(W.el) || W.ev || W.el.querySelector(".talking") || W.el.classList.contains("talking")) return false;
+        const f = (DC.f || 12) / 100, p = Math.max(0, f - .1) * .5;
+        if (Math.random() > p) return false;
+        return !this.walkers.some((o) => o !== W && o.el.isConnected && Math.hypot(o.x - W.x, o.y - W.y) < 1.8);
+      };
       // le visage dit ce que la personne vit (triste, en colère, ravie…) : on le voit dès qu'on l'aperçoit
       const md = { sad: "sad", upset: "angry", angry: "angry", big: "big", smile: "big", laugh: "big" }[opts.pose];
       const W = this.add(Walker(who, x, y, opts.pose || "stand", { back: opts.back, prop: opts.prop, mood: md }));
@@ -4805,7 +4953,8 @@
         if (!opts.still && !W.ev && !W.path && Math.random() < .45) {
           const a = Math.random() * 6.283, r = .4 + Math.random() * .7, to = [home[0] + Math.cos(a) * r, home[1] + Math.sin(a) * r];
           W.go([to], .9, () => { if (opts.face) W.face(opts.face); }, "walk"); this.wake();
-        } else gesture(W.el, gests[Math.floor(Math.random() * gests.length)]);
+        } else if (tiredNow(W)) gesture(W.el, Math.random() < .55 ? "yawn" : "stretch", { tired: 1, exact: 1 });
+        else gesture(W.el, gests[Math.floor(Math.random() * gests.length)]);
         g.t = setTimeout(tick, 2600 + Math.random() * 3000);
       };
       g.t = setTimeout(tick, 600 + Math.random() * 2400);
@@ -5008,7 +5157,7 @@
       World.cam.querySelectorAll(`.dio-door.dk-${key}`).forEach((d) => d.classList.add("open"));   // la porte s'ouvre devant vous
       aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 700);
       const dk = Object.keys(DOORS).find((d) => DOORS[d] === key);
-      if (dk && DPLANE[dk]) { passDoor(you, dk, 950); setTimeout(() => blackout(go), 1300); }   // on voit son corps passer la porte, puis la salle
+      if (dk && DPLANE[dk]) { let gone = 0; const bo = () => { if (!gone++) blackout(go); }; passDoor(you, dk, 950, () => setTimeout(bo, 120)); setTimeout(bo, 4500); }   // on voit son corps passer la porte, puis la salle
       else { setTimeout(() => you.el.classList.add("indoor"), 200); setTimeout(() => blackout(go), 380); }
     }
     // le couloir du bâtiment principal : on choisit la salle
@@ -5333,7 +5482,7 @@
       const evH = sc.events.find((e) => e.room === key), txt = C.before && evH && !S.done[evH.id] && S.t < toMin(evH.from) ? C.before : C.t;
       document.body.classList.remove("roaming"); Life.clear();
       const room = C.room || (A.dio.inner && A.dio.inner[key] ? key : null);
-      STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3 };
+      STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3, greet: /signe de la main|coucou/.test(C.t || "") };
       World.stage({ id: "roam-calm-" + key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
       S.t += 8; save();
@@ -5379,10 +5528,17 @@
 (function seeThrough() {
   let last = 0;
   // la découpe par le toit d'une personne à moitié cachée : le bord du toit à sa hauteur, recalculé à chaque image (elle marche)
-  function clipFor(a) {
+  function clipFor(a, pr0) {
     const w = a._w; if (!w || !w._hitP || !a.parentElement) return "";
-    const r = a.getBoundingClientRect(), pr = a.parentElement.getBoundingClientRect(); if (!r.width || !pr.width) return "";
-    const P = w._hitP.map(([x, y]) => [pr.left + x / 100 * pr.width, pr.top + y / 100 * pr.height]), N = 8, pts = [];
+    // la boîte de la personne, en fractions du calque : mesurée de temps en temps seulement (elle suit sa position au sol,
+    // et le zoom de la caméra agrandit le calque et la personne ensemble) : pas de mise en page forcée à chaque image
+    const now = performance.now(), f = w2f(w.x, w.y);
+    if (!a._bx || now - a._bx.t > 700) {
+      const r0 = a.getBoundingClientRect(), p0 = pr0 || a.parentElement.getBoundingClientRect(); if (!r0.width || !p0.width) return "";
+      a._bx = { t: now, dx: (r0.left - p0.left) / p0.width * 100 - f[0], dy: (r0.top - p0.top) / p0.height * 100 - f[1], w: r0.width / p0.width * 100, h: r0.height / p0.height * 100 };
+    }
+    const B = a._bx, r = { left: f[0] + B.dx, top: f[1] + B.dy, width: B.w, height: B.h };
+    const P = w._hitP, N = 8, pts = [];
     for (let i = 0; i <= N; i++) {
       const X = r.left + r.width * i / N; let top = Infinity;
       for (let j = 0, k = P.length - 1; j < P.length; k = j++) { const [x1, y1] = P[k], [x2, y2] = P[j]; if ((x1 <= X) !== (x2 <= X)) { const Y = y1 + (y2 - y1) * (X - x1) / (x2 - x1); if (Y < top) top = Y; } }
@@ -5392,7 +5548,12 @@
   }
   function frame(t) {
     requestAnimationFrame(frame);
-    document.querySelectorAll(".wacts .walker.partial").forEach((a) => { const cp = clipFor(a); if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; } });
+    // toutes les mesures d'abord, toutes les écritures ensuite : une seule mise en page par image (au lieu d'une par personne)
+    const PL = document.querySelectorAll(".wacts .walker.partial");
+    if (PL.length) {
+      const cps = [...PL].map((a) => clipFor(a));
+      PL.forEach((a, i) => { if (a._cut !== cps[i]) { a._cut = cps[i]; a.style.clipPath = cps[i]; } });
+    }
     if (t - last < 220) return; last = t;
     // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
     const W0 = document.getElementById("world"), roots = [];
@@ -5411,7 +5572,9 @@
     if (gt.length) { const now = performance.now(), near = [...W.querySelectorAll(".wacts .walker")].some((a) => { const w = a._w; if (!w || w.y < 21.2 || w.y > 27.6) return false; const dx = Math.abs(w.x - 30.0);
         return w.path && w.path.length ? dx < 4.2 && (dx < 1 || w.path.some((p) => (p[0] - 30.0) * (w.x - 30.0) < 0)) : dx < 1;   // ceux qui marchent vers le portail, et ceux qui s'y sont arrêtés
       });
-      if (near) W._gateT = now; const op = near || now - (W._gateT || -1e9) < 1600; gt.forEach((d) => d.classList.toggle("open", op)); }
+      if (near) W._gateT = now; const op = near || now - (W._gateT || -1e9) < 1600; gt.forEach((d) => d.classList.toggle("open", op));
+      // tant que quelqu'un passe, le dessin « portail fermé » recopié devant les personnages s'efface lui aussi
+      if (W.classList.contains("gate-busy") !== op) W.classList.toggle("gate-busy", op); }
     const occ = W.querySelectorAll(".dio-occ"); if (!occ.length) return;
     const acts = [...W.querySelectorAll(".wacts .actor, .wacts .walker, .wacts .life")].filter((a) => a.offsetParent !== null);
     // derrière un bâtiment : le bâtiment devient transparent quand c'est vous (ou une personne d'une scène) qui passez derrière,
@@ -5465,6 +5628,8 @@
         // transparence progressive : seul un halo autour de la personne s'efface, et il se fond peu à peu dans le bâtiment
         const who = hidden.find(([a, kk]) => kk === k && a._w && (a._w.who === "you" || a._w.ev)), ar = who && who[0].getBoundingClientRect();
         host.querySelectorAll(`.dio-ghost[data-k="${k}"]`).forEach((x) => {
+          // le halo apparaît directement sur la personne (il ne « vient » pas d'ailleurs) : pas de glissement à l'apparition
+          if (!x.classList.contains("on") && !x.classList.contains("snap")) { x.classList.add("snap"); requestAnimationFrame(() => requestAnimationFrame(() => x.classList.remove("snap"))); }
           if (ar && ar.width) { const ir = x.getBoundingClientRect(); if (ir.width) {
             x.style.setProperty("--mx", ((ar.left + ar.width / 2 - ir.left) / ir.width * 100).toFixed(1) + "%");
             x.style.setProperty("--my", ((ar.top + ar.height * .55 - ir.top) / ir.height * 100).toFixed(1) + "%");
@@ -5481,8 +5646,10 @@
       W.querySelectorAll(".dio-door").forEach((d) => { const c = [...d.classList].find((x) => x.startsWith("dk-")); const k = c && c.slice(3); d.classList.toggle("ghosted", !!k && (ghost.has(k) || (ghost.has("main") && (k === "cuisine" || k === "soins")))); });
     }
     const R = acts.map((a) => [a.getBoundingClientRect(), +a.style.zIndex || 0]);
+    const vw = innerWidth, vh = innerHeight;
+    acts.forEach((a, i) => { if (!a.classList.contains("walker")) return; const b = R[i][0], off = b.right < -40 || b.left > vw + 40 || b.bottom < -40 || b.top > vh + 40; if (a.classList.contains("offs") !== off) a.classList.toggle("offs", off); });
     occ.forEach((o) => {
-      if (o.classList.contains("dio-signtxt")) return;   // l'enseigne reste lisible (texte fin, en hauteur)
+      if (o.classList.contains("dio-signtxt") || o.classList.contains("dio-pcar")) return;   // une voiture garée reste opaque : on passe derrière elle   // l'enseigne reste lisible (texte fin, en hauteur)
       const z = +o.style.zIndex || 0, r = o.getBoundingClientRect();
       let hit = false;
       for (const [b, za] of R) {
@@ -5503,7 +5670,7 @@
     const all = World.cam.querySelectorAll(".dio-ov.dio-car"), src = all[(Car.n = (Car.n || 0) + 1) % (all.length || 1)]; if (!src) return null;   // un modèle différent à chaque voiture
     const c = src.cloneNode(true); c.classList.remove("dio-car", "dio-cv1", "dio-cv2"); c.classList.add("dio-car2");
     const L0 = parseFloat(src.style.left), T0 = parseFloat(src.style.top);
-    const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 27.3) + 2; } };
+    const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 28.5) + 2; } };   // rangée par son pare-chocs avant : elle passe devant ceux qui attendent au bord de la voie
     C.drive = (to, sec, done) => {
       const a = C.dx, t0 = performance.now(), D = reduce() ? 1 : sec * 1000, e = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
       const f = (now) => { if (!c.isConnected) return; const t = Math.min(1, (now - t0) / D); C.dx = a + (to - a) * e(t); C.place(); if (t < 1) requestAnimationFrame(f); else if (done) done(); };

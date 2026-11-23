@@ -1745,8 +1745,6 @@
         }
         g.querySelector(".rmove").style.animation = "none";
         if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
-          // celui qui entre passe DEVANT le mobilier (la table de ping-pong, les tables de la salle d'activités…)
-          requestAnimationFrame(() => { if (g.parentNode) { g.classList.add("rfront"); g.parentNode.appendChild(g); const lb = g.parentNode.querySelector(":scope > .rlab-top"); if (lb) g.parentNode.appendChild(lb); } });
           const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
           const x1 = P.x, y1 = P.y, t0 = performance.now() + (who === "you" ? 650 : 150), DUR = 1500 + Math.hypot(x1 - D0.x, y1 - D0.y) * 8;
           if (rg && pc) rg.classList.replace(pc, "p-walk");
@@ -2691,7 +2689,7 @@
           if (!ok || vk !== visitTok || !wrap.isConnected) return;
           tour.nour.face([tour.nour.x - 1, tour.nour.y - 1]); gesture(tour.nour.el, "point");
           tour.door(s.key, true);
-          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 1250); }, 650);
+          setTimeout(() => { if (vk !== visitTok) return; tour.inside(true, s.key); setTimeout(() => { if (vk === visitTok) enterRoom(s); }, 1750); }, 650);
         });
         else tour.go(s.key);
       }
@@ -4527,17 +4525,24 @@
     const ax = P[0] === "x" ? 0 : 1, sg = Math.sign(P[1] - q[ax]) || -1, DEEP = .9;
     const a = [W.x, W.y], b = a.slice(); b[ax] = P[1] + sg * DEEP;
     const fa = w2f(a[0], a[1]), fb = w2f(b[0], b[1]), deg = Math.atan2(fb[0] - fa[0], -(fb[1] - fa[1])) * 180 / Math.PI;
-    W.path = null; W.entering = true; W.setPose("walk"); W.face(b); if (sg < 0) W.setBack(true);
-    const el0 = W.el, t0 = performance.now(), D = ms || 1100, cross = Math.abs(P[1] - a[ax]), tot = cross + DEEP;
+    W.path = null; W.entering = true; W.setPose("stand"); W.face(b); if (sg < 0) W.setBack(true);
+    // la porte s'ouvre d'abord (battant ou vantaux coulissants), on la franchit ensuite, et elle se referme derrière nous
+    const root = W.el.closest(".wcam, .map") || document, key = DOORS[dk];
+    const dEl = root.querySelectorAll(dk === "dMain" ? ".dio-slide" : `.dio-door.dk-${key}`);
+    dEl.forEach((d) => d.classList.add("open", "held"));
+    setTimeout(() => dEl.forEach((d) => { d.classList.remove("held"); if (!d.classList.contains("dio-slide")) d.classList.remove("open"); }), (ms || 1100) + 1600);
+    const el0 = W.el, t0 = performance.now() + 380, D = ms || 1100, cross = Math.abs(P[1] - a[ax]), tot = cross + DEEP;
     const f = (now) => {
       if (!el0.isConnected) return;
+      if (now < t0) { requestAnimationFrame(f); return; }
+      if (!W._stepped) { W._stepped = 1; W.setPose("walk"); }
       const t = Math.min(1, (now - t0) / D), x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t;
       W.set(x, y);
       const p = Math.max(0, Math.min(1, (t * tot - cross) / DEEP)), m = (1 - p) * 100;   // part du corps déjà passée
       const g = `linear-gradient(${deg.toFixed(0)}deg,#000 ${Math.max(0, m - 12).toFixed(1)}%,transparent ${m.toFixed(1)}%)`;
       el0.style.webkitMaskImage = el0.style.maskImage = p > 0 ? g : "";
       if (t < 1) requestAnimationFrame(f);
-      else { el0.style.opacity = "0"; el0.style.webkitMaskImage = el0.style.maskImage = ""; W.setPose("stand"); if (done) done(); }
+      else { el0.style.opacity = "0"; el0.style.webkitMaskImage = el0.style.maskImage = ""; W._stepped = 0; W.setPose("stand"); if (done) done(); }
     };
     requestAnimationFrame(f);
   }
@@ -5003,7 +5008,7 @@
       World.cam.querySelectorAll(`.dio-door.dk-${key}`).forEach((d) => d.classList.add("open"));   // la porte s'ouvre devant vous
       aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 700);
       const dk = Object.keys(DOORS).find((d) => DOORS[d] === key);
-      if (dk && DPLANE[dk]) { passDoor(you, dk, 950); setTimeout(() => blackout(go), 900); }   // on voit son corps passer la porte, puis la salle
+      if (dk && DPLANE[dk]) { passDoor(you, dk, 950); setTimeout(() => blackout(go), 1300); }   // on voit son corps passer la porte, puis la salle
       else { setTimeout(() => you.el.classList.add("indoor"), 200); setTimeout(() => blackout(go), 380); }
     }
     // le couloir du bâtiment principal : on choisit la salle
@@ -5365,7 +5370,7 @@
     }
     World._onTap = onTap;
     window.__roamWalk = (x, y) => walkTo(x, y);   // pour les tests automatiques
-    window.__roamPos = () => [you.x, you.y, busy, S.t];
+    window.__roamPos = () => [you.x, you.y, busy, S.t]; window.__roamEnter = (k) => enter(k);
     free(true);
   };
 
@@ -5373,8 +5378,21 @@
    ce qui le cache devient légèrement transparent, pour qu'on voie toujours ce qui s'y passe. */
 (function seeThrough() {
   let last = 0;
+  // la découpe par le toit d'une personne à moitié cachée : le bord du toit à sa hauteur, recalculé à chaque image (elle marche)
+  function clipFor(a) {
+    const w = a._w; if (!w || !w._hitP || !a.parentElement) return "";
+    const r = a.getBoundingClientRect(), pr = a.parentElement.getBoundingClientRect(); if (!r.width || !pr.width) return "";
+    const P = w._hitP.map(([x, y]) => [pr.left + x / 100 * pr.width, pr.top + y / 100 * pr.height]), N = 8, pts = [];
+    for (let i = 0; i <= N; i++) {
+      const X = r.left + r.width * i / N; let top = Infinity;
+      for (let j = 0, k = P.length - 1; j < P.length; k = j++) { const [x1, y1] = P[k], [x2, y2] = P[j]; if ((x1 <= X) !== (x2 <= X)) { const Y = y1 + (y2 - y1) * (X - x1) / (x2 - x1); if (Y < top) top = Y; } }
+      pts.push([i * 100 / N, top === Infinity ? 100 : Math.max(0, Math.min(100, (top - r.top) / r.height * 100))]);
+    }
+    return `polygon(0% 0%, 100% 0%, ${pts.reverse().map(([x, y]) => `${x.toFixed(1)}% ${y.toFixed(1)}%`).join(", ")})`;
+  }
   function frame(t) {
     requestAnimationFrame(frame);
+    document.querySelectorAll(".wacts .walker.partial").forEach((a) => { const cp = clipFor(a); if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; } });
     if (t - last < 220) return; last = t;
     // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
     const W0 = document.getElementById("world"), roots = [];
@@ -5385,7 +5403,7 @@
   function see(W) {
     // la porte coulissante de l'entrée s'ouvre (vers la gauche) quand quelqu'un arrive devant, puis se referme
     const sl = W.querySelectorAll(".dio-slide");
-    if (sl.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 15.3, a._w.y - 19.1) < 1.7); sl.forEach((d) => d.classList.toggle("open", near)); }
+    if (sl.length) { const near = [...W.querySelectorAll(".wacts .walker")].some((a) => a._w && Math.hypot(a._w.x - 15.3, a._w.y - 19.1) < 1.7); sl.forEach((d) => d.classList.toggle("open", near || d.classList.contains("held"))); }
     // le portail des familles glisse pour laisser passer quelqu'un, puis se referme
     const gt = W.querySelectorAll(".dio-gate");
     // il s'ouvre bien avant que la personne n'arrive (le vantail met plus d'une seconde à glisser) et ne se referme
@@ -5414,25 +5432,29 @@
       const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
       const foot = P2(w.x, w.y, .05);
       const hit = SIL.find((b) => !inside(b) && w.x + w.y < b.d - .3 && (w.y < b.y1 - .1 && w.x < b.x1 - .1) && inPoly(foot, b.poly));
-      if (!hit || inRoom) { a.classList.remove("behind"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } if (w.zb != null) { w.zb = null; w.place(); } return; }
+      if (!hit || inRoom) { a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } if (w.zb != null) { w.zb = null; w.place(); } return; }
       // jusqu'où le bâtiment cache-t-il le corps ? (on cherche la hauteur où la silhouette du bâtiment s'arrête)
       const Hw = w.h || (/^k|^t/.test(w.who) ? 1.4 : 1.7);
       let lo = 0, hi = Hw; if (inPoly(P2(w.x, w.y, Hw), hit.poly)) lo = Hw; else for (let it = 0; it < 7; it++) { const m = (lo + hi) / 2; if (inPoly(P2(w.x, w.y, m), hit.poly)) lo = m; else hi = m; }
-      w._hid = lo / Hw;   // 1 : entièrement caché ; entre 0 et 1 : seule la tête (ou le haut du corps) dépasse
+      w._hid = lo / Hw; w._hitP = hit.poly;   // 1 : entièrement caché ; entre 0 et 1 : seule la tête (ou le haut du corps) dépasse
       if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
       hidden.push([a, hit.k]);
     });
     // la personne derrière passe sous la copie transparente du bâtiment ; ceux qui sont devant restent au-dessus
     // le halo transparent n'entoure que vous (ou la personne de la scène) : les autres, plus loin derrière le bâtiment, restent cachés
     const halo = hidden.filter(([a, k]) => ghost.has(k) && a._w && (a._w.who === "you" || a._w.ev)).map(([a]) => a._w);
+    const HS = hidden.filter(([a]) => halo.includes(a._w)).map(([a]) => { const r = a.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .55, Math.max(70, r.height * 1.35)]; });
     hidden.forEach(([a, k]) => { const w = a._w;
       // (avec une marge : on entre dans le halo à 1,6 m, on n'en sort qu'à 2,2 m — sinon on clignote en bordure)
-      // seuls vous (ou la personne de la scène) restez visibles dans le halo ; les autres, derrière le bâtiment, restent cachés
-      const g = ghost.has(k) && halo.includes(w);
+      // dans le halo transparent (là où le bâtiment s'efface vraiment, à l'écran), on voit aussi ceux qui sont derrière ;
+      // hors du halo, le bâtiment est plein : ils restent cachés (ou seulement leur tête dépasse)
+      const g = ghost.has(k) && (halo.includes(w) || HS.some(([cx, cy, R]) => { const r = a.getBoundingClientRect(); return Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) < R * .5; }));
       // caché seulement là où le bâtiment le cache : si la tête dépasse du toit, on la voit marcher
       const cut = g ? 0 : w._hid >= .97 ? 1 : w._hid;
       a.classList.toggle("behind", cut === 1);
-      const cp = cut > 0 && cut < 1 ? `inset(0 0 ${Math.min(100, 4 + cut * 92).toFixed(1)}% 0)` : "";
+      // la découpe suit exactement le bord du toit (en biais, comme le toit) : le toit passe par-dessus le corps
+      const part = cut > 0 && cut < 1; a.classList.toggle("partial", part);
+      const cp = part ? clipFor(a) : "";
       if (a._cut !== cp) { a._cut = cp; a.style.clipPath = cp; } if (w.zb != null) { w.zb = null; w.place(); } if (g) a._ghostK = k; });   // on garde sa vraie profondeur (les portes, clôtures, panneaux devant restent devant)
     const host = W.querySelector(".wanim");
     if (host) {

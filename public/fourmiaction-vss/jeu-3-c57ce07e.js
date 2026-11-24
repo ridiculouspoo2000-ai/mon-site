@@ -330,7 +330,7 @@
   // Votre personnage (personnalisation) traduit en personnage articulé
   function specOfLook(L) {
     if (!L) return null;
-    return { age: 27, sex: ["tresses", "long", "ondule", "chignon", "couettes", "carre"].includes(L.hair) ? "f" : "m", skin: SKIN[L.skin] || "#D9A27A", hair: L.hc || "brun", hairStyle: HS[L.hair] || "short", top: L.top || "#3F7CC0", bottom: "#33405C",
+    return { age: 27, sex: ["tresses", "long", "ondule", "chignon", "couettes", "carre"].includes(L.hair) ? "f" : "m", skin: SKIN[L.skin] || "#D9A27A", hair: L.hc || "brun", hairStyle: HS[L.hair] || "short", top: L.top || "#2F2F35", bottom: "#33405C",
       glasses: L.glasses ? ({ rouge: "#C2412A", doree: "#C9A24A" }[L.glasses] || "#3B3B3B") : null, glassShape: L.glasses === "carree" ? "square" : "round", beard: !!L.barbe, moustache: !!L.moustache, badge: true,
       eyes: { marron: "#5A3A22", noisette: "#8A5A2A", vert: "#4F7A3A", bleu: "#3F6FA8", gris: "#6E7780" }[L.eyes] || null,
       mood: L.mood || "smile", nose: Number(L.nose || 1), cut: L.cut || "pull", headband: L.headband || null, bow: L.bow || null, earring: !!L.earring, shoes: "#F4F1EC", shoeStyle: "toile" };
@@ -1451,7 +1451,7 @@
   const RSPEC = {};
   function rigSpec(who) {
     if (typeof RIG === "undefined") return null;
-    if (who === "you") return RIG.specOfLook(st.look) || RIG.specOf("bastien", (A.cast || {}).bastien);
+    if (who === "you") return RIG.specOfLook(st.look || (typeof LOOK !== "undefined" && LOOK.PRESETS && LOOK.PRESETS[0])) || RIG.specOf("bastien", (A.cast || {}).bastien);
     if (!(who in RSPEC)) RSPEC[who] = RIG.specOf(who, (A.cast || {})[who]);
     return RSPEC[who];
   }
@@ -1501,6 +1501,12 @@
     const clear = (p, q) => { const n = Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]) / (S / 3)); for (let k = 1; k < n; k++) { const [i, j] = cell([p[0] + (q[0] - p[0]) * k / n, p[1] + (q[1] - p[1]) * k / n]); if (los[j * nx + i]) return false; } return true; };
     let out = [path[0]]; let k = 0;
     while (k < path.length - 1) { let m = path.length - 1; while (m > k + 1 && !clear(path[k], path[m])) m--; out.push(path[m]); k = m; }
+    // moins de virages : on retire tout point intermédiaire dont les deux voisins se voient (plusieurs passes), puis on
+    // fusionne les virages presque alignés — un trajet de quelques lignes franches, sans va-et-vient
+    for (let pass = 0; pass < 3; pass++) for (let i = 1; i < out.length - 1; i++) if (clear(out[i - 1], out[i + 1])) { out.splice(i, 1); i--; }
+    for (let i = 1; i < out.length - 1; i++) { const a = out[i - 1], b = out[i], c = out[i + 1];
+      const a1 = Math.atan2(b[1] - a[1], b[0] - a[0]), a2 = Math.atan2(c[1] - b[1], c[0] - b[0]); let da = Math.abs(a2 - a1); if (da > Math.PI) da = 2 * Math.PI - da;
+      if (da < .35 || Math.hypot(b[0] - a[0], b[1] - a[1]) < .25) { const t = out.slice(); t.splice(i, 1); if (clear(a, c)) { out = t; i--; } } }
     // arrondir les virages (coins coupés, deux passes), sans jamais entrer dans un meuble
     for (let it = 0; it < 2 && out.length > 2; it++) {
       const sm = [out[0]];
@@ -1554,7 +1560,7 @@
     tired: `<svg viewBox="-10 -10 20 20"><path d="M-6,-6 h5 l-5,5 h5 M2,-2 h4 l-4,4 h4" stroke="#8C9BB0" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>` };
   // Expression de base de chacun selon la scène : sourire au quotidien, visage soucieux dans les situations graves,
   // tristesse pour qui la vit ; certaines scènes précisent une personne (Inès, au briefing, ne rit pas avec les autres).
-  const FACE = { q: "concern", heart: "big", idea: "big", shy: "calm", tired: "sad" };
+  const FACE = { q: "concern", heart: "big", idea: "big", shy: "calm", tired: "concern" };   // (la fatigue : un air las, jamais de larme)
   const FACEMOODS = {
     brief: { ines: "sad", bastien: "big", yanis: "big", jade: "big" }, ines: { ines: "concern" }, chat: { ines: "sad", jade: "concern" }, chatact: { ines: "sad" },
     bilanequipe: { ines: "calm", bastien: "concern", nour: "calm" }, rire: { bastien: "big" },
@@ -1987,7 +1993,7 @@
         g.querySelector(".rmove").style.animation = "none";
         if (walkIn.has(who) && !P.sit) {   // de la porte jusqu'à sa place, en marchant ; on apparaît en passant l'embrasure
           const D0 = IN.sp._door, rg = g.querySelector("svg.rig"), pc = rg && [...rg.classList].find((c) => c.startsWith("p-"));
-          const M = IN.sp._m, route = M && D0.wx != null && P.wx != null ? roomRoute(IN.sp, [D0.wx, D0.wy], [P.wx, P.wy], who === "you" ? .35 : .9, Object.entries(place).filter(([k, q]) => k !== who && !walkIn.has(k) && q && q.wx != null).map(([, q]) => [q.wx, q.wy])) : null;
+          const M = IN.sp._m, route = M && D0.wx != null && P.wx != null ? roomRoute(IN.sp, [D0.wx, D0.wy], [P.wx, P.wy], who === "you" ? .2 : .3, Object.entries(place).filter(([k, q]) => k !== who && !walkIn.has(k) && q && q.wx != null).map(([, q]) => [q.wx, q.wy])) : null;
           // le chemin, en mètres dans la salle : on contourne les tables et les meubles ; à chaque pas, la personne est
           // rangée à sa profondeur (devant une table quand elle passe devant, derrière quand elle passe derrière)
           const pts_ = route || [[0, 0], [1, 1]], segL = pts_.slice(1).map((q, i) => Math.hypot(q[0] - pts_[i][0], q[1] - pts_[i][1])), LEN = segL.reduce((a, b) => a + b, 0) || 1;
@@ -2007,8 +2013,9 @@
             if (route) {
               const u = Math.min(1, t * 1.0), q = at(t < 1 ? (t < .15 ? t * t / .3 : t > .85 ? 1 - (1 - t) * (1 - t) / .3 : t - .075) / .85 : 1), xy = proj(q[0], q[1]);
               g.setAttribute("transform", `translate(${xy[0].toFixed(2)},${xy[1].toFixed(2)})`); place_(q[0], q[1]); void u;
-              const rb = g.querySelector(".rbody"), nx = at(Math.min(1, ((t < .15 ? t * t / .3 : t > .85 ? 1 - (1 - t) * (1 - t) / .3 : t - .075) / .85) + .02)), dx = proj(nx[0], nx[1])[0] - xy[0];
-              if (rb && Math.abs(dx) > .05) rb.classList.toggle("flip", dx < 0);
+              const rb = g.querySelector(".rbody"), nx = at(Math.min(1, ((t < .15 ? t * t / .3 : t > .85 ? 1 - (1 - t) * (1 - t) / .3 : t - .075) / .85) + .08)), dx = proj(nx[0], nx[1])[0] - xy[0];
+              // on ne se retourne que pour un vrai changement de direction (pas à chaque petit virage) : moins d'effet de zigzag
+              if (rb && Math.abs(dx) > .6 && now - (g._flipT || 0) > 450 && rb.classList.contains("flip") !== dx < 0) { rb.classList.toggle("flip", dx < 0); g._flipT = now; }
             } else g.setAttribute("transform", `translate(${(D0.x + (x1 - D0.x) * e).toFixed(2)},${(D0.y + (y1 - D0.y) * e).toFixed(2)})`);
             g.style.opacity = String(Math.min(1, t / .18));
             if (t < 1) requestAnimationFrame(f);
@@ -2095,7 +2102,7 @@
         // le plateau de la table (76 cm, pour des jeunes d'environ 1,65 m), sous chaque raquette : la balle rebondit DESSUS
         const T0 = F[0] - D[0] * .46, T1 = F[1] - D[1] * .46, hA = Math.max(fig * .05, T0 - H[0][1]), hB = Math.max(fig * .05, T1 - H[1][1]);
         const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
-        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .036).toFixed(2)}" fill="#FF8A1F" stroke="#FFFFFF" stroke-width=".45"/>`;
+        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .036).toFixed(2)}" fill="#FF8A1F" stroke="none"/>`;
         // la balle est toujours au-dessus du plateau : on la dessine par-dessus la table (jamais « à travers »)
         const lab = svg.querySelector(":scope > .rlab-top"); svg.insertBefore(ball, lab || null);
         const bl = ball.querySelector(".pp-ball"), sh = ball.querySelector(".pp-shadow");
@@ -2938,7 +2945,7 @@
       if (!timeout && Voice.busy()) { document.addEventListener("voice-idle", sayEnd, { once: true }); } else sayEnd();
       say(res.textContent);
     }
-    let visitTok = 0, inRoomPanel = null, againK = 0;
+    let visitTok = 0, inRoomPanel = null, againK = -1;
     function enterRoom(s) {
       blackout(() => {
         card.hidden = true; wrap.classList.add("visit-in");
@@ -2972,9 +2979,9 @@
       // un lieu déjà visité : Nour ne répète pas la description à voix haute, elle le fait remarquer ; la fiche reste lisible
       if (b.classList.contains("seen") && !over) {
         Snd.click(); visitTok++;
-        const A_ = VOICE_TXT.again, line = A_[Math.min(againK++, A_.length - 1)];
+        const A_ = VOICE_TXT.again; let j = Math.floor(Math.random() * A_.length); if (j === againK) j = (j + 1 + Math.floor(Math.random() * (A_.length - 1))) % A_.length; againK = j; const line = A_[j];   // au hasard, jamais deux fois la même d'affilée
         Voice.say("nour", line);
-        if (tour && tour.nour) { gesture(tour.nour.el, againK > 2 ? "laugh" : "shrug"); }
+        if (tour && tour.nour) { gesture(tour.nour.el, j === 2 ? "laugh" : "shrug"); }
         card.hidden = false; card.className = "spotcard again";
         card.innerHTML = `<p class="kicker">Déjà visité</p><h3 id="spot-t">${esc(s.title)}</h3><p class="again-say"><b>Nour</b> ${esc(line)}</p><p class="small">${esc(s.t)}</p>`;
         const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
@@ -5270,11 +5277,12 @@
     const END = toMin(sc.end), MAX = innerWidth < 760 ? 7 : 8.5, PER_M = .5;   // au plus 8 m par pas ; une minute pour deux mètres
     if (S.x == null) [S.x, S.y] = NODES[sc.startNode || "q2"];   // on démarre dans la cour, juste derrière le portail
     n.dataset.novoice = "1";
-    // les grandes scènes (celles qui comptent dans le bilan) sont obligatoires : on ne peut pas finir l'après-midi sans les
-    // avoir vécues ; elles restent donc ouvertes jusqu'à ce qu'on les ait faites, et l'heure ne dépasse pas 17 h avant
+    // les grandes scènes (celles qui comptent dans le bilan) : tant qu'il en reste, on ne peut pas finir l'après-midi en
+    // avance (le bouton n'apparaît qu'une fois qu'elles sont faites) ; elles restent ouvertes jusqu'à 17 h. L'heure, elle,
+    // continue de tourner : à 17 h, l'après-midi se termine, même s'il en reste.
     const isMust = (e) => !!(e.must || e.comp);
     const evLive0 = (e) => !S.done[e.id] && S.t >= toMin(e.from) - 5 && (S.t <= toMin(e.to) || isMust(e));
-    const capT = () => { if (sc.events.some((e) => isMust(e) && !S.done[e.id])) S.t = Math.min(S.t, END - 3); };
+    const capT = () => { };
     // une même personne ne peut pas être dans deux situations à la fois : la situation suivante attend que la première soit vécue
     const people = (e) => new Set([...(e.spots || []).map((q) => q[0]), ...(e.cast || []).map((q) => q[0])].filter((w) => w !== "you"));
     const evLive = (e) => {
@@ -5378,19 +5386,18 @@
     function drawCard(first) {
       n.innerHTML = "";
       const atEnd = S.t >= END;
-      const ML = mustLeft(), late = ML.length && S.t >= END - 30;
-      const tip = late ? `Avant de finir l’après-midi, il vous reste à vivre : ${ML.map((e) => { const t = (e.title || "").replace(/^.*·\s*/, ""), p = (PLACE[e.at] || "").toLowerCase(); const r = t && p ? `${t} (${p})` : t || p; return r ? r[0].toUpperCase() + r.slice(1) : r; }).filter(Boolean).join(", ")}. Allez-y : l’heure attendra.` : guideOnly() ? "" : "Touchez le sol près de votre personnage pour avancer sur les chemins. Pour entrer quelque part, allez jusqu’à la porte.";
+      const ML = mustLeft(), late = ML.length && S.t >= END - 30 && !atEnd;
+      const tip = atEnd && ML.length ? "C’est l’heure : l’après-midi est terminé. Ce que vous n’avez pas vu, d’autres s’en sont occupés… ou pas." : late ? `Avant de finir l’après-midi, il vous reste à vivre : ${ML.map((e) => { const t = (e.title || "").replace(/^.*·\s*/, ""), p = (PLACE[e.at] || "").toLowerCase(); const r = t && p ? `${t} (${p})` : t || p; return r ? r[0].toUpperCase() + r.slice(1) : r; }).filter(Boolean).join(", ")}. Il est encore temps d’y aller avant 17 h.` : guideOnly() ? "" : "Touchez le sol près de votre personnage pour avancer sur les chemins. Pour entrer quelque part, allez jusqu’à la porte.";
       card = el("div", { class: "rm-card" }, `<div class="rm-top"><div>${kicker(`${CHAPTERS[sc.ch - 1].day} · ${sc.kicker.split("·").pop().trim()}`)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2></div>
         <div class="rm-clock" aria-live="polite"><b>${fmtMin(Math.min(S.t, END))}</b><small>jusqu’à ${esc(sc.end)}</small></div></div>${tip ? `<p class="lead">${esc(tip)}</p>` : ""}`);
       const row = el("div", { class: "row rm-row" });
-      const fin = btn("Finir l’après-midi", finish, "ghost"); fin.disabled = !!ML.length;
-      if (ML.length) fin.title = "Vivez d’abord les scènes importantes de l’après-midi";
-      row.appendChild(fin); card.appendChild(row);
+      // « Finir l'après-midi » n'apparaît qu'une fois les grandes scènes vécues (pour finir en avance)
+      if (!ML.length && !atEnd) { const fin = btn("Finir l’après-midi", finish, "ghost"); row.appendChild(fin); card.appendChild(row); }
       n.appendChild(card);
       if (first && guideOnly() && sc.guide) { coach(sc.guide[1], card); card.classList.add("coached"); vprep(); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 600); }
       else if (first) setTimeout(() => Voice.say("narr", sc.intro), 600);
       sc.events.forEach((e) => { if (e.nudge && !S.done[e.id] && !S.nudged[e.id] && S.t >= toMin(e.nudge) && S.guided) { S.nudged[e.id] = 1; save(); toastMsg(`SMS de ${NAMES[e.nudgeLine[0]]} : ${e.nudgeLine[1]}`); Voice.say(e.nudgeLine[0], e.nudgeLine[1]); } });
-      if (atEnd && !ML.length) { busy = true; setTimeout(finish, 900); }   // l'heure est passée : la suite arrive d'elle-même
+      if (atEnd) { busy = true; setTimeout(finish, ML.length ? 2600 : 900); }   // l'heure est passée : la suite arrive d'elle-même   // l'heure est passée : la suite arrive d'elle-même
     }
     // l'horloge de la carte et celle du haut de l'écran donnent toujours la même heure (celle aussi des scènes vécues)
     const hudClock = () => dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(Math.min(S.t, END))}` });
@@ -5443,7 +5450,7 @@
       if (Object.keys(DOORS).some((d) => NODES[d] && dist([you.x, you.y], NODES[d]) < 1.6)) return;   // au seuil d'une salle : on va entrer
       S.seen[slot] = 1;
       n.querySelectorAll(".rm-bub").forEach((x) => x.remove());
-      const b = el("div", { class: "rm-bub" }, `${kicker(`${fmtMin(S.t)} · ${PLACE[k] || ""}`)}<p>${words(C.t)}</p>`);
+      const b = el("div", { class: "rm-bub" }, `${kicker(PLACE[k] || "")}<p>${words(C.t)}</p>`);
       n.appendChild(b); requestAnimationFrame(() => b.classList.add("on"));
       Voice.say("narr", C.t, b.querySelector("p"));
       // elle reste tant qu'on l'écoute, puis le temps de finir de la lire
@@ -5474,7 +5481,7 @@
       // le choix de la salle s'affiche par-dessus la vue actuelle (le plan, ou la salle où l'on est) : pas de détour par le bâtiment
       document.body.classList.remove("roaming"); if (!fromMap) Life.clear();   // depuis le plan, la vie continue autour (les enfants marchent, jouent)
       n.innerHTML = "";
-      const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
+      const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
       const g = el("div", { class: "opts" });
       MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { g.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
         const into = () => blackout(() => { S.t += 2; capT(); const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); });
@@ -5696,7 +5703,7 @@
         setTimeout(() => { if (!n.isConnected) return; play(sp); setTimeout(() => n.isConnected && act(sp, first, ev.duel), actT); }, gT);   // une fois rejoints, l'action se joue, puis chacun reste vivant
       }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
-      panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
+      panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
       dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });   // l'horloge du haut = l'heure de la scène
       const log = el("div", { class: "dlog" }); panel.appendChild(log);
       const fbz = el("div", { class: "fbzone", "aria-live": "polite" }); let opts = null;
@@ -5797,7 +5804,7 @@
       S.t += 8; capT(); save();
       if (S.t >= END) setTimeout(() => { if (n.isConnected && !timeUp) { timeUp = true; Voice.stop(); finish(); } }, 4200);   // l’heure est passée pendant la visite de la salle
       const wrap = el("div", { class: "duo roamscene calm" }), panel = el("div", { class: "panel" });
-      panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
+      panel.innerHTML = `${kicker(PLACE[key] || "")}<p class="narr">${words(txt)}</p>`;
       dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
       const row = el("div", { class: "row" });
       // dans le grand bâtiment, on passe d'une salle à l'autre par le couloir, sans ressortir
@@ -5809,7 +5816,7 @@
     }
     let finished = false;
     function finish() {
-      if (finished || mustLeft().length) return;
+      if (finished || (mustLeft().length && S.t < END)) return;
       finished = true;
       // le temps est écoulé : on ne se promène plus. Ce qui n'a pas été vu compte comme une situation manquée.
       mustLeft().forEach((e) => { const E0 = SCREENS.find((x) => x.id === e.id); if (E0 && st.res[e.id] == null) { st.res[e.id] = 0; st.missed = st.missed || {}; st.missed[e.id] = 1; } S.done[e.id] = 1; });
@@ -6042,7 +6049,9 @@
     const all = World.cam.querySelectorAll(".dio-ov.dio-car"), src = all[(Car.n = (Car.n || 0) + 1) % (all.length || 1)]; if (!src) return null;   // un modèle différent à chaque voiture
     const c = src.cloneNode(true); c.classList.remove("dio-car", "dio-cv1", "dio-cv2"); c.classList.add("dio-car2");
     const L0 = parseFloat(src.style.left), T0 = parseFloat(src.style.top);
-    const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 28.5) + 2; } };   // rangée par son pare-chocs avant : elle passe devant ceux qui attendent au bord de la voie
+    const C = { el: c, dx: dx0, place() { const ox = this.dx * PJ[2] / PJ[6] * 100, oy = this.dx * PJ[3] / PJ[7] * 100; c.style.left = (L0 + ox) + "%"; c.style.top = (T0 + oy) + "%"; c.style.zIndex = zOf(33.7 + this.dx, 28.5) + 2;
+      // les roues tournent avec le trajet parcouru (sans glisser : angle = distance / rayon)
+      (this._w || (this._w = [...c.querySelectorAll(".whr")])).forEach((g) => g.setAttribute("transform", `rotate(${(-this.dx / (+g.dataset.r || .32) * 57.296).toFixed(1)})`)); } };   // rangée par son pare-chocs avant : elle passe devant ceux qui attendent au bord de la voie
     C.drive = (to, sec, done) => {
       const a = C.dx, t0 = performance.now(), D = reduce() ? 1 : sec * 1000, e = (t) => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
       const f = (now) => { if (!c.isConnected) return; const t = Math.min(1, (now - t0) / D); C.dx = a + (to - a) * e(t); C.place(); if (t < 1) requestAnimationFrame(f); else if (done) done(); };
@@ -6644,10 +6653,10 @@
     }
     // Modèles de départ : les 4 personnages prédéfinis (mêmes réglages que kit/game_assets.py)
     const PRESETS = [
-      { skin: "brune", hair: "tresses", hc: "noir", top: "#2F8F8A", cut: "pull", eyes: "marron", nose: 1 },
-      { skin: "claire", hair: "court", hc: "chatain", top: "#3C6FB8", cut: "sweat", eyes: "marron", nose: 1 },
-      { skin: "doree", hair: "boucles", hc: "brun", top: "#5E8A4E", cut: "pull", glasses: "rondes", eyes: "marron", nose: 1 },
-      { skin: "ebene", hair: "rase", hc: "noir", top: "#E0A63A", cut: "pull", eyes: "marron", nose: 1 },
+      { skin: "brune", hair: "tresses", hc: "noir", top: "#2F2F35", cut: "pull", eyes: "marron", nose: 1 },
+      { skin: "claire", hair: "court", hc: "chatain", top: "#2F2F35", cut: "sweat", eyes: "marron", nose: 1 },
+      { skin: "doree", hair: "boucles", hc: "brun", top: "#2F2F35", cut: "pull", glasses: "rondes", eyes: "marron", nose: 1 },
+      { skin: "ebene", hair: "rase", hc: "noir", top: "#2F2F35", cut: "pull", eyes: "marron", nose: 1 },
     ];
     let cacheKey = "", cache = null;
     const POSES = ["stand", "talk", "wave", "walk", "point", "sit"];

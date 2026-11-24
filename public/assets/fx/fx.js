@@ -27,6 +27,20 @@
     if (!('IntersectionObserver' in window)) { live.add(f); wake(); return; }
     new IntersectionObserver(es => es.forEach(e => { e.isIntersecting ? live.add(f) : live.delete(f); wake(); }), { rootMargin: margin }).observe(el);
   }
+  // Position des éléments dans la page, gardée en mémoire (sans leurs transformations) : aucune mesure de mise en page
+  // à chaque image, et un élément animé ne se mesure jamais déplacé par sa propre animation (sinon il tremble).
+  // Hauteur d’écran stable sur téléphone (la barre d’adresse ne fait plus sauter les effets).
+  let VH = document.documentElement.clientHeight || innerHeight, VW0 = innerWidth, gen = 0;
+  const geoC = new WeakMap();
+  const box = el => {
+    let g = geoC.get(el);
+    if (!g || g.gen !== gen) { let y = 0, x = 0, n = el; while (n) { y += n.offsetTop || 0; x += n.offsetLeft || 0; n = n.offsetParent; } g = { gen, y, x, h: el.offsetHeight || 0, w: el.offsetWidth || 0 }; geoC.set(el, g); }
+    const top = g.y - scrollY; return { top, bottom: top + g.h, height: g.h, left: g.x - scrollX, width: g.w };
+  };
+  const regeo = () => { gen++; };
+  addEventListener('resize', () => { const w = innerWidth, h = document.documentElement.clientHeight || innerHeight; if (!coarse || Math.abs(w - VW0) > 30 || Math.abs(h - VH) > 160) { VW0 = w; VH = h; } regeo(); }, { passive: true });
+  addEventListener('load', regeo); if (document.fonts) document.fonts.ready.then(regeo);
+  if ('ResizeObserver' in window) { let bh = 0; new ResizeObserver(() => { const h = document.body.offsetHeight; if (Math.abs(h - bh) > 1) { bh = h; regeo(); } }).observe(document.body); }
 
   /* ---------------------------------------------------------------- 1. La fourmilière */
   // Les fourmis se promènent, éparpillées sur toute la largeur, dans la zone qui va du long texte d’introduction
@@ -94,7 +108,14 @@
         SPR.push(c);
       }
     }
-    let formed = null, maxD = 1, lastMove = 0;
+    let formed = null, maxD = 1, lastMove = 0, shownInPage = false;
+    // le mot formé, posé dans le canevas de la page (il défile avec le texte)
+    function inPage(on) {
+      if (on === shownInPage) return; shownInPage = on;
+      const c2 = cv.getContext('2d');
+      if (on) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); c2.setTransform(1, 0, 0, 1, 0, 0); c2.drawImage(formed, 0, 0, cv.width, cv.height); cv.classList.add('fx-inpage'); }
+      else { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height); cv.classList.remove('fx-inpage'); }
+    }
     const pointerIdle = () => performance.now() - lastMove > 900 && P.every(q => Math.abs(q.ox) + Math.abs(q.oy) < .3);
     function bake() {   // le mot formé, dessiné une seule fois (mêmes fourmis, mêmes couleurs)
       const c = document.createElement('canvas'); c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
@@ -112,24 +133,28 @@
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
-      const R = cv.getBoundingClientRect();
+      const R = reduced ? null : box(cv);
+      const clearFly = () => { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } };
       // Section dépassée (mot sorti par le haut) : plus rien à dessiner.
-      if (!reduced && R.bottom < -40) { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } return; }
-      cleared = false;
+      if (!reduced && R.bottom < -40) { clearFly(); return; }
       const p = reduced ? 1 : progress(R), t = now / 1000;
       const X0 = reduced ? 0 : R.left, Y0 = reduced ? 0 : R.top;
-      const ZT = reduced ? 0 : zoneTop.getBoundingClientRect().top;   // haut de la zone de promenade, à l’écran
-      if (!reduced && (ZT > VH + 10 || ZT + RH < -10)) { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } return; }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
-      // Mot entièrement formé et personne ne le touche : on pose l’image du mot, gardée en mémoire (aucun calcul par fourmi).
+      const ZT = reduced ? 0 : box(zoneTop).top;   // haut de la zone de promenade, à l’écran
+      if (!reduced && (ZT > VH + 10 || ZT + RH < -10)) { clearFly(); return; }
+      // Mot entièrement formé et personne ne le touche : l’image du mot est posée dans la page elle-même
+      // (elle défile avec le texte, sans aucun décalage), et le calque des fourmis en promenade est vidé.
       const still = p * 1.35 - maxD >= .66 && (!pointer || pointerIdle());
       if (still) {
         if (!formed) formed = bake();
-        ctx.globalAlpha = 1; ctx.drawImage(formed, X0, Y0, W, H);
+        if (reduced) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH); ctx.globalAlpha = 1; ctx.drawImage(formed, X0, Y0, W, H); }
+        else { clearFly(); inPage(true); }
         cv.parentElement.classList.toggle('fx-formed', true);
         for (const q of P) { q.ox *= .9; q.oy *= .9; }
         return;
       }
+      if (!reduced) inPage(false);
+      cleared = false;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
       const paths = Array.from({ length: BUCKETS }, () => new Path2D());
       for (const q of P) {
         // Promenade de fourmi sur tout l’écran : petits changements de cap, rebond sur les bords.
@@ -178,8 +203,9 @@
     (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { sample(); if (reduced) frame(0); });
     let rw = innerWidth, rh = innerHeight;
     addEventListener('resize', () => {
-      if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; rh = innerHeight; sample(); }
-      else if (!reduced && Math.abs(innerHeight - rh) > 1) { rh = innerHeight; sizeFly(); }   // barre d’adresse du téléphone : seul le calque change de hauteur
+      if (Math.abs(innerWidth - rw) > 40) { rw = innerWidth; rh = innerHeight; shownInPage = null; sample(); }
+      // barre d’adresse du téléphone : le calque ne fait que grandir (le redimensionner pendant le défilement le ferait clignoter)
+      else if (!reduced && innerHeight > rh + 1) { rh = innerHeight; sizeFly(); }
     });
     // hauteur de la zone remesurée quand tout est chargé (images, polices)
     const zone = () => { if (ready) RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top; };
@@ -217,8 +243,8 @@
     function paint(s, f) { const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }
     dial.querySelectorAll('.fx-track').forEach(t => { t.style.strokeDasharray = `${t.dataset.len} 200`; t.style.strokeDashoffset = -t.dataset.start; });
     function frame() {
-      const r = scene.getBoundingClientRect(), run = r.height - innerHeight;
-      const p = run > 0 ? clamp(-r.top / run) : clamp((innerHeight * .6 - r.top) / (innerHeight * .6));
+      const r = box(scene), run = r.height - VH;
+      const p = run > 0 ? clamp(-r.top / run) : clamp((VH * .6 - r.top) / (VH * .6));
       segs.forEach((s, i) => paint(s, clamp((p * 1.08 - i / 3) * 3)));
       set(Math.min(2, Math.floor(clamp(p * 1.08) * 3)));
       dial.style.setProperty('--p', p.toFixed(4));
@@ -256,12 +282,12 @@
     c.el.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') setTimeout(off, 600); });
     if (reduced) return;
     whenVisible(c.el, now => {
-      const t = now / 1000, r = c.el.getBoundingClientRect();
+      const t = now / 1000, r = box(c.el.parentElement || c.el);
       // mouvement de repos : lent, ample sur téléphone, plus discret sur ordinateur
       if (c.kind === 'hero' && coarse && !c.el.closest('.h2-open')) return;
       const k = (coarse ? .95 : .45) * (c.kind === 'hero' ? 1.25 : 1), sp = coarse ? 2 : 1;
       let ix = (Math.sin(t * .7 * sp + c.ph) * .7 + Math.sin(t * .31 * sp + c.ph * 2) * .3) * k;
-      let iy = (Math.cos(t * .55 * sp + c.ph) * .6 + ((r.top + r.height / 2) / innerHeight - .5) * .8) * k;
+      let iy = (Math.cos(t * .55 * sp + c.ph) * .6 + ((r.top + r.height / 2) / VH - .5) * .8) * k;
       if (c.on) { ix = c.px; iy = c.py; }
       const f = c.on ? .16 : (coarse ? .1 : .06);
       c.x += (ix - c.x) * f; c.y += (iy - c.y) * f;
@@ -382,7 +408,7 @@
     fromHash(false);
     // Le tracé de la bifurcation se dessine en arrivant dessus.
     if (!reduced) whenVisible(fork, () => {
-      const r = fork.getBoundingClientRect(), p = clamp((innerHeight * .8 - r.top) / (innerHeight * .32));
+      const r = box(fork), p = clamp((VH * .8 - r.top) / (VH * .32));
       lines.forEach((l, i) => l.style.strokeDashoffset = (100 - clamp(p * 1.6 - (i ? .4 : 0)) * 100).toFixed(2));
     });
     else lines.forEach(l => l.style.strokeDashoffset = 0);
@@ -392,8 +418,8 @@
   document.querySelectorAll('.bf-deck').forEach(deck => {
     if (reduced) { deck.style.setProperty('--fan', 1); return; }
     whenVisible(deck, () => {
-      const r = deck.getBoundingClientRect();
-      deck.style.setProperty('--fan', ease(clamp((innerHeight * .8 - r.top) / (innerHeight * .32))).toFixed(4));
+      const r = box(deck), f = ease(clamp((VH * .8 - r.top) / (VH * .32))).toFixed(4);
+      if (deck._f !== f) { deck._f = f; deck.style.setProperty('--fan', f); }
     });
   });
 
@@ -459,9 +485,9 @@
     imgs.forEach(img => {
       img.classList.add('fx-par');
       whenVisible(img, () => {
-        const r = img.getBoundingClientRect();
-        const t = clamp((r.top + r.height / 2) / innerHeight, -.2, 1.2) - .5;
-        img.style.setProperty('--py', (t * -6).toFixed(2) + '%');
+        const r = box(img.parentElement);   // le cadre, jamais l’image déplacée elle-même
+        const t = clamp((r.top + r.height / 2) / VH, -.2, 1.2) - .5, v = (t * -6).toFixed(2) + '%';
+        if (img._py !== v) { img._py = v; img.style.setProperty('--py', v); }
       }, '60px');
     });
   }

@@ -107,7 +107,7 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
 .fx-values.fx-sphere>span:hover{transform:none}
 
 /* ---------- 6. Photos vivantes ---------- */
-.fx-par{transform:translate3d(0,var(--py,0%),0) scale(var(--ps,1.1))!important;will-change:transform;transition:transform .5s var(--ease)!important}
+.fx-par{transform:none!important;translate:0 var(--py,0%);scale:var(--ps,1.1);will-change:transform;transition:scale .5s var(--ease)!important}
 .cards article:hover .fx-par{--ps:1.15}
 
 @media (prefers-reduced-motion:reduce){.page-intro::before,.tk-path i{animation:none}.fx-stack{transition:none}}
@@ -407,3 +407,4 @@ html.ap-reduced .fx-swarm-fly{display:none}
   .ct-big{overflow-wrap:anywhere;font-size:clamp(15px,5vw,26px);letter-spacing:-.01em}
   main h1,main h2,main h3,main .lead{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 }
+.fx-swarm.fx-inpage{-webkit-mask-image:none!important;mask-image:none!important}

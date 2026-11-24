@@ -132,7 +132,36 @@
   const scenes = [];
   root.classList.toggle('ap-scenes', !reduced);
   const wideMq = matchMedia('(min-width: 901px)'); const wide = () => wideMq.matches; // largeur réelle de l’écran (insensible au zoom)
-  function sceneProgress(el) { const r = el.getBoundingClientRect(); const run = r.height - innerHeight; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
+  /* Géométrie gardée en mémoire : la position de chaque élément dans la page, sans ses transformations.
+     Pendant le défilement, plus aucune mesure de mise en page (le navigateur n’a rien à recalculer),
+     et un élément animé ne se mesure jamais une fois déplacé par sa propre animation (sinon il oscille : la page « tremble »).
+     Hauteur d’écran de référence stable : sur téléphone, la barre d’adresse qui apparaît ou disparaît ne fait plus sauter les animations. */
+  const TOUCH_DEV = matchMedia('(hover: none)').matches;
+  let VH = document.documentElement.clientHeight || innerHeight, VW = innerWidth;
+  let geoGen = 0; const geoC = new WeakMap(), stuck = new WeakSet();
+  const docTop = el => { let y = 0, n = el; while (n) { y += n.offsetTop || 0; n = n.offsetParent; } return y; };
+  function G(el) {
+    let g = geoC.get(el);
+    if (!g || g.gen !== geoGen) {
+      let top;
+      if (stuck.has(el)) { const p = el.style.position; el.style.position = 'static'; top = docTop(el); el.style.position = p; }   // carte collante : sa place naturelle
+      else top = docTop(el);
+      g = { gen: geoGen, top, h: el.offsetHeight || 0 }; geoC.set(el, g);
+    }
+    return g;
+  }
+  const box = el => { const g = G(el), top = g.top - scrollY; return { top, bottom: top + g.h, height: g.h }; };
+  let relaidRaf = 0;
+  const relayout = () => { if (relaidRaf) return; relaidRaf = requestAnimationFrame(() => { relaidRaf = 0; geoGen++; if (typeof runScenes === 'function') runScenes(); if (typeof onScrollRange === 'function') onScrollRange(); }); };
+  addEventListener('resize', () => {
+    const w = innerWidth, h = document.documentElement.clientHeight || innerHeight;
+    // téléphone : seule la largeur compte (rotation) ; ordinateur : toute taille de fenêtre
+    if (!TOUCH_DEV || Math.abs(w - VW) > 30 || Math.abs(h - VH) > 160) { VW = w; VH = h; relayout(); }
+  }, { passive: true });
+  addEventListener('load', relayout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+  if ('ResizeObserver' in window) { let bh = 0; new ResizeObserver(() => { const h = document.body.offsetHeight; if (Math.abs(h - bh) > 1) { bh = h; relayout(); } }).observe(document.body); }
+  function sceneProgress(el) { const r = box(el); const run = r.height - VH; return run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0); }
 
   // Héros de l'accueil, en trois temps (grand écran) :
   // 1. le titre, grand et centré, s'écrit (les mots colorés se remplissent) ;
@@ -169,8 +198,8 @@
         h1.style.transform = ''; after.forEach(e => { e.style.opacity = ''; e.style.transform = ''; e.style.pointerEvents = ''; });
         if (!hero.classList.contains('h2-m')) { photo.style.clipPath = ''; ems.forEach(e => e.style.setProperty('--f', '100%')); return; }
         ems.forEach(e => e.style.removeProperty('--f'));
-        const r = photo.getBoundingClientRect();
-        open2 = Math.max(open2, intro * .5, clamp((innerHeight - r.top) / (innerHeight * .55)));
+        const r = box(photo);
+        open2 = Math.max(open2, intro * .5, clamp((VH - r.top) / (VH * .55)));
         const o = ease(open2);
         if (o >= .999) hero.classList.add('h2-open');
         photo.style.clipPath = o >= .999 ? 'none' : `circle(${lerp(0, 76, o).toFixed(2)}% at 50% 45%)`; // « none » explicite : '' laissait revenir le cercle fermé du CSS
@@ -265,8 +294,8 @@
       if (!span || hs.classList.contains('hs-tl')) return;
       let p, x;
       if (hs.classList.contains('hs-flow')) {   // repli (anciens iPhone) : position calculée directement, sans figer la section
-        const r = hs.getBoundingClientRect();
-        p = clamp(((vhS || innerHeight) - r.top - flowA) / (flowB - flowA));
+        const r = box(hs);
+        p = clamp(((vhS || VH) - r.top - flowA) / (flowB - flowA));
         // même rythme que la version CSS : première carte qui reste, deux passages rapides, dernière carte qui reste
         const K = [[0, 0], [.28, 0], [.42, 1], [.52, 1], [.64, 2], [.74, 2], [.86, 3], [1, 3]];
         let i = 0; while (i < K.length - 2 && p > K[i + 1][0]) i++;
@@ -275,7 +304,7 @@
       }
       if (wide() || stops.length < 2) { p = ease(sceneProgress(hs)); x = span * p; paint(x, p); cur = x; return; }
       // petite pause au début et à la fin, puis chaque carte : un temps d’arrêt, un glissement
-      const r = hs.getBoundingClientRect(), run = r.height - (vhS || innerHeight);
+      const r = box(hs), run = r.height - (vhS || VH);
       p = clamp(((run > 0 ? clamp(-r.top / run) : (r.top < 0 ? 1 : 0)) - .1) / .8);
       const u = p * (stops.length - 1), k = Math.min(stops.length - 2, Math.floor(u)), t = ease(clamp((u - k - .22) / .78));
       x = lerp(stops[k], stops[k + 1], t);
@@ -287,67 +316,81 @@
 
   // Cartes qui s'empilent : chaque carte reste collée en haut, la précédente recule et s'assombrit.
   const stack = [...document.querySelectorAll('.stack-card')];
-  if (stack.length) scenes.push(() => {
-    stack.forEach((card, i) => {
-      const next = stack[i + 1];
-      let t = 0;
-      if (next) { const top = parseFloat(getComputedStyle(next).top) || 0; const r = next.getBoundingClientRect(); t = clamp(1 - (r.top - top) / (innerHeight * .85)); }
-      card.style.transform = `scale(${(1 - .07 * ease(t)).toFixed(4)})`;
-      card.style.setProperty('--dim', (t * .55).toFixed(3));
+  if (stack.length) {
+    stack.forEach(c => stuck.add(c));
+    let stickTop = [], stGen = -1, last = [];
+    scenes.push(() => {
+      if (stGen !== geoGen) { stGen = geoGen; stickTop = stack.map(c => parseFloat(getComputedStyle(c).top) || 0); }   // lu une fois par mise en page, pas à chaque image
+      stack.forEach((card, i) => {
+        const next = stack[i + 1];
+        let t = 0;
+        if (next) { const nt = Math.max(stickTop[i + 1], box(next).top); t = clamp(1 - (nt - stickTop[i + 1]) / (VH * .85)); }
+        const k = t.toFixed(3); if (last[i] === k) return; last[i] = k;   // rien ne change : rien n’est réécrit
+        card.style.transform = `scale(${(1 - .07 * ease(t)).toFixed(4)})`;
+        card.style.setProperty('--dim', (t * .55).toFixed(3));
+      });
     });
-  });
+  }
 
   // Titres dont la partie colorée se remplit en avançant dans la page.
   document.querySelectorAll('main h2 em, main .cj-quote em, main .cj-pq em').forEach(em => {
     if (em.closest('[data-scene="hero2"], .page-intro, .nw-hero')) return;
     em.classList.add('fx-fill');
+    let lastF = '';
     scenes.push(() => {
-      const r = em.getBoundingClientRect(); if (r.bottom < -50 || r.top > innerHeight + 50) return;
-      const t = clamp((innerHeight * .75 - r.top) / (innerHeight * .28));
-      em.style.setProperty('--f', `${(t * 100).toFixed(1)}%`);
+      const r = box(em); if (r.bottom < -50 || r.top > VH + 50) return;
+      const t = clamp((VH * .75 - r.top) / (VH * .28));
+      const f = `${(t * 100).toFixed(1)}%`; if (f === lastF) return; lastF = f;
+      em.style.setProperty('--f', f);
     });
   });
 
   // Rideau : les images se dévoilent de bas en haut en entrant dans l'écran (aucun agrandissement).
-  document.querySelectorAll('.split .photo, .gallery a, .bafa-infographic, .competences-image, .cj-player, .nw-media, .nw-art, .ap-widget').forEach(el => {
-    el.classList.add('fx-curtain');
-    scenes.push(() => {
-      const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-      const t = ease(clamp((innerHeight - r.top) / (Math.min(r.height, innerHeight) * .9)));
-      el.style.clipPath = t >= 1 ? '' : `inset(${((1 - t) * 100).toFixed(2)}% 0 0 0 round var(--fx-r, 24px))`;
-    });
-  });
+  // Le rideau se lève d’un seul mouvement, à son propre rythme, dès que l’image entre dans l’écran :
+  // il n’est plus recalculé à chaque image du défilement (un bord découpé qui suit le doigt tremble, surtout sur Safari).
+  const curtains = [...document.querySelectorAll('.split .photo, .gallery a, .bafa-infographic, .competences-image, .cj-player, .nw-media, .nw-art, .ap-widget')];
+  if (!reduced && curtains.length) {
+    const lift = el => { if (el.classList.contains('fx-cur-in')) return; el.classList.add('fx-cur-in'); setTimeout(() => el.classList.add('fx-cur-done'), 1300); };
+    curtains.forEach(el => el.classList.add('fx-curtain'));
+    if ('IntersectionObserver' in window) {
+      const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { cio.unobserve(e.target); lift(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+      curtains.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < VH && r.bottom > 0) requestAnimationFrame(() => lift(el)); else cio.observe(el); });
+      addEventListener('pageshow', e => { if (e.persisted) curtains.forEach(lift); });
+      setTimeout(() => curtains.forEach(el => { if (el.getBoundingClientRect().top < VH) lift(el); }), 600);   // filet de sécurité (ancre, retour en arrière)
+    } else curtains.forEach(lift);
+  }
 
-  // Parallaxe douce : le texte à côté d'une photo glisse un peu moins vite qu'elle.
-  document.querySelectorAll('.split > div:last-child').forEach(el => scenes.push(() => {
-    const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const d = (r.top + r.height / 2 - innerHeight / 2) / innerHeight;
-    el.style.transform = `translate3d(0,${(d * 46).toFixed(1)}px,0)`;
-  }));
+  // Parallaxe douce : le texte à côté d'une photo glisse un peu moins vite qu'elle (ordinateur seulement :
+  // sur écran tactile, un décalage calculé pendant l’élan du doigt suit toujours avec une image de retard).
+  if (!TOUCH_DEV) document.querySelectorAll('.split > div:last-child').forEach(el => { let last = ''; scenes.push(() => {
+    const r = box(el); if (r.bottom < 0 || r.top > VH) return;
+    const d = (r.top + r.height / 2 - VH / 2) / VH;
+    const v = (d * 46).toFixed(1); if (v === last) return; last = v;
+    el.style.transform = `translate3d(0,${v}px,0)`;
+  }); });
 
   // Lignes de progression qui se tracent le long des étapes.
   document.querySelectorAll('.process, .steps, .pillars, .commitments, .cj-steps, .di-steps, .testimonials').forEach(el => {
     const rail = document.createElement('span'); rail.className = 'fx-rail'; rail.setAttribute('aria-hidden', 'true'); rail.innerHTML = '<i></i>';
     el.classList.add('fx-rail-host'); el.prepend(rail);
-    const bar = rail.firstChild;
+    const bar = rail.firstChild, vert = el.classList.contains('process'); let last = '';
     scenes.push(() => {
-      const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
-      const t = clamp((innerHeight * .72 - r.top) / (r.height + innerHeight * .2));
-      bar.style.transform = el.classList.contains('process') ? `scaleY(${t.toFixed(4)})` : `scaleX(${t.toFixed(4)})`;
+      const r = box(el); if (r.bottom < -100 || r.top > VH + 100) return;
+      const t = clamp((VH * .72 - r.top) / (r.height + VH * .2)).toFixed(4); if (t === last) return; last = t;
+      bar.style.transform = vert ? `scaleY(${t})` : `scaleX(${t})`;
     });
   });
 
-  // Numéros qui défilent jusqu'à leur valeur.
-  document.querySelectorAll('.number').forEach(n => {
-    const v = n.textContent.trim(); if (!/^\d{1,3}$/.test(v)) return;
-    const target = +v, pad = v.length; let shown = -1;
-    scenes.push(() => {
-      const r = n.getBoundingClientRect(); if (r.top > innerHeight || r.bottom < 0) return;
-      const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .28)));
-      const x = Math.round(target * t); if (x === shown) return; shown = x;
-      n.textContent = String(x).padStart(pad, '0');
-    });
-  });
+  // Numéros qui défilent jusqu'à leur valeur : une fois, en entrant dans l’écran (changer un texte à chaque image du défilement
+  // oblige le navigateur à refaire la mise en page).
+  const nums = [...document.querySelectorAll('.number')].filter(n => /^\d{1,3}$/.test(n.textContent.trim()));
+  if (!reduced && nums.length && 'IntersectionObserver' in window) {
+    const countUp = n => { const v = n.textContent.trim(), target = +v, pad = v.length, t0 = performance.now();
+      const step = now => { const p = Math.min(1, (now - t0) / 900); n.textContent = String(Math.round(target * ease(p))).padStart(pad, '0'); if (p < 1) requestAnimationFrame(step); };
+      n.textContent = '0'.padStart(pad, '0'); requestAnimationFrame(step); };
+    const nio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { nio.unobserve(e.target); countUp(e.target); } }), { rootMargin: '0px 0px -20% 0px' });
+    nums.forEach(n => nio.observe(n));
+  }
 
   // Valeurs : deux bandeaux qui coulissent en sens inverse au rythme du défilement.
   document.querySelectorAll('.values').forEach(v => {
@@ -357,19 +400,19 @@
     const t1 = mk(chips.slice(0, half)), t2 = mk(chips.slice(half));
     v.classList.add('fx-marquee'); v.append(t1, t2);
     scenes.push(() => {
-      const r = v.getBoundingClientRect(); if (r.bottom < -200 || r.top > innerHeight + 200) return;
-      const d = (innerHeight - r.top) * .35;
+      const r = box(v); if (r.bottom < -200 || r.top > VH + 200) return;
+      const d = (VH - r.top) * .35;
       t1.style.transform = `translate3d(${(-d % (t1.scrollWidth / 2)).toFixed(1)}px,0,0)`;
       t2.style.transform = `translate3d(${(-(t2.scrollWidth / 2) + (d % (t2.scrollWidth / 2))).toFixed(1)}px,0,0)`;
     });
   });
 
   // Grandes phrases qui prennent toute leur place en arrivant au centre.
-  document.querySelectorAll('.help h2, .cj-quote, .cj-pq, .di-hero h1').forEach(el => scenes.push(() => {
-    const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight * .75 - r.top) / (innerHeight * .3)));
+  document.querySelectorAll('.help h2, .cj-quote, .cj-pq, .di-hero h1').forEach(el => { let last = ''; scenes.push(() => {
+    const r = box(el); if (r.bottom < 0 || r.top > VH) return;
+    const t = ease(clamp((VH * .75 - r.top) / (VH * .3))), k = t.toFixed(3); if (k === last) return; last = k;
     el.style.transform = `scale(${lerp(.9, 1, t).toFixed(4)})`; el.style.opacity = lerp(.35, 1, t).toFixed(3);
-  }));
+  }); });
 
   // Mots ou éléments de liste qui s'allument au rythme du défilement.
   function splitWords(root) {
@@ -389,8 +432,8 @@
     const items = el.hasAttribute('data-steps') ? [...el.children] : splitWords(el);
     let lit = -1;
     scenes.push(() => {
-      const r = el.getBoundingClientRect();
-      const p = clamp((innerHeight * .72 - r.top) / (r.height + innerHeight * .25));
+      const r = box(el);
+      const p = clamp((VH * .72 - r.top) / (r.height + VH * .25));
       const n = Math.round(p * items.length);
       if (n === lit) return;
       items.forEach((it, i) => it.classList.toggle('on', i < n));
@@ -401,7 +444,7 @@
   // Titres d'en-tête qui s'effacent en remontant quand on descend, et reviennent quand on remonte.
   document.querySelectorAll('.page-intro, .cj-hero, .nw-hero-inner, .di-hero').forEach(el => {
     scenes.push(() => {
-      const t = clamp(scrollY / (innerHeight * .85));
+      const t = clamp(scrollY / (VH * .85));
       if (t >= 1 && el._done) return; el._done = t >= 1;
       el.style.opacity = (1 - t * .95).toFixed(3);
       el.style.transform = t ? `translate3d(0,${(-t * 70).toFixed(1)}px,0) scale(${(1 - t * .05).toFixed(4)})` : '';
@@ -409,12 +452,12 @@
   });
 
   // Bannière BAFA qui grandit en arrivant.
-  document.querySelectorAll('.bafa-banner').forEach(b => scenes.push(() => {
-    const r = b.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return;
-    const t = ease(clamp((innerHeight * .78 - r.top) / (innerHeight * .32)));
+  document.querySelectorAll('.bafa-banner').forEach(b => { let last = ''; scenes.push(() => {
+    const r = box(b); if (r.bottom < 0 || r.top > VH) return;
+    const t = ease(clamp((VH * .78 - r.top) / (VH * .32))), k = t.toFixed(3); if (k === last) return; last = k;
     b.style.transform = `scale(${lerp(.86, 1, t).toFixed(4)})`;
     b.style.opacity = lerp(.4, 1, t).toFixed(3);
-  }));
+  }); });
 
   let sceneTick = false;
   const runScenes = () => { sceneTick = false; for (const f of scenes) f(); };
@@ -574,11 +617,11 @@
   document.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') lgMove(e); }, { passive: true });
 
   /* ---------- Schémas : avancement piloté par le défilement ---------- */
-  document.querySelectorAll('[data-dg-scrub]').forEach(el => scenes.push(() => {
-    const r = el.getBoundingClientRect(); if (r.bottom < -100 || r.top > innerHeight + 100) return;
-    const p = clamp((innerHeight * .75 - r.top) / (innerHeight * .28 + r.height * .3));
-    el.style.setProperty('--p', p.toFixed(3));
-  }));
+  document.querySelectorAll('[data-dg-scrub]').forEach(el => { let last = ''; scenes.push(() => {
+    const r = box(el); if (r.bottom < -100 || r.top > VH + 100) return;
+    const p = clamp((VH * .75 - r.top) / (VH * .28 + r.height * .3)).toFixed(3); if (p === last) return; last = p;
+    el.style.setProperty('--p', p);
+  }); });
 
   /* ---------- Menus déroulants (Fourmi’Action, Nos actions) ---------- */
   const navGroups = [...document.querySelectorAll('.nav-group')];
@@ -660,16 +703,17 @@
   document.body.appendChild(progress);
   let ticking = false;
   const touchOnly = matchMedia('(hover: none)').matches; // écran tactile : la lumière de fond reste fixe (aucun calcul pendant le défilement)
+  // Hauteur de la page gardée en mémoire (relue seulement quand la mise en page change) ; halo de fond fixe.
+  let range = 0, scrolledOn = null;
+  function onScrollRange() { range = root.scrollHeight - (document.documentElement.clientHeight || innerHeight); }
+  onScrollRange();
   function onScroll() {
     const y = scrollY;
-    header?.classList.toggle('is-scrolled', y > 8);
-    const range = root.scrollHeight - innerHeight;
+    const s = y > 8; if (s !== scrolledOn) { scrolledOn = s; header?.classList.toggle('is-scrolled', s); }
     progress.style.transform = `scaleX(${range > 0 ? Math.min(1, y / range) : 0})`;
-    if (!reduced && !touchOnly) {
-      glow.style.transform = `translate3d(0,${(-y * 0.04).toFixed(1)}px,0)`;
-    } else { glow.style.transform = ''; }
     ticking = false;
   }
+  void touchOnly;
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
 

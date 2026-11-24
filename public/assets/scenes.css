@@ -163,3 +163,9 @@ html.ap-scenes .sc-hero2 .h2-photo{clip-path:circle(0% at 50% 45%)}
 html.ap-scenes .sc-hero2 .h2-visual{will-change:transform}
 }
 @media(min-width:901px){html.ap-scenes .sc-hero2:not(.h2-ready) h1{opacity:0}html.ap-scenes .sc-hero2.h2-ready h1{transition:opacity .5s ease}}
+
+/* Rideau des images : un seul mouvement à l’entrée dans l’écran (plus de découpe recalculée pendant le défilement) */
+html.ap-scenes .fx-curtain{clip-path:inset(100% 0 0 0 round var(--fx-r,24px));transition:clip-path 1.15s cubic-bezier(.22,.7,.18,1)}
+html.ap-scenes .fx-curtain.fx-cur-in{clip-path:inset(0 0 0 0 round var(--fx-r,24px))}
+html.ap-scenes .fx-curtain.fx-cur-done{clip-path:none;will-change:auto;transition:none}
+html.ap-reduced .fx-curtain{clip-path:none!important}

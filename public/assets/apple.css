@@ -333,3 +333,4 @@ header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);col
 
 /* le halo coloré du fond ne s’arrête plus net (plus de barre colorée sur le côté) */
 .ap-glow{contain:none!important;inset:-40vh -15vw -80vh!important}
+.ap-more{margin:26px 0 0}.ap-more .text-link{display:inline-flex;align-items:center;text-decoration:none}

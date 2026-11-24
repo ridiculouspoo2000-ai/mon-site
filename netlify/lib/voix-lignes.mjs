@@ -2226,6 +2226,12 @@ export const LIGNES = {
   "kind": "situation",
   "text": "Revenons sur votre semaine, jour par jour : ce que vous aviez fait, et ce que ça a donné."
  },
+ "eb88cdf33c51": {
+  "who": "narr",
+  "mood": "",
+  "kind": "recit",
+  "text": "Le jeu s’arrête ici. Votre vigilance, elle, continue. Pour aller plus loin avec votre équipe, découvrez la page des accueils collectifs de mineurs sur les violences sexuelles et sexistes."
+ },
  "587601f13e65": {
   "who": "narr",
   "mood": "",

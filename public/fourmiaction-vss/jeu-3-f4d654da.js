@@ -133,7 +133,7 @@
     const spoonL = (B) => { const F = B.foreArm, y = B.foreLen + F * .55, f = (v) => v.toFixed(1);
       // une fourchette, dans le prolongement de l'avant-bras (le manche sort du poing, les dents au bout) :
       // quand la main monte vers le visage, ce sont les dents qui arrivent dans la bouche
-      const t0 = y + F * 1.15, t1 = y + F * 1.7;
+      const t0 = y + F * .85, t1 = y + F * 1.25;   // assez courte : au sommet du geste, les dents arrivent à la bouche, pas aux yeux
       return `<g class="prop prop-spoonL"><path d="M0,${f(y - F * .1)} L0,${f(t0)}" stroke="#C9CED3" stroke-width="${f(F * .2)}" stroke-linecap="round"/>`
         + `<path d="M${f(-F * .2)},${f(t0)} Q0,${f(t0 - F * .2)} ${f(F * .2)},${f(t0)} Z" fill="#C9CED3"/>`
         + [-.17, 0, .17].map((d) => `<path d="M${f(F * d)},${f(t0 - .1)} L${f(F * d)},${f(t1)}" stroke="#DDE2E6" stroke-width="${f(F * .09)}" stroke-linecap="round"/>`).join("") + `</g>`; };
@@ -1903,11 +1903,11 @@
         let V = null; try { V = await vec(); } catch (e) { V = null; }
         if (tok !== this._hiT) { if (V) V.forEach((v) => URL.revokeObjectURL(v[2])); return; }
         try {
-          if (V) V.forEach(([I, a, u]) => { ctx.globalAlpha = a; ctx.drawImage(I, 0, 0, cw, ch); URL.revokeObjectURL(u); });
+          if (V) V.forEach(([I, a, u]) => { ctx.globalAlpha = a; ctx.drawImage(I, 0, 0, cw, ch); URL.revokeObjectURL(u); I.src = ""; });   // (libère tout de suite l'image décodée)
           else layers.forEach((im) => { const nw = im.naturalWidth, nh = im.naturalHeight; ctx.globalAlpha = +(im.style.opacity || 1); ctx.drawImage(im, fx0 * nw, fy0 * nh, (fx1 - fx0) * nw, (fy1 - fy0) * nh, 0, 0, cw, ch); });
         } catch (e) { return; }
         if (!cam.isConnected) return;
-        const o = cam.querySelector(".dio-hires"); (layers[layers.length - 1]).after(cv); if (o) o.remove();
+        const o = cam.querySelector(".dio-hires"); (layers[layers.length - 1]).after(cv); if (o) { o.width = o.height = 0; o.remove(); }
       };
       (window.requestIdleCallback || ((f) => setTimeout(f, 30)))(draw, { timeout: 400 });
     },
@@ -1927,7 +1927,8 @@
       castL.forEach(([who, slot]) => { place[who] = IN.sp[slot] || IN.sp.a; });
       if (youC && npcs.length && place.you && !place.you.sit && !S.keepSlots) {
         const main = npcs.find((c) => c[2] === "talk") || npcs[0], Pm = place[main[0]], M = IN.sp._m;
-        if (Pm && place.you.d <= Pm.d + .25) {
+        // vous êtes devant la personne qui vous parle, face à elle et bien visible : jamais derrière, ni collé·e contre elle
+        if (Pm && (place.you.d <= Pm.d + .25 || (Math.abs(place.you.x - Pm.x) < 16 && Math.abs(place.you.d - Pm.d) < 2.2))) {
           const side = Pm.x > vbw / 2 ? -1 : 1;
           if (M && Pm.wx != null) {   // à un bon mètre devant la personne qui parle (pas collé à elle), dans la salle
             const wx = Math.max(.35, Math.min(M.W - .35, Pm.wx + (side > 0 ? .75 : .2))), wy = Math.max(.35, Math.min(M.D - .3, Pm.wy + (side > 0 ? .2 : .8)));
@@ -3928,6 +3929,28 @@
     return b;
   }
 
+  // la toute dernière page : une seule chose à faire, aller plus loin sur la ressource régionale des accueils de mineurs
+  const PLUSLOIN = "https://acm-cvl.fr/hygiene_et_securite/violences-sexuelles-et-sexistes/";
+  R.plusloin = (sc, n) => {
+    const pg = el("div", { class: "pl-page" }), w = el("div", { class: "panel plusloin" }); pg.appendChild(w);
+    w.innerHTML = `${kicker("Pour aller plus loin")}
+      <h2 id="h-${sc.id}">Le jeu s’arrête ici. Votre vigilance, elle, continue.</h2>
+      <p class="lead">Repérer, écouter, protéger, signaler : ces gestes s’entretiennent. Les services de l’État en région Centre-Val de Loire réunissent, sur une seule page, de quoi aller plus loin avec votre équipe.</p>
+      <ul class="pl-list">
+        <li><b>Se former</b> : le kit et le film SELMA, pensés pour les équipes d’animation, et le replay d’un webinaire.</li>
+        <li><b>Comprendre</b> : des enquêtes régionales sur les violences sexuelles et sexistes dans les accueils de jeunes.</li>
+        <li><b>Agir</b> : les structures d’aide et les contacts utiles près de chez vous, et les documents à télécharger.</li>
+      </ul>
+      <a class="cta pl-go" href="${PLUSLOIN}" target="_blank" rel="noopener">Découvrir la page « Violences sexuelles et sexistes » <span aria-hidden="true">↗</span></a>
+      <p class="small pl-url">acm-cvl.fr · Accueils collectifs de mineurs</p>`;
+    const row = el("div", { class: "row pl-row" });
+    row.append(btn("Revoir mon bilan", () => go(SCREENS.findIndex((x) => x.id === "bilan")), "ghost"), btn("Revenir à l’accueil", home, "ghost"));
+    w.appendChild(row); document.querySelectorAll(".pl-page").forEach((x) => x.remove()); document.body.appendChild(pg);
+    // posée sur toute la page (hors de l'écran du jeu, qui est animé) ; elle s'en va dès qu'on change d'écran
+    const iv = setInterval(() => { if (!n.isConnected || SCREENS[st.idx].id !== "plusloin") { clearInterval(iv); pg.remove(); } }, 300);
+    setTimeout(() => { const a = w.querySelector(".pl-go"); if (a) a.focus({ preventScroll: true }); }, 400);
+    Voice.say("narr", VOICE_TXT.plusloin);
+  };
   R.bilan = (sc, n) => {
     st.done = true; save();
     const by = { C1: [], C2: [], C3: [], C4: [] };
@@ -3983,7 +4006,7 @@
     // l'enchaînement, au rythme des voix (sans voix : quelques secondes entre chaque temps)
     const quiet = (cb, min) => { const t0 = performance.now(); const iv = setInterval(() => { if (!n.isConnected) return clearInterval(iv); const e = performance.now() - t0;
       if (e > (min || 1200) && (!st.settings.voice || !Voice.busy() || e > 240000)) { clearInterval(iv); cb(); } }, 300); };
-    const step3 = () => { B3.hidden = false; MORE.hidden = false; const G = b.querySelector(".rgpd"); if (G) G.hidden = false; B3.classList.add("rise"); B3.scrollIntoView({ block: "start", behavior: "smooth" }); Snd.good(); };
+    const step3 = () => { if (!b.querySelector(".pl-next")) { const nx = btn("Pour aller plus loin →", () => go(SCREENS.findIndex((x) => x.id === "plusloin")), "cta pl-next"); B3.appendChild(nx); } B3.hidden = false; MORE.hidden = false; const G = b.querySelector(".rgpd"); if (G) G.hidden = false; B3.classList.add("rise"); B3.scrollIntoView({ block: "start", behavior: "smooth" }); Snd.good(); };
     const step2 = () => {
       B2.hidden = false; B2.classList.add("rise"); B2.scrollIntoView({ block: "start", behavior: "smooth" });
       if (World.el && !calm()) World.show({ at: "entree", cast: [["nour", "a", "wave"], ["you", "b"]], z: 2.4, greet: true }, sc);
@@ -5247,7 +5270,11 @@
     const END = toMin(sc.end), MAX = innerWidth < 760 ? 7 : 8.5, PER_M = .5;   // au plus 8 m par pas ; une minute pour deux mètres
     if (S.x == null) [S.x, S.y] = NODES[sc.startNode || "q2"];   // on démarre dans la cour, juste derrière le portail
     n.dataset.novoice = "1";
-    const evLive0 = (e) => !S.done[e.id] && S.t >= toMin(e.from) - 5 && S.t <= toMin(e.to);
+    // les grandes scènes (celles qui comptent dans le bilan) sont obligatoires : on ne peut pas finir l'après-midi sans les
+    // avoir vécues ; elles restent donc ouvertes jusqu'à ce qu'on les ait faites, et l'heure ne dépasse pas 17 h avant
+    const isMust = (e) => !!(e.must || e.comp);
+    const evLive0 = (e) => !S.done[e.id] && S.t >= toMin(e.from) - 5 && (S.t <= toMin(e.to) || isMust(e));
+    const capT = () => { if (sc.events.some((e) => isMust(e) && !S.done[e.id])) S.t = Math.min(S.t, END - 3); };
     // une même personne ne peut pas être dans deux situations à la fois : la situation suivante attend que la première soit vécue
     const people = (e) => new Set([...(e.spots || []).map((q) => q[0]), ...(e.cast || []).map((q) => q[0])].filter((w) => w !== "you"));
     const evLive = (e) => {
@@ -5255,7 +5282,7 @@
       const P = people(e), i = sc.events.indexOf(e);
       return !sc.events.some((e2, j) => j < i && evLive0(e2) && [...people(e2)].some((w) => P.has(w)));
     };
-    const mustLeft = () => sc.events.filter((e) => e.must && !S.done[e.id]);
+    const mustLeft = () => sc.events.filter((e) => isMust(e) && !S.done[e.id]);
     const guideOnly = () => !S.guided && !!sc.guided;
     const wide = () => innerWidth >= 761;
     let you = null, timeUp = false, busy = false, moving = false, sceneLock = false, card = null, ring = null, mark = null;
@@ -5272,7 +5299,7 @@
       you = Life.add(Walker("you", S.x, S.y, "stand"));
       acts.appendChild(you.el);
       // l'heure tourne en marchant : dès qu'elle est passée, on s'arrête là, la promenade est finie
-      you.onMove = (d) => { S.t += d * PER_M; tickClock(); if (S.t >= END && !timeUp) { timeUp = true; you.stop(); you.onDone = null; moving = false; busy = true; ring.classList.remove("moving"); drawCard(); } };
+      you.onMove = (d) => { S.t += d * PER_M; capT(); tickClock(); if (S.t >= END && !timeUp) { timeUp = true; you.stop(); you.onDone = null; moving = false; busy = true; ring.classList.remove("moving"); drawCard(); } };
       you.onStep = () => checkSpots();
       // le terrain de foot : un vrai match dès qu'aucune situation ne s'y joue (les enfants du terrain jouent, deux animateurs encadrent)
       const PITCH = (q) => q[0] > 3.6 && q[0] < 14.6 && q[1] > 22.4 && q[1] < 27.2;
@@ -5351,17 +5378,19 @@
     function drawCard(first) {
       n.innerHTML = "";
       const atEnd = S.t >= END;
-      const tip = atEnd && mustLeft().length ? "C’est l’heure : l’après-midi est terminé. Ce que vous n’avez pas vu, d’autres s’en sont occupés… ou pas." : guideOnly() ? "" : "Touchez le sol près de votre personnage pour avancer sur les chemins. Pour entrer quelque part, allez jusqu’à la porte.";
+      const ML = mustLeft(), late = ML.length && S.t >= END - 30;
+      const tip = late ? `Avant de finir l’après-midi, il vous reste à vivre : ${ML.map((e) => { const t = (e.title || "").replace(/^.*·\s*/, ""), p = (PLACE[e.at] || "").toLowerCase(); const r = t && p ? `${t} (${p})` : t || p; return r ? r[0].toUpperCase() + r.slice(1) : r; }).filter(Boolean).join(", ")}. Allez-y : l’heure attendra.` : guideOnly() ? "" : "Touchez le sol près de votre personnage pour avancer sur les chemins. Pour entrer quelque part, allez jusqu’à la porte.";
       card = el("div", { class: "rm-card" }, `<div class="rm-top"><div>${kicker(`${CHAPTERS[sc.ch - 1].day} · ${sc.kicker.split("·").pop().trim()}`)}<h2 id="h-${sc.id}">${esc(sc.title)}</h2></div>
         <div class="rm-clock" aria-live="polite"><b>${fmtMin(Math.min(S.t, END))}</b><small>jusqu’à ${esc(sc.end)}</small></div></div>${tip ? `<p class="lead">${esc(tip)}</p>` : ""}`);
       const row = el("div", { class: "row rm-row" });
-      const fin = btn("Finir l’après-midi", finish, "ghost"); fin.disabled = !!mustLeft().length && !atEnd;
+      const fin = btn("Finir l’après-midi", finish, "ghost"); fin.disabled = !!ML.length;
+      if (ML.length) fin.title = "Vivez d’abord les scènes importantes de l’après-midi";
       row.appendChild(fin); card.appendChild(row);
       n.appendChild(card);
       if (first && guideOnly() && sc.guide) { coach(sc.guide[1], card); card.classList.add("coached"); vprep(); setTimeout(() => Voice.seq([["narr", sc.intro], sc.guide]), 600); }
       else if (first) setTimeout(() => Voice.say("narr", sc.intro), 600);
       sc.events.forEach((e) => { if (e.nudge && !S.done[e.id] && !S.nudged[e.id] && S.t >= toMin(e.nudge) && S.guided) { S.nudged[e.id] = 1; save(); toastMsg(`SMS de ${NAMES[e.nudgeLine[0]]} : ${e.nudgeLine[1]}`); Voice.say(e.nudgeLine[0], e.nudgeLine[1]); } });
-      if (atEnd) { busy = true; setTimeout(finish, mustLeft().length ? 2600 : 900); }   // l'heure est passée : la suite arrive d'elle-même
+      if (atEnd && !ML.length) { busy = true; setTimeout(finish, 900); }   // l'heure est passée : la suite arrive d'elle-même
     }
     // l'horloge de la carte et celle du haut de l'écran donnent toujours la même heure (celle aussi des scènes vécues)
     const hudClock = () => dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(Math.min(S.t, END))}` });
@@ -5448,7 +5477,7 @@
       const wrap = el("div", { class: "duo roamscene calm" }), p = el("div", { class: "panel" }, `${kicker(`${fmtMin(S.t)} · Le bâtiment principal`)}<h2>Le couloir</h2><p class="narr">Le couloir dessert les salles du bâtiment. Où allez-vous ?</p>`);
       const g = el("div", { class: "opts" });
       MAIN_ROOMS.forEach((k, i) => { const b = el("button", { class: "opt", type: "button", style: `--k:${i}` }, `<span class="ol">${String.fromCharCode(65 + i)}</span><span>${esc(PLACE[k])}</span>`); b.addEventListener("click", () => { g.querySelectorAll(".opt").forEach((x) => (x.disabled = true));
-        const into = () => blackout(() => { S.t += 2; const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); });
+        const into = () => blackout(() => { S.t += 2; capT(); const ev = sc.events.find((e) => e.room === k && evLive(e) && (S.guided || e.id === sc.guided)); if (ev) scene(ev); else calm(k); });
         // depuis le plan : un zoom vers le bâtiment, puis le noir, puis la salle ; depuis une salle : le noir, puis la salle
         if (fromMap && !reduce() && !st.settings.calm) { aim(you.x, you.y, Math.min(5.2, camZ() * 1.8), .5, .5, 600); setTimeout(into, 380); } else into(); }); g.appendChild(b); });
       // le couloir, vu de dessus : les portes des salles de part et d'autre, l'entrée vitrée au bout
@@ -5740,7 +5769,7 @@
         const firstTime = st.res[ev.id] == null;
         record(E, o.q);
         if (firstTime) { st.later = st.later || {}; st.later[ev.id] = { k }; }
-        S.done[ev.id] = 1; S.t += 20; S.guided = true; save();
+        S.done[ev.id] = 1; S.t += 20; capT(); S.guided = true; save();
         const react = o.react || (ev.reacts && ev.reacts[k]) || {}, reply = o.reply || (ev.replies && ev.replies[k]);
         Object.entries(react).forEach(([w, p]) => document.querySelectorAll(`#world .actor[data-who="${w}"] .rig, #world .ractor[data-who="${w}"] .rig`).forEach((r) => { if (!r.classList.contains("p-sit")) r.setAttribute("class", "rig " + (RIG.POSE[p] || "p-idle")); }));
         if (reply) { const r = line(reply[0], reply[1]); log.appendChild(r); Voice.seq([[reply[0], reply[1], r]]); }
@@ -5765,7 +5794,7 @@
       STAGE["roam-calm-" + key] = { at: key, room, cast: (C.cast || []).map(([w, s, p]) => [w, s, w === "you" ? "stand" : p]), z: 3, keepSlots: !!C.keepSlots, greet: /signe de la main|coucou/.test(C.t || "") };
       World.stage({ id: "roam-calm-" + key, type: "story", ch: sc.ch, kicker: fmtMin(S.t) });
       n.innerHTML = "";
-      S.t += 8; save();
+      S.t += 8; capT(); save();
       if (S.t >= END) setTimeout(() => { if (n.isConnected && !timeUp) { timeUp = true; Voice.stop(); finish(); } }, 4200);   // l’heure est passée pendant la visite de la salle
       const wrap = el("div", { class: "duo roamscene calm" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
@@ -5780,7 +5809,7 @@
     }
     let finished = false;
     function finish() {
-      if (finished || (mustLeft().length && S.t < END)) return;
+      if (finished || mustLeft().length) return;
       finished = true;
       // le temps est écoulé : on ne se promène plus. Ce qui n'a pas été vu compte comme une situation manquée.
       mustLeft().forEach((e) => { const E0 = SCREENS.find((x) => x.id === e.id); if (E0 && st.res[e.id] == null) { st.res[e.id] = 0; st.missed = st.missed || {}; st.missed[e.id] = 1; } S.done[e.id] = 1; });

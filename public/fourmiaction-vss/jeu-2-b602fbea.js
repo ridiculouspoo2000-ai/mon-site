@@ -499,7 +499,7 @@ const SCREENS = [
   { id: "chercher", ch: 3, type: "find", comp: "C1", kicker: "Mercredi, 15 h · temps libre", title: "Léna vous cherche",
     intro: "Nour vous transmet un message : Léna, 13 ans, veut vous dire quelque chose, et elle ne veut pas que les autres l’entendent. Elle est quelque part sur le terrain. Trouvez-la.",
     who: "lena", at: [16.6, 6.2], decoys: [["clara", 9.0, 25.0], ["enzo", 24.4, 21.0], ["sacha", 18.2, 24.6], ["zoe", 2.6, 21.2], ["theo", 12.2, 20.6]], timer: 60,
-    around: [["k3", 15.4, 5.3, "talk"], ["k10", 14.9, 6.1, "listen"], ["k12", 17.8, 7.4, "point"], ["k15", 17.3, 7.9, "listen"], ["t4", 19.6, 5.8, "talk"], ["t6", 19.7, 6.6, "listen"], ["k14", 15.6, 7.7, "wave"]],
+    around: [["k3", 15.4, 5.3, "talk"], ["k10", 14.9, 6.1, "listen"], ["k12", 17.8, 7.2, "point"], ["k15", 17.0, 7.2, "listen"], ["t4", 17.7, 6.4, "talk"], ["t6", 16.7, 5.4, "listen"], ["k14", 15.6, 7.2, "wave"]],
     found: "Léna, à voix basse : « Euh… Enzo, il a pris Clara en photo… dans les vestiaires. Et il dit qu’il va l’envoyer au groupe des grands. »",
     opts: [
       { t: "« Merci de me l’avoir dit, tu as bien fait. Je préviens Nour tout de suite, et on protège Clara. »", q: 1, fb: "Vous accueillez sa parole, sans enquêter, et vous alertez immédiatement : la photo n’a peut-être pas encore circulé." },
@@ -896,7 +896,8 @@ const SCREENS = [
   { id: "dafter", ch: 5, type: "positions", mode: "after", kicker: "Vendredi, 17 h 30", title: "Tes convictions, une semaine plus tard",
     intro: "Les mêmes huit affirmations qu’au premier jour. Répondez à nouveau, puis comparez : vous verrez, pour chaque objectif, ce qui a bougé." },
   { id: "souvenirs", ch: 5, type: "replay", kicker: "Vendredi, 18 h · fin de la semaine", title: "Vous vous souvenez ?" },
-  { id: "bilan", ch: 5, type: "bilan" }
+  { id: "bilan", ch: 5, type: "bilan" },
+  { id: "plusloin", ch: 5, type: "plusloin" }
 ];
 
 const BUILD = {
@@ -1239,6 +1240,7 @@ const VOICE_TXT = {
     return P;
   },
   spot(s) { return ["nour", s.t]; },
+  plusloin: "Le jeu s’arrête ici. Votre vigilance, elle, continue. Pour aller plus loin avec votre équipe, découvrez la page des accueils collectifs de mineurs sur les violences sexuelles et sexistes.",
   // un lieu déjà visité : Nour ne refait pas toute la description, elle le fait remarquer (de plus en plus amusée)
   again: ["Je crois que je t’ai déjà montré cet endroit…", "Ici aussi, je te l’ai déjà montré !", "T’abuses, hein ! On l’a déjà vu."],
   fb(sc, o) { return ["narr", [o.cons, o.fb, o.q < 1 && sc.better ? "Pour faire mieux : " + sc.better : ""].filter(Boolean).join(" ")]; },

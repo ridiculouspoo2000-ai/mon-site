@@ -389,6 +389,7 @@ export const BALISES = {
 "01f2c4b393de": "[calm narrator] Vendredi, 17 h 30. Les enfants sont partis. Seule en salle des animateurs, au calme, vous retrouvez les questions du premier jour.",
 "43af2d1d00d4": "[calm narrator] Les mêmes huit affirmations qu’au premier jour. Répondez à nouveau, puis comparez : vous verrez, pour chaque objectif, ce qui a bougé.",
 "ae001f4384bd": "[calm narrator] Revenons sur votre semaine, jour par jour : ce que vous aviez fait, et ce que ça a donné.",
+"eb88cdf33c51": "[calm, warm narrator] Le jeu s’arrête ici. Votre vigilance, elle, continue. Pour aller plus loin avec votre équipe, découvrez la page des accueils collectifs de mineurs sur les violences sexuelles et sexistes.",
 "587601f13e65": "[calm, warm narrator] Vendredi, 18 h. Les dernières familles sont parties. Nour vous attend au portail, là où elle vous avait accueilli lundi matin.",
 "1846e4f5b55a": "[warm, confident, caring] Je t’ai envoyé par mail le bilan à faire me concernant et concernant ta semaine. Une fois que je l’aurai reçu, je t’enverrai ton bilan avec tes points de valorisation et d’amélioration.",
 "7819916094f2": "[warm, confident, caring] Et pour terminer, on se fait une visio pour le bilan du projet pédagogique aussi.",

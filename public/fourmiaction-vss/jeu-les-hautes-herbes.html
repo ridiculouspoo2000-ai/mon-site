@@ -1401,7 +1401,8 @@ body.live .t-bilan .comp{grid-template-columns:1fr;gap:6px}
 @keyframes rwalk{from{transform:translate(0,40px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
 .ractor .rbody{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.8s ease-in-out infinite}
 .ractor .rbody.flip{animation-name:breathef}
-.rlab{font:600 5px/1 -apple-system,system-ui,sans-serif;fill:#fff;paint-order:stroke;stroke:#0B4F84;stroke-width:3px;stroke-linejoin:round}
+.rlab{font:600 4.3px/1 'Inter',-apple-system,system-ui,sans-serif;fill:#fff;letter-spacing:.05px}
+.rlab-bg{fill:#4A6E93;fill-opacity:.88}
 /* parler : la bouche bouge, le bras accompagne la parole (plus de bulle) */
 .actor .abub{display:none}
 /* bouches : trois façons d'articuler (a, o, i, fermée…), irrégulières */
@@ -1504,7 +1505,8 @@ body.over-aff,body.over-aff *{cursor:zoom-in!important}
 /* portail : ouvert aux heures d'arrivée et de départ, fermé sinon */
 .dio-occ.gate-open{display:none}
 #world.gate-open .dio-occ.gate-open{display:block}
-#world.gate-open .dio-occ.gate-closed{display:none}
+#world.gate-open .dio-occ.gate-closed,#world.gate-busy .dio-occ.gate-closed{display:none}
+#world.gate-busy .dio-occ.gate-open{display:block}
 #world:not(.gate-open) .dio-par,#world:not(.gate-open) .dio-kid{display:none}
 /* horloge ronde */
 #dayclock .dc-face{float:left;width:38px;height:38px;margin:-2px 10px 0 -2px}
@@ -1810,6 +1812,16 @@ body.calm .home2 .hrank{animation:none}
 .roomfade.wfade{transition:opacity .24s ease-in-out}
 .cab-feet{transition:opacity .5s ease}
 
+/* derrière un bâtiment : un halo progressif autour de la personne (le reste du bâtiment reste plein) */
+@property --mx{syntax:"<percentage>";inherits:false;initial-value:50%}
+@property --my{syntax:"<percentage>";inherits:false;initial-value:50%}
+@property --mr{syntax:"<length>";inherits:false;initial-value:120px}
+.dio-ghost.snap{transition:opacity .35s ease !important}
+.dio-ghost{transition:opacity .35s ease,--mx .3s linear,--my .3s linear,--mr .4s ease;
+  -webkit-mask-image:radial-gradient(circle var(--mr) at var(--mx) var(--my),#000 0,#000 38%,rgba(0,0,0,.55) 66%,transparent 100%);
+  mask-image:radial-gradient(circle var(--mr) at var(--mx) var(--my),#000 0,#000 38%,rgba(0,0,0,.55) 66%,transparent 100%)}
+.dio-ghost:not(.under).on{opacity:.5}
+
 /* =================================================================================================
    REFONTE — couche finale (chargée après world.css)
    Une seule direction artistique : les hautes herbes du titre entrent dans le jeu, la lumière suit
@@ -1962,8 +1974,6 @@ body.athome #world .wgrass,body.athome #world .wgrade,body.athome #world .wdof{d
 
 /* ---------- 7. Les moments graves : le monde se tait ---------- */
 #world .wext{transition:opacity .8s var(--ease),filter 1.4s ease}
-body.grave #world .wext{filter:saturate(.4) brightness(.94) contrast(.96)}
-body.grave #world .wgrade{opacity:.15}
 body.grave #world .wvig::after{opacity:1}
 body.grave #world .wgrass{opacity:.3}
 body.grave .qtimer i{background:#7D8794!important}
@@ -2377,6 +2387,81 @@ body.flashback #world::after{content:"";position:absolute;inset:0;z-index:6;poin
 .wa-dev .wa-in,.wa-dev .wa-opts{flex:0 0 auto;border-radius:0 0 34px 34px}
 .wa-dev .wa-opts{max-height:46%;overflow:auto}
 .iphone::before{z-index:2}
+
+/* le niveau, dans les réglages : deux pastilles côte à côte */
+#hudmenu .hm-level{order:-1;display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:14px;background:#fff}
+#hudmenu .hm-lk{font-size:13px;color:var(--rf-muted);margin-right:auto;padding-left:4px}
+#hudmenu .hm-lv{border:0;border-radius:99px;padding:7px 12px;font:600 13px/1 inherit;font-family:inherit;background:#EEF1F4;color:#1E2733;cursor:pointer}
+#hudmenu .hm-lv.sel{background:#1E2733;color:#fff}
+#hudmenu .hm-lv:focus-visible{outline:2px solid #E2702A;outline-offset:2px}
+
+/* l'interface de messagerie, plus fidèle : barre d'état, avatar bien rond, icônes d'appel, bulles à pointe, saisie complète */
+.wa-status{display:flex;justify-content:space-between;align-items:center;padding:12px 26px 0 30px;background:#075E54;color:#fff;border-radius:34px 34px 0 0;font:600 12.5px/1 'Inter',sans-serif;flex:0 0 auto}
+.wa-status span{display:flex;gap:5px;align-items:center}.wa-status svg{height:10px;width:auto;fill:currentColor}
+.wa-dev .wa-status+.wa-top{border-radius:0;padding-top:10px}
+.wa-dev .wa-notch{top:12px;width:78px;height:22px;margin-left:-39px;border-radius:14px}
+.wa-back svg{width:10px;height:17px;display:block}
+.wa-av{flex:0 0 36px;width:36px!important;height:36px!important;aspect-ratio:1;border-radius:50%!important}
+.wa-id{flex:1 1 auto;min-width:0}.wa-id small{max-width:none}
+.wa-ic{display:flex;gap:14px;margin-left:auto;flex:0 0 auto}.wa-ic svg{width:21px;height:21px}
+.wa-top .ph-x{margin-left:6px}
+.wa-body{background-color:#EFE7DE;background-image:radial-gradient(rgba(0,0,0,.035) 1px,transparent 1.3px);background-size:14px 14px}
+.wa-m{position:relative}
+.wa-m:not(.me):before{content:"";position:absolute;left:-6px;top:0;border:6px solid transparent;border-top-color:#fff;border-right-color:#fff;border-width:0 7px 9px 0}
+.wa-m.me:before{content:"";position:absolute;right:-6px;top:0;border-style:solid;border-color:#D9FDD3 transparent transparent #D9FDD3;border-width:0 0 9px 7px}
+.wa-m i{display:flex;justify-content:flex-end;align-items:center;gap:3px}
+.wa-ck{width:15px;height:10px;color:#53BDEB}
+.wa-in span{display:flex;align-items:center;gap:8px}.wa-in span svg{width:20px;height:20px;color:#8696A0;flex:0 0 auto}
+.wa-in span svg:nth-of-type(2){margin-left:auto}
+.wa-in i{flex:0 0 40px;width:40px!important;height:40px!important;display:flex;align-items:center;justify-content:center}.wa-in i svg{width:21px;height:21px}
+
+/* repères cliquables du carnet */
+.refs .refb{cursor:pointer;border:0;font:inherit;font-size:inherit;transition:background .15s,box-shadow .15s}
+.refs .refb:hover,.refs .refb:focus-visible{box-shadow:0 0 0 2px #E2702A inset;outline:none}
+.ref-pop{position:fixed;z-index:9600;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 18px 40px rgba(20,30,50,.22);font:400 14px/1.45 'Inter',sans-serif;color:#1E2733;animation:refIn .18s ease both}
+.ref-pop b{display:block;font-size:15px;margin-bottom:4px}.ref-pop p{margin:0 0 6px}.ref-pop small{color:#6B7380}
+@keyframes refIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* « Construisez votre mesure » : titres dans leur carte (plus de pastille ni de titre qui débordent), une colonne quand
+   l'écran est étroit, options compactes */
+.canvas{gap:12px}
+.slot{padding:16px 14px 14px;margin:0;min-width:0}
+.slot legend{float:left;width:100%;padding:0;margin:0 0 10px;display:flex;align-items:flex-start;gap:10px;font-size:16px;line-height:1.3;color:#1E2733}
+.slot legend+*{clear:both}
+.slot .sn{flex:0 0 26px;width:26px;height:26px;margin-top:-1px;font-size:13px}
+.slot .opt{padding:10px 12px;font-size:14.5px;line-height:1.35;align-items:center}
+body.live .canvas,.solo .canvas{grid-template-columns:1fr}
+@media (min-width:1100px){body:not(.live) .solo.wide .canvas{grid-template-columns:1fr 1fr}}
+#btn-level,#btn-motion{display:none!important}
+
+/* recueil des conceptions : la compétence visée sous chaque affirmation, le bilan avant / après */
+.dq .dq-c{margin:2px 0 8px;font-size:13px;color:#6B7380}
+.cmp-sum{padding:12px 16px;border-radius:14px;background:#FFF3EA;margin:0 0 12px}.cmp-sum p{margin:0}.cmp-sum .up{color:#1F7A4D;font-weight:700}
+.cmp .dq-goal{margin:6px 0;font-size:14.5px}
+/* fin du jeu, en trois temps : les blocs apparaissent l'un après l'autre */
+.bilan .bstage.rise{animation:bRise .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes bRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.bilan .bfinal{display:grid;grid-template-columns:1fr;gap:16px;margin:18px 0}
+@media (min-width:900px){body:not(.live) .bilan .bfinal{grid-template-columns:1fr 1fr}}
+.bilan .dlcard{background:#fff;border-radius:20px;padding:20px 22px;box-shadow:0 10px 30px rgba(20,30,50,.08)}
+.bilan .dlcard h3{margin:2px 0 8px}
+.bilan .dl-form{margin-top:12px}.bilan .dl-form label{display:block;font-weight:600;margin-bottom:6px}
+.bilan .dl-line{display:flex;gap:8px;flex-wrap:wrap}.bilan .dl-line input{flex:1 1 220px;min-width:0;padding:12px 14px;border-radius:12px;border:1.5px solid #CBD3DB;font:inherit}
+.bilan .dl-line input:focus{outline:2px solid #E2702A;outline-offset:1px;border-color:transparent}
+.bilan .rk-q{font-weight:600;margin:10px 0 6px}.bilan .rk-form{display:flex;gap:8px;flex-wrap:wrap}
+.bilan .bmore{margin-top:22px;border-top:1px solid #E3E7EB;padding-top:12px}.bilan .bmore>summary{cursor:pointer;font-weight:700;padding:8px 0}
+.bilan .rgpd{margin-top:28px;padding-top:12px;border-top:1px solid #E3E7EB;font-size:.78rem;line-height:1.5;color:#5A6470}.bilan .rgpd b{color:#3A434D}
+.spotcard.again .again-say{font-size:1.02rem}.spotcard.again .again-say b{margin-right:.35em;color:#B3541E}
+.plusloin{max-width:640px;margin:8vh auto;padding:40px 36px;text-align:left}
+.plusloin h2{font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.15;margin:.3em 0 .5em}
+.plusloin .pl-list{list-style:none;padding:0;margin:22px 0 28px;display:grid;gap:12px}
+.plusloin .pl-list li{padding:12px 16px;border-radius:14px;background:#F3F6F9;line-height:1.45}
+.plusloin .pl-go{display:inline-flex;gap:.5em;align-items:center;font-size:1.08rem;padding:16px 24px;text-decoration:none;border-radius:999px}
+.plusloin .pl-url{margin-top:10px;color:#5A6470}
+.plusloin .pl-row{margin-top:28px}
+.bilan .pl-next{margin-top:22px;display:block}
+/* la dernière page occupe tout l'écran : rien d'autre à regarder */
+.pl-page{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;background:radial-gradient(120% 90% at 50% 0%,#FDF3EA 0%,#F4F6F9 60%,#EEF2F6 100%)}
+.pl-page .plusloin{margin:auto;max-width:680px;width:100%;box-shadow:0 30px 80px -30px rgba(20,30,50,.35)}
 /* Attitudes des personnages articulés : rotations des vraies articulations (hanche, genou, épaule, coude, cou). */
 .rig{overflow:visible}
 .rig .leg,.rig .shin,.rig .arm,.rig .fore,.rig .head,.rig .bob{transform-box:view-box}
@@ -2460,7 +2545,7 @@ body.flashback #world::after{content:"";position:absolute;inset:0;z-index:6;poin
 @media (prefers-reduced-motion:reduce){.rig *{animation:none!important}}
 body.calm .rig *{animation:none!important}
 
-.rig .fig path[fill^="url"]{stroke:rgba(20,16,12,.22);stroke-width:.7}
+.rig .fig path[fill^="url"]:not(.lb):not(.ov):not(.tx){stroke:rgba(20,16,12,.22);stroke-width:.7}
 /* assis : cuisses à l'horizontale, genoux pliés, mains sur les genoux */
 /* sur une chaise du décor, la pose est calculée pour la chaise et le personnage (engine.js, sitPose) :
    --th cuisse, --sh tibia (et --shk sa longueur à l'écran), --sg le côté où partent les genoux */
@@ -2510,6 +2595,12 @@ svg.rig-bust{display:block}
 .ractor.seated.sitback:not(.legL) .lL{visibility:hidden}
 /* assis de dos : la main gauche est cachée par le corps (on ne la voit pas dépasser) */
 .ractor.sitback:not(.legL) .p-sit .aL{visibility:hidden}
+
+/* cernes : invisibles en début de semaine, de plus en plus marqués avec la fatigue (--cerne, de 0 à .9) */
+.rig .cernes{opacity:var(--cerne,0);transition:opacity 1.2s ease}
+/* la texture des tissus (maille, toile de jean) : sur les personnes vues de près (salles, scènes) ; sur le plan, où
+   elles sont petites et marchent, elle ne se verrait pas et coûterait cher à redessiner à chaque pas */
+.walker .rig .tx,.crowd-acts .rig .tx{display:none}
 /* ============ Gestes (environ 35) : courts (2 à 3 s), joués une fois pendant qu’une personne parle ou écoute ============ */
 @keyframes gx-explain-aL{0%{transform:rotate(var(--aL0,5deg))} 25%{transform:rotate(-28deg)} 70%{transform:rotate(-24deg)} 100%{transform:rotate(var(--aL0,5deg))}}
 .rig.g-explain .aL{animation:gx-explain-aL 2.0s cubic-bezier(.45,.05,.35,1) 1 both!important}
@@ -3130,6 +3221,21 @@ svg.rig-bust{display:block}
 .rig.g-stretch .head{animation:gx-stretch-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 @keyframes gx-stretch-bob{0%{transform:translate(0,0px)} 35%{transform:translate(0,-1.6px)} 70%{transform:translate(0,-1.4px)} 100%{transform:translate(0,0px)}}
 .rig.g-stretch:not(.p-sit) .bob{animation:gx-stretch-bob 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
+/* bâillement : une main devant la bouche grande ouverte, la tête qui part en arrière, les yeux qui se plissent */
+@keyframes gx-yawn-aR{0%{transform:rotate(var(--aR0,-4deg))} 22%{transform:rotate(38deg)} 78%{transform:rotate(38deg)} 100%{transform:rotate(var(--aR0,-4deg))}}
+.rig.g-yawn .aR{animation:gx-yawn-aR 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+@keyframes gx-yawn-aRf{0%{transform:rotate(var(--aRf0,-6deg))} 22%{transform:rotate(132deg)} 78%{transform:rotate(132deg)} 100%{transform:rotate(var(--aRf0,-6deg))}}
+.rig.g-yawn .aR .fore{animation:gx-yawn-aRf 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+@keyframes gx-yawn-head{0%{transform:rotate(var(--hd0,0deg))} 25%{transform:rotate(-9deg)} 70%{transform:rotate(-10deg)} 100%{transform:rotate(var(--hd0,0deg))}}
+.rig.g-yawn .head{animation:gx-yawn-head 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
+@keyframes gx-yawn-mouth{0%,8%{opacity:0;transform:scale(.6,.4)} 25%,68%{opacity:1;transform:scale(1.05,2.3)} 85%,100%{opacity:0;transform:scale(.6,.4)}}
+.rig.g-yawn .m-open,.rig.g-stretch.tired .m-open{animation:gx-yawn-mouth 2.8s ease-in-out 1 both!important}
+@keyframes gx-yawn-closed{0%,8%{opacity:1} 20%,72%{opacity:0} 88%,100%{opacity:1}}
+.rig.g-yawn .m-closed,.rig.g-stretch.tired .m-closed{animation:gx-yawn-closed 2.8s ease-in-out 1 both!important}
+@keyframes gx-yawn-eyes{0%,10%{transform:scaleY(1)} 25%,68%{transform:scaleY(.25)} 85%,100%{transform:scaleY(1)}}
+.rig.g-yawn .eyes,.rig.g-stretch.tired .eyes{transform-box:fill-box;transform-origin:50% 50%;animation:gx-yawn-eyes 2.8s ease-in-out 1 both!important}
+@keyframes gx-yawn-bob{0%{transform:translate(0,0)} 30%{transform:translate(0,-.8px)} 70%{transform:translate(0,-.8px)} 100%{transform:translate(0,0)}}
+.rig.g-yawn:not(.p-sit) .bob{animation:gx-yawn-bob 2.8s cubic-bezier(.45,.05,.35,1) 1 both!important}
 /* ================= Promenade libre ================= */
 .roamg .rm-hud{display:flex;align-items:center}
 .rm-clock{display:flex;flex-direction:column;align-items:flex-end;background:#fff;border-radius:16px;padding:8px 14px;box-shadow:0 6px 18px rgba(28,34,48,.1)}
@@ -3454,7 +3560,7 @@ body.dusk #dayclock{visibility:hidden}
 #world.amb-evening .wcam>.wsun{top:27%!important}
 #world.amb-night .wcam>.wmoon{top:2%!important}
 /* les bulles se remplissent mot à mot, au rythme de la voix (ou de la lecture, sans le son) */
-.kara .wd{opacity:0!important;animation:none!important;filter:blur(6px);transform:translateY(2px);transition:opacity .28s ease,filter .42s ease,transform .32s ease!important}
+.kara .wd{opacity:0!important;animation:none!important;transform:translateY(2px);transition:opacity .3s ease,transform .32s ease!important}
 .kara .wd.sp{opacity:1!important;filter:none;transform:none}
 /* une réplique déjà dite reste affichée telle quelle : rien ne s'efface, rien ne recommence */
 .said:not(.kara) .wd{animation:none!important;opacity:1!important;filter:none!important;transform:none!important}
@@ -3488,8 +3594,9 @@ body.dusk #dayclock{visibility:hidden}
 .rig .head{transform:rotate(var(--hd0)) translateY(var(--hdy))}
 .rig .aL,.rig .aR,.rig .aL .fore,.rig .aR .fore,.rig .head,.rig .lL,.rig .lR,.rig .shin{transition:transform .55s cubic-bezier(.4,.1,.3,1)}
 /* la grande horloge : en grand, au centre, sur un fond flouté */
-.bc-veil{position:fixed;inset:0;z-index:69;pointer-events:none;opacity:0;transition:opacity .5s ease;
-  background:radial-gradient(ellipse at 50% 46%,rgba(255,255,255,.28),rgba(20,30,50,.18) 70%);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1)}
+/* (sans backdrop-filter : un voile laiteux dégradé, qui ne coûte rien à afficher, et qui apparaît en fondu) */
+.bc-veil{position:fixed;inset:0;z-index:69;pointer-events:none;opacity:0;transition:opacity .7s cubic-bezier(.4,0,.2,1);will-change:opacity;
+  background:radial-gradient(ellipse at 50% 46%,rgba(246,248,251,.93),rgba(226,232,240,.9) 55%,rgba(196,206,220,.88))}
 .bc-veil.on{opacity:1}
 .bigclock:not(.night){left:50%!important;top:47%!important;z-index:70}
 .bigclock:not(.night) svg{width:min(52vw,340px)!important}
@@ -3528,14 +3635,15 @@ body.flashback #world .wcam{filter:none!important}body.flashback #world::before,
 .bilan .farewell .fw-say b{color:#B5602A;margin-right:4px}
 /* portail coulissant des familles : il glisse vers la gauche, le long de la clôture */
 .dio-gate .dio-gleaf{transition:transform 1.8s cubic-bezier(.4,.1,.2,1)}
+.dio-gate.open .dio-gleaf{transition-duration:1s}
 #world.gate-open .dio-gate .dio-gleaf,.dio-gate.open .dio-gleaf{transform:translate(var(--gx),var(--gy))}
 #world.inside .dio-gate{opacity:0}
 /* objets tenus en main : un seul visible, celui de la scène (pp-…) ; le bras se lève pour ce qu'on regarde ou montre */
 .prop{display:none}
-.pp-phone .aR .prop-phone,.pp-ball .aR .prop-ball,.pp-paper .aR .prop-paper,.pp-clip .aR .prop-clip,.pp-bag .aR .prop-bag,
+.pp-phone .aR .prop-phone,.pp-ball .aR .prop-ball,.pp-paper .aR .prop-paper,.pp-book .aR .prop-book,.pp-clip .aR .prop-clip,.pp-bag .aR .prop-bag,
 .pp-bracelet .aR .prop-bracelet,.pp-torch .aR .prop-torch,.pp-guitar .aR .prop-guitar,.pp-mic .aR .prop-mic{display:inline}
-.pp-phone .aR,.pp-paper .aR,.pp-clip .aR,.pp-mic .aR{transform:rotate(-24deg)!important;animation:none!important}
-.pp-phone .aR .fore,.pp-paper .aR .fore,.pp-clip .aR .fore,.pp-mic .aR .fore{transform:rotate(-78deg)!important;animation:none!important}
+.pp-phone .aR,.pp-paper .aR,.pp-book .aR,.pp-clip .aR,.pp-mic .aR{transform:rotate(-24deg)!important;animation:none!important}
+.pp-phone .aR .fore,.pp-paper .aR .fore,.pp-book .aR .fore,.pp-clip .aR .fore,.pp-mic .aR .fore{transform:rotate(-78deg)!important;animation:none!important}
 .pp-torch .aR{transform:rotate(-18deg)!important;animation:none!important}.pp-torch .aR .fore{transform:rotate(-40deg)!important;animation:none!important}
 .pp-bracelet .aR{transform:rotate(-14deg)!important;animation:none!important}.pp-bracelet .aR .fore{transform:rotate(-95deg)!important;animation:none!important}
 /* le ballon qu'on pousse du pied en courant */
@@ -3555,13 +3663,13 @@ body.flashback #world .wcam{filter:none!important}body.flashback #world::before,
 @keyframes gx-eat-head{0%{transform:rotate(var(--hd0,0deg))}22%{transform:rotate(4deg)}38%{transform:rotate(-3deg)}55%{transform:rotate(4deg)}72%{transform:rotate(-3deg)}100%{transform:rotate(var(--hd0,0deg))}}
 /* c'est le bras qui est devant (le gauche, pour qui est assis face à nous) qui porte la cuillère jusqu'à la bouche */
 @keyframes gx-eat-aL{0%{transform:rotate(-4deg)}22%{transform:rotate(-28deg)}38%{transform:rotate(-20deg)}55%{transform:rotate(-28deg)}72%{transform:rotate(-20deg)}100%{transform:rotate(-4deg)}}
-@keyframes gx-eat-aLf{0%{transform:rotate(-20deg)}22%{transform:rotate(-150deg)}38%{transform:rotate(-112deg)}55%{transform:rotate(-150deg)}72%{transform:rotate(-112deg)}100%{transform:rotate(-20deg)}}
+@keyframes gx-eat-aLf{0%{transform:rotate(-20deg)}22%{transform:rotate(-132deg)}38%{transform:rotate(-104deg)}55%{transform:rotate(-132deg)}72%{transform:rotate(-106deg)}100%{transform:rotate(-20deg)}}
 .rig.g-eat .aL{animation:gx-eat-aL 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 .rig.g-eat .aL .fore{animation:gx-eat-aLf 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 .rig.g-eat .head{animation:gx-eat-head 2.6s cubic-bezier(.45,.05,.35,1) 1 both!important}
 /* on écoute jusqu'au bout : les choix et les boutons de la scène attendent la fin de la réplique, les lieux du plan ne
    répondent plus pendant que Nour parle (pas d'entrée dans une autre salle au milieu d'une explication) */
-body.vlock #stage .opts,body.vlock #stage .row,body.vlock #stage .rm-card .row,body.vlock #stage .hall-plan{visibility:hidden!important;pointer-events:none!important}
+body.vlock #stage .opts:not(.why-opts):not(:has(.chosen)):not(:has(.opt:disabled)),body.vlock #stage .hall-plan{visibility:hidden!important;pointer-events:none!important}
 body.vlock #stage .map .spot{pointer-events:none!important}
 body.vlock #stage .map{cursor:progress}
 /* conseil « plein écran » : seulement sur ordinateur (souris, écran large) */
@@ -3574,12 +3682,15 @@ body.vprep #stage .wd{opacity:0!important;transition:none!important}
 body.vprep #stage .opts,body.vprep #stage .row,body.vprep #stage .panel > .btn,body.vprep #stage .panel > .cta,body.vprep #stage .rm-card .row{visibility:hidden!important;pointer-events:none!important}
 body.vprep #stage .map .spot{pointer-events:none!important}
 /* pendant que l'on parle : le bouton qui fait avancer le récit attend aussi la fin (on ne saute pas de réplique) */
-body.vlock #stage .panel > .btn:not(.vg-btn),body.vlock #stage .panel > .cta:not(.vg-btn){visibility:hidden!important;pointer-events:none!important}
+
 /* lampadaires : la tête s'allume avec la même rampe que les fenêtres et les flaques au sol (variable --lamp, 0 → 1) */
 #world .dio-lampglow{opacity:var(--lamp,0)!important;transition:none!important;filter:drop-shadow(0 0 4px #FFD27A) drop-shadow(0 0 10px rgba(255,200,120,.8))}
 #world .wcam>.dio-img.lit-ov{transition:none!important;will-change:opacity}
 /* saut d'heure : le flou se pose vite (le lieu change dessous, sans écran noir) */
-.bc-veil.pre{transition:opacity .22s ease-out}
+.bc-veil.pre{transition:opacity .38s cubic-bezier(.4,0,.2,1)}
+.bigclock{transition:opacity .6s cubic-bezier(.4,0,.2,1),scale .8s cubic-bezier(.2,.8,.2,1)!important;will-change:opacity,scale}
+.bigclock svg{filter:none!important}
+.bigclock svg .bf{filter:none}
 /* ping-pong : les raquettes frappent en rythme (coup droit : armer, frapper, accompagner), les joueurs se déplacent un peu */
 .ractor.pp-live .aR{animation:pp-arm var(--ppT,1.5s) ease-in-out var(--ppD,0s) infinite}
 .ractor.pp-live .aR .fore{animation:pp-fore var(--ppT,1.5s) ease-in-out var(--ppD,0s) infinite}
@@ -3594,6 +3705,118 @@ body.calm .ractor.pp-live .aR,body.calm .ractor.pp-live .aR .fore,body.calm .rac
 .dl-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:10px 0 18px}
 .dl-row .small{margin:0;flex:1 1 260px}
 .pdfsnap,.pdfsnap *{animation-play-state:paused!important;transition:none!important}   /* image fixe : les gestes saisis en plein mouvement (une foulée de course, pas des jambes raides) */
+/* herbes de l'accueil : brins et lucioles animés par la carte graphique (fluides même pendant un clic) */
+.ngrass2{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.ngrass2 .blw{position:absolute;bottom:0;display:block;animation:fx-sway var(--d) ease-in-out var(--dl) infinite alternate;will-change:transform;backface-visibility:hidden}
+.ngrass2 .blw svg{display:block;width:100%;height:100%;overflow:visible}
+.ngrass2 .flw{position:absolute;display:block;border-radius:50%;background:#FFE2A8;box-shadow:0 0 8px 2px rgba(255,214,140,.75);animation:fx-fly var(--d) ease-in-out var(--dl) infinite alternate;will-change:transform,opacity}
+body.calm .ngrass2 .blw,body.calm .ngrass2 .flw{animation:none}
+@media (prefers-reduced-motion:reduce){.ngrass2 .blw,.ngrass2 .flw{animation:none}}
+.su-ghint{margin:6px 0 14px;font-size:13px;color:var(--soft,#6e6e73)}
+.fsgate .fs-ic{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 14px;border-radius:16px;background:linear-gradient(135deg,#2B6FD6,#8A4FD0);color:#fff}
+.fsgate .fs-ic svg{width:28px;height:28px}
+
+/* en attendant la fin de la voix : le bouton est là, grisé, avec un décompte ; les réponses arrivent ensuite */
+.vw{opacity:.55;pointer-events:none!important;cursor:default;font-variant-numeric:tabular-nums}
+.vwh{visibility:hidden!important;pointer-events:none!important}
+.vwpill{margin:14px 0 4px;font-size:14px;font-weight:600;color:#1d1d1f;font-variant-numeric:tabular-nums}
+.vwpill::before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:#E2702A;vertical-align:middle;animation:vw-pulse 1.4s ease-in-out infinite}
+@keyframes vw-pulse{0%,100%{opacity:.35}50%{opacity:1}}
+/* dans la régie : la restauration, devant elle, reste visible en transparence, porte comprise (rien ne flotte seul) */
+#world[data-room="local"] .dio-door.dk-refectoire,#world[data-room="local"] .dm-refectoire{opacity:.3;transition:opacity .6s ease}
+/* visite : le lieu choisi se lit en volume, les arêtes cachées passent derrière le bâtiment, en pointillés */
+/* visite : aucun trait au repos ; seul le lieu choisi (ou survolé) est souligné d'un contour vert plein et de ses arêtes visibles */
+.spot.hidden-spot .zone-o polygon,.spot.hidden-spot.seen .zone-o polygon{fill:rgba(255,255,255,0);stroke:rgba(110,180,74,0)}
+.spot .zone-o .zv{fill:none;stroke:rgba(110,180,74,0);stroke-width:4;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+.spot.hidden-spot:hover .zone-o polygon,.spot.hidden-spot:focus-visible .zone-o polygon,.spot.hidden-spot.cur .zone-o polygon{stroke:#6EB44A;fill:rgba(255,255,255,.06)}
+.spot.hidden-spot:hover .zone-o .zv,.spot.hidden-spot:focus-visible .zone-o .zv,.spot.hidden-spot.cur .zone-o .zv{stroke:#6EB44A}
+.spot.hidden-spot.hinted .zone-o polygon,.spot.hidden-spot.hinted .zone-o .zv{stroke:var(--orange)}
+
+/* bâtiment transparent : ses portes aussi */
+#world .dio-slide,#world .dio-door{transition:opacity .35s ease}
+#world .dio-slide.ghosted{opacity:0}
+#world .dio-door.ghosted{opacity:.35}
+
+/* le carnet : chaque repère avec l'image que Nour a montrée */
+.cpage ul.cp-ill{list-style:none;padding-left:0}
+.cpage ul.cp-ill li{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:16px;align-items:center;margin:14px 0}
+.cpage .cp-art{margin:0;max-width:240px}
+@media (max-width:620px){.cpage ul.cp-ill li{grid-template-columns:1fr}.cpage .cp-art{max-width:100%}}
+
+/* la pastille du lieu visité, au centre de sa forme (plus coupée par le contour) */
+.spot.hidden-spot.seen:before{left:var(--bx,50%);top:var(--by,40%);translate:-50% -50%}
+
+/* visite : le mât et le drapeau passent devant le contour du lieu choisi (comme sur le plan réel) */
+.map.dio .dio-occ:has(.dio-mast),.map.dio .dio-ov:has(.dio-flag){z-index:3000!important;pointer-events:none}
+
+/* nom du lieu pendant la visite : au-dessus du plan, jamais rogné par le contour du lieu */
+.map .spot-tag{position:absolute;transform:translate(-50%,16px);z-index:3500;background:var(--ink,#1d1d1f);color:#fff;font:600 12px/1.3 'Inter',system-ui,sans-serif;border-radius:99px;padding:3px 11px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.map .spot-tag.on{opacity:1}
+
+/* la marquise de l'entrée reste toujours pleine : elle cache le haut de la porte vitrée */
+#world .dio-occ.see:has(.dio-marquise),.map .dio-occ.see:has(.dio-marquise){opacity:1!important}
+
+/* Fluidité : le flou d'arrière-plan (« verre ») se recalcule à chaque image quand le plan bouge derrière lui ; c'était lui qui
+   faisait tomber les images par seconde. Dans une salle, le reste du plan s'assombrit simplement (sans flou) ; en jeu, les
+   pastilles et cartes posées sur le plan deviennent presque opaques, sans flou. Même rendu, beaucoup plus fluide. */
+#world.inside .wdof{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(14,18,28,.3)!important}
+body.live .hpill,body.live .hbtn,body.live .newday,body.live .rings,body.live .rm-card,body.live .rm-bub,body.live #stage .panel,body.live .dusk-pill,body.live .cr-pop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.live .hpill,body.live .hbtn:not(#btn-carnet),body.live .newday,body.live .rings{background:rgba(255,255,255,.93)!important}
+body.live .rm-card,body.live .rm-bub,body.live #stage .panel{background-color:rgba(250,250,252,.95)!important}
+/* contour de visite : aucune petite pointe qui dépasse aux angles */
+.spot .zone-o .zv{stroke-linecap:butt;stroke-linejoin:round}
+.spot .zone-o polygon{stroke-linejoin:round}
+
+/* changement d'écran sous un fondu au noir : pas de glissement ni de flou (rien à calculer pendant le noir) */
+body.swap .screen,body.swap .screen.leaving{transition:none !important;filter:none !important;transform:none !important}
+body.swap .screen.leaving{display:none}
+/* au repas : la bouche s'ouvre quand la fourchette arrive */
+@keyframes gx-eat-mouth{0%,12%{opacity:0}20%,26%{opacity:1}34%,47%{opacity:0}53%,59%{opacity:1}66%,100%{opacity:0}}
+.rig.g-eat .m-open{animation:gx-eat-mouth 2.6s linear 1 both!important}
+
+/* fluidité : pas de flou d'arrière-plan sur les pastilles du haut (le plan s'anime dessous : chaque image, tout le flou
+   serait recalculé) ; un fond presque opaque à la place */
+#hud .hpill,#hud .hbtn:not(#btn-carnet),#hud .rings,#dayclock,#wplace{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background-color:rgba(255,255,255,.96)!important}
+#hud #btn-carnet{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* les personnes hors de l'écran ne bougent plus bras et jambes (on ne les voit pas) : autant d'animations en moins */
+.walker.offs,.walker.offs *{animation-play-state:paused!important}
+/* une personne d'une scène, entièrement derrière un bâtiment (loin du halo) : cachée en fondu, comme celles qui marchent */
+#world .wacts .actor:not(.walker){transition:opacity .25s ease}
+#world .wacts .actor.behind:not(.walker){opacity:0!important}
+#world .wacts .actor.behind[data-who="you"]:not(.walker){opacity:.35!important}
+/* une personne entièrement cachée derrière un bâtiment ne coûte plus rien : ni dessin ni animation (après le fondu) */
+#world .wacts .walker.behind:not([data-who="you"]),.map.dio.tourlive .wacts .walker.behind{visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
+.wacts .walker.behind:not([data-who="you"]) *{animation-play-state:paused!important}
+/* la couche des personnes du plan couvre tout le plan : leurs boîtes (pour la découpe au bord des toits) se mesurent juste */
+.map.dio > .wacts{position:absolute;inset:0;pointer-events:none}
+
+/* ===== Fluidité (objectif : 30 images/s au moins, partout, ordinateur comme téléphone) =====
+   1. Plus aucun filtre de couleur sur le plan, les salles, les objets ni les personnes : chaque filtre obligeait le
+      navigateur à recalculer de grandes images à chaque mouvement d'un personnage. L'ambiance (matin doré, soir, nuit)
+      est donnée par un seul calque teinté, posé au-dessus de la scène (.wgrade), qui ne coûte presque rien. */
+#world .wcam>.dio-img,#world .wlid,#world .inroom-w,#world .dio-occ,#world .dio-ov,#world .wcam>svg,#world .actor svg,#world .wroom>svg,#world .ractor svg{filter:none!important;transition:none!important}
+#world.amb-golden .wgrade{background:linear-gradient(205deg,rgba(255,170,90,.26) 0%,rgba(255,196,130,.12) 48%,rgba(130,96,170,.1) 100%)!important}
+#world.amb-evening .wgrade{background:linear-gradient(180deg,rgba(90,60,150,.24),rgba(255,140,100,.14))!important}
+#world.amb-night .wgrade{background:linear-gradient(180deg,rgba(18,28,80,.46),rgba(8,14,40,.4))!important}
+/* 2. Les petits mouvements « de repos » (respiration interne, clignement) ne tournent que sur les personnages en grand,
+      dans les salles ; sur le plan, les personnages sont trop petits pour qu'on les voie, et ils coûtaient cher. */
+.rig .bob{animation:none!important}
+.walker .rig .eyes,.actor .rig .eyes,.fperson .rig .eyes{animation:none!important}
+/* 3. Le ciel et les lumières changent sans transition de variables héritées : une telle transition recalculait le style
+      de toute la scène, à chaque image, pendant 6 secondes à chaque changement d'heure. */
+#world{transition:opacity .9s var(--ease)!important}
+/* 4. Dans une salle, le plan autour est assombri : ses passants s'arrêtent de bouger (on ne les voit pas, ils coûtaient cher) */
+#world.inside .wcam .wacts .walker:not([data-who="you"]){visibility:hidden}
+#world.inside .wcam .wacts .walker *{animation-play-state:paused!important}
+/* 5. Sur le plan, les personnages sont petits : leurs jambes et leurs bras bougent par petites étapes (6 par demi-pas)
+      au lieu d'être redessinés à chaque image. Le déplacement lui-même reste parfaitement continu. */
+#world .wacts .walker .rig *,.map.dio .wacts .walker .rig *{animation-timing-function:steps(6,jump-none)!important}
+/* 6. Paliers d'allègement automatiques (classe posée par Perf quand l'appareil passe sous 40 images/s) */
+body.perf-1 #world .wgrass{display:none!important}
+body.perf-1 .wacts .walker.crowd.c-odd{display:none!important}
+body.perf-2 .wacts .walker.crowd:not(.c-keep){display:none!important}
+/* 7. Caméra immobile et plan net redessiné (calque .dio-hires) : le grand plan dessous est masqué (voir hires()) */
+#world .wcam.hi-on>img.dio-img{visibility:hidden}
 </style></head>
 <body>
 <div id="app"><div class="ambient" aria-hidden="true"><i style="left:0%;animation-delay:-0.0s;width:5px;height:5px;background:#F4B63F"></i><i style="left:37%;animation-delay:-1.4s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:74%;animation-delay:-2.8s;width:9px;height:9px;background:#F2C48A"></i><i style="left:11%;animation-delay:-4.2s;width:5px;height:5px;background:#F4B63F"></i><i style="left:48%;animation-delay:-5.6s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:85%;animation-delay:-7.0s;width:9px;height:9px;background:#F2C48A"></i><i style="left:22%;animation-delay:-8.4s;width:5px;height:5px;background:#F4B63F"></i><i style="left:59%;animation-delay:-9.8s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:96%;animation-delay:-11.2s;width:9px;height:9px;background:#F2C48A"></i><i style="left:33%;animation-delay:-12.6s;width:5px;height:5px;background:#F4B63F"></i><i style="left:70%;animation-delay:-14.0s;width:7px;height:7px;background:#9CC9EA"></i><i style="left:7%;animation-delay:-15.4s;width:9px;height:9px;background:#F2C48A"></i><i style="left:44%;animation-delay:-16.8s;width:5px;height:5px;background:#F4B63F"></i><i style="left:81%;animation-delay:-18.2s;width:7px;height:7px;background:#9CC9EA"></i><div class="grassline"><svg viewBox="0 0 1600 70" preserveAspectRatio="none"><path d="M0,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M11,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M22,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M33,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M44,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M55,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M66,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M77,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M88,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M99,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M110,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M121,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M132,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M143,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M154,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M165,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M176,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M187,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M198,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M209,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M220,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M231,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M242,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M253,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M264,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M275,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M286,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M297,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M308,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M319,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M330,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M341,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M352,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M363,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M374,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M385,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M396,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M407,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M418,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M429,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M440,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M451,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M462,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M473,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M484,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M495,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M506,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M517,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M528,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M539,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M550,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M561,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M572,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M583,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M594,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M605,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M616,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M627,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M638,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M649,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M660,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M671,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M682,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M693,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M704,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M715,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M726,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M737,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M748,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M759,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M770,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M781,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M792,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M803,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M814,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M825,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M836,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M847,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M858,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M869,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M880,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M891,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M902,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M913,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M924,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M935,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M946,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M957,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M968,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M979,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M990,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1001,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1012,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1023,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1034,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1045,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1056,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1067,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1078,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1089,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1100,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1111,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1122,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1133,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1144,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1155,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1166,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1177,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1188,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1199,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1210,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1221,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1232,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1243,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1254,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1265,70 q4,-33 9,0" fill="#A5D3B3"/><path d="M1276,70 q4,-56 9,0" fill="#A5D3B3"/><path d="M1287,70 q4,-49 9,0" fill="#A5D3B3"/><path d="M1298,70 q4,-42 9,0" fill="#A5D3B3"/><path d="M1309,70 q4,-35 9,0" fill="#A5D3B3"/><path d="M1320,70 q4,-28 9,0" fill="#A5D3B3"/><path d="M1331,70 q4,-51 9,0" fill="#A5D3B3"/><path d="M1342,70 q4,-44 9,0" fill="#A5D3B3"/><path d="M1353,70 q4,-37 9,0" fill="#A5D3B3"/><path d="M1364,70 q4,-30 9,0" fill="#A5D3B3"/><path d="M1375,70 q4,-53 9,0" fill="#A5D3B3"/><path d="M1386,70 q4,-46 9,0" fill="#A5D3B3"/><path d="M1397,70 q4,-39 9,0" fill="#A5D3B3"/><path d="M1408,70 q4,-32 9,0" fill="#A5D3B3"/><path d="M1419,70 q4,-55 9,0" fill="#A5D3B3"/><path d="M1430,70 q4,-48 9,0" fill="#A5D3B3"/><path d="M1441,70 q4,-41 9,0" fill="#A5D3B3"/><path d="M1452,70 q4,-34 9,0" fill="#A5D3B3"/><path d="M1463,70 q4,-57 9,0" fill="#A5D3B3"/><path d="M1474,70 q4,-50 9,0" fill="#A5D3B3"/><path d="M1485,70 q4,-43 9,0" fill="#A5D3B3"/><path d="M1496,70 q4,-36 9,0" fill="#A5D3B3"/><path d="M1507,70 q4,-29 9,0" fill="#A5D3B3"/><path d="M1518,70 q4,-52 9,0" fill="#A5D3B3"/><path d="M1529,70 q4,-45 9,0" fill="#A5D3B3"/><path d="M1540,70 q4,-38 9,0" fill="#A5D3B3"/><path d="M1551,70 q4,-31 9,0" fill="#A5D3B3"/><path d="M1562,70 q4,-54 9,0" fill="#A5D3B3"/><path d="M1573,70 q4,-47 9,0" fill="#A5D3B3"/><path d="M1584,70 q4,-40 9,0" fill="#A5D3B3"/><path d="M1595,70 q4,-33 9,0" fill="#A5D3B3"/></svg></div></div>
@@ -3615,7 +3838,7 @@ body.calm .ractor.pp-live .aR,body.calm .ractor.pp-live .aR .fore,body.calm .rac
 <div id="live" class="sr-only" aria-live="polite"></div>
 <div id="fx" aria-hidden="true"></div>
 </div>
-<script src="jeu-1-b15f9775.js"></script>
-<script src="jeu-2-7b9e9ffe.js"></script>
-<script src="jeu-3-e424c015.js"></script>
+<script src="jeu-1-a0e127ba.js"></script>
+<script src="jeu-2-b602fbea.js"></script>
+<script src="jeu-3-1da2b137.js"></script>
 </body></html>

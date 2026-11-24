@@ -1,6 +1,6 @@
 /*
  * Fourmi'Action · classement du jeu « Les Hautes Herbes »
- * GET  /api/classement          → les 10 meilleurs scores de chaque podium (enfants · adultes) et le nombre de parties classées
+ * GET  /api/classement          → les 10 meilleurs scores (un seul podium, niveaux adultes) et le nombre de parties classées
  * POST /api/classement          → { pseudo, score, niveau, defi, nuitee } ; renvoie le rang obtenu
  *
  * Données conservées : un pseudo (jamais un nom complet ni une adresse), le score, le niveau et la date.
@@ -13,15 +13,15 @@ export const config = { path: "/api/classement" };
 const env = (k, d = "") => (globalThis.Netlify?.env?.get?.(k) ?? process.env[k] ?? d);
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 const GARDER = 300, AFFICHER = 10, PAR_JOUR = 6;
-// Deux podiums : niveau enfants (1) et niveau adultes (2 = moyen, 3 = expert).
-const groupe = (n) => (Number(n) === 1 ? "enfants" : "adultes");
+// Un seul podium : niveaux adultes (2 = standard, 3 = expert). L'ancien niveau enfants (1) n'existe plus :
+// ses anciens scores restent à part et ne sont plus jamais affichés.
+const groupe = (n) => (Number(n) === 1 ? "ancien-enfants" : "adultes");
 // Profils fictifs de départ (jamais enregistrés) : ils donnent un objectif à battre. Ils sont signalés comme tels à l'affichage.
 const T0 = "2026-11-01T00:00:00.000Z";
 const SEEDS = {
   adultes: [["VSSKILLER", 1480, 3], ["Marie", 1320, 3], ["Safia", 1190, 2], ["Arthur", 1050, 2], ["jojo45", 890, 2], ["Moumou", 740, 2]],
-  enfants: [["Léo_75", 960, 1], ["Chloé", 880, 1], ["Yaniss", 810, 1], ["Camille", 750, 1], ["Nolan", 690, 1], ["Ambre", 620, 1], ["Timéo", 540, 1]],
 };
-const seeds = (g) => SEEDS[g].map(([p, s, n]) => ({ p, s, n, d: false, t: T0, f: true }));
+const seeds = (g) => (SEEDS[g] || []).map(([p, s, n]) => ({ p, s, n, d: false, t: T0, f: true }));
 const du = (L, g) => L.filter((e) => groupe(e.n) === g).concat(seeds(g)).sort((a, c) => c.s - a.s || a.t.localeCompare(c.t));
 
 // Mots refusés dans les pseudos (insultes, termes sexuels ou haineux). Comparaison sans accents ni chiffres déguisés.
@@ -49,7 +49,7 @@ export default async (req) => {
   const s = store();
   if (req.method === "GET") {
     const L = await lire(s); const total = Number((await s.get("total")) || L.length);
-    return json({ ok: true, total, enfants: publique(du(L, "enfants")), adultes: publique(du(L, "adultes")), top: publique(du(L, "adultes")) });
+    return json({ ok: true, total, adultes: publique(du(L, "adultes")), top: publique(du(L, "adultes")) });
   }
   if (req.method !== "POST") return json({ ok: false }, 405);
   let b; try { b = await req.json(); } catch { return json({ ok: false, error: "Requête illisible." }, 400); }
@@ -57,7 +57,7 @@ export default async (req) => {
   if (!pseudo) return json({ ok: false, error: err }, 400);
   const score = Math.round(Number(b.score));
   if (!Number.isFinite(score) || score < 0 || score > 1700) return json({ ok: false, error: "Score invalide." }, 400);
-  const niveau = [1, 2, 3].includes(Number(b.niveau)) ? Number(b.niveau) : 2;
+  const niveau = Number(b.niveau) === 3 ? 3 : 2;   // plus de niveau enfants
   // limite anonyme : empreinte salée de la connexion, valable un jour
   const ip = req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "?";
   const jour = new Date().toISOString().slice(0, 10);
@@ -70,7 +70,7 @@ export default async (req) => {
   // un même pseudo garde son meilleur score dans son podium (pas de doublons)
   const g = groupe(niveau);
   const i0 = L.findIndex((x) => groupe(x.n) === g && x.p.toLowerCase() === pseudo.toLowerCase());
-  const reponse = (extra) => ({ ok: true, groupe: g, enfants: publique(du(L, "enfants")), adultes: publique(du(L, "adultes")), ...extra });
+  const reponse = (extra) => ({ ok: true, groupe: g, adultes: publique(du(L, "adultes")), ...extra });
   if (i0 >= 0) { if (L[i0].s >= score) { const rang = du(L, g).indexOf(L[i0]) + 1; return json(reponse({ rang, ameliore: false, meilleur: L[i0].s, total: Number((await s.get("total")) || L.length) })); } L.splice(i0, 1); }
   L.push(e); L.sort((a, c) => c.s - a.s || a.t.localeCompare(c.t));
   const rang = du(L, g).indexOf(e) + 1;

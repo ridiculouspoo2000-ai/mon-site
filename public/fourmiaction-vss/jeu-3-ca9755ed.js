@@ -3708,32 +3708,19 @@
     return Math.min(1700, Math.round(m * 1500 * ({ 1: .7, 2: 1, 3: 1.1 }[st.level || 2]) + (defi ? 50 : 0)));
   }
   const LVN = { 1: "Adulte", 2: "Adulte", 3: "Adulte expert" };
-  const GRP = (n) => (Number(n) === 1 ? "enfants" : "adultes");
-  const GRPN = { enfants: "Niveau enfants", adultes: "Niveau adultes" };
-  // la mention du mode : « expert » s'il a été activé, sinon « standard » (podium adultes)
+    // la mention du mode : « expert » s'il a été activé, sinon « standard » (podium adultes)
   const expTag = (e) => (Number(e.niveau) === 3 ? ' <small class="rk-exp" title="Mode expert activé">expert</small>' : Number(e.niveau) === 2 ? ' <small class="rk-std" title="Mode expert non activé">standard</small>' : "");
   const FICTIF = `<p class="rk-fict">Les premiers scores sont des profils fictifs, pour lancer le classement : à vous de les battre !</p>`;
-  const hasFict = (j) => [...(j.adultes || []), ...(j.enfants || [])].some((e) => e.fictif);
+  const hasFict = (j) => (j.adultes || []).some((e) => e.fictif);
   // Un podium : les 10 premiers joueurs qui ont inscrit leur score (aucune partie fictive).
   function boardList(top, me) {
     top = (top || []).slice(0, 10);
     if (!top.length) return `<p class="rk-empty">Personne n’est encore classé à ce niveau : soyez le premier ou la première !</p>`;
     return `<ol class="rk-list">${top.map((e) => `<li class="${me && e.rang === me ? "me" : ""}${e.rang <= 3 ? " podium p" + e.rang : ""}"><span class="rk-r">${e.rang}</span><span class="rk-p">${esc(e.pseudo)}${expTag(e)}${e.defi ? ' <i title="Défi relevé" aria-label="défi relevé">★</i>' : ""}</span><b class="rk-s">${e.score}</b></li>`).join("")}</ol>`;
   }
-  // Les deux podiums côte à côte (onglets) : niveau adultes et niveau enfants.
-  function boards(j, me, mine) {
-    const g0 = mine || (st.level === 1 ? "enfants" : "adultes");
-    const id = "rkb" + Math.random().toString(36).slice(2, 7);
-    const tab = (g) => `<button type="button" role="tab" class="rk-tab${g === g0 ? " on" : ""}" aria-selected="${g === g0}" aria-controls="${id}-${g}" data-g="${g}">${GRPN[g]}</button>`;
-    const pane = (g) => `<div class="rk-pane" role="tabpanel" id="${id}-${g}"${g === g0 ? "" : " hidden"}>${boardList(j[g], g === mine ? me : null)}</div>`;
-    return pane("adultes");   // un seul podium : les deux niveaux sont des niveaux adultes
-  }
-  function wireTabs(root) {
-    root.addEventListener("click", (e) => { const t = e.target.closest(".rk-tab"); if (!t) return; const box = t.closest(".rk-tabs").parentElement;
-      box.querySelectorAll(".rk-tab").forEach((b) => { const on = b === t; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
-      box.querySelectorAll(".rk-pane").forEach((p) => { p.hidden = p.id !== t.getAttribute("aria-controls"); }); });
-  }
-  const norm2 = (j) => (j && j.ok ? { ...j, adultes: j.adultes || j.top || [], enfants: j.enfants || [] } : null);
+  // Un seul podium : les deux niveaux (standard, expert) sont des niveaux adultes.
+  function boards(j, me) { return `<div class="rk-pane">${boardList(j.adultes, me)}</div>`; }
+  const norm2 = (j) => (j && j.ok ? { ...j, adultes: j.adultes || j.top || [] } : null);
   // le nom sur le podium : celui choisi pour le personnage au début du jeu (pas de nouvelle saisie)
   function podName() { return (String(st.name || "").trim() || "Anonyme").slice(0, 16); }
   function rankBox(defi) {
@@ -3747,8 +3734,7 @@
     box.querySelector(".rk-no").addEventListener("click", () => { const f = box.querySelector(".rk-form"), q = box.querySelector(".rk-q"); if (f) f.hidden = true; if (q) q.hidden = true; box.querySelector(".rk-msg").textContent = "Votre score reste privé : il n’apparaît pas sur le podium."; Snd.click(); });
     const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
     if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
-    wireTabs(board);
-    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang, GRP(st.level || 2)) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
+    fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); if (j) board.innerHTML = boards(j, st.ranked && st.ranked.rang) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>`; else board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; }).catch(() => { board.innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const pseudo = podName(); const sb = form.querySelector("button");
@@ -3758,19 +3744,19 @@
           sb.disabled = false;
           if (!j || !j.ok) { msg.textContent = (j && j.error) || "Le classement n’est pas disponible pour le moment."; return; }
           st.ranked = { pseudo, rang: j.rang }; save(); form.hidden = true;
-          msg.textContent = j.ameliore === false ? `Votre meilleur score (${j.meilleur}) reste au classement : vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"}.` : `Bravo ! Vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"} sur le podium ${st.level === 1 ? "des enfants" : "des adultes"}.`;
-          board.innerHTML = boards(norm2(j), j.rang, GRP(st.level || 2)); Snd.good(); if (j.rang <= 3) confetti(box);
+          msg.textContent = j.ameliore === false ? `Votre meilleur score (${j.meilleur}) reste au classement : vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"}.` : `Bravo ! Vous êtes ${j.rang}${j.rang === 1 ? "er" : "e"} sur le podium.`;
+          board.innerHTML = boards(norm2(j), j.rang); Snd.good(); if (j.rang <= 3) confetti(box);
         }).catch(() => { sb.disabled = false; msg.textContent = "Le classement n’est pas disponible pour le moment."; });
     });
     return box;
   }
   function openBoard() {
     const d = el("div", { class: "rk-pop", role: "dialog", "aria-modal": "true", "aria-labelledby": "rkp-h" });
-    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Les 10 premiers de chaque niveau. Le score, calculé à la fin de la semaine, dépend de vos décisions et du niveau choisi.</p></div>`;
+    d.innerHTML = `<div class="rk-card"><button type="button" class="rk-x" aria-label="Fermer">×</button><p class="kicker">Les Hautes Herbes</p><h2 id="rkp-h">Le classement des joueurs</h2><div class="rk-board"><p class="rk-empty">Chargement…</p></div><p class="small">Les 10 premiers joueurs. Le score, calculé à la fin de la semaine, dépend de vos décisions et du niveau choisi.</p></div>`;
     const close = () => { d.remove(); document.removeEventListener("keydown", esc2); };
     const esc2 = (e) => { if (e.key === "Escape") close(); };
     d.addEventListener("click", (e) => { if (e.target === d || e.target.closest(".rk-x")) close(); });
-    document.addEventListener("keydown", esc2); document.body.appendChild(d); wireTabs(d); d.querySelector(".rk-x").focus();
+    document.addEventListener("keydown", esc2); document.body.appendChild(d); d.querySelector(".rk-x").focus();
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { j = norm2(j); d.querySelector(".rk-board").innerHTML = j ? boards(j) + (hasFict(j) ? FICTIF : "") + `<p class="small">${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""} au total.</p>` : `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; })
       .catch(() => { d.querySelector(".rk-board").innerHTML = `<p class="rk-empty">Le classement n’est pas disponible pour le moment.</p>`; });
   }
@@ -6795,12 +6781,10 @@
     const hrow = (e) => `<li class="p${e.rang}"><span class="hr-r">${e.rang}</span><span class="hr-p">${esc(e.pseudo)}${expTag(e)}${e.defi ? ' <i aria-label="défi relevé">★</i>' : ""}</span><b class="hr-s">${e.score}</b></li>`;
     const hlist = (top) => (top && top.length ? top.slice(0, 10).map(hrow).join("") : `<li class="hr-wait">Personne n’est encore classé. Terminez la semaine pour inscrire votre pseudo en tête.</li>`);
     rk.innerHTML = `<p class="hr-k">Classement des joueurs</p><h2 id="hr-h" class="hr-h">Le podium</h2>
-      <div class="rk-tabs hr-tabs" role="tablist" aria-label="Podiums" hidden><button type="button" role="tab" class="rk-tab on" aria-selected="true" aria-controls="hrp-adultes">Adultes</button><button type="button" role="tab" class="rk-tab" aria-selected="false" aria-controls="hrp-enfants">Enfants</button></div>
-      <div class="rk-pane" role="tabpanel" id="hrp-adultes"><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><div class="rk-pane" role="tabpanel" id="hrp-enfants" hidden><ol class="hr-list"><li class="hr-wait">Chargement…</li></ol></div><p class="hr-foot"></p>`;
-    wireTabs(rk);
+      <ol class="hr-list"><li class="hr-wait">Chargement…</li></ol><p class="hr-foot"></p>`;
     fetch("/api/classement", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => {
-      j = norm2(j) || { adultes: [], enfants: [], total: 0 };
-      rk.querySelector("#hrp-adultes .hr-list").innerHTML = hlist(j.adultes); rk.querySelector("#hrp-enfants .hr-list").innerHTML = hlist(j.enfants);
+      j = norm2(j) || { adultes: [], total: 0 };
+      rk.querySelector(".hr-list").innerHTML = hlist(j.adultes);
       rk.querySelector(".hr-foot").innerHTML = (j.total ? `${j.total} partie${j.total > 1 ? "s" : ""} classée${j.total > 1 ? "s" : ""}` : "");
     }).catch(() => { rk.querySelectorAll(".hr-list").forEach((l) => { l.innerHTML = `<li class="hr-wait">Le classement n’est pas disponible pour le moment.</li>`; }); });
     stage.appendChild(n);

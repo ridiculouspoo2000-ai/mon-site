@@ -41,7 +41,13 @@ if (form) {
   const status = document.querySelector('#contact-status');
   const name = document.querySelector('#name');
   const query = new URLSearchParams(location.search).get('sujet');
-  if (query) {
+  // « Donner mon avis » (page L’association) : sujet choisi et début du message déjà écrit
+  if (new URLSearchParams(location.search).has('avis')) {
+    subject.value = 'Donner mon avis';
+    subject.dispatchEvent(new Event('change', { bubbles: true }));
+    document.querySelectorAll('.ct-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === 'Donner mon avis')));
+    message.value = 'Bonjour,\n\nJe souhaite donner mon avis sur Fourmi’Action (formation, jeu Les Hautes Herbes, Collectif jeunes…) :\n\n\n\nJ’accepte que cet avis soit publié sur le site, signé : (prénom ou initiale, et qui vous êtes : parent, animateur·rice, stagiaire…)\n';
+  } else if (query) {
     if (query.includes('Bénévolat')) subject.value = 'Bénévolat ou partenariat';
     else if (query.includes('Projet')) subject.value = 'Projet d’accueil collectif';
     message.value = 'Bonjour,\n\nJe souhaite obtenir des informations concernant : ' + query + '.\n\n';

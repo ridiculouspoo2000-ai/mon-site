@@ -103,3 +103,4 @@
 }
 @media(prefers-reduced-motion:reduce){.nw-hero:before{animation:none}}
 html.ap-reduced .nw-hero:before{animation:none}
+html.theme-verre .nw-hero .nw-jump a{background:rgba(255,255,255,.1)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)!important;color:#fff!important}html.theme-verre .nw-hero .nw-jump a:hover{background:rgba(255,255,255,.2)!important}

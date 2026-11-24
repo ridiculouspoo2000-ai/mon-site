@@ -163,3 +163,4 @@ html.ap-reduced .fa-fourmi *{animation:none!important;transition:none!important}
 @keyframes fa-siri{to{transform:rotate(360deg)}}
 .fa-fourmi[data-state="think"] .fa-siri{opacity:.28}
 @media (prefers-reduced-motion:reduce){.fa-siri i{animation:none}}
+.fa-u,.fa-u p{color:#fff!important}

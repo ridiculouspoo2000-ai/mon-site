@@ -29,9 +29,12 @@
     };
   }
   // un segment de membre : capsule qui s'affine, du pivot (0,0) vers le bas
+  // un segment de membre : arrondi aux deux bouts (les articulations se recouvrent sans se voir) ; seul le contour des côtés
+  // est tracé, jamais celui des bouts arrondis, pour qu'on ne voie aucun trait au coude, au genou ni à l'épaule
+  const limbD = (w0, w1, len) => { const a = w0 / 2, b = w1 / 2; return `M${-a},0 C${-a},${-a * .9} ${a},${-a * .9} ${a},0 L${b},${len} C${b},${len + b * 1.1} ${-b},${len + b * 1.1} ${-b},${len} Z`; };
   const limb = (w0, w1, len, fill, extra = "") => {
     const a = w0 / 2, b = w1 / 2;
-    return `<path d="M${-a},0 C${-a},${-a * .9} ${a},${-a * .9} ${a},0 L${b},${len} C${b},${len + b * 1.1} ${-b},${len + b * 1.1} ${-b},${len} Z" fill="${fill}" stroke="rgba(20,16,12,.28)" stroke-width=".7" ${extra}/>`;
+    return `<path class="lb" d="${limbD(w0, w1, len)}" fill="${fill}" ${extra}/><path class="lb" d="M${-a},0 L${-b},${len} M${a},0 L${b},${len}" fill="none" stroke="rgba(20,16,12,.24)" stroke-width=".7"/>`;
   };
 
   /* spec : { age, sex: "f"|"m", skin, hair, hairStyle, top, bottom, shoes, sleeves: "long"|"short", skirt, glasses, beard, badge } */
@@ -79,12 +82,10 @@
     // le tissu du pantalon : toile de jean (sergé, surpiqûre orange sur le côté) ou toile lisse avec un pli ; du volume
     // (lumière sur l'avant, ombre sur le côté), un pli au genou
     const cloth = (w0, w1, len, side, part) => {
-      const a = w0 / 2, b = w1 / 2, shape = `M${-a},0 L${b * (-1)},${len} L${b},${len} L${a},0 Z`, f = (v) => v.toFixed(2);
-      let o = `<path d="${shape}" fill="url(#${u}lv)"/>`;
-      if (jeans) o += `<path d="${shape}" class="tx" fill="url(#${u}tw)"/><path d="M${f(side * a * .78)},1 L${f(side * b * .8)},${f(len - .5)}" stroke="#D99A4E" stroke-opacity=".55" stroke-width=".35" stroke-dasharray=".9 .6" fill="none"/>`;
-      else o += `<path d="M${f(-a * .05)},1.5 L${f(-b * .05)},${f(len - 1)}" stroke="#000" stroke-opacity=".12" stroke-width=".45" fill="none"/>`;
-      if (part === "thigh") o += `<path d="M${f(-a * .55)},${f(len - 2.2)} q${f(a * .55)},1 ${f(a * 1.1)},-.2" stroke="#000" stroke-opacity=".16" stroke-width=".5" fill="none"/>`;
-      else o += `<path d="M${f(-b * .7)},${f(len - .6)} q${f(b * .7)},.8 ${f(b * 1.4)},0" stroke="#000" stroke-opacity=".2" stroke-width=".55" fill="none"/>`;
+      const a = w0 / 2, b = w1 / 2, shape = limbD(w0, w1, len), f = (v) => v.toFixed(2);
+      let o = `<path class="ov" d="${shape}" fill="url(#${u}lv)"/>`;
+      if (jeans) o += `<path d="${shape}" class="tx" fill="url(#${u}tw)"/><path d="M${f(side * a * .78)},1 L${f(side * b * .8)},${f(len - .5)}" stroke="#D99A4E" stroke-opacity=".5" stroke-width=".35" stroke-dasharray=".9 .6" fill="none"/>`;
+      else o += `<path d="M${f(-a * .05)},1.5 L${f(-b * .05)},${f(len - 1)}" stroke="#000" stroke-opacity=".08" stroke-width=".45" fill="none"/>`;
       return o;
     };
     // jambe : cuisse (pivot hanche) > tibia (pivot genou) > chaussure
@@ -138,10 +139,9 @@
         + [-.17, 0, .17].map((d) => `<path d="M${f(F * d)},${f(t0 - .1)} L${f(F * d)},${f(t1)}" stroke="#DDE2E6" stroke-width="${f(F * .09)}" stroke-linecap="round"/>`).join("") + `</g>`; };
     // la manche : la maille (ou la trame), du volume, des plis au creux du coude, un poignet côtelé
     const sleeve = (w0, w1, len, part) => {
-      const a = w0 / 2, b = w1 / 2, shape = `M${-a},0 L${-b},${len} L${b},${len} L${a},0 Z`, f = (v) => v.toFixed(2);
-      let o = `<path d="${shape}" class="tx" fill="${tex}"/><path d="${shape}" fill="url(#${u}lv)"/>`;
-      if (part === "up" && sleeveLong) o += `<path d="M${f(-a * .6)},${f(len - 1.6)} q${f(a * .5)},.9 ${f(a * 1.1)},.1 M${f(-a * .3)},${f(len - .4)} q${f(a * .4)},.6 ${f(a * .8)},0" stroke="#000" stroke-opacity=".18" stroke-width=".45" fill="none"/>`;
-      if (part === "up" && !sleeveLong) o += `<path d="M${f(-a * 1.02)},${f(len - .6)} L${f(a * 1.02)},${f(len - .6)}" stroke="${topD}" stroke-width="1.1"/>`;
+      const a = w0 / 2, b = w1 / 2, shape = limbD(w0, w1, len), f = (v) => v.toFixed(2);
+      let o = `<path d="${shape}" class="tx" fill="${tex}"/><path class="ov" d="${shape}" fill="url(#${u}lv)"/>`;
+      if (part === "up" && !sleeveLong) o += `<path d="M${f(-a * 1.02)},${f(len - .6)} L${f(a * 1.02)},${f(len - .6)}" stroke="${tone(top, -.12)}" stroke-width=".9" opacity=".7"/>`;
       if (part === "fore" && knit) o += `<rect x="${f(-b)}" y="${f(len - 2.6)}" width="${f(w1)}" height="2.6" class="tx" fill="url(#${u}kn)"/>`;
       return o;
     };
@@ -165,7 +165,7 @@
       ${spec.skirt ? `<path d="M${-hw * 1.02},${hipY + 6} L${-hw * 1.55},${hipY + B.H * .14} Q0,${hipY + B.H * .16} ${hw * 1.55},${hipY + B.H * .14} L${hw * 1.02},${hipY + 6} Z" fill="${spec.skirt}"/>` : ""}
       <path d="M${-sw},${shY + 3} C${-sw},${shY - 3} ${-sw * .5},${shY - 4} 0,${shY - 4} C${sw * .5},${shY - 4} ${sw},${shY - 3} ${sw},${shY + 3} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" class="tx" fill="${tex}"/>
       <path d="M${-sw},${shY + 3} C${-sw},${shY - 3} ${-sw * .5},${shY - 4} 0,${shY - 4} C${sw * .5},${shY - 4} ${sw},${shY - 3} ${sw},${shY + 3} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" fill="url(#${u}vol)"/>
-      ${!spec.back ? `<path d="M${(-sw * .7).toFixed(1)},${(shY + B.H * .06).toFixed(1)} q${(sw * .25).toFixed(1)},${(B.H * .05).toFixed(1)} ${(sw * .2).toFixed(1)},${(B.H * .1).toFixed(1)} M${(sw * .72).toFixed(1)},${(shY + B.H * .07).toFixed(1)} q${(-sw * .22).toFixed(1)},${(B.H * .05).toFixed(1)} ${(-sw * .16).toFixed(1)},${(B.H * .1).toFixed(1)} M${(-hw * .5).toFixed(1)},${(waist - B.H * .035).toFixed(1)} q${(hw * .5).toFixed(1)},${(B.H * .012).toFixed(1)} ${(hw).toFixed(1)},0" stroke="#000" stroke-opacity=".13" stroke-width=".55" fill="none" stroke-linecap="round"/>` : ""}
+      ${!spec.back ? `<path d="M${(-hw * .5).toFixed(1)},${(waist - B.H * .035).toFixed(1)} q${(hw * .5).toFixed(1)},${(B.H * .012).toFixed(1)} ${(hw).toFixed(1)},0" stroke="#000" stroke-opacity=".13" stroke-width=".55" fill="none" stroke-linecap="round"/>` : ""}
       ${knit && cut !== "cardigan" ? `<path d="M${-hw * 1.01},${(waist - 2.6).toFixed(1)} C${-hw},${waist + 2.4} ${hw},${waist + 2.4} ${hw * 1.01},${(waist - 2.6).toFixed(1)} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" fill="${tone(top, -.1)}"/><path d="M${-hw * 1.01},${(waist - 2.6).toFixed(1)} C${-hw},${waist + 2.4} ${hw},${waist + 2.4} ${hw * 1.01},${(waist - 2.6).toFixed(1)} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" class="tx" fill="url(#${u}kn)"/>` : ""}
       ${!knit && !spec.skirt ? `<path d="M${-hw * 1.02},${(hipY + 1.2).toFixed(1)} C${-hw},${(hipY + 3.4).toFixed(1)} ${hw},${(hipY + 3.4).toFixed(1)} ${hw * 1.02},${(hipY + 1.2).toFixed(1)} L${hw * 1.02},${(hipY + 2.9).toFixed(1)} C${hw},${(hipY + 5.1).toFixed(1)} ${-hw},${(hipY + 5.1).toFixed(1)} ${-hw * 1.02},${(hipY + 2.9).toFixed(1)} Z" fill="#2B2420"/>${!spec.back ? `<rect x="-1.4" y="${(hipY + 2.1).toFixed(1)}" width="2.8" height="2.1" rx=".4" fill="none" stroke="#C9B27A" stroke-width=".55"/>` : ""}` : ""}
       ${jeans && !spec.back ? `<path d="M${(-hw * .92).toFixed(1)},${(hipY + 5.2).toFixed(1)} q${(hw * .35).toFixed(1)},${(1.2).toFixed(1)} ${(hw * .5).toFixed(1)},${(4.4).toFixed(1)} M${(hw * .92).toFixed(1)},${(hipY + 5.2).toFixed(1)} q${(-hw * .35).toFixed(1)},1.2 ${(-hw * .5).toFixed(1)},4.4" stroke="#D99A4E" stroke-opacity=".55" stroke-width=".35" stroke-dasharray=".9 .6" fill="none"/>` : ""}
@@ -382,6 +382,18 @@
   // d’après le texte, un peu courte pour que les mots s’affichent avec la voix, jamais après.
   const audDur = (a, text) => { const d = a && a.duration; if (d && isFinite(d) && d > 0.3) return d; return Math.max(1.2, String(text || "").replace(/\s+/g, " ").length / 15.5); };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // Ordre des réponses : mélangé au hasard, propre à chaque partie (on ne retrouve pas les bonnes réponses toujours en haut),
+  // mais stable pour un écran donné pendant la partie. Rend les indices d'origine dans l'ordre d'affichage.
+  function mixOrder(n, key) {
+    let st0 = null; try { st0 = st; } catch (e) { }
+    if (st0 && !st0.mix) { st0.mix = (Math.random() * 2 ** 31) | 0; try { save(); } catch (e) { } }
+    let h = ((st0 && st0.mix) || 12345) ^ 0x9E3779B9;
+    for (const c of String(key)) h = Math.imul(h ^ c.charCodeAt(0), 2654435761);
+    const rnd = () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const a = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
   const NAMES = { yanis: "Yanis", lea: "Léa", nour: "Nour", bastien: "Bastien", ines: "Inès", jade: "Jade", kevin: "Kévin", garnier: "M. Lambert", lou: "Lou", malo: "Malo", maelys: "Maëlys", roussel: "M. Roussel", benali: "Mme Benali", lena: "Léna", sacha: "Sacha", theo: "Noé", zoe: "Zoé", clara: "Clara", enzo: "Enzo" };
   // Refonte : mise en scène corrigée. Devant la régie (« local »), les places extérieures tombent sur le toit
   // de la restauration : Maëlys et vous attendez donc dans la régie elle-même (là où se tient l'atelier bois).
@@ -762,11 +774,14 @@
       if (!this.ok || !this.ready || !st.settings.voice) { Lip.silent(list); if (Lip._sl && !calm()) document.body.classList.add("vlock"); vgo(); return; }
       Lip.silent(null);
       const all = list.map(([w, t, e, cb]) => ({ u: t && this.url(w, t), e: e || null, w, t, cb }));
-      all.filter((x) => !x.u && x.cb).forEach((x) => setTimeout(x.cb, 0));   // une réplique sans voix : son action se fait quand même
-      all.filter((x) => x.u && x.e).forEach((x) => x.e.classList.add("vpend"));   // ce qui va être dit reste caché jusqu'à sa voix
-      all.filter((x) => !x.u && x.e).forEach((x) => x.e.classList.remove("vpend"));   // une réplique sans voix enregistrée : lisible tout de suite
+      // une réplique sans voix enregistrée qui vient APRÈS une réplique dite attend son tour (on ne voit ni la bulle ni le nom
+      // de la personne tant que la précédente n'est pas finie) ; puis elle paraît, le temps de la lire
+      { let before = false; all.forEach((x) => { if (x.u) before = true; else if (before && x.t) x.sil = true; }); }
+      all.filter((x) => !x.u && !x.sil && x.cb).forEach((x) => setTimeout(x.cb, 0));   // une réplique sans voix : son action se fait quand même
+      all.filter((x) => (x.u || x.sil) && x.e).forEach((x) => x.e.classList.add("vpend"));   // ce qui va être dit reste caché jusqu'à sa voix
+      all.filter((x) => !x.u && !x.sil && x.e).forEach((x) => x.e.classList.remove("vpend"));   // une réplique sans voix, en tête : lisible tout de suite
       document.body.classList.add("vlock"); vgo();
-      const items = all.filter((x) => x.u); if (!items.length) return;
+      const items = all.filter((x) => x.u || x.sil); if (!items.length) return;
       if (!this.el) {
         this.el = new Audio(); this.el.preload = "auto";
         this.el.addEventListener("ended", () => { this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); });
@@ -788,6 +803,14 @@
       this._q = items.slice(1); this._play(items[0]);
     },
     _play(it) {
+      if (it.sil) {   // réplique sans voix enregistrée, à son tour : elle paraît, le temps de la lire, puis la suite
+        World.talk(null); Lip.off(); clearTimeout(this._silT);
+        this._cur = it; it.on = 1; if (it.e) { it.e.classList.remove("vpend"); it.e.classList.add("said", "vdone"); }
+        if (it.cb) { const f = it.cb; it.cb = null; try { f(); } catch (e) { } }
+        if (it.w && it.w !== "narr") World.talk(it.w, it.t);
+        this._silT = setTimeout(() => { if (this._cur !== it) return; this._done(); const n = this._q && this._q.shift(); if (n) this._play(n); else Snd.duck(false); }, Math.min(7000, Math.max(1200, String(it.t).length * 48)));
+        return;
+      }
       // garde-fou : jamais plus de 40 voix en 10 s (une boucle imprévue ne doit pas inonder le serveur)
       const now = Date.now(); this._h = (this._h || []).filter((t) => now - t < 10000); this._h.push(now);
       if (this._h.length > 40 || now < (this._mute || 0)) { if (!this._mute || now >= this._mute) { this._mute = now + 5000; console.warn("voix : trop de lectures d’affilée, pause de 5 s"); } this._q = []; this._done(); Snd.duck(false); return; }
@@ -815,7 +838,7 @@
       };
       this._raf = requestAnimationFrame(f);
     },
-    _done() { World.talk(null); Lip.off(); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
+    _done() { clearTimeout(this._silT); World.talk(null); Lip.off(); cancelAnimationFrame(this._raf); if (this._cur && this._cur.e) this._cur.e.classList.remove("kara"); this._cur = null; if (!this._q || !this._q.length) setTimeout(() => { if (!this._cur && !(this._q && this._q.length)) document.dispatchEvent(new Event("voice-idle")); }, 60); },
     busy() { return !!this._cur || (this._q && this._q.length > 0); },
     // la réplique en train d'être dite et la part déjà dite (0 → 1) : voix enregistrée, ou lecture silencieuse au rythme du texte
     progress() {
@@ -1492,7 +1515,7 @@
   function standDepth(sp, x, y, d) {
     for (const b of sp._bx || []) {
       const front = (y >= b[3] - .02 && x >= b[0] - .6 && x <= b[2] + .6) || (x >= b[2] - .02 && y >= b[1] - .6 && y <= b[3] + .6);
-      if (front && b[4] >= d) d = b[4] + .004;
+      if (front && b[4] + .03 >= d) d = b[4] + .03;   // devant la table : aussi devant ce qui est posé dessus (pot, feuilles…)
     }
     return d;
   }
@@ -1840,8 +1863,9 @@
     hires() {
       const cam = this.cam; if (!cam || !this.cv || !this.el.classList.contains("on")) return;
       const old = cam.querySelector(".dio-hires");
-      if (this.cv.z < 1.8) { if (old) old.remove(); return; }
       const base = cam.querySelector(".wcam>.dio-img:not(.lit-ov)"); if (!base || !base.complete || !base.naturalWidth) return;
+      { const need = cam.getBoundingClientRect().width * Math.min(2, window.devicePixelRatio || 1);   // le plan est-il agrandi au-delà de sa finesse ?
+        if (need < base.naturalWidth * 1.08) { if (old) old.remove(); return; } }
       const layers = [base, ...cam.querySelectorAll(".wcam>.dio-img.lit-ov")].filter((im) => im.complete && im.naturalWidth && +(im.style.opacity || 1) > .01);
       const vr = this.el.getBoundingClientRect(), cr = cam.getBoundingClientRect(); if (!cr.width) return;
       const mx = .12 * vr.width / cr.width, my = .12 * vr.height / cr.height;   // une petite marge autour de l'écran
@@ -1850,14 +1874,39 @@
       if (fx1 <= fx0 || fy1 <= fy0) return;
       const dpr = Math.min(2, window.devicePixelRatio || 1), cw = Math.min(4096, Math.round((fx1 - fx0) * cr.width * dpr)), ch = Math.min(4096, Math.round((fy1 - fy0) * cr.height * dpr));
       const tok = this._hiT = {};
-      const draw = () => {
+      // Chaque calque (plan, puis lumières du soir) est redessiné à partir du dessin vectoriel lui-même, recadré sur la partie
+      // visible et dessiné directement à la taille de l'écran : net partout (Safari agrandit sinon l'image d'origine, floue).
+      const crop = (lvl) => {
+        const src = (litStyle.c = litStyle.c || {})[lvl] || (litStyle.c[lvl] = litStyle(A.dio.img || A.dio.svg, lvl));
+        const i0 = src.indexOf("<svg"), i1 = src.indexOf(">", i0); if (i0 < 0 || i1 < 0) return null;
+        const tag = src.slice(i0, i1), m = /viewBox="([^"]+)"/.exec(tag); if (!m) return null;
+        const [vx, vy, vw, vh] = m[1].split(/[\s,]+/).map(Number);
+        const nt = tag.replace(/\s(width|height|viewBox|preserveAspectRatio)="[^"]*"/g, "") + ` width="${cw}" height="${ch}" preserveAspectRatio="none" viewBox="${(vx + fx0 * vw).toFixed(2)} ${(vy + fy0 * vh).toFixed(2)} ${((fx1 - fx0) * vw).toFixed(2)} ${((fy1 - fy0) * vh).toFixed(2)}"`;
+        return src.slice(0, i0) + nt + src.slice(i1);
+      };
+      const lvlOf = (im) => (im.classList.contains("l2") ? 2 : im.classList.contains("l1") ? 1 : 0);
+      const vec = async () => {
+        const out = [];
+        for (const im of layers) {
+          const t = crop(lvlOf(im)); if (!t) return null;
+          const u = URL.createObjectURL(new Blob([t], { type: "image/svg+xml" })), I = new Image(); I.src = u;
+          try { await I.decode(); } catch (e) { URL.revokeObjectURL(u); return null; }
+          out.push([I, +(im.style.opacity || 1), u]);
+        }
+        return out;
+      };
+      const draw = async () => {
         if (tok !== this._hiT) return;
         const cv = document.createElement("canvas"); cv.width = cw; cv.height = ch; cv.className = "dio-hires"; cv.setAttribute("aria-hidden", "true");
         cv.style.cssText = `position:absolute;left:${fx0 * 100}%;top:${fy0 * 100}%;width:${(fx1 - fx0) * 100}%;height:${(fy1 - fy0) * 100}%;pointer-events:none`;
         const ctx = cv.getContext("2d");
+        let V = null; try { V = await vec(); } catch (e) { V = null; }
+        if (tok !== this._hiT) { if (V) V.forEach((v) => URL.revokeObjectURL(v[2])); return; }
         try {
-          layers.forEach((im) => { const nw = im.naturalWidth, nh = im.naturalHeight; ctx.globalAlpha = +(im.style.opacity || 1); ctx.drawImage(im, fx0 * nw, fy0 * nh, (fx1 - fx0) * nw, (fy1 - fy0) * nh, 0, 0, cw, ch); });
+          if (V) V.forEach(([I, a, u]) => { ctx.globalAlpha = a; ctx.drawImage(I, 0, 0, cw, ch); URL.revokeObjectURL(u); });
+          else layers.forEach((im) => { const nw = im.naturalWidth, nh = im.naturalHeight; ctx.globalAlpha = +(im.style.opacity || 1); ctx.drawImage(im, fx0 * nw, fy0 * nh, (fx1 - fx0) * nw, (fy1 - fy0) * nh, 0, 0, cw, ch); });
         } catch (e) { return; }
+        if (!cam.isConnected) return;
         const o = cam.querySelector(".dio-hires"); (layers[layers.length - 1]).after(cv); if (o) o.remove();
       };
       (window.requestIdleCallback || ((f) => setTimeout(f, 30)))(draw, { timeout: 400 });
@@ -2028,8 +2077,11 @@
       // on mesure la raquette une fois les joueurs arrivés à leur place (leur petite entrée est finie)
       setTimeout(() => {
         if (!w.isConnected) return;
-        const inv = svg.getScreenCTM && svg.getScreenCTM(); if (!inv) return;
-        const M = inv.inverse(), toSvg = (x, y) => { const q = svg.createSVGPoint(); q.x = x; q.y = y; return q.matrixTransform(M); };
+        // écran → coordonnées du dessin, d'après la boîte de la salle et son viewBox (Safari ignore le zoom de la caméra
+        // dans getScreenCTM : la balle partait alors hors de la table, invisible)
+        const R0 = svg.getBoundingClientRect(), vb = svg.viewBox && svg.viewBox.baseVal; if (!R0.width || !vb || !vb.width) return;
+        const k = Math.min(R0.width / vb.width, R0.height / vb.height), ox = R0.left + (R0.width - vb.width * k) / 2, oy = R0.top + (R0.height - vb.height * k) / 2;
+        const toSvg = (x, y) => ({ x: vb.x + (x - ox) / k, y: vb.y + (y - oy) / k });
         const H = [], D = [], F = [];
         for (const g of pl.slice(0, 2)) {
           const pd = g.querySelector(".aR .prop-paddle"), r = pd && pd.getBoundingClientRect(), rb = g.getBoundingClientRect();
@@ -2042,7 +2094,7 @@
         // le plateau de la table (76 cm, pour des jeunes d'environ 1,65 m), sous chaque raquette : la balle rebondit DESSUS
         const T0 = F[0] - D[0] * .46, T1 = F[1] - D[1] * .46, hA = Math.max(fig * .05, T0 - H[0][1]), hB = Math.max(fig * .05, T1 - H[1][1]);
         const ball = document.createElementNS(NS, "g"); ball.setAttribute("class", "pp-ballg"); ball.setAttribute("aria-hidden", "true");
-        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .03).toFixed(2)}" fill="#FF8A1F" stroke="#FFFFFF" stroke-width=".35"/>`;
+        ball.innerHTML = `<ellipse class="pp-shadow" rx="${(fig * .022).toFixed(2)}" ry="${(fig * .009).toFixed(2)}" fill="#000" opacity=".22"/><circle class="pp-ball" r="${(fig * .036).toFixed(2)}" fill="#FF8A1F" stroke="#FFFFFF" stroke-width=".45"/>`;
         // la balle est toujours au-dessus du plateau : on la dessine par-dessus la table (jamais « à travers »)
         const lab = svg.querySelector(":scope > .rlab-top"); svg.insertBefore(ball, lab || null);
         const bl = ball.querySelector(".pp-ball"), sh = ball.querySelector(".pp-shadow");
@@ -2321,7 +2373,8 @@
       const r = body(a), o = toward && body(toward);
       let dx = o ? (o.left + o.width / 2) - (r.left + r.width / 2) : (r.left + r.width / 2 > innerWidth / 2 ? 1 : -1) * r.height, dy = o ? (o.bottom - r.bottom) : 0;
       const d = Math.hypot(dx, dy) || 1, want = Math.min(d * .3, r.height * .32) * f; dx = dx / d * want; dy = dy / d * want;
-      const ar = a.getBoundingClientRect(), k = a.classList.contains("ractor") ? (1 / ((a.ownerSVGElement && a.ownerSVGElement.getScreenCTM && a.ownerSVGElement.getScreenCTM().a) || 1)) : (a.offsetWidth / (ar.width || 1));
+      const ar = a.getBoundingClientRect(), k = a.classList.contains("ractor") ? (() => { const sv = a.ownerSVGElement, vb = sv && sv.viewBox && sv.viewBox.baseVal, rr = sv && sv.getBoundingClientRect();   // (pas getScreenCTM : Safari y oublie le zoom)
+        return vb && vb.width && rr.width ? 1 / Math.min(rr.width / vb.width, rr.height / vb.height) : 1; })() : (a.offsetWidth / (ar.width || 1));
       // sur le plan, la personne est déjà calée par translate (-50 % -94 %) : on ajoute le pas à ce calage
       const X = (dx * k).toFixed(1), Y = (dy * k).toFixed(1), base = host.classList.contains("actor");
       host.style.transition = "translate 1.1s cubic-bezier(.45,.05,.35,1)";
@@ -2884,7 +2937,7 @@
       if (!timeout && Voice.busy()) { document.addEventListener("voice-idle", sayEnd, { once: true }); } else sayEnd();
       say(res.textContent);
     }
-    let visitTok = 0, inRoomPanel = null;
+    let visitTok = 0, inRoomPanel = null, againK = 0;
     function enterRoom(s) {
       blackout(() => {
         card.hidden = true; wrap.classList.add("visit-in");
@@ -2915,6 +2968,18 @@
     }
     function open(s, i, b) {
       map.querySelectorAll(".spot.cur").forEach((x) => x.classList.remove("cur")); b.classList.add("cur");   // seul le lieu choisi est souligné
+      // un lieu déjà visité : Nour ne répète pas la description à voix haute, elle le fait remarquer ; la fiche reste lisible
+      if (b.classList.contains("seen") && !over) {
+        Snd.click(); visitTok++;
+        const A_ = VOICE_TXT.again, line = A_[Math.min(againK++, A_.length - 1)];
+        Voice.say("nour", line);
+        if (tour && tour.nour) { gesture(tour.nour.el, againK > 2 ? "laugh" : "shrug"); }
+        card.hidden = false; card.className = "spotcard again";
+        card.innerHTML = `<p class="kicker">Déjà visité</p><h3 id="spot-t">${esc(s.title)}</h3><p class="again-say"><b>Nour</b> ${esc(line)}</p><p class="small">${esc(s.t)}</p>`;
+        const c = btn("Fermer", () => { card.hidden = true; b.focus(); }, "ghost small");
+        card.appendChild(c); c.focus({ preventScroll: true }); card.scrollTop = 0;
+        return;
+      }
       Snd.click(); if (!over) Voice.say(...VOICE_TXT.spot(s));
       if (tour) {
         const vk = ++visitTok;
@@ -2989,8 +3054,7 @@
     const fbz = el("div", { class: "fbzone", "aria-live": "polite" });
     let done = false, tId = 0;
     // ordre des réponses mélangé (toujours le même pour un écran donné) : la bonne n'est pas toujours au même endroit
-    const seed = [...sc.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
-    const ord = sc.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11));
+    const ord = mixOrder(sc.opts.length, sc.id);
     ord.forEach((k, j) => {
       const o = sc.opts[k];
       const b = el("button", { class: "opt", type: "button", style: `--k:${j}`, "data-k": k }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(o.t)}</span>`);
@@ -3045,7 +3109,7 @@
       fbz.innerHTML = "";
       const box = el("div", { class: "why" }, `<p class="kicker">${esc(sc.why.q || "Et pourquoi ?")}</p>`);
       const wo = el("div", { class: "opts why-opts" });
-      const order = sc.why.opts.map((w, i) => i).sort((x, y) => ((x * 7 + sc.id.length) % 3) - ((y * 7 + sc.id.length) % 3));
+      const order = mixOrder(sc.why.opts.length, sc.id + ":why");
       order.forEach((i, j) => { const w = sc.why.opts[i]; const wb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${j + 1}</span><span>${esc(w.t)}</span>`); wb.addEventListener("click", () => { wo.querySelectorAll(".opt").forEach((x) => (x.disabled = true)); wb.classList.add("chosen"); finish(o, b, k, w); }); wo.appendChild(wb); });
       box.appendChild(wo); fbz.appendChild(box);
       Voice.say("narr", sc.why.q || "Et pourquoi ?");
@@ -3161,8 +3225,8 @@
     }
     function drawOpts() {
       const nd = sc.nodes[cur];
-      nd.opts.forEach((o, k) => {
-        const b = el("button", { class: "opt say-opt", type: "button", style: `--k:${k}` }, `<span>${esc(o.t)}</span>`);
+      mixOrder(nd.opts.length, sc.id + ":" + cur).forEach((k, pos) => { const o = nd.opts[k];
+        const b = el("button", { class: "opt say-opt", type: "button", style: `--k:${pos}` }, `<span>${esc(o.t)}</span>`);
         b.addEventListener("click", () => {
           opts.querySelectorAll("button").forEach((x) => (x.disabled = true));
           Snd.click(); qs.push(o.q); if (o.flag) flags[o.flag] = true; setTrust(Math.round((o.q - 0.5) * 44));
@@ -3358,7 +3422,7 @@
       pending = j; Snd.mid(); const LI = liveInterrupt(ev.who, ev.t); if (!ev.who) Voice.say("narr", ev.t);
       const card = el("div", { class: "cr-pop", role: "alertdialog", "aria-label": "Nouvelle demande" }, `<p class="kicker">Interruption</p><p class="cr-q">${esc(ev.t)}</p>`);
       const row = el("div", { class: "cr-opts" });
-      ev.opts.forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { LI.leave(); evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
+      mixOrder(ev.opts.length, sc.id + ":ev" + j).map((k) => ev.opts[k]).forEach((o) => { const b = el("button", { class: "opt", type: "button" }, `<span>${esc(o.t)}</span>`); b.addEventListener("click", () => { LI.leave(); evRes[j] = o; pending = null; card.classList.add(o.ok ? "ok" : "ko"); card.querySelector(".cr-opts").remove(); card.appendChild(el("p", { class: "cr-r" }, o.ok ? "Vous restez avec Lou." : esc(o.no || ""))); if (!o.ok) { left = Math.max(1, left - 8); Snd.low(); } else Snd.good(); setTimeout(() => card.remove(), o.ok ? 1400 : 2800); }); row.appendChild(b); });
       card.appendChild(row); evz.appendChild(card); row.querySelector(".opt").focus({ preventScroll: true });
     }
     readyGate(wrap, () => { tId = setInterval(tick, 1000); });
@@ -3443,7 +3507,7 @@
     panel.innerHTML = contextBlock(sc) + `<h2 id="h-${sc.id}" class="prompt">${esc(sc.prompt)}</h2>`;
     const sel = new Set();
     const opts = el("div", { class: "opts multi", role: "group", "aria-label": sc.prompt });
-    sc.opts.forEach((o, i) => {
+    mixOrder(sc.opts.length, sc.id).forEach((i) => { const o = sc.opts[i];
       const b = el("button", { class: "opt chk", type: "button", "aria-pressed": "false" }, `<span class="box" aria-hidden="true"></span><span>${esc(o.t)}</span>`);
       b.addEventListener("click", () => { if (sel.has(i)) sel.delete(i); else sel.add(i); b.classList.toggle("sel"); b.setAttribute("aria-pressed", sel.has(i)); Snd.click(); vb.disabled = sel.size === 0; });
       opts.appendChild(b);
@@ -3503,7 +3567,7 @@
       slots.forEach(([k, label, opts], si) => {
         const f = el("fieldset", { class: "slot" });
         f.innerHTML = `<legend><span class="sn">${si + 1}</span>${esc(label)}</legend>`;
-        opts.forEach((o, i) => {
+        mixOrder(opts.length, sc.id + ":" + k).forEach((i) => { const o = opts[i];
           const b = el("button", { type: "button", class: "opt radio", "aria-pressed": "false" }, `<span class="dotr" aria-hidden="true"></span><span>${esc(o.t)}</span>`);
           b.addEventListener("click", () => { pick[k] = i; f.querySelectorAll(".opt").forEach((x) => { x.classList.toggle("sel", x === b); x.setAttribute("aria-pressed", x === b); }); Snd.click(); vb.disabled = Object.keys(pick).length < 4; });
           f.appendChild(b);
@@ -3729,12 +3793,15 @@
     // le logo de l'association (celui de l'accueil du jeu)
     let logo = null;
     { const m = /url\((["']?)(.+?)\1\)/.exec(getComputedStyle(document.documentElement).getPropertyValue("--logo") || "");
-      if (m) { const im = new Image(); im.src = m[2]; try { await im.decode(); logo = im; } catch (e) { } } }
+      const load = async (src) => { const im = new Image(); im.src = src; try { await im.decode(); if (im.naturalWidth) return im; } catch (e) { } return null; };
+      if (m) logo = await load(m[2]);
+      if (!logo) logo = await load("/assets/logo.png"); }
     const page = () => { cv = document.createElement("canvas"); cv.width = PW; cv.height = PH; x = cv.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, PW, PH); x.textBaseline = "top"; pages.push(cv);
-      x.fillStyle = "#F3F6F9"; x.fillRect(0, 0, PW, 70);
-      if (logo) { const lh = 34, lw = logo.naturalWidth / logo.naturalHeight * lh; x.drawImage(logo, M, 18, lw, lh); x.fillStyle = NAVY; x.font = `600 20px ${F}`; x.fillText("· Les Hautes Herbes", M + lw + 12, 26); }
-      else { x.fillStyle = NAVY; x.font = `700 22px ${F}`; x.fillText("Fourmi’Action · Les Hautes Herbes", M, 24); }
-      x.fillStyle = MUT; x.font = `400 20px ${F}`; const d = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); x.fillText(d, PW - M - x.measureText(d).width, 26); y = 120; };
+      // en-tête de chaque feuille : le logo de l'association en haut à gauche ; le jeu et la date à droite
+      x.fillStyle = "#F3F6F9"; x.fillRect(0, 0, PW, 96);
+      if (logo) { const lw = 300, lh = logo.naturalHeight / logo.naturalWidth * lw; x.drawImage(logo, M - 8, 48 - lh / 2, lw, lh); }
+      x.fillStyle = NAVY; x.font = `600 20px ${F}`; const jt = "Les Hautes Herbes"; x.fillText(jt, PW - M - x.measureText(jt).width, 22);
+      x.fillStyle = MUT; x.font = `400 18px ${F}`; const d = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); x.fillText(d, PW - M - x.measureText(d).width, 52); y = 140; };
     const wrap = (t, fz, wt, w, col, lh = 1.38, dx = 0) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; const L = []; let line = "";
       String(t).split(/\s+/).forEach((wd) => { const tt = line ? line + " " + wd : wd; if (x.measureText(tt).width > w && line) { L.push(line); line = wd; } else line = tt; }); if (line) L.push(line);
       return { h: L.length * fz * lh, draw: (yy) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; L.forEach((l, i) => x.fillText(l, M + dx, yy + i * fz * lh)); } }; };
@@ -3888,7 +3955,8 @@
       <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer ${(CHAPTERS[r.ch - 1] || {}).day ? "la journée du " + CHAPTERS[r.ch - 1].day.toLowerCase() : "la journée"}</button>`}</li>`).join("")}</ul>
       ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à votre direction lors de votre prochain accueil.</p></div>` : ""}
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
-      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation officielle.</p></details></div>`;
+      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation officielle.</p></details>
+      <footer class="rgpd" hidden><p><b>Vos données personnelles.</b> L’adresse e-mail saisie pour télécharger votre bilan est enregistrée par l’association Fourmi’Action avec votre score, afin de vous envoyer ses actualités. Elle n’est ni vendue ni transmise à quiconque, et elle est conservée au plus trois ans après votre dernier contact avec l’association. Vous pouvez à tout moment vous désinscrire, ou demander à consulter, corriger ou effacer vos données, en écrivant à l’association depuis fourmiaction.fr. Vous pouvez aussi saisir la CNIL (cnil.fr).</p></footer></div>`;
     const b = n.querySelector(".bilan"), B2 = b.querySelector(".b2"), B3 = b.querySelector(".b3"), MORE = b.querySelector(".bmore");
     if (typeof SOURCES !== "undefined" && SOURCES.length) MORE.appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
     { const row = el("div", { class: "row" }); row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home)); MORE.appendChild(row); }
@@ -3905,8 +3973,7 @@
     const dl = el("section", { class: "dlcard", "aria-labelledby": "dl-h" }, `<p class="kicker">À garder</p><h3 id="dl-h">Mon bilan personnel</h3>
       <p>Vos points et votre cible, les compétences que vous avez valorisées, vos convictions de lundi à vendredi, et les repères utiles sur les violences sexistes et sexuelles (numéros, lois, carnet de Nour), dans un document PDF.</p>`);
     const go1 = btn("Télécharger mon bilan personnel (PDF)", () => { go1.hidden = true; form.hidden = false; form.querySelector("input").focus(); });
-    const form = el("form", { class: "dl-form", hidden: "" }, `<label for="dl-mail">Votre adresse e-mail</label><div class="dl-line"><input id="dl-mail" type="email" inputmode="email" autocomplete="email" placeholder="prenom@exemple.fr" required><button class="cta" type="submit">Télécharger</button></div>
-      <p class="small">Fourmi’Action conserve votre adresse avec votre score, sans la transmettre à personne. Pour la faire effacer, écrivez à l’association.</p>`);
+    const form = el("form", { class: "dl-form", hidden: "" }, `<label for="dl-mail">Votre adresse e-mail</label><div class="dl-line"><input id="dl-mail" type="email" inputmode="email" autocomplete="email" placeholder="prenom@exemple.fr" required><button class="cta" type="submit">Télécharger</button></div>`);
     form.addEventListener("submit", async (e) => { e.preventDefault(); const v = form.querySelector("input").value.trim(); if (!v) return;
       const sb = form.querySelector("button"); if (sb.disabled) return; sb.disabled = true; sb.textContent = "Préparation du PDF…"; st.email = v; save();
       try { fetch("/api/jeu-bilan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: v, score: finalScore(defi), niveau: st.level || 2 }) }).catch(() => {}); } catch (x) { }
@@ -3916,7 +3983,7 @@
     // l'enchaînement, au rythme des voix (sans voix : quelques secondes entre chaque temps)
     const quiet = (cb, min) => { const t0 = performance.now(); const iv = setInterval(() => { if (!n.isConnected) return clearInterval(iv); const e = performance.now() - t0;
       if (e > (min || 1200) && (!st.settings.voice || !Voice.busy() || e > 240000)) { clearInterval(iv); cb(); } }, 300); };
-    const step3 = () => { B3.hidden = false; MORE.hidden = false; B3.classList.add("rise"); B3.scrollIntoView({ block: "start", behavior: "smooth" }); Snd.good(); };
+    const step3 = () => { B3.hidden = false; MORE.hidden = false; const G = b.querySelector(".rgpd"); if (G) G.hidden = false; B3.classList.add("rise"); B3.scrollIntoView({ block: "start", behavior: "smooth" }); Snd.good(); };
     const step2 = () => {
       B2.hidden = false; B2.classList.add("rise"); B2.scrollIntoView({ block: "start", behavior: "smooth" });
       if (World.el && !calm()) World.show({ at: "entree", cast: [["nour", "a", "wave"], ["you", "b"]], z: 2.4, greet: true }, sc);
@@ -4098,7 +4165,7 @@
            <div class="wa-body ph-chat"><div class="wa-m">${esc(p.t)}<i>maintenant</i></div></div>
            <div class="ph-opts wa-opts"></div></div></div>`);
       const opts = m.querySelector(".ph-opts"), chat = m.querySelector(".ph-chat");
-      p.opts.forEach((o) => {
+      mixOrder(p.opts.length, "ph:" + p.id).map((k) => p.opts[k]).forEach((o) => {
         const b = el("button", { class: "ph-o", type: "button" }, esc(o.t));
         b.addEventListener("click", () => {
           opts.innerHTML = "";
@@ -4178,7 +4245,7 @@
       const hh = "14:37";
       const p = pop("pl-twist sms", waPhone({ title: NAMES[T.who], sub: where ? where.trim() : "en ligne", face: face(T.who), msgs: [{ who: NAMES[T.who], t: body, time: hh }] }) + `<p class="kicker">Que lui répondez-vous ?</p>`);
       const o = el("div", { class: "cr-opts" });
-      T.opts.forEach((x) => { const b = el("button", { class: "opt", type: "button" }, esc(x.t)); b.addEventListener("click", () => { p.remove(); end(x); }); o.appendChild(b); });
+      mixOrder(T.opts.length, sc.id + ":tw").map((k) => T.opts[k]).forEach((x) => { const b = el("button", { class: "opt", type: "button" }, esc(x.t)); b.addEventListener("click", () => { p.remove(); end(x); }); o.appendChild(b); });
       p.appendChild(o); Snd.mid && Snd.mid(); if (navigator.vibrate) try { navigator.vibrate([160, 90, 160]); } catch (e) { }
       o.querySelector(".opt").focus({ preventScroll: true });
     }
@@ -4268,7 +4335,7 @@
       const row = el("div", { class: "say npc" }, `<b>${esc(sc.caller || "Gendarmerie")}</b><p>${words(C.t)}</p>`); log.appendChild(row);
       Voice.say("gendarme", C.t, row.querySelector("p"));
       const o = el("div", { class: "opts" });
-      C.opts.forEach((x, j) => {
+      mixOrder(C.opts.length, sc.id + ":c" + i).forEach((jj, j) => { const x = C.opts[jj];
         const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
         b.addEventListener("click", () => {
           o.remove(); qs.push(x.q); Snd[x.q >= 1 ? "good" : "low"]();
@@ -4429,9 +4496,14 @@
     wrap.appendChild(panel); n.appendChild(wrap);
     setTimeout(() => {
       const t = sc.open || "Euh… j’ai vu un truc, à la régie… mais je sais pas si je dois le dire."; const b = say(sc.npc, t);
-      // Sacha parle après la narration de l’écran (sans la couper)
-      const go = () => { if (b.isConnected) Voice.say(sc.npc, t, b.querySelector("p")); };
-      if (Voice.busy && Voice.busy()) document.addEventListener("voice-idle", go, { once: true }); else go();
+      // Sacha parle après la narration de l’écran (sans la couper) : jusque-là, ni sa bulle ni son nom ne paraissent
+      b.classList.add("vpend");
+      const go = () => { if (b.isConnected) Voice.say(sc.npc, t, b); };
+      const t0 = performance.now(), iv = setInterval(() => {
+        if (!b.isConnected) return clearInterval(iv);
+        if ((Voice.busy && Voice.busy()) || Lip._sl) { if (performance.now() - t0 < 60000) return; }
+        clearInterval(iv); go();
+      }, 250);
     }, 600);
   };
 
@@ -4554,8 +4626,8 @@
       fbz.innerHTML = `<div class="say npc"><b>${esc(free ? "Vous le trouvez" : NAMES[sc.who] || "Léna")}</b><p>${words(sc.found)}</p></div>`;
       { const S = VOICE_TXT.split(sc.found); Voice.seq(S.map(([w, x]) => [w, x, S.length === 1 ? fbz.querySelector("p") : null])); }   // Léna parle avec sa propre voix
       const o = el("div", { class: "opts" });
-      sc.opts.forEach((x, j) => {
-        const bb = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(x.t)}</span>`);
+      mixOrder(sc.opts.length, sc.id).forEach((j, pos) => { const x = sc.opts[j];
+        const bb = el("button", { class: "opt", type: "button", style: `--k:${pos}` }, `<span class="ol">${String.fromCharCode(65 + pos)}</span><span>${esc(x.t)}</span>`);
         bb.addEventListener("click", () => { const q = x.q >= 1 ? (q0 >= 0.7 ? 1 : 0.8) : Math.round(x.q * 0.8 * 100) / 100; const first = st.res[sc.id] == null; record(sc, q); if (deferred(sc)) { if (first) { st.later = st.later || {}; st.later[sc.id] = { k: j, late: !!late }; save(); } o.querySelectorAll("button").forEach((z) => (z.disabled = true)); bb.classList.add("picked", "neutral"); Snd.click(); setTimeout(next, 450); return; } const r = el("div"); fbz.appendChild(r); result(r, q, `${free ? "" : late ? "Vous l’avez trouvée tard : chaque minute compte quand un jeune vient vous parler. " : `Trouvée en ${sc.timer - left} s. `}${esc(x.fb)}`); o.remove(); Voice.say("narr", x.fb); });
         o.appendChild(bb);
       });
@@ -4577,7 +4649,7 @@
       wrap.insertBefore(clue, box);
       const taken = new Set([sc.who, ...sc.decoys.map((d) => d[0]), ...(sc.around || []).map((d) => d[0])]);
       const POOL = ["k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "k10", "k11", "k12", "k13", "k14", "k15", "k16", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "hugo", "samia", "yanis", "lea", "tom", "ines"];
-      const ids = POOL.filter((w) => !taken.has(w)).slice(0, 24);
+      const ids = POOL.filter((w) => !taken.has(w)).slice(0, 18);   // une foule suffisante, sans saccades sur les appareils modestes
       if (typeof crowdOn === "function") crowdOn(map, ids, (w) => {
         if (done) return; Snd.click();
         const nm = NAMES[w] || (/^t\d/.test(w) ? "Un jeune" : /^k\d/.test(w) ? "Un enfant" : "Un animateur");
@@ -5291,7 +5363,9 @@
       sc.events.forEach((e) => { if (e.nudge && !S.done[e.id] && !S.nudged[e.id] && S.t >= toMin(e.nudge) && S.guided) { S.nudged[e.id] = 1; save(); toastMsg(`SMS de ${NAMES[e.nudgeLine[0]]} : ${e.nudgeLine[1]}`); Voice.say(e.nudgeLine[0], e.nudgeLine[1]); } });
       if (atEnd) { busy = true; setTimeout(finish, mustLeft().length ? 2600 : 900); }   // l'heure est passée : la suite arrive d'elle-même
     }
-    const tickClock = () => { const b = card && card.querySelector(".rm-clock b"); if (b) b.textContent = fmtMin(Math.min(S.t, END)); };
+    // l'horloge de la carte et celle du haut de l'écran donnent toujours la même heure (celle aussi des scènes vécues)
+    const hudClock = () => dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(Math.min(S.t, END))}` });
+    const tickClock = () => { const b = card && card.querySelector(".rm-clock b"); if (b) b.textContent = fmtMin(Math.min(S.t, END)); const m = Math.floor(Math.min(S.t, END)); if (m !== tickClock.m) { tickClock.m = m; hudClock(); } };
 
     /* -- se déplacer : on touche le sol près de soi -- */
     function onTap(e) {
@@ -5594,6 +5668,7 @@
       }
       const wrap = el("div", { class: "duo roamscene" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)} · ${PLACE[ev.at] || ""}`)}<h2 id="h-${sc.id}">${esc(E.title || PLACE[ev.at])}</h2>`;
+      dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });   // l'horloge du haut = l'heure de la scène
       const log = el("div", { class: "dlog" }); panel.appendChild(log);
       const fbz = el("div", { class: "fbzone", "aria-live": "polite" }); let opts = null;
       if (ev.kind === "vigil") return vigil();
@@ -5603,8 +5678,7 @@
       vprep(); setTimeout(() => n.isConnected && Voice.seq(seq), 150);   // en salle : la scène se lance dès l’entrée ; dehors, après qu'on s'est rejoints (Voice attend World._settle)
       // son coupé : Voice.seq fait quand même jouer les répliques (bouche, gestes, visage, émotion), le temps de les lire
       const q = el("p", { class: "prompt" }, esc(E.prompt || "Que faites-vous ?")); opts = el("div", { class: "opts" });
-      const seed = [...E.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
-      E.opts.map((o, k) => k).sort((x, y) => ((x * 37 + seed) % 11) - ((y * 37 + seed) % 11)).forEach((k, pos) => {
+      mixOrder(E.opts.length, E.id).forEach((k, pos) => {
         const o = E.opts[k], b = el("button", { class: "opt", type: "button", style: `--k:${pos}` }, `<span class="ol">${String.fromCharCode(65 + pos)}</span><span>${esc(o.t)}</span>`);
         b.addEventListener("click", () => choose(o, k, b)); opts.appendChild(b);
       });
@@ -5695,6 +5769,7 @@
       if (S.t >= END) setTimeout(() => { if (n.isConnected && !timeUp) { timeUp = true; Voice.stop(); finish(); } }, 4200);   // l’heure est passée pendant la visite de la salle
       const wrap = el("div", { class: "duo roamscene calm" }), panel = el("div", { class: "panel" });
       panel.innerHTML = `${kicker(`${fmtMin(S.t)} · ${PLACE[key] || ""}`)}<p class="narr">${words(txt)}</p>`;
+      dayclock({ type: "roam", ch: sc.ch, kicker: `${CHAPTERS[sc.ch - 1].day}, ${fmtMin(S.t)}` });
       const row = el("div", { class: "row" });
       // dans le grand bâtiment, on passe d'une salle à l'autre par le couloir, sans ressortir
       if (MAIN_ROOMS.includes(key)) row.appendChild(btn("Une autre salle du bâtiment", () => { Snd.click(); Voice.stop(); hall(); }, "ghost"));
@@ -5792,7 +5867,10 @@
       // les personnes d'une scène (immobiles) sont cachées de la même façon que celles qui marchent
       if (!a._w && a._pct && !a.classList.contains("arriving")) { if (!a._ow || a._ow.p !== a._pct) { const q = f2w(a._pct[0], a._pct[1]), who = a.dataset.who; a._ow = { p: a._pct, x: q[0], y: q[1], who, h: KIDS.has(who) || /^[kt]\d/.test(who) ? 1.4 : 1.7 }; } }
       const w = a._w || a._ow; if (!w || w.entering) return;
-      const inside = (b) => w.x > b.x0 - .2 && w.x < b.x1 + .2 && w.y > b.y0 - .2 && w.y < b.y1 + .2;
+      // dans le bâtiment même (on passe sa porte) : géré par le passage de porte. Seulement à l'intérieur des murs : quelqu'un
+      // qui longe le mur du fond, juste derrière, reste bien caché par le toit (avant, une marge de 20 cm le laissait visible,
+      // comme debout sur le toit)
+      const inside = (b) => w.x > b.x0 + .02 && w.x < b.x1 - .02 && w.y > b.y0 + .02 && w.y < b.y1 - .02;
       const foot = P2(w.x, w.y, .05);
       const Hw = w.h || (/^k|^t/.test(w.who) ? 1.4 : 1.7);
       // touché si les pieds OU la tête sont dans la silhouette (sinon la tête disparaissait d'un coup en passant le faîte)
@@ -5803,17 +5881,19 @@
       }
       let lo = 0, hi = Hw; if (inPoly(P2(w.x, w.y, Hw), hit.poly)) lo = Hw; else for (let it = 0; it < 7; it++) { const m = (lo + hi) / 2; if (inPoly(P2(w.x, w.y, m), hit.poly)) lo = m; else hi = m; }
       w._hid = lo / Hw; w._hitP = hit.poly;
-      if ((w.who === "you" || w.ev) && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
+      // le halo (bâtiment rendu transparent) n'existe qu'autour de vous : les autres, même ceux d'une scène à vivre, ne se
+      // montrent à travers le toit que lorsque vous passez à côté, puis disparaissent quand vous vous éloignez
+      if (w.who === "you" && hit.k && A.dio.lids[hit.k]) ghost.add(hit.k);
       hidden.push([a, hit]);
     });
     // le halo reste allumé un court instant après qu'on a quitté l'arrière du bâtiment (pas de clignotement à la limite)
     { const now = performance.now(), GH = W._gh || (W._gh = {}); ghost.forEach((k) => (GH[k] = now)); Object.keys(GH).forEach((k) => { if (now - GH[k] < 450) ghost.add(k); else delete GH[k]; }); }
     // le halo : autour de vous (ou de la personne de la scène), en pixels du calque
     const HALO = {};
-    hidden.forEach(([a, hit]) => { const w = a._w || a._ow; if (!ghost.has(hit.k) || !(w.who === "you" || w.ev) || HALO[hit.k]) return; const bx = boxIn(a); if (!bx) return;
+    hidden.forEach(([a, hit]) => { const w = a._w || a._ow; if (!ghost.has(hit.k) || w.who !== "you" || HALO[hit.k]) return; const bx = boxIn(a); if (!bx) return;
       const hpx = bx.h / 100 * LH; HALO[hit.k] = [(bx.l + bx.w / 2) / 100 * LW, (bx.t + bx.h * .55) / 100 * LH, Math.max(44, hpx * 1.55)]; });
-    { const LH0 = W._lastHalo || (W._lastHalo = {}); ghost.forEach((k) => { if (HALO[k]) LH0[k] = HALO[k]; else if (LH0[k]) HALO[k] = LH0[k]; }); }
-    hidden.forEach(([a, hit]) => { const w = a._w || a._ow, k = hit.k, me = w.who === "you" || w.ev;
+    { const LH0 = W._lastHalo || (W._lastHalo = {}); ghost.forEach((k) => { if (HALO[k]) LH0[k] = HALO[k]; else if (LH0[k]) HALO[k] = LH0[k]; }); Object.keys(LH0).forEach((k) => { if (!ghost.has(k)) delete LH0[k]; }); }
+    hidden.forEach(([a, hit]) => { const w = a._w || a._ow, k = hit.k, me = w.who === "you";
       if (me && ghost.has(k)) { if (a._mk) { a._mk = ""; a.style.webkitMaskImage = a.style.maskImage = ""; } a.classList.remove("behind", "partial"); if (a._cut) { a._cut = 0; a.style.clipPath = ""; } return; }
       const bx = boxIn(a); if (!bx) return;
       const px = bx.l / 100 * LW, py = bx.t / 100 * LH, pw = bx.w / 100 * LW, ph = bx.h / 100 * LH, H = HALO[k];
@@ -5895,7 +5975,33 @@
         // vraiment derrière : le corps est bien dans l'objet (pas seulement frôlé) et ses pieds sont plus haut que le pied de l'objet
         if (ix > b.width * .45 && iy > b.height * .3 && b.bottom < r.bottom - 6) { hit = true; break; }
       }
-      o.classList.toggle("see", hit);
+      if (o.classList.contains("see") !== hit) { o.classList.toggle("see", hit); seeBehind(W, o, hit); }
+    });
+  }
+  // Un objet du premier plan devenu transparent (on passe derrière) ne doit pas laisser voir, par-dessus lui, ce qui est
+  // derrière lui (la clôture derrière le panneau d'affichage) : ce qui est derrière est masqué sur la silhouette de l'objet.
+  function hullOf(o) {
+    if (o._hull !== undefined) return o._hull;
+    const sv = o.querySelector("svg"), vb = sv && sv.viewBox && sv.viewBox.baseVal; o._hull = null;
+    if (!vb || !vb.width) return null;
+    const P = [];
+    sv.querySelectorAll("polygon,polyline").forEach((e) => { const a = (e.getAttribute("points") || "").trim().split(/[\s,]+/).map(Number); for (let i = 0; i + 1 < a.length; i += 2) P.push([(a[i] - vb.x) / vb.width, (a[i + 1] - vb.y) / vb.height]); });
+    if (P.length < 3) return null;
+    P.sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o0, a, b) => (a[0] - o0[0]) * (b[1] - o0[1]) - (a[1] - o0[1]) * (b[0] - o0[0]);
+    const lo = [], up = []; for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+    for (let i = P.length - 1; i >= 0; i--) { const p = P[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+    return (o._hull = lo.slice(0, -1).concat(up.slice(0, -1)));
+  }
+  function seeBehind(W, o, on) {
+    W.querySelectorAll(".dio-occ").forEach((p) => { if (p._clipBy === o) { p._clipBy = null; p.style.clipPath = ""; } });
+    if (!on) return;
+    const H = hullOf(o); if (!H) return;
+    const z = +o.style.zIndex || 0, r = o.getBoundingClientRect(); if (!r.width) return;
+    W.querySelectorAll(".dio-occ").forEach((p) => {
+      if (p === o || p._clipBy || (+p.style.zIndex || 0) >= z || p.classList.contains("see")) return;
+      const q = p.getBoundingClientRect(); if (!q.width || q.right < r.left || q.left > r.right || q.bottom < r.top || q.top > r.bottom) return;
+      const pts = H.map(([fx, fy]) => `${(((r.left + fx * r.width) - q.left) / q.width * 100).toFixed(2)}% ${(((r.top + fy * r.height) - q.top) / q.height * 100).toFixed(2)}%`);
+      p._clipBy = o; p.style.clipPath = `polygon(evenodd, -1% -1%, 101% -1%, 101% 101%, -1% 101%, -1% -1%, ${pts.join(", ")}, ${pts[0]})`;
     });
   }
   requestAnimationFrame(frame);

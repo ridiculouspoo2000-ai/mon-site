@@ -1239,6 +1239,8 @@ const VOICE_TXT = {
     return P;
   },
   spot(s) { return ["nour", s.t]; },
+  // un lieu déjà visité : Nour ne refait pas toute la description, elle le fait remarquer (de plus en plus amusée)
+  again: ["Je crois que je t’ai déjà montré cet endroit…", "Ici aussi, je te l’ai déjà montré !", "T’abuses, hein ! On l’a déjà vu."],
   fb(sc, o) { return ["narr", [o.cons, o.fb, o.q < 1 && sc.better ? "Pour faire mieux : " + sc.better : ""].filter(Boolean).join(" ")]; },
 };
 

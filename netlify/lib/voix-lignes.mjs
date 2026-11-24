@@ -912,6 +912,24 @@ export const LIGNES = {
   "kind": "visite-calme",
   "text": "Les enfants viennent pour la plupart seuls, sauf les 6-11 ans. Le matin, leurs parents viennent les déposer au portail et repartent. Le soir, parmi ces enfants, un enfant n’est remis qu’à un adulte inscrit sur sa fiche, et l’équipe vérifie son identité."
  },
+ "d8394b249580": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Je crois que je t’ai déjà montré cet endroit…"
+ },
+ "2654780d8b5c": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "Ici aussi, je te l’ai déjà montré !"
+ },
+ "1598c1511f1d": {
+  "who": "nour",
+  "mood": "smile",
+  "kind": "replique",
+  "text": "T’abuses, hein ! On l’a déjà vu."
+ },
  "b291965ee545": {
   "who": "narr",
   "mood": "",

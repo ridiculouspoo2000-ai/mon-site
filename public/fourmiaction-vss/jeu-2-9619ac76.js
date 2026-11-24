@@ -915,7 +915,7 @@ const BUILD = {
   sits: [
     { id: "radio", scene: "S01", title: "L’atelier radio",
       change: [
-        { t: "Une rotation des rôles techniques, ouverte à tous les volontaires.", q: 1, fb: "Un changement concret qui rouvre l’accès au matériel." },
+        { t: "Les rôles techniques (micro, son, montage) tournent : chaque volontaire, fille ou garçon, les prend à son tour.", q: 1, fb: "Un changement concret qui rouvre l’accès au matériel." },
         { t: "Une affiche « Ici, on est égaux ».", q: 0.5, fb: "Utile, mais ne change pas qui tient la console." },
         { t: "Interdire la console aux garçons.", q: 0, fb: "Une nouvelle règle fondée sur le sexe." },
       ],

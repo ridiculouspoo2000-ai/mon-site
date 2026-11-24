@@ -48,7 +48,14 @@
       <linearGradient id="${u}b" x1="0" x2="1"><stop offset="0" stop-color="${tone(bot, .1)}"/><stop offset="1" stop-color="${botD}"/></linearGradient>
       <radialGradient id="${u}f" cx=".42" cy=".38" r=".75"><stop offset="0" stop-color="${tone(sk, .1)}"/><stop offset=".7" stop-color="${sk}"/><stop offset="1" stop-color="${skD}"/></radialGradient>
       <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tone(hc, .18)}"/><stop offset="1" stop-color="${hc}"/></linearGradient>
+      <pattern id="${u}kn" width="1.5" height="2.4" patternUnits="userSpaceOnUse"><path d="M.75,0 V2.4" stroke="#000" stroke-opacity=".085" stroke-width=".5"/><path d="M0,1.2 h1.5" stroke="#fff" stroke-opacity=".05" stroke-width=".4"/></pattern>
+      <pattern id="${u}tw" width="2.2" height="2.2" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0,1.1 h2.2" stroke="#fff" stroke-opacity=".1" stroke-width=".55"/><path d="M0,0 h2.2" stroke="#000" stroke-opacity=".12" stroke-width=".4"/></pattern>
+      <pattern id="${u}wv" width="1.2" height="1.2" patternUnits="userSpaceOnUse"><path d="M0,.6 h1.2 M.6,0 v1.2" stroke="#000" stroke-opacity=".05" stroke-width=".35"/></pattern>
+      <linearGradient id="${u}vol" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity=".05"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>
+      <linearGradient id="${u}lv" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
     </defs>`;
+    const cut = spec.cut || "pull", knit = cut === "pull" || cut === "sweat" || cut === "cardigan", tex = knit ? `url(#${u}kn)` : `url(#${u}wv)`;
+    const jeans = !spec.skirt && (() => { const n = parseInt(String(bot).slice(1), 16) || 0, r = n >> 16, g = (n >> 8) & 255, b = n & 255; return b > r + 12 && b >= g; })();
     // chaussure : une basket (dessus arrondi, semelle claire, deux bandes), pointe vers l'avant ; pied posé à plat
     // chaussure, pointe vers l'avant, pied posé à plat. Trois modèles : basket (semelle claire, deux bandes),
     // toile (semelle blanche, bout blanc, lacets), ville (cuir, semelle fine foncée, petit talon)
@@ -69,15 +76,26 @@
       return `<g class="shoe">${upper}<rect x="${f(-w * .7)}" y="${f(ys - .2)}" width="${f(w * 2.42)}" height="2.2" rx="1.1" fill="${sole}"/>`
         + `<path d="M${f(w * .05)},${f(ys - .6)} l${f(w * .32)},${f(-2.6)} M${f(w * .42)},${f(ys - .6)} l${f(w * .32)},${f(-2.4)}" stroke="${line}" stroke-width="${f(Math.max(.7, w * .1))}" stroke-linecap="round"/></g>`;
     };
+    // le tissu du pantalon : toile de jean (sergé, surpiqûre orange sur le côté) ou toile lisse avec un pli ; du volume
+    // (lumière sur l'avant, ombre sur le côté), un pli au genou
+    const cloth = (w0, w1, len, side, part) => {
+      const a = w0 / 2, b = w1 / 2, shape = `M${-a},0 L${b * (-1)},${len} L${b},${len} L${a},0 Z`, f = (v) => v.toFixed(2);
+      let o = `<path d="${shape}" fill="url(#${u}lv)"/>`;
+      if (jeans) o += `<path d="${shape}" class="tx" fill="url(#${u}tw)"/><path d="M${f(side * a * .78)},1 L${f(side * b * .8)},${f(len - .5)}" stroke="#D99A4E" stroke-opacity=".55" stroke-width=".35" stroke-dasharray=".9 .6" fill="none"/>`;
+      else o += `<path d="M${f(-a * .05)},1.5 L${f(-b * .05)},${f(len - 1)}" stroke="#000" stroke-opacity=".12" stroke-width=".45" fill="none"/>`;
+      if (part === "thigh") o += `<path d="M${f(-a * .55)},${f(len - 2.2)} q${f(a * .55)},1 ${f(a * 1.1)},-.2" stroke="#000" stroke-opacity=".16" stroke-width=".5" fill="none"/>`;
+      else o += `<path d="M${f(-b * .7)},${f(len - .6)} q${f(b * .7)},.8 ${f(b * 1.4)},0" stroke="#000" stroke-opacity=".2" stroke-width=".55" fill="none"/>`;
+      return o;
+    };
     // jambe : cuisse (pivot hanche) > tibia (pivot genou) > chaussure
     const leg = (side, back) => {
       const x = side * B.hipW * .55, c = back ? botD : `url(#${u}b)`, s = back ? tone(shoe, -.15) : shoe;
       const skirt = spec.skirt;
       const thighFill = skirt ? (back ? skD : sk) : c;
       return `<g class="leg ${side < 0 ? "lL" : "lR"}${back ? " back" : ""}" style="transform-origin:${x.toFixed(1)}px ${hipY.toFixed(1)}px">
-        <g transform="translate(${x.toFixed(1)},${hipY.toFixed(1)})">${limb(B.thigh, B.thigh * .82, thighLen, thighFill)}
+        <g transform="translate(${x.toFixed(1)},${hipY.toFixed(1)})">${limb(B.thigh, B.thigh * .82, thighLen, thighFill)}${skirt ? "" : cloth(B.thigh, B.thigh * .82, thighLen, side, "thigh")}
           <g class="shin" style="transform-origin:0px ${thighLen.toFixed(1)}px"><g transform="translate(0,${thighLen.toFixed(1)})">
-            ${limb(B.thigh * .82, B.shin, shinLen, skirt ? (back ? skD : sk) : c)}
+            ${limb(B.thigh * .82, B.shin, shinLen, skirt ? (back ? skD : sk) : c)}${skirt ? "" : cloth(B.thigh * .82, B.shin, shinLen, side, "shin")}
             ${spec.socks ? `<rect x="${(-B.shin / 2).toFixed(1)}" y="${(shinLen - 7).toFixed(1)}" width="${B.shin.toFixed(1)}" height="6" fill="${spec.socks}"/>` : ""}
             ${shoeSvg(B.shin, shinLen, s, spec.shoeStyle)}
           </g></g></g></g>`;
@@ -118,13 +136,22 @@
       return `<g class="prop prop-spoonL"><path d="M0,${f(y - F * .1)} L0,${f(t0)}" stroke="#C9CED3" stroke-width="${f(F * .2)}" stroke-linecap="round"/>`
         + `<path d="M${f(-F * .2)},${f(t0)} Q0,${f(t0 - F * .2)} ${f(F * .2)},${f(t0)} Z" fill="#C9CED3"/>`
         + [-.17, 0, .17].map((d) => `<path d="M${f(F * d)},${f(t0 - .1)} L${f(F * d)},${f(t1)}" stroke="#DDE2E6" stroke-width="${f(F * .09)}" stroke-linecap="round"/>`).join("") + `</g>`; };
+    // la manche : la maille (ou la trame), du volume, des plis au creux du coude, un poignet côtelé
+    const sleeve = (w0, w1, len, part) => {
+      const a = w0 / 2, b = w1 / 2, shape = `M${-a},0 L${-b},${len} L${b},${len} L${a},0 Z`, f = (v) => v.toFixed(2);
+      let o = `<path d="${shape}" class="tx" fill="${tex}"/><path d="${shape}" fill="url(#${u}lv)"/>`;
+      if (part === "up" && sleeveLong) o += `<path d="M${f(-a * .6)},${f(len - 1.6)} q${f(a * .5)},.9 ${f(a * 1.1)},.1 M${f(-a * .3)},${f(len - .4)} q${f(a * .4)},.6 ${f(a * .8)},0" stroke="#000" stroke-opacity=".18" stroke-width=".45" fill="none"/>`;
+      if (part === "up" && !sleeveLong) o += `<path d="M${f(-a * 1.02)},${f(len - .6)} L${f(a * 1.02)},${f(len - .6)}" stroke="${topD}" stroke-width="1.1"/>`;
+      if (part === "fore" && knit) o += `<rect x="${f(-b)}" y="${f(len - 2.6)}" width="${f(w1)}" height="2.6" class="tx" fill="url(#${u}kn)"/>`;
+      return o;
+    };
     // bras : épaule > avant-bras (pivot coude) > main
     const arm = (side, back) => {
       const x = side * (B.shW - B.upArm * .35), sl = back ? topD : `url(#${u}t)`, skin = back ? skD : sk;
       return `<g class="arm ${side < 0 ? "aL" : "aR"}${back ? " back" : ""}" style="transform-origin:${x.toFixed(1)}px ${(shY + 2).toFixed(1)}px">
-        <g transform="translate(${x.toFixed(1)},${(shY + 2).toFixed(1)})">${limb(B.upArm, B.upArm * .9, B.upLen, sl)}
+        <g transform="translate(${x.toFixed(1)},${(shY + 2).toFixed(1)})">${limb(B.upArm, B.upArm * .9, B.upLen, sl)}${sleeve(B.upArm, B.upArm * .9, B.upLen, "up")}
           <g class="fore" style="transform-origin:0px ${B.upLen.toFixed(1)}px"><g transform="translate(0,${B.upLen.toFixed(1)})">
-            ${limb(B.upArm * .9, B.foreArm, B.foreLen, sleeveLong ? sl : skin)}
+            ${limb(B.upArm * .9, B.foreArm, B.foreLen, sleeveLong ? sl : skin)}${sleeveLong ? sleeve(B.upArm * .9, B.foreArm, B.foreLen, "fore") : ""}
             ${sleeveLong ? `<rect x="${(-B.foreArm / 2).toFixed(1)}" y="${(B.foreLen - 2.2).toFixed(1)}" width="${B.foreArm.toFixed(1)}" height="2.4" rx="1" fill="${back ? tone(top, -.3) : topD}"/>` : ""}
             <g class="hand"><ellipse cx="0" cy="${(B.foreLen + B.foreArm * .55).toFixed(1)}" rx="${(B.foreArm * .62).toFixed(1)}" ry="${(B.foreArm * .72).toFixed(1)}" fill="${skin}"/>
             <ellipse cx="${(side * B.foreArm * .5).toFixed(1)}" cy="${(B.foreLen + B.foreArm * .2).toFixed(1)}" rx="${(B.foreArm * .22).toFixed(1)}" ry="${(B.foreArm * .4).toFixed(1)}" fill="${skin}"/>${side > 0 ? handProps(B) : spoonL(B)}</g>
@@ -136,7 +163,16 @@
         L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" fill="url(#${u}t)"/>
       <path d="M${-hw},${waist - 2} C${-hw},${waist + 5} ${hw},${waist + 5} ${hw},${waist - 2} L${hw * 1.02},${hipY + 9} C${hw},${hipY + 13} ${-hw},${hipY + 13} ${-hw * 1.02},${hipY + 9} Z" fill="${spec.skirt ? spec.skirt : `url(#${u}b)`}"/>
       ${spec.skirt ? `<path d="M${-hw * 1.02},${hipY + 6} L${-hw * 1.55},${hipY + B.H * .14} Q0,${hipY + B.H * .16} ${hw * 1.55},${hipY + B.H * .14} L${hw * 1.02},${hipY + 6} Z" fill="${spec.skirt}"/>` : ""}
-      <path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="1.6" opacity=".6"/>
+      <path d="M${-sw},${shY + 3} C${-sw},${shY - 3} ${-sw * .5},${shY - 4} 0,${shY - 4} C${sw * .5},${shY - 4} ${sw},${shY - 3} ${sw},${shY + 3} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" class="tx" fill="${tex}"/>
+      <path d="M${-sw},${shY + 3} C${-sw},${shY - 3} ${-sw * .5},${shY - 4} 0,${shY - 4} C${sw * .5},${shY - 4} ${sw},${shY - 3} ${sw},${shY + 3} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" fill="url(#${u}vol)"/>
+      ${!spec.back ? `<path d="M${(-sw * .7).toFixed(1)},${(shY + B.H * .06).toFixed(1)} q${(sw * .25).toFixed(1)},${(B.H * .05).toFixed(1)} ${(sw * .2).toFixed(1)},${(B.H * .1).toFixed(1)} M${(sw * .72).toFixed(1)},${(shY + B.H * .07).toFixed(1)} q${(-sw * .22).toFixed(1)},${(B.H * .05).toFixed(1)} ${(-sw * .16).toFixed(1)},${(B.H * .1).toFixed(1)} M${(-hw * .5).toFixed(1)},${(waist - B.H * .035).toFixed(1)} q${(hw * .5).toFixed(1)},${(B.H * .012).toFixed(1)} ${(hw).toFixed(1)},0" stroke="#000" stroke-opacity=".13" stroke-width=".55" fill="none" stroke-linecap="round"/>` : ""}
+      ${knit && cut !== "cardigan" ? `<path d="M${-hw * 1.01},${(waist - 2.6).toFixed(1)} C${-hw},${waist + 2.4} ${hw},${waist + 2.4} ${hw * 1.01},${(waist - 2.6).toFixed(1)} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" fill="${tone(top, -.1)}"/><path d="M${-hw * 1.01},${(waist - 2.6).toFixed(1)} C${-hw},${waist + 2.4} ${hw},${waist + 2.4} ${hw * 1.01},${(waist - 2.6).toFixed(1)} L${hw},${waist} C${hw},${waist + 5} ${-hw},${waist + 5} ${-hw},${waist} Z" class="tx" fill="url(#${u}kn)"/>` : ""}
+      ${!knit && !spec.skirt ? `<path d="M${-hw * 1.02},${(hipY + 1.2).toFixed(1)} C${-hw},${(hipY + 3.4).toFixed(1)} ${hw},${(hipY + 3.4).toFixed(1)} ${hw * 1.02},${(hipY + 1.2).toFixed(1)} L${hw * 1.02},${(hipY + 2.9).toFixed(1)} C${hw},${(hipY + 5.1).toFixed(1)} ${-hw},${(hipY + 5.1).toFixed(1)} ${-hw * 1.02},${(hipY + 2.9).toFixed(1)} Z" fill="#2B2420"/>${!spec.back ? `<rect x="-1.4" y="${(hipY + 2.1).toFixed(1)}" width="2.8" height="2.1" rx=".4" fill="none" stroke="#C9B27A" stroke-width=".55"/>` : ""}` : ""}
+      ${jeans && !spec.back ? `<path d="M${(-hw * .92).toFixed(1)},${(hipY + 5.2).toFixed(1)} q${(hw * .35).toFixed(1)},${(1.2).toFixed(1)} ${(hw * .5).toFixed(1)},${(4.4).toFixed(1)} M${(hw * .92).toFixed(1)},${(hipY + 5.2).toFixed(1)} q${(-hw * .35).toFixed(1)},1.2 ${(-hw * .5).toFixed(1)},4.4" stroke="#D99A4E" stroke-opacity=".55" stroke-width=".35" stroke-dasharray=".9 .6" fill="none"/>` : ""}
+      ${cut === "tee" && !spec.back ? `<path d="M${-sw * .34},${shY - 3.4} Q0,${shY + 2.6} ${sw * .34},${shY - 3.4}" fill="none" stroke="${tone(top, -.28)}" stroke-width="1.3"/>` : ""}
+      ${cut === "pull" && !spec.back ? `<path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" stroke="${tone(top, -.12)}" stroke-width="2.4"/><path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" class="tx" stroke="url(#${u}kn)" stroke-width="2.4"/>` : ""}
+      ${cut === "chemise" && !spec.back ? `<path d="M0,${shY + 4} L0,${(waist - 1).toFixed(1)}" stroke="${tone(top, -.18)}" stroke-width=".5"/><path d="M${(sw * .2).toFixed(1)},${(shY + B.H * .055).toFixed(1)} h${(sw * .34).toFixed(1)} v${(B.H * .05).toFixed(1)} q${(-sw * .17).toFixed(1)},1 ${(-sw * .34).toFixed(1)},0 Z" fill="none" stroke="${tone(top, -.2)}" stroke-width=".5"/>` : ""}
+      <path d="M${-sw * .38},${shY - 3.5} Q0,${shY + 4} ${sw * .38},${shY - 3.5}" fill="none" stroke="${topD}" stroke-width="1.6" opacity="${cut === "pull" || cut === "tee" ? 0 : .6}"/>
       ${!spec.back && spec.cut === "sweat" ? `<path d="M${-sw * .78},${shY + 1} C${-sw * .9},${shY - B.H * .07} ${-sw * .4},${shY - B.H * .1} 0,${shY - B.H * .1} C${sw * .4},${shY - B.H * .1} ${sw * .9},${shY - B.H * .07} ${sw * .78},${shY + 1} C${sw * .5},${shY + 4} ${sw * .3},${shY + 1.5} 0,${shY + 2.5} C${-sw * .3},${shY + 1.5} ${-sw * .5},${shY + 4} ${-sw * .78},${shY + 1} Z" fill="${topD}"/><path d="M${-sw * .58},${shY - 1} C${-sw * .45},${shY + 5} ${sw * .45},${shY + 5} ${sw * .58},${shY - 1}" fill="none" stroke="${tone(top, -.32)}" stroke-width="1.4" opacity=".7"/><path d="M-2.4,${shY + 3.5} q-.6,${B.H * .045} .2,${B.H * .075} M2.4,${shY + 3.5} q.6,${B.H * .04} -.2,${B.H * .07}" stroke="${tone(top, .5)}" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="-2.2" cy="${(shY + 3.5 + B.H * .075).toFixed(1)}" r=".9" fill="${tone(top, .5)}"/><circle cx="2.2" cy="${(shY + 3.5 + B.H * .07).toFixed(1)}" r=".9" fill="${tone(top, .5)}"/><path d="M${-sw * .45},${waist - B.H * .06} L${sw * .45},${waist - B.H * .06} L${sw * .36},${waist - 1} L${-sw * .36},${waist - 1} Z" fill="${tone(top, -.08)}" stroke="${topD}" stroke-width=".8"/>` : ""}
       ${!spec.back && spec.cut === "chemise" ? `<path d="M${-sw * .36},${shY - 3.6} L0,${shY + 4} L${sw * .36},${shY - 3.6} L${sw * .14},${shY + 2.5} L0,${shY + 4} L${-sw * .14},${shY + 2.5} Z" fill="${tone(top, .5)}"/>${[0, 1, 2, 3].map((i) => `<circle cx="0" cy="${(shY + 7 + i * (B.H * .05)).toFixed(1)}" r=".75" fill="${tone(top, .55)}"/>`).join("")}` : ""}
       ${!spec.back && spec.cut === "cardigan" ? `<path d="M${-sw * .3},${shY - 3.6} L${-2.2},${waist + 2} L${2.2},${waist + 2} L${sw * .3},${shY - 3.6} Q0,${shY + 2} ${-sw * .3},${shY - 3.6} Z" fill="#F1EDE6"/><path d="M${-sw * .3},${shY - 3.6} L-2.2,${waist + 2} M${sw * .3},${shY - 3.6} L2.2,${waist + 2}" stroke="${topD}" stroke-width="1"/>` : ""}
@@ -280,10 +316,16 @@
   function specOf(who, c) {
     if (!c) return null;
     const [shoes, shoeStyle] = shoesOf(who, !!c.child);
-    const age = AGE[who] || (c.child ? 10 : 35);
+    const age = AGE[who] || (c.child ? 10 : 35), cut = cutOf(who, age);
     return { age, sex: FEM.has(who) ? "f" : "m", skin: SKIN[c.skin] || c.skin || "doree", hair: c.hc || "brun", hairStyle: HS[c.hair] || "short", top: c.top || "#3F7CC0",
-      bottom: BOT[who] || "#33405C", sleeves: c.child && age < 12 ? "short" : "long", glasses: c.glasses ? "#3B3B3B" : null, beard: false, moustache: false,   // plus de barbe ni de moustache sur les personnages du jeu
-      badge: !!c.staff, skirt: who === "zoe" ? "#6B4E9A" : null, socks: who === "zoe" ? "#fff" : null, shoes, shoeStyle };
+      bottom: BOT[who] || "#33405C", sleeves: cut === "tee" ? "short" : "long", glasses: c.glasses ? "#3B3B3B" : null, beard: false, moustache: false,   // plus de barbe ni de moustache sur les personnages du jeu
+      badge: !!c.staff, skirt: who === "zoe" ? "#6B4E9A" : null, socks: who === "zoe" ? "#fff" : null, shoes, shoeStyle, cut };
+  }
+  // la coupe du haut, propre à chacun (stable) : chemise, pull, gilet, sweat pour les adultes ; sweat ou tee-shirt pour les jeunes
+  function cutOf(who, age) {
+    let h = 7; for (const ch of String(who)) h = (h * 33 + ch.charCodeAt(0)) >>> 0;
+    const P = age < 12 ? ["tee", "tee", "sweat", "pull"] : age < 18 ? ["sweat", "tee", "pull", "sweat"] : ["chemise", "pull", "cardigan", "sweat", "chemise", "pull"];
+    return P[h % P.length];
   }
   // Votre personnage (personnalisation) traduit en personnage articulé
   function specOfLook(L) {
@@ -1223,7 +1265,7 @@
     if (nx) { const L = []; (nx.lines || []).forEach((l) => l.who && l.who !== "player" && L.push([l.who, l.t])); if (nx.nodes && nx.start && nx.nodes[nx.start]) L.push([nx.npc, nx.nodes[nx.start].t]); try { VOICE_TXT.parts(nx).slice(0, 3).forEach((x) => L.unshift(x)); } catch (e) { } Voice.prefetch(L); }
     Snd.setMood(sc.type === "replay" || sc.id === "aurevoir" || sc.id === "dafter" || sc.type === "bilan" ? "nostalgie" : TENSE.has(sc.id) || ["crisis"].includes(sc.type) || sc.crisis ? "stress" : GRAVE.has(sc.id) ? "grave" : sc.ch);
     Snd.windAt(sc.id);
-    { const k5 = SCREENS.findIndex((x) => x.id === "k5"); if (k5 >= 0 && st.idx >= k5) Snd.trackOn(); else Snd.trackOff(); }   // « La semaine touche à sa fin » : la bande-son, jusqu'à la fin
+    { const k5 = SCREENS.findIndex((x) => x.id === "dafter"); if (k5 >= 0 && st.idx >= k5) Snd.trackOn(); else Snd.trackOff(); }   // « Vendredi, 17 h 30… vous retrouvez les questions du premier jour » : la bande-son, jusqu'à la fin
     document.body.classList.toggle("grave", GRAVE.has(sc.id));
     document.body.classList.toggle("scene", sc.type === "story");   // refonte : récit en carte posée sur le plan
     // l'heure d'abord : si le temps fait un grand saut, le flou et l'horloge se posent avant le changement de lieu
@@ -3597,8 +3639,10 @@
     const box = el("section", { class: "rank", "aria-labelledby": "rk-h" });
     box.innerHTML = `<div class="rk-head"><div><p class="kicker">Le classement</p><h3 id="rk-h">Votre score : <span class="rk-big">${score}</span> <small>points</small></h3>
       <p class="small">Moyenne de vos décisions, niveau ${LVN[st.level || 2].toLowerCase()}${defi ? ", défi relevé (+ 50)" : ""}. Vous serez inscrit·e sous le nom de votre personnage : <b>${esc(podName())}</b>.</p></div></div>
-      <form class="rk-form"><button class="cta" type="submit">M’inscrire sur le podium</button></form>
+      <p class="rk-q">Souhaitez-vous que votre score apparaisse sur le podium ?</p>
+      <form class="rk-form"><button class="cta" type="submit">Oui, m’inscrire sur le podium</button><button class="ghost rk-no" type="button">Non merci</button></form>
       <p class="rk-msg" role="status"></p><div class="rk-board"></div>`;
+    box.querySelector(".rk-no").addEventListener("click", () => { const f = box.querySelector(".rk-form"), q = box.querySelector(".rk-q"); if (f) f.hidden = true; if (q) q.hidden = true; box.querySelector(".rk-msg").textContent = "Votre score reste privé : il n’apparaît pas sur le podium."; Snd.click(); });
     const form = box.querySelector("form"), msg = box.querySelector(".rk-msg"), board = box.querySelector(".rk-board");
     if (st.ranked) { form.hidden = true; msg.textContent = `Vous êtes classé·e sous le pseudo « ${st.ranked.pseudo} ».`; }
     wireTabs(board);
@@ -3693,12 +3737,12 @@
       x.fillStyle = MUT; x.font = `400 20px ${F}`; const d = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }); x.fillText(d, PW - M - x.measureText(d).width, 26); y = 120; };
     const wrap = (t, fz, wt, w, col, lh = 1.38, dx = 0) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; const L = []; let line = "";
       String(t).split(/\s+/).forEach((wd) => { const tt = line ? line + " " + wd : wd; if (x.measureText(tt).width > w && line) { L.push(line); line = wd; } else line = tt; }); if (line) L.push(line);
-      return { h: L.length * fz * lh, draw: (yy) => L.forEach((l, i) => x.fillText(l, M + dx, yy + i * fz * lh)) }; };
+      return { h: L.length * fz * lh, draw: (yy) => { x.font = `${wt} ${fz}px ${F}`; x.fillStyle = col; L.forEach((l, i) => x.fillText(l, M + dx, yy + i * fz * lh)); } }; };
     const text = (t, fz, wt, col, opt = {}) => { const W0 = opt.w || PW - 2 * M, b = wrap(t, fz, wt, W0, col, opt.lh, opt.dx || 0); if (y + b.h > PH - 120) page(); b.draw(y); y += b.h + (opt.after != null ? opt.after : 10); };
     const h2 = (t) => { if (y > PH - 260) page(); y += 18; x.fillStyle = "#E2702A"; x.fillRect(M, y + 6, 8, 30); text(t, 34, 700, NAVY, { dx: 22, after: 16 }); };
     // page 1 : la cible
     page();
-    text("Ma cible", 64, 800, NAVY, { after: 6 });
+    text("Mon bilan personnel", 60, 800, NAVY, { after: 6 });
     text(`Une semaine aux Hautes Herbes${st.name ? " · " + st.name : ""} · niveau ${(LVN[st.level || 2] || "Adulte").toLowerCase()}`, 26, 500, MUT, { after: 18 });
     // les points, comme à l'écran de fin : le score, et s'il y a lieu le défi relevé
     { const rf0 = reflexState(), defi0 = rf0.find((r) => r.id === "protect").ok && rf0.find((r) => r.id === "alert").ok && !st.flags.secret, sc0 = finalScore(defi0);
@@ -3721,11 +3765,44 @@
     h2("Mes réflexes professionnels");
     reflexState().forEach((r) => text(`${r.ok ? "✓  Acquis" : "↻  À consolider"} · ${r.label}`, 22, r.ok ? 600 : 400, r.ok ? "#1F7A4D" : INK, { after: 8 }));
     if (st.build) { h2("Ma mesure de prévention"); text(`${st.build.sit} : ${st.build.change}`, 22, 600, INK, { after: 6 }); text(`Indicateur : ${st.build.ind}`, 22, 400, INK, { after: 6 }); text("À proposer à ma direction lors de mon prochain accueil.", 20, 400, MUT); }
-    // vos convictions, lundi puis vendredi : ce qui a bougé
+    // vos convictions, lundi puis vendredi : un tableau visuel. En tête, deux barres (réponses justes lundi / vendredi) ;
+    // puis, pour chaque affirmation, deux pastilles colorées (juste en vert, à revoir en orange, sans réponse en gris)
+    // reliées par une flèche, la bonne réponse, et ce que dit le repère.
     if (Object.keys(st.dB || {}).length) {
-      h2("Mes convictions, lundi et vendredi");
-      DQ.forEach((d) => { const b0 = st.dB[d.id] || "—", a0 = (st.dA || {})[d.id] || "—", right = (d.truth === "Vrai" && a0 === "D’accord") || (d.truth === "Faux" && a0 === "Pas d’accord");
-        text(`${d.id}. ${d.t}`, 21, 600, INK, { after: 2 }); text(`Lundi : ${b0} · Vendredi : ${a0} · Réponse : ${d.truth}${right ? "  ✓" : ""}`, 19, 400, right ? "#1F7A4D" : MUT, { after: 12 }); });
+      const ok = (d, v) => (d.truth === "Vrai" && v === "D’accord") || (d.truth === "Faux" && v === "Pas d’accord");
+      const nB = DQ.filter((d) => ok(d, st.dB[d.id])).length, nA = DQ.filter((d) => ok(d, (st.dA || {})[d.id])).length;
+      if (y > PH - 520) page();
+      h2("Mes convictions : lundi → vendredi");
+      text("Les mêmes huit affirmations, au premier et au dernier jour. Vert : votre réponse correspond au repère ; orange : à revoir.", 21, 400, MUT, { after: 14 });
+      const bar = (lab, n0, col) => { x.fillStyle = INK; x.font = `600 22px ${F}`; x.fillText(lab, M, y + 4); const bx = M + 150, bw = PW - 2 * M - 150 - 130;
+        x.fillStyle = "#EDF0F3"; x.beginPath(); x.roundRect(bx, y + 6, bw, 22, 11); x.fill();
+        if (n0) { x.fillStyle = col; x.beginPath(); x.roundRect(bx, y + 6, Math.max(22, bw * n0 / DQ.length), 22, 11); x.fill(); }
+        x.fillStyle = INK; x.font = `800 24px ${F}`; x.fillText(`${n0} / ${DQ.length}`, PW - M - 100, y + 3); y += 42; };
+      bar("Lundi", nB, "#9AA7B4"); bar("Vendredi", nA, "#1F7A4D");
+      if (nA > nB) text(`Progrès : + ${nA - nB} réponse${nA - nB > 1 ? "s" : ""} juste${nA - nB > 1 ? "s" : ""} en une semaine.`, 22, 700, "#1F7A4D", { after: 10 });
+      y += 8;
+      const chip = (cx0, cy0, w, lab, kind) => { const C = { ok: ["#E3F4EA", "#1F7A4D"], ko: ["#FDEBDD", "#B4540F"], no: ["#EEF1F4", "#6B7580"], ans: ["#E8EEF7", "#14304A"] }[kind];
+        x.fillStyle = C[0]; x.beginPath(); x.roundRect(cx0, cy0, w, 40, 20); x.fill(); x.fillStyle = C[1]; x.font = `700 19px ${F}`;
+        const tw = x.measureText(lab).width; x.fillText(lab, cx0 + (w - tw) / 2, cy0 + 10); };
+      DQ.forEach((d) => {
+        const b0 = st.dB[d.id], a0 = (st.dA || {})[d.id], t = wrap(`${d.id}. ${d.t}`, 21, 600, PW - 2 * M - 40, INK, 1.32, 20), wy = wrap(d.why, 18, 400, PW - 2 * M - 40, MUT, 1.32, 20);
+        const H = 22 + t.h + 14 + 40 + 12 + wy.h + 20;
+        if (y + H > PH - 110) page();
+        x.fillStyle = "#F7F9FB"; x.beginPath(); x.roundRect(M, y, PW - 2 * M, H, 18); x.fill();
+        const okB = b0 && ok(d, b0), okA = a0 && ok(d, a0);
+        x.fillStyle = okA ? "#1F7A4D" : a0 ? "#E2702A" : "#B9C2CB"; x.beginPath(); x.roundRect(M, y, 8, H, 4); x.fill();
+        t.draw(y + 18); let yy = y + 18 + t.h + 12;
+        x.fillStyle = MUT; x.font = `500 17px ${F}`; x.fillText("Lundi", M + 20, yy + 11);
+        chip(M + 84, yy, 190, b0 || "Sans réponse", !b0 ? "no" : okB ? "ok" : "ko");
+        x.strokeStyle = "#9AA7B4"; x.lineWidth = 3; x.beginPath(); x.moveTo(M + 290, yy + 20); x.lineTo(M + 336, yy + 20); x.stroke();
+        x.fillStyle = "#9AA7B4"; x.beginPath(); x.moveTo(M + 344, yy + 20); x.lineTo(M + 332, yy + 12); x.lineTo(M + 332, yy + 28); x.closePath(); x.fill();
+        x.fillStyle = MUT; x.font = `500 17px ${F}`; x.fillText("Vendredi", M + 356, yy + 11);
+        chip(M + 446, yy, 190, a0 || "Sans réponse", !a0 ? "no" : okA ? "ok" : "ko");
+        const evo = okA && !okB ? "Progrès" : okA && okB ? "Acquis" : !okA && okB ? "À revoir" : "À consolider";
+        x.fillStyle = okA ? "#1F7A4D" : "#B4540F"; x.font = `700 18px ${F}`; x.fillText(evo, M + 652, yy + 11);
+        chip(PW - M - 250, yy, 230, `Repère : ${d.truth === "Vrai" ? "vrai" : "faux"}`, "ans");
+        yy += 40 + 12; wy.draw(yy); y += H + 12;
+      });
     }
     // les numéros, sur deux colonnes (ils tiennent avec la cible sur la première page)
     if (y > PH - 120 - 60 - Math.ceil(NUMBERS.length / 2) * 62) page();
@@ -3763,17 +3840,21 @@
     return pdfOf(jpgs);
   }
   // le bouton : on prépare le PDF puis on le télécharge
-  function cibleBtn(label = "Télécharger ma cible et le carnet (PDF)", cls) {
+  async function downloadBilan() {
+    Snd.click();
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const blob = await cibleDoc(), u = URL.createObjectURL(blob);
+      const a = el("a", { href: u, download: `mon-bilan-hautes-herbes${st.name ? "-" + String(st.name).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""}.pdf` });
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
+      window.__lastPDF = blob;   // pour les tests automatiques
+      toastMsg("Votre bilan personnel est téléchargé.");
+    } catch (e) { console.warn(e); toastMsg("Le PDF n’a pas pu être préparé. Réessayez dans un instant."); }
+  }
+  function cibleBtn(label = "Télécharger mon bilan personnel (PDF)", cls) {
     const b = btn(label, async () => {
-      if (b.disabled) return; b.disabled = true; const t0 = b.textContent; b.textContent = "Préparation du PDF…"; Snd.click();
-      try {
-        if (document.fonts && document.fonts.ready) await document.fonts.ready;
-        const blob = await cibleDoc(), u = URL.createObjectURL(blob);
-        const a = el("a", { href: u, download: `ma-cible-hautes-herbes${st.name ? "-" + String(st.name).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : ""}.pdf` });
-        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 60000);
-        window.__lastPDF = blob;   // pour les tests automatiques
-        toastMsg("Votre cible est téléchargée.");
-      } catch (e) { console.warn(e); toastMsg("Le PDF n’a pas pu être préparé. Réessayez dans un instant."); }
+      if (b.disabled) return; b.disabled = true; const t0 = b.textContent; b.textContent = "Préparation du PDF…";
+      await downloadBilan();
       b.disabled = false; b.textContent = t0;
     }, cls);
     b.classList.add("dl-cible");
@@ -3789,35 +3870,60 @@
     const rf = reflexState();
     const defi = rf.find((r) => r.id === "protect").ok && rf.find((r) => r.id === "alert").ok && !st.flags.secret;
     const name = st.name || "Vous";
+    // La fin se déroule en trois temps, sans surcharge : (1) le mot de Bafaël et « Ce que votre semaine a changé », seuls
+    // à l'écran ; (2) Nour, au portail avec vous, dit au revoir ; (3) alors seulement : télécharger son bilan (après avoir
+    // laissé son adresse) et, à côté, figurer ou non sur le podium. Le détail complet reste disponible, replié.
+    const NU = st.level === 1 ? NUANCE_KID : NUANCE;
     n.innerHTML = `<div class="bilan">
-      <div class="bhead"><div class="bav">${youBust(true)}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
+      <div class="bstage b1"><div class="bhead"><div class="bav">${youBust(true)}</div><div><p class="kicker">Fin de la semaine</p><h2 id="h-${sc.id}">Votre semaine aux Hautes Herbes${st.name ? ", " + esc(st.name) : ""}</h2>
       <p class="lead">${defi ? "Défi relevé : vous avez protégé d’abord et alerté les bons relais, sans promettre le secret." : "Vous avez beaucoup avancé. Un ou deux réflexes de protection restent à consolider : rejouez les journées indiquées."}</p></div></div>
-      ${epilogue()}<h3>Votre cible</h3><div class="bring">${ringsSVG(150)}<div><p>Pendant la semaine, cette cible en haut de l’écran s’est remplie à chacune de vos décisions justes. Chaque anneau est une compétence.</p>${ringList()}
+      <div class="nuance"><p class="kicker">Le mot de Bafaël</p><p>${esc(NU)}</p></div>
+      ${epilogue()}</div>
+      <div class="bstage b2" hidden></div>
+      <div class="bstage b3" hidden></div>
+      <details class="bmore" hidden><summary>Voir le détail de mon bilan</summary>
+      <h3>Votre cible</h3><div class="bring">${ringsSVG(150)}<div><p>Pendant la semaine, cette cible en haut de l’écran s’est remplie à chacune de vos décisions justes. Chaque anneau est une compétence.</p>${ringList()}
         ${(() => { const P = compProgress().sort((a, b) => a[1] - b[1]); const w = P.filter(([, v]) => v < 0.8).slice(0, 2); return w.length ? `<div class="toimprove"><p class="kicker">Pour progresser</p>${w.map(([c]) => `<p><i style="background:${RING[c]}"></i><b>${esc(COMPS[c])}.</b> ${esc(TIPS[c])}</p>`).join("")}</div>` : `<p class="toimprove good">Toutes vos compétences sont au vert. Bravo.</p>`; })()}</div></div>
       <h3>Vos compétences</h3><div class="comps">${Object.keys(COMPS).map((k) => { const v = avg(by[k]); const [c, t] = lvl(v); return `<div class="comp ${c}"><div class="ct"><b>${k}</b> ${esc(COMPS[k])}</div><div class="bar" aria-hidden="true"><span style="width:${v == null ? 0 : Math.round(v * 100)}%"></span></div><span class="lv">${t}</span></div>`; }).join("")}</div>
-      <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer ${(CHAPTERS[r.ch - 1] || {}).day ? "la journée du " + CHAPTERS[r.ch - 1].day.toLowerCase() : "cette journée"}</button>`}</li>`).join("")}</ul>
-      ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à ta direction lors de ton prochain accueil.</p></div>` : ""}
+      <h3>Vos réflexes professionnels</h3><ul class="rfx">${rf.map((r, i) => `<li class="${r.ok ? "good" : "mid"}" style="--k:${i}"><span class="ic" aria-hidden="true">${r.ok ? "✓" : "↻"}</span><span>${esc(r.label)}</span><em>${r.ok ? "Acquis" : "À consolider"}</em>${r.ok ? "" : `<button class="ghost small" type="button" data-ch="${r.ch}">Rejouer ${(CHAPTERS[r.ch - 1] || {}).day ? "la journée du " + CHAPTERS[r.ch - 1].day.toLowerCase() : "la journée"}</button>`}</li>`).join("")}</ul>
+      ${st.build ? `<h3>Votre mesure de prévention</h3><div class="mymeasure"><p><b>${esc(st.build.sit)}</b> : ${esc(st.build.change)}</p><p><b>Indicateur :</b> ${esc(st.build.ind)}</p><p class="small">À proposer à votre direction lors de votre prochain accueil.</p></div>` : ""}
       <h3>Les numéros à garder</h3><div class="nums">${NUMBERS.map(([a, b]) => `<div class="nb"><b>${a}</b><span>${esc(b)}</span></div>`).join("")}</div>
-      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation officielle.</p></div>`;
-    { const NU = st.level === 1 ? NUANCE_KID : NUANCE; const box = n.querySelector(".bilan .bhead"); if (box) box.insertAdjacentHTML("afterend", `<div class="nuance"><p class="kicker">Le mot de Bafaël</p><p>${esc(NU)}</p></div>`);
-      n.dataset.novoice = "1"; vprep(); setTimeout(() => n.isConnected && Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [], FW)), 700); }
-    const b = n.querySelector(".bilan");
-    if (typeof SOURCES !== "undefined" && SOURCES.length) n.querySelector(".bilan").appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
-    b.appendChild(rankBox(defi));
-    // tout à la fin : Nour, au portail, vous dit merci et au revoir (c'est la dernière voix du jeu)
+      <p class="small">Ce bilan est un repère personnel. Ce n’est pas une évaluation officielle.</p></details></div>`;
+    const b = n.querySelector(".bilan"), B2 = b.querySelector(".b2"), B3 = b.querySelector(".b3"), MORE = b.querySelector(".bmore");
+    if (typeof SOURCES !== "undefined" && SOURCES.length) MORE.appendChild(el("section", { class: "sources" }, `<h3>Pour aller plus loin : les faits réels dont s’inspire le jeu</h3>` + pressBox(SOURCES).outerHTML));
+    { const row = el("div", { class: "row" }); row.append(btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home)); MORE.appendChild(row); }
+    MORE.querySelectorAll("[data-ch]").forEach((x) => x.addEventListener("click", () => replay(+x.dataset.ch)));
+    // (2) Nour au portail
     let FW = [];
     if (typeof AUREVOIR !== "undefined") {
       const fw = el("section", { class: "farewell", "aria-label": "Au revoir" }, `<div class="fw-av" aria-hidden="true">${faceOf("nour", "big")}</div><div class="fw-txt"><p class="kicker">Vendredi, 18 h · au portail</p>${AUREVOIR.map((L) => L.who ? `<p class="fw-say"><b>${esc(NAMES[L.who] || "")}</b> ${words(L.t)}</p>` : `<p class="fw-narr">${words(L.t)}</p>`).join("")}</div>`);
-      b.appendChild(fw);
+      B2.appendChild(fw);
       const ps = [...fw.querySelectorAll(".fw-txt > p:not(.kicker)")];
       FW = AUREVOIR.map((L, k) => [L.who || "narr", L.t, ps[k]]);
     }
-    const row = el("div", { class: "row" });
-    row.append(cibleBtn("Télécharger ma cible (PDF)"), btn("Ouvrir le carnet", openCarnet, "ghost"), btn("Rejouer depuis le début", () => restart(), "ghost"), btn("Revenir à l’accueil", home));
-    // juste sous la cible : la garder, avec tout le carnet de Nour
-    { const br = b.querySelector(".bring"); if (br) { const d = el("div", { class: "dl-row" }, `<p class="small">Gardez votre cible et toutes les pages du carnet de Nour, avec leurs images, dans un document PDF.</p>`); d.appendChild(cibleBtn()); br.after(d); } }
-    b.appendChild(row);
-    b.querySelectorAll("[data-ch]").forEach((x) => x.addEventListener("click", () => replay(+x.dataset.ch)));
+    // (3) le bilan à télécharger (adresse e-mail d'abord) et, à côté, le podium
+    const dl = el("section", { class: "dlcard", "aria-labelledby": "dl-h" }, `<p class="kicker">À garder</p><h3 id="dl-h">Mon bilan personnel</h3>
+      <p>Vos points et votre cible, les compétences que vous avez valorisées, vos convictions de lundi à vendredi, et les repères utiles sur les violences sexistes et sexuelles (numéros, lois, carnet de Nour), dans un document PDF.</p>`);
+    const go1 = btn("Télécharger mon bilan personnel (PDF)", () => { go1.hidden = true; form.hidden = false; form.querySelector("input").focus(); });
+    const form = el("form", { class: "dl-form", hidden: "" }, `<label for="dl-mail">Votre adresse e-mail</label><div class="dl-line"><input id="dl-mail" type="email" inputmode="email" autocomplete="email" placeholder="prenom@exemple.fr" required><button class="cta" type="submit">Télécharger</button></div>
+      <p class="small">Fourmi’Action conserve votre adresse avec votre score, sans la transmettre à personne. Pour la faire effacer, écrivez à l’association.</p>`);
+    form.addEventListener("submit", async (e) => { e.preventDefault(); const v = form.querySelector("input").value.trim(); if (!v) return;
+      const sb = form.querySelector("button"); if (sb.disabled) return; sb.disabled = true; sb.textContent = "Préparation du PDF…"; st.email = v; save();
+      try { fetch("/api/jeu-bilan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: v, score: finalScore(defi), niveau: st.level || 2 }) }).catch(() => {}); } catch (x) { }
+      await downloadBilan(); sb.disabled = false; sb.textContent = "Télécharger à nouveau"; });
+    dl.append(go1, form);
+    const grid = el("div", { class: "bfinal" }); grid.append(dl, rankBox(defi)); B3.appendChild(grid);
+    // l'enchaînement, au rythme des voix (sans voix : quelques secondes entre chaque temps)
+    const quiet = (cb, min) => { const t0 = performance.now(); const iv = setInterval(() => { if (!n.isConnected) return clearInterval(iv); const e = performance.now() - t0;
+      if (e > (min || 1200) && (!st.settings.voice || !Voice.busy() || e > 240000)) { clearInterval(iv); cb(); } }, 300); };
+    const step3 = () => { B3.hidden = false; MORE.hidden = false; B3.classList.add("rise"); B3.scrollIntoView({ block: "start", behavior: "smooth" }); Snd.good(); };
+    const step2 = () => {
+      B2.hidden = false; B2.classList.add("rise"); B2.scrollIntoView({ block: "start", behavior: "smooth" });
+      if (World.el && !calm()) World.show({ at: "entree", cast: [["nour", "a", "wave"], ["you", "b"]], z: 2.4, greet: true }, sc);
+      setTimeout(() => { if (!n.isConnected) return; if (FW.length && st.settings.voice) { Voice.seq(FW); quiet(step3, 1500); } else setTimeout(step3, 2500); }, 900);
+    };
+    n.dataset.novoice = "1"; vprep();
+    setTimeout(() => { if (!n.isConnected) return; Voice.seq([["narr", NU]].concat(epiV.length ? [["narr", "Épilogue. Ce que votre semaine a changé."]].concat(epiV) : [])); quiet(step2, st.settings.voice ? 2500 : 9000); }, 700);
     Snd.good();
   };
 
@@ -4203,14 +4309,38 @@
     const prog = el("div", { class: "mt-prog" }, sc.cards.map(() => "<i></i>").join(""));
     let i = 0, score = 0;
     const PART = { keep: { refuse: 0.5 }, id: { refuse: 0.4, give: 0.2 }, give: { id: 0.8 }, refuse: { keep: 0.5, id: 0.2 } };
+    // les familles arrivent une à une : chacune franchit le portail et s'avance dans l'accueil, puis on entend ce qu'elle dit
+    const famActor = (who) => World.el && World.el.querySelector(`.wacts .actor[data-who="${who}"]`);
+    const hideAll = () => sc.cards.forEach((c, j) => { const a = famActor(c.who); if (a && !calm() && j >= i && a._wait !== false) { a.style.visibility = "hidden"; a._wait = true; } });
+    function arrive(who) {
+      const a = famActor(who); if (!a || !a._wait) return 0;
+      a._wait = false; a.style.visibility = "";
+      if (a._pose) a._pose("walk");
+      const an = a.animate([{ translate: "240px 130px", opacity: 0 }, { translate: "200px 108px", opacity: 1, offset: .12 }, { translate: "0px 0px", opacity: 1 }], { duration: 2400, easing: "cubic-bezier(.3,.1,.3,1)" });
+      an.onfinish = () => { if (a._pose) a._pose("stand"); };
+      return 2400;
+    }
     function card() {
       const c = sc.cards[i];
       box.innerHTML = "";
-      const k = el("div", { class: "mt-card" }, `<div class="mt-who">${face(c.who)}</div><div><p class="mt-t">${esc(c.t)}</p><p class="mt-kid">Enfant demandé : <b>${esc(c.kid)}</b></p></div>`);
-      const acts = el("div", { class: "opts mt-acts" });
+      const wait = arrive(c.who);
+      if (wait) World._settle = performance.now() + wait - 200;   // la voix attend que la personne soit arrivée
+      // la carte et la voix ensemble : les mots s'affichent au fil de la lecture, puis « Enfant demandé » et les choix
+      const k = el("div", { class: "mt-card" }, `<div class="mt-who">${face(c.who)}</div><div><p class="mt-t kara">${words(c.t)}</p><p class="mt-kid" hidden>Enfant demandé : <b>${esc(c.kid)}</b></p></div>`);
+      const acts = el("div", { class: "opts mt-acts" }); acts.hidden = true;
       sc.actions.forEach(([a, t], j) => { const b = el("button", { class: "opt", type: "button", style: `--k:${j}` }, `<span class="ol">${String.fromCharCode(65 + j)}</span><span>${esc(t)}</span>`); b.addEventListener("click", () => pick(c, a, acts, b)); acts.appendChild(b); });
-      box.append(k, acts); if (World.mime) World.mime(c.who);   // c'est le narrateur qui lit la carte : la personne fait un geste, sa bouche ne bouge pas
-      Voice.say("narr", c.t);
+      k.style.visibility = wait ? "hidden" : "";
+      box.append(k, acts);
+      const show = () => { k.style.visibility = ""; };
+      setTimeout(show, Math.max(0, wait - 200));
+      const done = () => { k.querySelector(".mt-kid").hidden = false; acts.hidden = false; };
+      if (World.mime) setTimeout(() => World.mime(c.who), wait);   // c'est le narrateur qui lit la carte : la personne fait un geste, sa bouche ne bouge pas
+      Voice.say("narr", c.t, k.querySelector(".mt-t"));
+      // la fin de la phrase (ou, sans voix, juste après l'arrivée) fait apparaître l'enfant demandé et les choix
+      const t0 = performance.now(); clearInterval(c._dn);
+      c._dn = setInterval(() => { if (!k.isConnected) return clearInterval(c._dn);
+        const el_ = performance.now() - t0; if (el_ < wait + 600) return;
+        if (!st.settings.voice || !Voice.busy() || el_ > wait + 15000) { clearInterval(c._dn); done(); } }, 150);
       // M. Rey, pressé : une grosse barre de temps sous pression oblige à choisir vite
       if (c.press && !calm()) {
         const secs = Math.max(5, Math.round(c.press * (LV().t || 1))), bar = el("div", { class: "mt-press", role: "timer", "aria-label": `${secs} secondes pour décider` }, `<i></i><span><em>${c.pressT || "M. Rey s’impatiente"}</em><b>${secs} s</b></span>`);
@@ -4241,7 +4371,9 @@
       const q = Math.round((score / sc.cards.length) * 100) / 100; record(sc, q);
       box.innerHTML = ""; result(box, q, `${Math.round(score * 10) / 10} départ${score > 1 ? "s" : ""} sur ${sc.cards.length} gérés avec justesse. Au portail, la fiche d’inscription fait la règle : ni la sympathie, ni l’urgence ne la remplacent.`);
     }
-    panel.append(prog, tools, box); n.appendChild(panel); card();
+    panel.append(prog, tools, box); n.appendChild(panel);
+    // la scène se pose d'abord (les familles sont encore dehors), puis la première arrive
+    setTimeout(() => { hideAll(); card(); }, 120);
   };
 
   /* ---------- recueillir la parole d'un témoin ---------- */
@@ -5956,7 +6088,11 @@
     n.querySelector(".panel").appendChild(btn("Continuer", next));
     n.dataset.novoice = "1";
     vprep();
-    setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."]].concat(B.vu ? [["narr", B.vu]] : [], [["narr", "À retenir. " + B.learn.join(" ")]])); }, 900);
+    // pendant « À retenir », la caméra prend du recul, lentement, jusqu'à voir tout l'accueil : la nuit qui suit part
+    // de ce plan d'ensemble (même cadrage), sans saut
+    let back = 0; const recul = () => { if (back++ || !n.isConnected || calm() || !World.el) return; World.camTo(A.dio.lieux.ensemble, 1.08, 9000); };
+    setTimeout(() => { if (n.isConnected) Voice.seq([["narr", B.lead || "Les familles repartent. Avant de rentrer, vous repensez à votre journée."]].concat(B.vu ? [["narr", B.vu]] : [], [["narr", "À retenir. " + B.learn.join(" "), null, recul]])); }, 900);
+    setTimeout(recul, st.settings.voice ? 40000 : 6000);
   };
 
   // Une interruption qu'on voit vraiment : la personne arrive en marchant jusqu'à vous, vous fait signe ou vous tire par

@@ -384,6 +384,29 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   // Ordre des réponses : mélangé au hasard, propre à chaque partie (on ne retrouve pas les bonnes réponses toujours en haut),
   // mais stable pour un écran donné pendant la partie. Rend les indices d'origine dans l'ordre d'affichage.
+  // Fluidité : on mesure en continu le nombre d'images par seconde. Sous 40 (appareil modeste, téléphone), on allège la
+  // scène par paliers (herbes du premier plan, puis une partie des passants de fond) ; au-delà de 57 pendant un moment,
+  // on les remet. Objectif : jamais moins de 30 images/s.
+  const Perf = (() => {
+    let lvl = 0, acc = [], last = 0, hold = 0;
+    const set = (l) => { lvl = l; document.body.classList.toggle("perf-1", l >= 1); document.body.classList.toggle("perf-2", l >= 2); };
+    const f = (t) => {
+      requestAnimationFrame(f);
+      if (document.hidden) { last = 0; acc = []; return; }
+      if (last) { const dt = t - last; if (dt < 300) acc.push(dt); }
+      last = t;
+      if (acc.length < 45) return;
+      const avg = acc.reduce((a, b) => a + b, 0) / acc.length, fps = 1000 / avg; acc = [];
+      if (fps < 40 && lvl < 2 && t > hold) { set(lvl + 1); hold = t + 2500; }
+      else if (fps > 57 && lvl > 0 && t > hold + 9000) { set(lvl - 1); hold = t; }
+    };
+    requestAnimationFrame(f);
+    return { get lvl() { return lvl; }, set };
+  })();
+  // fenêtre redimensionnée (ou téléphone tourné) : le calque net ne couvre plus l'écran, le plan entier réapparaît
+  addEventListener("resize", () => { const c = document.querySelector("#world .wcam"); if (c) c.classList.remove("hi-on"); clearTimeout(addEventListener._rz); addEventListener._rz = setTimeout(() => { try { World.hires(); } catch (e) { } }, 400); });
+  // la foule de fond : quand l'appareil peine (moins de 40 images/s), une partie de ces passants se retire (voir Perf)
+  function crowdMark(el, i) { el.classList.add("crowd"); if (i % 2) el.classList.add("c-odd"); if (i < 6) el.classList.add("c-keep"); }
   function mixOrder(n, key) {
     let st0 = null; try { st0 = st; } catch (e) { }
     if (st0 && !st0.mix) { st0.mix = (Math.random() * 2 ** 31) | 0; try { save(); } catch (e) { } }
@@ -1809,7 +1832,7 @@
       const im = this.el.querySelector(".wcam>.dio-img");
       const cur = this._L != null ? this._L : (this.lit || 0);
       this.lit = lv; if (!im) { this._L = lv; this.setLamp(lv); return; }
-      cancelAnimationFrame(this._lf); { const hp = this.cam && this.cam.querySelector(".dio-hires"); if (hp) hp.remove(); clearTimeout(this._hiL); this._hiL = setTimeout(() => this.hires(), (ms || 0) + 300); }
+      cancelAnimationFrame(this._lf); { const hp = this.cam && this.cam.querySelector(".dio-hires"); if (hp) hp.remove(); if (this.cam) this.cam.classList.remove("hi-on"); clearTimeout(this._hiL); this._hiL = setTimeout(() => this.hires(), (ms || 0) + 300); }
       const layer = (k) => {
         let ov = im.parentNode.querySelector(".lit-ov.l" + k);
         if (!ov) { ov = im.cloneNode(); ov.classList.add("lit-ov", "l" + k); ov.removeAttribute("style"); ov.style.opacity = "0"; ov.style.transition = "none"; ov.src = litURL(k);
@@ -1841,11 +1864,15 @@
       };
       Promise.all(need.map((x) => (x.decode ? x.decode().catch(() => {}) : null))).then(go);
     },
-    setLamp(L) { if (this.el) this.el.style.setProperty("--lamp", (L <= 1 ? .6 * L : .6 + .4 * (L - 1)).toFixed(3)); },
+    // (posé sur les halos des lampadaires eux-mêmes, pas sur toute la scène : sinon le style de toute la scène était
+    // recalculé à chaque changement de lumière)
+    setLamp(L) { if (!this.el) return; const v = (L <= 1 ? .6 * L : .6 + .4 * (L - 1)).toFixed(2); const E = this.el.querySelectorAll(".dio-lampglow"); if (v === this._lampV && E[0] && E[0].style.getPropertyValue("--lamp") === v) return; this._lampV = v; E.forEach((x) => x.style.setProperty("--lamp", v)); },
     // Caméra : on interpole la largeur de vue de façon géométrique et le centre au même rythme : on « plonge » vers le
     // point visé (zoom) au lieu de faire glisser le plan. ms = 0 : tout de suite.
     camTo(p, z, ms) {
-      const set = (x, y, k) => { this.cv = { x, y, z: k }; this.cam.style.setProperty("--camz", k.toFixed(3)); this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
+      if (this.cam) this.cam.classList.remove("hi-on");   // la caméra bouge : le plan entier réapparaît sous le calque net
+      const set = (x, y, k) => { this.cv = { x, y, z: k }; { const kz = k.toFixed(2); if (kz !== this._kz) { this._kz = kz; this.cam.querySelectorAll(":scope>.wsun,:scope>.wmoon").forEach((x_) => x_.style.setProperty("--camz", kz)); } }   // (sur le soleil et la lune seulement : pas de recalcul de toute la scène à chaque image)
+        this.cam.style.transform = `translate(${(-x * k * 100).toFixed(3)}%,${(-y * k * 100).toFixed(3)}%) scale(${k.toFixed(4)})`; };
       cancelAnimationFrame(this._cf); this.cam.style.transitionProperty = "left, top";
       // Netteté : pendant le mouvement, le plan est une image que la carte graphique déplace ; une fois arrivé,
       // on la laisse se redessiner à la bonne taille (sinon, zoomé, le plan reste flou comme une photo agrandie)
@@ -1871,7 +1898,7 @@
       const old = cam.querySelector(".dio-hires");
       const base = cam.querySelector(".wcam>.dio-img:not(.lit-ov)"); if (!base || !base.complete || !base.naturalWidth) return;
       { const need = cam.getBoundingClientRect().width * Math.min(2, window.devicePixelRatio || 1);   // le plan est-il agrandi au-delà de sa finesse ?
-        if (need < base.naturalWidth * 1.08) { if (old) old.remove(); return; } }
+        if (need < base.naturalWidth * 1.08) { if (old) old.remove(); cam.classList.remove("hi-on"); return; } }
       const layers = [base, ...cam.querySelectorAll(".wcam>.dio-img.lit-ov")].filter((im) => im.complete && im.naturalWidth && +(im.style.opacity || 1) > .01);
       const vr = this.el.getBoundingClientRect(), cr = cam.getBoundingClientRect(); if (!cr.width) return;
       const mx = .12 * vr.width / cr.width, my = .12 * vr.height / cr.height;   // une petite marge autour de l'écran
@@ -1914,6 +1941,9 @@
         } catch (e) { return; }
         if (!cam.isConnected) return;
         const o = cam.querySelector(".dio-hires"); (layers[layers.length - 1]).after(cv); if (o) { o.width = o.height = 0; o.remove(); }
+        // tant que la caméra ne bouge pas, ce calque net couvre tout l'écran : le grand plan dessous n'a plus à être affiché
+        // (le dessiner à chaque image coûtait la moitié du temps de calcul, surtout dans les salles)
+        if (cv.isConnected && tok === this._hiT) cam.classList.add("hi-on");
       };
       (window.requestIdleCallback || ((f) => setTimeout(f, 30)))(draw, { timeout: 400 });
     },
@@ -4946,7 +4976,7 @@
     const NK = Object.keys(NODES).filter((k) => k !== "gate");   // personne ne va se coller au portail (il est fermé pendant le temps libre)
     ids.forEach((w, i) => {
       const n0 = NODES[NK[(i * 7 + 3) % NK.length]];
-      const W = Life.add(Walker(w, n0[0], n0[1], "stand")); lay.appendChild(W.el);
+      const W = Life.add(Walker(w, n0[0], n0[1], "stand")); crowdMark(W.el, lay.children.length); lay.appendChild(W.el);
       W.el.style.pointerEvents = "auto"; W.el.style.cursor = "pointer";
       W.el.addEventListener("click", (e) => { e.stopPropagation(); if (onClick) onClick(w, W); });
       const off = ((i % 5) - 2) * .12;
@@ -5349,7 +5379,7 @@
         CROWD.forEach((c) => { if (fStaff.includes(c[0])) c.foot = true; });
         football(acts, fKids.slice(0, 10), fStaff.slice(0, 2));
       }
-      CROWD.forEach(([w, loop, speed, pose], i, all) => { if (busyW.has(w) || all[i].foot) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); acts.appendChild(W.el); });
+      CROWD.forEach(([w, loop, speed, pose], i, all) => { if (busyW.has(w) || all[i].foot) return; const W = Life.loop(w, loop, { speed, pose, pause: 600 + Math.random() * 1600, gest: pose === "run" ? ["laugh", "jumpjoy", "highfive", "hop"] : /^k\d/.test(w) ? ["sway", "kick", "explain"] : ["nod", "explain", "point"] }); crowdMark(W.el, i); acts.appendChild(W.el); });
       // les scènes en cours se voient de loin : les personnes sont là, elles bougent
       sc.events.filter((e) => !e.room && evLive(e) && !(guideOnly() && e.id !== sc.guided)).forEach((e) => {
         ground(e);   // un objet au sol, qui fait partie de la scène (le ballon entre deux enfants)
@@ -5866,7 +5896,7 @@
   function frame(t) {
     requestAnimationFrame(frame);
     // à chaque image : la découpe suit exactement la personne (sinon elle « tremble » d'une image à l'autre)
-    { const W0 = document.getElementById("world"); if (W0 && W0.classList.contains("on")) occlude(W0); document.querySelectorAll(".map.dio.tourlive").forEach(occlude); }
+    { const W0 = document.getElementById("world"); if (W0 && W0.classList.contains("on") && !W0.classList.contains("inside")) occlude(W0); document.querySelectorAll(".map.dio.tourlive").forEach(occlude); }
     if (t - last < 220) return; last = t;
     // le plan vivant, et aussi la carte de la visite (Nour et vous y marchez)
     const W0 = document.getElementById("world"), roots = [];

@@ -334,3 +334,11 @@ header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);col
 /* le halo coloré du fond ne s’arrête plus net (plus de barre colorée sur le côté) */
 .ap-glow{contain:none!important;inset:-40vh -15vw -80vh!important}
 .ap-more{margin:26px 0 0}.ap-more .text-link{display:inline-flex;align-items:center;text-decoration:none}
+.testimonials .tm{display:flex;flex-direction:column;gap:14px}
+.testimonials .tm blockquote{margin:0}
+.testimonials .tm blockquote p{font-size:16.5px;line-height:1.55;color:var(--ink,#142f46)}
+.testimonials .tm-by{margin:auto 0 0;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.testimonials .tm-by b{color:var(--ink,#142f46)}
+.testimonials .tm-by span{color:var(--muted)}
+.testimonials .tm-free{border:1.5px dashed rgba(93,83,211,.35)!important;background:transparent!important;box-shadow:none!important}
+.testimonials .tm-free-t{font-weight:700;font-size:17px;color:var(--ink,#142f46)}

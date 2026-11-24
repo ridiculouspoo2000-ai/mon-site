@@ -1,8 +1,8 @@
 /*
  * Fourmi'Action · adresses laissées au téléchargement du bilan du jeu « Les Hautes Herbes »
  * POST /api/jeu-bilan            → { email, score, niveau } ; enregistre l'adresse (aucune vérification, comme demandé)
- * GET  /api/jeu-bilan?cle=…      → la liste au format CSV, pour l'association (clé : DI_ADMIN_KEY, déjà utilisée
- *                                  pour l'espace de gestion du droit à l'image)
+ * GET  /api/jeu-bilan?cle=…      → la liste au format CSV, pour l'association (clé : variable JEU_BILAN_CLE,
+ *                                  à créer dans Netlify ; à défaut, DI_ADMIN_KEY si elle existe)
  *
  * Données conservées : l'adresse saisie, le score, le niveau et la date. Rien d'autre (ni nom, ni réponses du jeu).
  * Envois limités par connexion (empreinte anonyme du jour), comme pour le classement.
@@ -19,7 +19,7 @@ const store = () => getStore({ name: "jeu-bilans", consistency: "strong" });
 export default async (req) => {
   const s = store();
   if (req.method === "GET") {
-    const u = new URL(req.url), admin = env("DI_ADMIN_KEY");
+    const u = new URL(req.url), admin = env("JEU_BILAN_CLE") || env("DI_ADMIN_KEY");
     if (!admin || u.searchParams.get("cle") !== admin) return json({ ok: false }, 403);
     const { blobs } = await s.list({ prefix: "a/" });
     const rows = await Promise.all(blobs.map((b) => s.get(b.key, { type: "json" }).catch(() => null)));

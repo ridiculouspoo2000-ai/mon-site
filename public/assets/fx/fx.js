@@ -107,7 +107,7 @@
       g.moveTo(sz * .5, 0); g.arc(0, 0, sz * .5, 0, 6.2832);             // thorax
       g.moveTo(sz * 1.45, 0); g.arc(sz * .95, 0, sz * .52, 0, 6.2832);   // tête
       g.fill();
-      g.beginPath(); g.lineWidth = sz * .26; g.lineCap = 'round';
+      g.beginPath(); g.lineWidth = sz * .13; g.lineCap = 'round';
       const sw = f ? 1 : -1;
       [-.55, 0, .55].forEach((lx, i) => {            // trois paires de pattes
         const k = (i % 2 ? -1 : 1) * sw * .45;
@@ -173,8 +173,11 @@
         q.ra += (Math.random() - .5) * .45;
         const nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv;
         if (inside(nx, ny)) { q.tx = nx; q.ty = ny; } else q.ra += Math.PI * (.75 + Math.random() * .5);
+        // loupe : à la souris ou au doigt, les fourmis s’écartent puis reviennent, sans cesser de marcher
+        if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
+        q.ox *= .9; q.oy *= .9;
         const ai = Math.round(((q.ra % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG;
-        g.drawImage(SPR[ai][((t * 7 + q.ph) | 0) & 1], q.tx - d / 2, q.ty - d / 2, d, d);
+        g.drawImage(SPR[ai][((t * 7 + q.ph) | 0) & 1], q.tx + q.ox - d / 2, q.ty + q.oy - d / 2, d, d);
       }
       if (!liveGrad) { liveGrad = g.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => liveGrad.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); }
       g.globalCompositeOperation = 'source-in'; g.fillStyle = liveGrad; g.fillRect(0, 0, W, H);
@@ -194,13 +197,12 @@
       if (!reduced && (ZT > VH + 10 || (ZT + RH < -10 && !(isPinned && R.bottom > 0)))) { clearFly(); return; }
       // Mot entièrement formé et personne ne le touche : l’image du mot est posée dans la page elle-même
       // (elle défile avec le texte, sans aucun décalage), et le calque des fourmis en promenade est vidé.
-      const still = p * 1.35 - maxD >= .66 && (!pointer || pointerIdle());
+      const still = p * 1.35 - maxD >= .66;
       if (still) {
         if (!formed) formed = bake();
         if (reduced) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH); ctx.globalAlpha = 1; ctx.drawImage(formed, X0, Y0, W, H); }
         else { clearFly(); inPage(true); liveWord(t); }
         cv.parentElement.classList.toggle('fx-formed', true);
-        for (const q of P) { q.ox *= .9; q.oy *= .9; }
         return;
       }
       if (!reduced) inPage(false);

@@ -458,6 +458,12 @@ html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
 /* panneaux collants : jamais de transformation sur eux (sinon ils tremblent pendant le défilement) */
 .fx-spirit-pin,.fx-swarm-pin,.fx-zoom-pin{transform:none!important}
 
-/* Nos actions : images qui s’ouvrent en profondeur */
-.fx-open{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;box-shadow:var(--sh-hi);will-change:transform}
-.fx-open img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}
+/* Nos actions : photos qui s’assemblent en bandes */
+.fx-strips{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;will-change:transform}
+.fx-strips img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}
+html.ap-scenes .fx-strips img{opacity:0}
+html.ap-scenes .fx-strips.fx-strips-done img{opacity:1}
+.fx-strips > i{position:absolute;top:0;bottom:0;width:calc(20% + 1px);background-size:500% 100%;background-repeat:no-repeat;will-change:transform,opacity}
+.fx-strips.fx-strips-done > i{visibility:hidden}
+html.ap-reduced .fx-strips > i{display:none}
+.fx-strips{transition:box-shadow .6s}.fx-strips.fx-strips-done{box-shadow:var(--sh-hi)}

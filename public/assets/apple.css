@@ -344,3 +344,15 @@ header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);col
 .testimonials .tm-free-t{font-weight:700;font-size:17px;color:var(--ink,#142f46)}
 .card-img{display:block;cursor:pointer}
 .stack-card a.win{display:block;cursor:pointer}
+
+/* Domaines d’activité : Formation (bleu), Animation (orange), Interventions (vert) */
+.dom{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1}
+.dom img{width:24px;height:24px;object-fit:contain;flex:none}
+.dom + .eyebrow{display:block}
+.dom-formation{color:#1f4f8f}.dom-animation{color:#b75a22}.dom-interventions{color:#1d7a62}
+.dom-logo{display:block;width:min(380px,82%);height:auto;margin:0 0 22px}
+.page-intro .dom-logo{margin-left:auto;margin-right:auto}
+.fo-hero .dom-logo{margin-left:auto;margin-right:auto}
+.dom-logo-paper{width:min(150px,40%)}
+.trainer-logo{display:block;width:110px;height:auto;margin:0 0 14px}
+.footer-logo{height:auto!important}

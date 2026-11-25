@@ -82,7 +82,13 @@
       mask = { data, ow, oh };
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      const n = Math.min(pts.length, W < 600 ? 950 : 1600);
+      let n = Math.min(pts.length, W < 600 ? 950 : 1600);
+      // places réparties sur une grille régulière (et non tirées au hasard) : le mot est rempli uniformément
+      if (pts.length > n) {
+        const st2 = step * Math.sqrt(pts.length / n); pts.length = 0;
+        for (let y = st2 / 2; y < oh; y += st2) for (let x = ((y / st2) | 0) % 2 ? st2 / 2 : 0; x < ow; x += st2) { const X = x | 0, Y = y | 0; if (data[(Y * ow + X) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * st2 * .35, y + (Math.random() - .5) * st2 * .35]); }
+        n = pts.length;
+      }
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
       RH = zoneH();
@@ -90,7 +96,7 @@
         x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
         hid: Math.random() < .62,   // la plupart restent invisibles pendant la promenade et n’apparaissent qu’en rejoignant le mot
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
-        ra: Math.random() * Math.PI * 2, wv: .3 + Math.random() * .45
+        ra: Math.random() * Math.PI * 2, wv: .25 + Math.random() * .3
       }));
       grain = Math.max(1.5, step * (W < 600 ? .78 : .95));
       maxD = Math.max(...P.map(q => q.d)); formed = null; liveGrad = null;
@@ -169,12 +175,16 @@
     // qui reste dans la lettre et longe le bord (pas de demi-tours sur place). L’orientation affichée suit le cap en douceur.
     const TRY = [.35, -.35, .7, -.7, 1.1, -1.1, 1.6, -1.6, 2.2, -2.2, 2.8, -2.8];
     function walk(q) {
+      if (q.hx === undefined) { q.hx = q.tx; q.hy = q.ty; }
+      // chacune garde sa place attitrée (répartition uniforme du mot) et se promène autour, sans trop s’en éloigner
+      const lim = grain * 4, dx = q.hx - q.tx, dy = q.hy - q.ty, dd = dx * dx + dy * dy;
+      if (dd > lim * lim) { const to = Math.atan2(dy, dx); let d = to - q.ra; d = Math.atan2(Math.sin(d), Math.cos(d)); q.ra += d * .25; }
       q.ra += (Math.random() - .5) * .16;
       let nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv;
       if (!inside(nx, ny)) {
         let ok = false;
         for (const da of TRY) { const a = q.ra + da, x = q.tx + Math.cos(a) * q.wv * 2.5, y = q.ty + Math.sin(a) * q.wv * 2.5; if (inside(x, y)) { q.ra = a; ok = true; break; } }
-        if (!ok) { q.ra += Math.PI; return; }
+        if (!ok) { q.ra = Math.atan2(q.hy - q.ty, q.hx - q.tx); nx = q.tx + Math.cos(q.ra) * q.wv; ny = q.ty + Math.sin(q.ra) * q.wv; q.tx = nx; q.ty = ny; return; }
         nx = q.tx + Math.cos(q.ra) * q.wv; ny = q.ty + Math.sin(q.ra) * q.wv;
         if (!inside(nx, ny)) return;
       }
@@ -348,24 +358,31 @@
   // et un reflet de lumière glisse dessus. Transformations seules (fluides à la fréquence de l’écran).
   const LIVE = [];
   // Les photos de « Nos actions » reçoivent un cadre pour l’inclinaison et le reflet.
-  // Nos actions : chaque image s’ouvre en profondeur au défilement (façon Apple) — le cadre pivote vers vous en grandissant
-  // pendant que la photo se dézoome à l’intérieur ; le sens alterne d’une action à l’autre (image à gauche ou à droite).
-  document.querySelectorAll('main .split img.photo').forEach((img, i) => {
+  // Nos actions : chaque photo arrive en cinq bandes qui glissent en sens opposés (une sur deux par le haut,
+  // une sur deux par le bas) et s’assemblent au défilement — comme les fourmis qui se rassemblent.
+  document.querySelectorAll('main .split img.photo').forEach(img => {
     if (!/nos-actions/.test(location.pathname)) return;
-    const w = document.createElement('span'); w.className = 'fx-open';
+    const w = document.createElement('span'); w.className = 'fx-strips';
     img.parentNode.insertBefore(w, img); w.append(img);
-    img.classList.add('fx-cur-in', 'fx-cur-done');   // plus de rideau : l’ouverture le remplace
+    img.classList.add('fx-cur-in', 'fx-cur-done');   // plus de rideau : l’assemblage le remplace
     if (reduced) return;
-    const split = img.closest('.split'), right = split && split.firstElementChild && !split.firstElementChild.contains(w);
-    const dir = right ? -1 : 1; let last = '';
+    const N = 5, strips = [];
+    for (let i = 0; i < N; i++) { const s = document.createElement('i'); s.setAttribute('aria-hidden', 'true'); s.style.left = (i * 100 / N) + '%'; s.style.backgroundPosition = (i / (N - 1) * 100) + '% 0'; w.append(s); strips.push(s); }
+    const setSrc = () => strips.forEach(s => { s.style.backgroundImage = `url("${img.currentSrc || img.src}")`; });
+    img.complete ? setSrc() : img.addEventListener('load', setSrc, { once: true });
+    let last = '';
     whenVisible(w, () => {
-      const r = box(w), e = ease(clamp((VH * 1.02 - r.top) / (VH * .78))), k = e.toFixed(3); if (k === last) return; last = k;
-      w.style.transformOrigin = right ? '100% 50%' : '0% 50%';
-      w.style.transform = `perspective(1400px) rotateY(${(dir * 16 * (1 - e)).toFixed(2)}deg) scale(${lerp(.8, 1, e).toFixed(4)})`;
-      w.style.opacity = lerp(.25, 1, e).toFixed(3);
-      img.style.setProperty('--ps', lerp(1.42, 1.06, e).toFixed(4));
+      const r = box(w), e = clamp((VH * 1.05 - r.top) / (VH * .8)), k = e.toFixed(3); if (k === last) return; last = k;
+      const done = e >= .999; w.classList.toggle('fx-strips-done', done);
+      strips.forEach((s, i) => {
+        const t = ease(clamp(e * 1.5 - i * .12)), dir = i % 2 ? -1 : 1;
+        s.style.transform = `translate3d(0,${(dir * (1 - t) * 70).toFixed(2)}%,0)`;
+        s.style.opacity = clamp(t * 1.6).toFixed(3);
+      });
+      w.style.transform = `scale(${lerp(.9, 1, ease(e)).toFixed(4)})`;
     }, '0px');
   });
+
   // Autres visuels qui vivent aussi : cartes « à la une » de l’accueil, outils VSS des Ressources.
   document.querySelectorAll('.stack-card .win img, #vss img').forEach(img => {
     if (img.closest('.fx-live-img')) return;

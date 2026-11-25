@@ -99,7 +99,7 @@ html.theme-verre footer p,html.theme-verre .footer-bottom{color:#5b6b7a}
 html.theme-verre footer a{color:#1f3a52}html.theme-verre footer a:hover{color:#2b5bd7}
 html.theme-verre footer h2{color:var(--navy)}
 html.theme-verre .footer-bottom{border-color:rgba(20,47,70,.10)}
-html.theme-verre .footer-logo{content:url(logo-transparent.png);background:transparent!important;box-shadow:none!important;padding:0!important;border-radius:0}
+html.theme-verre .footer-logo{content:url(logos/fourmiaction-principal.png);background:transparent!important;box-shadow:none!important;padding:0!important;border-radius:0}
 html.theme-verre footer em{background-image:var(--grad)}
 
 /* ---------- Bandeau « Nouveau » : une capsule de verre ---------- */

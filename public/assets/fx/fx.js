@@ -272,7 +272,7 @@
     const R = 28; let s0 = .8, g0 = -1, last = '';
     const frame = () => {
       if (getComputedStyle(pin).position !== 'sticky') { if (last) { el.style.transform = ''; el.style.borderRadius = ''; last = ''; } return; }
-      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.74, Math.max(.5, cw * .82 / (el.offsetWidth || innerWidth))); }
+      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.55, Math.max(.42, cw * .6 / (el.offsetWidth || innerWidth))); }   // départ nettement plus petit : le zoom se voit
       const r = box(sec), run = Math.max(1, r.height - VH);
       const p = ease(clamp((-r.top + VH * .15) / (run * .62 + VH * .15)));
       const s = lerp(s0, 1, p), k = s.toFixed(4); if (k === last) return; last = k;

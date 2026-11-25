@@ -231,7 +231,7 @@
     const R = 28; let s0 = .8, g0 = -1, last = '';
     const frame = () => {
       if (getComputedStyle(pin).position !== 'sticky') { if (last) { el.style.transform = ''; el.style.borderRadius = ''; last = ''; } return; }
-      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.92, Math.max(.5, cw / innerWidth)); }
+      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.74, Math.max(.5, cw * .82 / (el.offsetWidth || innerWidth))); }
       const r = box(sec), run = Math.max(1, r.height - VH);
       const p = ease(clamp((-r.top + VH * .15) / (run * .62 + VH * .15)));
       const s = lerp(s0, 1, p), k = s.toFixed(4); if (k === last) return; last = k;
@@ -293,6 +293,14 @@
     const w = document.createElement('span'); w.className = 'fx-live-img';
     img.parentNode.insertBefore(w, img); w.append(img);
   });
+  // Autres visuels qui vivent aussi : cartes « à la une » de l’accueil, outils VSS des Ressources.
+  document.querySelectorAll('.stack-card .win img, #vss img').forEach(img => {
+    if (img.closest('.fx-live-img')) return;
+    const cs = getComputedStyle(img), w = document.createElement('span'); w.className = 'fx-live-img fx-live-plain';
+    const rad = parseFloat(cs.borderTopLeftRadius); if (rad) w.style.borderRadius = cs.borderTopLeftRadius;
+    if (parseFloat(cs.marginBottom)) { w.style.marginBottom = cs.marginBottom; img.style.marginBottom = '0'; }
+    img.parentNode.insertBefore(w, img); w.append(img);
+  });
   document.querySelectorAll('.tk-in, .h2-photo, .fx-live-img').forEach((el, i) => {
     const host = el.querySelector('.tk-card') || el;
     const g = document.createElement('span'); g.className = 'fx-glare'; g.setAttribute('aria-hidden', 'true'); host.append(g);
@@ -313,17 +321,62 @@
       const t = now / 1000, r = box(c.el.parentElement || c.el);
       // mouvement de repos : lent, ample sur téléphone, plus discret sur ordinateur
       if (c.kind === 'hero' && coarse && !c.el.closest('.h2-open')) return;
-      const k = (coarse ? .95 : .45) * (c.kind === 'hero' ? 1.25 : 1), sp = coarse ? 2 : 1;
+      // au repos, les visuels bougent franchement (ordinateur comme téléphone) : le site est vivant, pas figé
+      const k = (coarse ? 1 : .95) * (c.kind === 'hero' ? 1.2 : 1), sp = coarse ? 2 : 1.5;
       let ix = (Math.sin(t * .7 * sp + c.ph) * .7 + Math.sin(t * .31 * sp + c.ph * 2) * .3) * k;
       let iy = (Math.cos(t * .55 * sp + c.ph) * .6 + ((r.top + r.height / 2) / VH - .5) * .8) * k;
       if (c.on) { ix = c.px; iy = c.py; }
-      const f = c.on ? .16 : (coarse ? .1 : .06);
+      const f = c.on ? .16 : .08;
       c.x += (ix - c.x) * f; c.y += (iy - c.y) * f;
       const [ay, ax] = AMP[c.kind];
       c.el.style.transform = `perspective(1000px) rotateY(${(c.x * ay).toFixed(2)}deg) rotateX(${(-c.y * ax).toFixed(2)}deg) translateZ(0)`;
       c.g.style.transform = `translate3d(${(c.x * 32).toFixed(2)}%,${(c.y * 32).toFixed(2)}%,0)`;
-      c.g.style.opacity = c.on ? 1 : (coarse ? .85 : .55);
+      c.g.style.opacity = c.on ? 1 : .85;
     });
+  });
+
+  /* ---------------------------------------------------------------- 3 bis. Les billets des sessions BAFA se distribuent */
+  // Au défilement, chaque billet arrive de biais et se pose à sa place (un léger décalage de l’un à l’autre),
+  // puis la ligne du trajet se trace du premier au dernier jour.
+  document.querySelectorAll('.fo-sessions').forEach(wrap => {
+    const ts = [...wrap.querySelectorAll('.fo-ticket')]; if (!ts.length || reduced) return;
+    wrap.classList.add('fx-deal'); const last = [];
+    whenVisible(wrap, () => {
+      const tops = ts.map(t => box(t).top), row = Math.abs(tops[0] - tops[tops.length - 1]) < 30;
+      ts.forEach((t, i) => {
+        const p = clamp((VH * .96 - tops[i]) / (VH * .5) - (row ? i * .2 : 0));
+        const d = ease(clamp(p * 1.15)), dr = ease(clamp(p * 1.7 - .7)), k = d.toFixed(3) + dr.toFixed(3);
+        if (last[i] === k) return; last[i] = k;
+        t.style.setProperty('--d', d.toFixed(3)); t.style.setProperty('--dr', dr.toFixed(3));
+      });
+    }, '0px');
+  });
+
+  /* ---------------------------------------------------------------- 3 ter. L’Esprit Fourmi : la liste qui s’allume, épinglée */
+  // Ordinateur : la section reste à l’écran, chaque phrase s’allume à son tour et la phrase en cours est mise en avant.
+  // Téléphone : même allumage, au fil du défilement normal.
+  document.querySelectorAll('.fx-pinlist').forEach(sec => {
+    const pin = sec.querySelector('.fx-spirit-pin'), ul = sec.querySelector('ul'), items = [...sec.querySelectorAll('li')];
+    if (!pin || !items.length || reduced) return;
+    let lit = -2, g0 = -1, pinned = false;
+    whenVisible(sec, () => {
+      if (g0 !== gen) { g0 = gen; pinned = getComputedStyle(pin).position === 'sticky'; }
+      let p;
+      if (pinned) { const r = box(sec), run = Math.max(1, r.height - VH); p = clamp((-r.top + VH * .12) / (run * .82)); }
+      else { const r = box(ul); p = clamp((VH * .72 - r.top) / (r.height + VH * .25)); }
+      const n = Math.round(p * items.length); if (n === lit) return; lit = n;
+      items.forEach((it, i) => { it.classList.toggle('on', i < n); it.classList.toggle('cur', pinned && i === n - 1); });
+    }, '0px');
+  });
+
+  /* ---------------------------------------------------------------- 3 quater. Les grands titres qui se posent */
+  // Le titre arrive très grand et transparent, puis se pose à sa taille au fil du défilement.
+  document.querySelectorAll('.fx-settle').forEach(el => {
+    if (reduced) return; let last = '';
+    whenVisible(el, () => {
+      const r = box(el), t = ease(clamp((VH * .98 - r.top) / (VH * .55))), k = t.toFixed(3); if (k === last) return; last = k;
+      el.style.transform = `scale(${lerp(coarse ? 1.3 : 1.42, 1, t).toFixed(4)})`; el.style.opacity = lerp(.12, 1, t).toFixed(3);
+    }, '0px');
   });
 
   /* ---------------------------------------------------------------- 4. Le titre qui tourne */

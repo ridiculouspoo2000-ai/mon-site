@@ -217,10 +217,12 @@
         if (q.x < 4 || q.x > VW - 4) { q.a = Math.PI - q.a; q.x = clamp(q.x, 4, VW - 4); }
         if (q.y < 4 || q.y > RH - 4) { q.a = -q.a; q.y = clamp(q.y, 4, RH - 4); }
         const k = ease(clamp((p * 1.35 - q.d) / .65));
+        // une fois arrivées (ou presque), elles fourmillent déjà dans leur lettre, comme quand le mot est fini
+        if (k > .5) { q.ra += (Math.random() - .5) * .45; const nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv; if (inside(nx, ny)) { q.tx = nx; q.ty = ny; } else q.ra += Math.PI * (.75 + Math.random() * .5); }
         // Au doigt ou à la souris : elles s’écartent, puis reviennent.
         if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
         q.ox *= .9; q.oy *= .9;
-        const x = lerp(q.x, X0 + q.tx + Math.sin(t * 1.3 + q.ph) * .5, k) + q.ox * k, y = lerp(ZT + q.y, Y0 + q.ty + Math.cos(t * 1.1 + q.ph) * .5, k) + q.oy * k;
+        const x = lerp(q.x, X0 + q.tx, k) + q.ox * k, y = lerp(ZT + q.y, Y0 + q.ty, k) + q.oy * k;
         if (x < -6 || x > VW + 6 || y < -6 || y > VH + 6) continue;
         const b = Math.min(BUCKETS - 1, Math.round(k * (BUCKETS - 1)));
         const sz = lerp(1.2, grain * .62, k);

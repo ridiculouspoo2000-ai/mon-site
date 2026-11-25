@@ -358,30 +358,33 @@
   // et un reflet de lumière glisse dessus. Transformations seules (fluides à la fréquence de l’écran).
   const LIVE = [];
   // Les photos de « Nos actions » reçoivent un cadre pour l’inclinaison et le reflet.
-  // Nos actions : chaque photo arrive en cinq bandes qui glissent en sens opposés (une sur deux par le haut,
-  // une sur deux par le bas) et s’assemblent au défilement — comme les fourmis qui se rassemblent.
-  document.querySelectorAll('main .split img.photo').forEach(img => {
+  // Nos actions (ordinateur) : façon pages produits d’Apple — un grand cadre reste fixe à gauche pendant que les
+  // quatre actions défilent à droite ; quand une action arrive au centre de l’écran, sa photo s’installe dans le cadre
+  // (fondu et léger recul), avec son domaine. Sur téléphone, la page garde une photo par action.
+  (() => {
     if (!/nos-actions/.test(location.pathname)) return;
-    const w = document.createElement('span'); w.className = 'fx-strips';
-    img.parentNode.insertBefore(w, img); w.append(img);
-    img.classList.add('fx-cur-in', 'fx-cur-done');   // plus de rideau : l’assemblage le remplace
-    if (reduced) return;
-    const N = 5, strips = [];
-    for (let i = 0; i < N; i++) { const s = document.createElement('i'); s.setAttribute('aria-hidden', 'true'); s.style.left = (i * 100 / N) + '%'; s.style.backgroundPosition = (i / (N - 1) * 100) + '% 0'; w.append(s); strips.push(s); }
-    const setSrc = () => strips.forEach(s => { s.style.backgroundImage = `url("${img.currentSrc || img.src}")`; });
-    img.complete ? setSrc() : img.addEventListener('load', setSrc, { once: true });
-    let last = '';
-    whenVisible(w, () => {
-      const r = box(w), e = clamp((VH * 1.05 - r.top) / (VH * .8)), k = e.toFixed(3); if (k === last) return; last = k;
-      const done = e >= .999; w.classList.toggle('fx-strips-done', done);
-      strips.forEach((s, i) => {
-        const t = ease(clamp(e * 1.5 - i * .12)), dir = i % 2 ? -1 : 1;
-        s.style.transform = `translate3d(0,${(dir * (1 - t) * 70).toFixed(2)}%,0)`;
-        s.style.opacity = clamp(t * 1.6).toFixed(3);
-      });
-      w.style.transform = `scale(${lerp(.9, 1, ease(e)).toFixed(4)})`;
-    }, '0px');
-  });
+    const secs = [...document.querySelectorAll('main section.split[id^="action-"]')]; if (secs.length < 2) return;
+    const feat = document.createElement('div'); feat.className = 'na-feature';
+    const stage = document.createElement('div'); stage.className = 'na-stage'; stage.setAttribute('aria-hidden', 'true');
+    const col = document.createElement('div'); col.className = 'na-steps';
+    secs[0].before(feat); feat.append(stage, col);
+    const frames = secs.map(sec => {
+      const img = sec.querySelector('img.photo'), f = document.createElement('figure'); f.className = 'na-frame';
+      const im = new Image(); im.alt = ''; im.decoding = 'async';
+      const src = img ? (img.getAttribute('src') || '') : '';
+      im.src = src; if (/collectif-affiche/.test(src)) f.classList.add('na-contain');   // l’affiche est montrée entière
+      f.append(im);
+      const dom = sec.querySelector('.dom'); if (dom) { const d = dom.cloneNode(true); d.classList.add('na-dom'); f.append(d); }
+      stage.append(f); col.append(sec); return f;
+    });
+    const dots = document.createElement('div'); dots.className = 'na-dots'; secs.forEach(() => dots.append(document.createElement('i'))); stage.append(dots);
+    let cur = -1;
+    const set = i => { if (i === cur) return; cur = i;
+      frames.forEach((f, k) => { f.classList.toggle('on', k === i); f.classList.toggle('past', k < i); });
+      secs.forEach((s, k) => s.classList.toggle('is-active', k === i)); [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i)); };
+    set(0);
+    if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) set(secs.indexOf(en.target)); }), { rootMargin: '-48% 0px -48% 0px' }); secs.forEach(s => io.observe(s)); }
+  })();
 
   // Autres visuels qui vivent aussi : cartes « à la une » de l’accueil, outils VSS des Ressources.
   document.querySelectorAll('.stack-card .win img, #vss img').forEach(img => {

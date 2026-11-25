@@ -458,12 +458,28 @@ html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
 /* panneaux collants : jamais de transformation sur eux (sinon ils tremblent pendant le défilement) */
 .fx-spirit-pin,.fx-swarm-pin,.fx-zoom-pin{transform:none!important}
 
-/* Nos actions : photos qui s’assemblent en bandes */
-.fx-strips{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;will-change:transform}
-.fx-strips img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}
-html.ap-scenes .fx-strips img{opacity:0}
-html.ap-scenes .fx-strips.fx-strips-done img{opacity:1}
-.fx-strips > i{position:absolute;top:0;bottom:0;width:calc(20% + 1px);background-size:500% 100%;background-repeat:no-repeat;will-change:transform,opacity}
-.fx-strips.fx-strips-done > i{visibility:hidden}
-html.ap-reduced .fx-strips > i{display:none}
-.fx-strips{transition:box-shadow .6s}.fx-strips.fx-strips-done{box-shadow:var(--sh-hi)}
+
+
+/* Nos actions — scène façon Apple : cadre fixe à gauche, actions qui défilent à droite (ordinateur) */
+.na-stage{display:none}
+@media(min-width:901px){
+.na-feature{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:76px;width:min(1180px,calc(100% - 64px));margin:0 auto;align-items:start}
+.na-stage{display:block;position:sticky;top:max(96px,calc(50vh - 250px));aspect-ratio:6/5;border-radius:30px;overflow:hidden;background:#e9ecf2;box-shadow:0 40px 90px rgba(20,47,70,.22),0 6px 16px rgba(20,47,70,.08)}
+.na-frame{position:absolute;inset:0;margin:0;opacity:0;transform:scale(1.1);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform 1.8s cubic-bezier(.16,.8,.2,1)}
+.na-frame.past{transform:scale(.94)}
+.na-frame.on{opacity:1;transform:scale(1)}
+.na-frame > img{display:block;width:100%;height:100%;object-fit:cover}
+.na-frame.na-contain{background:#f3f4f8}
+.na-frame.na-contain > img{object-fit:contain;padding:0 18px}
+.na-dom img{width:24px!important;height:24px!important}
+.na-dom{position:absolute;left:20px;bottom:20px;margin:0;padding:9px 15px 9px 11px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 8px 24px rgba(20,47,70,.18);opacity:0;transform:translateY(10px);transition:opacity .6s .35s,transform .8s .35s cubic-bezier(.2,.7,.2,1)}
+.na-frame.on .na-dom{opacity:1;transform:none}
+.na-dots{position:absolute;right:20px;top:50%;margin-top:-40px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.na-dots i{display:block;width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.55);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:height .5s cubic-bezier(.2,.7,.2,1),background .4s}
+.na-dots i.on{height:26px;background:#fff}
+.na-steps .split{display:flex;flex-direction:column;justify-content:center;min-height:84vh;width:auto;max-width:none;margin:0;padding:0}
+.na-steps .split > div:first-child{display:none}
+.na-steps .split > div:last-child{transform:none!important;opacity:.26!important;transition:opacity .7s cubic-bezier(.2,.7,.2,1)!important}
+.na-steps .split.is-active > div:last-child{opacity:1!important}
+}
+html.ap-reduced .na-frame{transition:none}

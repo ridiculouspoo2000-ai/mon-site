@@ -456,3 +456,7 @@ html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
 .fx-settle{transform-origin:left 60%;will-change:transform}
 /* panneaux collants : jamais de transformation sur eux (sinon ils tremblent pendant le défilement) */
 .fx-spirit-pin,.fx-swarm-pin,.fx-zoom-pin{transform:none!important}
+
+/* Nos actions : images qui s’ouvrent en profondeur */
+.fx-open{position:relative;display:block;border-radius:var(--r-xl,28px);overflow:hidden;box-shadow:var(--sh-hi);will-change:transform}
+.fx-open img{display:block;width:100%;border-radius:0!important;box-shadow:none!important}

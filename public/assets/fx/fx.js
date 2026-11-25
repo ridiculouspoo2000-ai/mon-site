@@ -79,9 +79,10 @@
       o.font = `800 ${size}px "FA Display", "FA Inter", -apple-system, sans-serif`;
       o.textAlign = 'center'; o.textBaseline = 'middle'; o.fillText(word, ow / 2, oh * .52);
       const data = o.getImageData(0, 0, ow, oh).data, pts = [];
+      mask = { data, ow, oh };
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      const n = Math.min(pts.length, W < 600 ? 1300 : 2300);
+      const n = Math.min(pts.length, W < 600 ? 950 : 1600);
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
       RH = zoneH();
@@ -89,33 +90,53 @@
         x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
         hid: Math.random() < .62,   // la plupart restent invisibles pendant la promenade et n’apparaissent qu’en rejoignant le mot
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
-        ra: Math.random() * Math.PI
+        ra: Math.random() * Math.PI, wv: .1 + Math.random() * .22
       }));
       grain = Math.max(1.5, step * (W < 600 ? .78 : .95));
-      maxD = Math.max(...P.map(q => q.d)); formed = null;
+      maxD = Math.max(...P.map(q => q.d)); formed = null; liveGrad = null;
       ready = true;
     }
     // Planche de fourmis pré-dessinées (24 orientations) : pendant la promenade, on copie de petites images
     // au lieu de tracer des milliers de formes à chaque image (bien plus fluide, même sur téléphone).
-    const ANG = 24, SPR = [], SB = 1.2, SS = 9;
+    // Chaque fourmi : abdomen, thorax, tête, deux antennes et six pattes, dessinées en deux temps de marche
+    // (les pattes avancent en alternance : trois d’un côté, trois de l’autre).
+    const ANG = 24, SPR = [], SB = 1.2, SS = 11;
+    function antShape(g, sz, f) {
+      g.beginPath();
+      g.ellipse(-sz * 1.05, 0, sz * 1.2, sz * .74, 0, 0, 6.2832);       // abdomen
+      g.moveTo(sz * .5, 0); g.arc(0, 0, sz * .5, 0, 6.2832);             // thorax
+      g.moveTo(sz * 1.45, 0); g.arc(sz * .95, 0, sz * .52, 0, 6.2832);   // tête
+      g.fill();
+      g.beginPath(); g.lineWidth = sz * .26; g.lineCap = 'round';
+      const sw = f ? 1 : -1;
+      [-.55, 0, .55].forEach((lx, i) => {            // trois paires de pattes
+        const k = (i % 2 ? -1 : 1) * sw * .45;
+        g.moveTo(lx * sz * .6, 0); g.lineTo((lx + k) * sz * 1.2, -sz * 1.35);
+        g.moveTo(lx * sz * .6, 0); g.lineTo((lx - k) * sz * 1.2, sz * 1.35);
+      });
+      g.moveTo(sz * 1.3, -sz * .2); g.lineTo(sz * 2.05, -sz * .85);    // antennes
+      g.moveTo(sz * 1.3, sz * .2); g.lineTo(sz * 2.05, sz * .85);
+      g.stroke();
+    }
     function sprites() {
       SPR.length = 0;
       for (let i = 0; i < ANG; i++) {
-        const c = document.createElement('canvas'); c.width = c.height = Math.ceil(SS * dpr * 2);
-        const g = c.getContext('2d'); g.setTransform(dpr * 2, 0, 0, dpr * 2, 0, 0); g.translate(SS / 2, SS / 2);
-        const ang = i / ANG * Math.PI * 2, ca = Math.cos(ang), sa = Math.sin(ang), sz = SB;
-        g.fillStyle = '#142f46'; g.beginPath();
-        g.ellipse(-ca * sz * .9, -sa * sz * .9, sz * 1.25, sz * .78, ang, 0, 6.2832);
-        g.moveTo(ca * sz * 1.05 + sz * .7, sa * sz * 1.05); g.arc(ca * sz * 1.05, sa * sz * 1.05, sz * .7, 0, 6.2832); g.fill();
-        SPR.push(c);
+        const pair = [];
+        for (let f = 0; f < 2; f++) {
+          const c = document.createElement('canvas'); c.width = c.height = Math.ceil(SS * dpr * 2);
+          const g = c.getContext('2d'); g.setTransform(dpr * 2, 0, 0, dpr * 2, 0, 0); g.translate(SS / 2, SS / 2);
+          g.rotate(i / ANG * Math.PI * 2); g.fillStyle = g.strokeStyle = '#142f46';
+          antShape(g, SB, f); pair.push(c);
+        }
+        SPR.push(pair);
       }
     }
-    let formed = null, maxD = 1, lastMove = 0, shownInPage = false;
+    let formed = null, maxD = 1, lastMove = 0, shownInPage = false, mask = null;
     // le mot formé, posé dans le canevas de la page (il défile avec le texte)
     function inPage(on) {
       if (on === shownInPage) return; shownInPage = on;
       const c2 = cv.getContext('2d');
-      if (on) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); c2.setTransform(1, 0, 0, 1, 0, 0); c2.drawImage(formed, 0, 0, cv.width, cv.height); cv.classList.add('fx-inpage'); }
+      if (on) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.classList.add('fx-inpage'); }
       else { c2.setTransform(1, 0, 0, 1, 0, 0); c2.clearRect(0, 0, cv.width, cv.height); cv.classList.remove('fx-inpage'); }
     }
     const pointerIdle = () => performance.now() - lastMove > 900 && P.every(q => Math.abs(q.ox) + Math.abs(q.oy) < .3);
@@ -139,6 +160,26 @@
       if (pinned()) { const s = box(sec), vh = VH || innerHeight, run = Math.max(1, s.height - vh); return clamp((vh * .35 - s.top) / (run * .78 + vh * .35)); }
       const c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42));
     };
+    // Mot formé : les fourmis continuent de marcher, chacune dans sa lettre. Si son prochain pas sort de la lettre,
+    // elle fait demi-tour ; le mot reste donc lisible. Dessin dans le canevas de la page (il défile avec le texte),
+    // puis le dégradé de la marque est appliqué d’un coup sur toutes les fourmis.
+    const inside = (x, y) => { if (!mask) return true; const X = x | 0, Y = y | 0; if (X < 0 || Y < 0 || X >= mask.ow || Y >= mask.oh) return false; return mask.data[(Y * mask.ow + X) * 4 + 3] > 120; };
+    let liveGrad = null;
+    function liveWord(t) {
+      const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+      const sz = grain * .5, d = SS * sz / SB;
+      for (const q of P) {
+        q.ra += (Math.random() - .5) * .45;
+        const nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv;
+        if (inside(nx, ny)) { q.tx = nx; q.ty = ny; } else q.ra += Math.PI * (.75 + Math.random() * .5);
+        const ai = Math.round(((q.ra % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG;
+        g.drawImage(SPR[ai][((t * 7 + q.ph) | 0) & 1], q.tx - d / 2, q.ty - d / 2, d, d);
+      }
+      if (!liveGrad) { liveGrad = g.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => liveGrad.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); }
+      g.globalCompositeOperation = 'source-in'; g.fillStyle = liveGrad; g.fillRect(0, 0, W, H);
+      g.globalCompositeOperation = 'source-over';
+    }
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
@@ -157,7 +198,7 @@
       if (still) {
         if (!formed) formed = bake();
         if (reduced) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH); ctx.globalAlpha = 1; ctx.drawImage(formed, X0, Y0, W, H); }
-        else { clearFly(); inPage(true); }
+        else { clearFly(); inPage(true); liveWord(t); }
         cv.parentElement.classList.toggle('fx-formed', true);
         for (const q of P) { q.ox *= .9; q.oy *= .9; }
         return;
@@ -184,7 +225,7 @@
           const d = SS * sz / SB;
           const vis = (q.hid ? clamp((k - .08) / .25) : 1) * lerp(clamp(q.y / 160), 1, k); if (vis <= .01) continue;   // invisibles au départ ; fondu sur le bord haut de la zone
           ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1)) * vis;
-          ctx.drawImage(SPR[ai], x - d / 2, y - d / 2, d, d);
+          ctx.drawImage(SPR[ai][((t * 9 + q.ph) | 0) & 1], x - d / 2, y - d / 2, d, d);
           continue;
         }
         // une petite fourmi (abdomen + tête) posée à sa place dans le mot
@@ -288,10 +329,23 @@
   // et un reflet de lumière glisse dessus. Transformations seules (fluides à la fréquence de l’écran).
   const LIVE = [];
   // Les photos de « Nos actions » reçoivent un cadre pour l’inclinaison et le reflet.
-  document.querySelectorAll('main .split img.photo').forEach(img => {
+  // Nos actions : chaque image s’ouvre en profondeur au défilement (façon Apple) — le cadre pivote vers vous en grandissant
+  // pendant que la photo se dézoome à l’intérieur ; le sens alterne d’une action à l’autre (image à gauche ou à droite).
+  document.querySelectorAll('main .split img.photo').forEach((img, i) => {
     if (!/nos-actions/.test(location.pathname)) return;
-    const w = document.createElement('span'); w.className = 'fx-live-img';
+    const w = document.createElement('span'); w.className = 'fx-open';
     img.parentNode.insertBefore(w, img); w.append(img);
+    img.classList.add('fx-cur-in', 'fx-cur-done');   // plus de rideau : l’ouverture le remplace
+    if (reduced) return;
+    const split = img.closest('.split'), right = split && split.firstElementChild && !split.firstElementChild.contains(w);
+    const dir = right ? -1 : 1; let last = '';
+    whenVisible(w, () => {
+      const r = box(w), e = ease(clamp((VH * 1.02 - r.top) / (VH * .78))), k = e.toFixed(3); if (k === last) return; last = k;
+      w.style.transformOrigin = right ? '100% 50%' : '0% 50%';
+      w.style.transform = `perspective(1400px) rotateY(${(dir * 16 * (1 - e)).toFixed(2)}deg) scale(${lerp(.8, 1, e).toFixed(4)})`;
+      w.style.opacity = lerp(.25, 1, e).toFixed(3);
+      img.style.setProperty('--ps', lerp(1.42, 1.06, e).toFixed(4));
+    }, '0px');
   });
   // Autres visuels qui vivent aussi : cartes « à la une » de l’accueil, outils VSS des Ressources.
   document.querySelectorAll('.stack-card .win img, #vss img').forEach(img => {

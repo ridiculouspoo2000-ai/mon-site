@@ -342,3 +342,5 @@ header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);col
 .testimonials .tm-by span{color:var(--muted)}
 .testimonials .tm-free{border:1.5px dashed rgba(93,83,211,.35)!important;background:transparent!important;box-shadow:none!important}
 .testimonials .tm-free-t{font-weight:700;font-size:17px;color:var(--ink,#142f46)}
+.card-img{display:block;cursor:pointer}
+.stack-card a.win{display:block;cursor:pointer}

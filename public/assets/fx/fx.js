@@ -90,7 +90,7 @@
         x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
         hid: Math.random() < .62,   // la plupart restent invisibles pendant la promenade et n’apparaissent qu’en rejoignant le mot
         tx: t[0], ty: t[1], d: Math.random() * .35 + (t[0] - minX) / (maxX - minX || 1) * .25, ox: 0, oy: 0, ph: Math.random() * 6.28,
-        ra: Math.random() * Math.PI, wv: .1 + Math.random() * .22
+        ra: Math.random() * Math.PI * 2, wv: .3 + Math.random() * .45
       }));
       grain = Math.max(1.5, step * (W < 600 ? .78 : .95));
       maxD = Math.max(...P.map(q => q.d)); formed = null; liveGrad = null;
@@ -165,18 +165,32 @@
     // puis le dégradé de la marque est appliqué d’un coup sur toutes les fourmis.
     const inside = (x, y) => { if (!mask) return true; const X = x | 0, Y = y | 0; if (X < 0 || Y < 0 || X >= mask.ow || Y >= mask.oh) return false; return mask.data[(Y * mask.ow + X) * 4 + 3] > 120; };
     let liveGrad = null; const layer = document.createElement('canvas');
+    // Marche d’une fourmi dans sa lettre : cap qui varie doucement ; au bord, elle cherche le cap le plus proche
+    // qui reste dans la lettre et longe le bord (pas de demi-tours sur place). L’orientation affichée suit le cap en douceur.
+    const TRY = [.35, -.35, .7, -.7, 1.1, -1.1, 1.6, -1.6, 2.2, -2.2, 2.8, -2.8];
+    function walk(q) {
+      q.ra += (Math.random() - .5) * .16;
+      let nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv;
+      if (!inside(nx, ny)) {
+        let ok = false;
+        for (const da of TRY) { const a = q.ra + da, x = q.tx + Math.cos(a) * q.wv * 2.5, y = q.ty + Math.sin(a) * q.wv * 2.5; if (inside(x, y)) { q.ra = a; ok = true; break; } }
+        if (!ok) { q.ra += Math.PI; return; }
+        nx = q.tx + Math.cos(q.ra) * q.wv; ny = q.ty + Math.sin(q.ra) * q.wv;
+        if (!inside(nx, ny)) return;
+      }
+      q.tx = nx; q.ty = ny;
+    }
+    const face = q => { if (q.fa === undefined) q.fa = q.ra; let d = q.ra - q.fa; d = Math.atan2(Math.sin(d), Math.cos(d)); q.fa += d * .2; return Math.round(((q.fa % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG; };
     function liveWord(t) {
       const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
       const sz = grain * .5, d = SS * sz / SB;
       for (const q of P) {
-        q.ra += (Math.random() - .5) * .45;
-        const nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv;
-        if (inside(nx, ny)) { q.tx = nx; q.ty = ny; } else q.ra += Math.PI * (.75 + Math.random() * .5);
+        walk(q);
         // loupe : à la souris ou au doigt, les fourmis s’écartent puis reviennent, sans cesser de marcher
         if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
         q.ox *= .9; q.oy *= .9;
-        const ai = Math.round(((q.ra % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG;
+        const ai = face(q);
         g.drawImage(SPR[ai][((t * 7 + q.ph) | 0) & 1], q.tx + q.ox - d / 2, q.ty + q.oy - d / 2, d, d);
       }
       if (!liveGrad) { liveGrad = g.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((c, i) => liveGrad.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); }
@@ -218,7 +232,7 @@
         if (q.y < 4 || q.y > RH - 4) { q.a = -q.a; q.y = clamp(q.y, 4, RH - 4); }
         const k = ease(clamp((p * 1.35 - q.d) / .65));
         // une fois arrivées (ou presque), elles fourmillent déjà dans leur lettre, comme quand le mot est fini
-        if (k > .5) { q.ra += (Math.random() - .5) * .45; const nx = q.tx + Math.cos(q.ra) * q.wv, ny = q.ty + Math.sin(q.ra) * q.wv; if (inside(nx, ny)) { q.tx = nx; q.ty = ny; } else q.ra += Math.PI * (.75 + Math.random() * .5); }
+        if (k > .5) walk(q);
         // Au doigt ou à la souris : elles s’écartent, puis reviennent.
         if (pointer) { const dx = q.tx + q.ox - pointer.x, dy = q.ty + q.oy - pointer.y, dd = dx * dx + dy * dy; if (dd < 4200) { const f = (4200 - dd) / 4200 * 2.4, l = Math.sqrt(dd) || 1; q.ox += dx / l * f; q.oy += dy / l * f; } }
         q.ox *= .9; q.oy *= .9;
@@ -235,7 +249,7 @@
           continue;
         }
         // en arrivant dans le mot : la même fourmi (pattes, antennes), sur le calque qui recevra le dégradé
-        const ai2 = Math.round(((q.ra % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG, d2 = SS * Math.min(sz, grain * .5) / SB;
+        const ai2 = face(q), d2 = SS * Math.min(sz, grain * .5) / SB;
         lg.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1));
         lg.drawImage(SPR[ai2][((t * 7 + q.ph) | 0) & 1], x - d2 / 2, y - d2 / 2, d2, d2);
       }
@@ -282,7 +296,6 @@
       const e = ease(clamp(p / .4)) * (1 - ease(clamp((p - .62) / .33)));
       const s = lerp(s0, 1, e), k = s.toFixed(4) + e.toFixed(3); if (k === last) return; last = k;
       el.style.transform = `scale(${s.toFixed(4)})`;
-      el.style.backgroundColor = `rgba(11,13,18,${e.toFixed(3)})`;
       const rad = `${(R * (1 - e) / s).toFixed(2)}px`; el.style.borderRadius = rad; if (vid) vid.style.borderRadius = rad;
     };
     whenVisible(sec, frame, '0px');

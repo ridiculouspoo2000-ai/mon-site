@@ -236,8 +236,8 @@
       reduced ? (cv = v, days.textContent = v) : (raf = requestAnimationFrame(run));
     }
     const scene = dial.closest('.fx-dial-scene');
-    const box = dial.querySelector('.fx-steps');
-    const fitH = () => { box.style.minHeight = Math.max(...steps.map(x => x.offsetHeight)) + 'px'; };
+    const stepsBox = dial.querySelector('.fx-steps');
+    const fitH = () => { stepsBox.style.minHeight = Math.max(...steps.map(x => x.offsetHeight)) + 'px'; };
     fitH(); addEventListener('resize', fitH); if (document.fonts) document.fonts.ready.then(fitH);
     // Chaque segment : longueur proportionnelle à la durée de l’étape (cercle découpé en 100).
     function paint(s, f) { const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }

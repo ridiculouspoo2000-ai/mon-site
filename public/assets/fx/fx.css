@@ -410,3 +410,22 @@ html.ap-reduced .fx-swarm-fly{display:none}
   main h1,main h2,main h3,main .lead{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 }
 .fx-swarm.fx-inpage{-webkit-mask-image:none!important;mask-image:none!important}
+
+/* Fourmilière façon Apple : la section reste à l’écran le temps que les fourmis se rassemblent */
+html.ap-scenes .fx-swarm-sec{height:250vh;padding:0}
+html.ap-scenes .fx-swarm-pin{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:760px){html.ap-scenes .fx-swarm-sec{height:220svh}html.ap-scenes .fx-swarm-pin{height:100svh}}
+.fx-swarm-cap{padding:0 20px}
+
+/* Grandes phrases qui s'allument mot à mot au défilement */
+.fx-statement{font-size:clamp(21px,2.3vw,31px)!important;line-height:1.38!important;font-weight:600;letter-spacing:-.012em;color:var(--ink,#142f46)!important;max-width:30em}
+.cj-dark .fx-statement{color:#fff!important}
+
+/* Vidéo qui s'ouvre jusqu'aux bords de l'écran (façon Apple) — ordinateur et tablette */
+.cj-video-after{padding-bottom:20px}
+@media(min-width:761px){
+html.ap-scenes .fx-zoom{height:230vh;padding-top:0;padding-bottom:0}
+html.ap-scenes .fx-zoom-pin{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center}
+html.ap-scenes .fx-zoom-el{width:100vw;max-width:none;flex:none;height:min(100vh,56.25vw);aspect-ratio:auto;margin:0 calc(50% - 50vw);transform-origin:50% 50%;will-change:transform;box-shadow:none}
+html.ap-scenes .fx-zoom-el video{object-fit:cover}
+}

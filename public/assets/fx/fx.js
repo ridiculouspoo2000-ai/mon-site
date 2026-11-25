@@ -56,6 +56,8 @@
     // Les fourmis apparaissent vers la fin du texte d’introduction (dernier paragraphe), pas dès son début.
     const lastP = prev && prev.matches('.intro-grid, .section') ? [...prev.querySelectorAll('p')].pop() : null;
     const zoneTop = lastP || sec;
+    // zone de promenade : du dernier paragraphe d’introduction jusqu’au bas du premier écran de la section du mot
+    function zoneH() { const s = sec.getBoundingClientRect(); return Math.min(s.bottom, s.top + innerHeight) - zoneTop.getBoundingClientRect().top; }
     function sizeFly() {
       VW = reduced ? W : document.documentElement.clientWidth; VH = reduced ? H : innerHeight;
       dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.75 : 2);
@@ -82,7 +84,7 @@
       const n = Math.min(pts.length, W < 600 ? 1300 : 2300);
       for (let i = pts.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pts[i], pts[j]] = [pts[j], pts[i]]; }
       const xs = pts.slice(0, n).map(p => p[0]), minX = Math.min(...xs), maxX = Math.max(...xs);
-      RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top;
+      RH = zoneH();
       P = pts.slice(0, n).map(t => ({
         x: Math.random() * VW, y: Math.random() * RH, a: Math.random() * Math.PI * 2, v: .3 + Math.random() * .5,
         hid: Math.random() < .62,   // la plupart restent invisibles pendant la promenade et n’apparaissent qu’en rejoignant le mot
@@ -129,18 +131,26 @@
       const gr = g.createLinearGradient(W * .1, 0, W * .9, 0); GRAD.forEach((col, i) => gr.addColorStop(i / (GRAD.length - 1), `rgb(${col})`));
       g.fillStyle = gr; g.fill(path); return c;
     }
-    const progress = r => { const c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42)); };
+    // Section épinglée : les fourmis se rassemblent tout au long du défilement de la section (sur plus d’une hauteur d’écran),
+    // le mot est complet un peu avant la fin, puis reste affiché le temps de lire la phrase.
+    const pin = cv.closest('.fx-swarm-pin');
+    const pinned = () => pin && getComputedStyle(pin).position === 'sticky';
+    const progress = r => {
+      if (pinned()) { const s = box(sec), vh = VH || innerHeight, run = Math.max(1, s.height - vh); return clamp((vh * .35 - s.top) / (run * .78 + vh * .35)); }
+      const c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42));
+    };
     const BUCKETS = 12;
     function frame(now) {
       if (!ready) return;
-      const R = reduced ? null : box(cv);
+      const R = reduced ? null : cv.getBoundingClientRect();   // position réelle à l’écran (le canevas est épinglé)
       const clearFly = () => { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } };
       // Section dépassée (mot sorti par le haut) : plus rien à dessiner.
       if (!reduced && R.bottom < -40) { clearFly(); return; }
+      const isPinned = !reduced && pinned();
       const p = reduced ? 1 : progress(R), t = now / 1000;
       const X0 = reduced ? 0 : R.left, Y0 = reduced ? 0 : R.top;
       const ZT = reduced ? 0 : box(zoneTop).top;   // haut de la zone de promenade, à l’écran
-      if (!reduced && (ZT > VH + 10 || ZT + RH < -10)) { clearFly(); return; }
+      if (!reduced && (ZT > VH + 10 || (ZT + RH < -10 && !(isPinned && R.bottom > 0)))) { clearFly(); return; }
       // Mot entièrement formé et personne ne le touche : l’image du mot est posée dans la page elle-même
       // (elle défile avec le texte, sans aucun décalage), et le calque des fourmis en promenade est vidé.
       const still = p * 1.35 - maxD >= .66 && (!pointer || pointerIdle());
@@ -208,9 +218,27 @@
       else if (!reduced && innerHeight > rh + 1) { rh = innerHeight; sizeFly(); }
     });
     // hauteur de la zone remesurée quand tout est chargé (images, polices)
-    const zone = () => { if (ready) RH = sec.getBoundingClientRect().bottom - zoneTop.getBoundingClientRect().top; };
+    const zone = () => { if (ready) RH = zoneH(); };
     addEventListener('load', zone); setTimeout(zone, 2500);
     if (!reduced) { live.add(frame); wake(); }
+  });
+
+  /* ---------------------------------------------------------------- 1 bis. Vidéo qui s'ouvre jusqu'aux bords de l'écran */
+  // La section reste à l'écran : la vidéo part de la largeur du texte, coins arrondis, et s'agrandit jusqu'à remplir
+  // toute la largeur. Une seule transformation (échelle) ; l'arrondi est compensé pour rester constant à l'œil.
+  document.querySelectorAll('.fx-zoom').forEach(sec => {
+    const el = sec.querySelector('.fx-zoom-el'), pin = sec.querySelector('.fx-zoom-pin'); if (!el || !pin || reduced) return;
+    const R = 28; let s0 = .8, g0 = -1, last = '';
+    const frame = () => {
+      if (getComputedStyle(pin).position !== 'sticky') { if (last) { el.style.transform = ''; el.style.borderRadius = ''; last = ''; } return; }
+      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.92, Math.max(.5, cw / innerWidth)); }
+      const r = box(sec), run = Math.max(1, r.height - VH);
+      const p = ease(clamp((-r.top + VH * .15) / (run * .62 + VH * .15)));
+      const s = lerp(s0, 1, p), k = s.toFixed(4); if (k === last) return; last = k;
+      el.style.transform = `scale(${k})`;
+      el.style.borderRadius = `${(R * (1 - p) / s).toFixed(2)}px`;
+    };
+    whenVisible(sec, frame, '0px');
   });
 
   /* ---------------------------------------------------------------- 2. Le cadran du parcours BAFA */

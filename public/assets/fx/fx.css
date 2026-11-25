@@ -421,14 +421,14 @@ html.ap-scenes .fx-swarm-pin{position:sticky;top:0;height:100vh;display:flex;fle
 .fx-statement{font-size:clamp(21px,2.3vw,31px)!important;line-height:1.38!important;font-weight:600;letter-spacing:-.012em;color:var(--ink,#142f46)!important;max-width:30em}
 .cj-dark .fx-statement{color:#fff!important}
 
-/* Vidéo qui s'ouvre jusqu'aux bords de l'écran (façon Apple) — ordinateur et tablette */
+/* Vidéo qui s'ouvre jusqu'aux bords de l'écran (façon Apple) — ordinateur et tablette :
+   elle grandit jusqu'à occuper tout l'écran (vidéo entière, bandes noires si l'écran est plus allongé), puis revient à sa place */
 .cj-video-after{padding-bottom:20px}
 @media(min-width:761px){
-html.ap-scenes .fx-zoom{height:230vh;padding-top:0;padding-bottom:0}
-html.ap-scenes .fx-zoom-pin{position:sticky;top:0;height:100vh;box-sizing:border-box;padding-top:76px;padding-bottom:8px;display:flex;align-items:center;justify-content:center}
-/* taille finale : la plus grande qui tienne entière à l’écran (rien n’est coupé), au format 16:9 */
-html.ap-scenes .fx-zoom-el{width:min(94vw,calc((100vh - 92px) * 16 / 9));max-width:none;flex:none;height:auto;aspect-ratio:16/9;margin:0;transform-origin:50% 50%;will-change:transform}
-html.ap-scenes .fx-zoom-el video{object-fit:contain}
+html.ap-scenes .fx-zoom{height:300vh;padding-top:0;padding-bottom:0}
+html.ap-scenes .fx-zoom-pin{position:sticky;top:0;height:100vh;box-sizing:border-box;padding:0;display:flex;align-items:center;justify-content:center}
+html.ap-scenes .fx-zoom-el{width:100vw;max-width:none;flex:none;height:100vh;aspect-ratio:auto;margin:0 calc(50% - 50vw);transform-origin:50% 50%;will-change:transform;background:transparent;box-shadow:none;border-radius:0;overflow:visible}
+html.ap-scenes .fx-zoom-el video{width:100%;height:100%;object-fit:contain;background:transparent}
 }
 
 .fx-live-plain{box-shadow:none;border-radius:inherit}

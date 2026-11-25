@@ -164,7 +164,7 @@
     // elle fait demi-tour ; le mot reste donc lisible. Dessin dans le canevas de la page (il défile avec le texte),
     // puis le dégradé de la marque est appliqué d’un coup sur toutes les fourmis.
     const inside = (x, y) => { if (!mask) return true; const X = x | 0, Y = y | 0; if (X < 0 || Y < 0 || X >= mask.ow || Y >= mask.oh) return false; return mask.data[(Y * mask.ow + X) * 4 + 3] > 120; };
-    let liveGrad = null;
+    let liveGrad = null; const layer = document.createElement('canvas');
     function liveWord(t) {
       const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
@@ -208,7 +208,9 @@
       if (!reduced) inPage(false);
       cleared = false;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
-      const paths = Array.from({ length: BUCKETS }, () => new Path2D());
+      // calque des fourmis déjà arrivées (même taille que le calque des promeneuses)
+      if (layer.width !== fly.width || layer.height !== fly.height) { layer.width = fly.width; layer.height = fly.height; }
+      const lg = layer.getContext('2d'); lg.setTransform(dpr, 0, 0, dpr, 0, 0); lg.globalCompositeOperation = 'source-over'; lg.clearRect(0, 0, VW, VH);
       for (const q of P) {
         // Promenade de fourmi sur tout l’écran : petits changements de cap, rebond sur les bords.
         q.a += (Math.random() - .5) * .35; q.x += Math.cos(q.a) * q.v; q.y += Math.sin(q.a) * q.v;
@@ -230,22 +232,16 @@
           ctx.drawImage(SPR[ai][((t * 9 + q.ph) | 0) & 1], x - d / 2, y - d / 2, d, d);
           continue;
         }
-        // une petite fourmi (abdomen + tête) posée à sa place dans le mot
-        const ang = q.ra, ca = Math.cos(ang), sa = Math.sin(ang);
-        const path = paths[b];
-        const bx = x - ca * sz * .9, by = y - sa * sz * .9, hx = x + ca * sz * 1.05, hy = y + sa * sz * 1.05;
-        path.moveTo(bx + ca * sz * 1.25, by + sa * sz * 1.25); path.ellipse(bx, by, sz * 1.25, sz * .78, ang, 0, 6.2832);
-        path.moveTo(hx + sz * .7, hy); path.arc(hx, hy, sz * .7, 0, 6.2832);
+        // en arrivant dans le mot : la même fourmi (pattes, antennes), sur le calque qui recevra le dégradé
+        const ai2 = Math.round(((q.ra % 6.2832) + 6.2832) % 6.2832 / 6.2832 * ANG) % ANG, d2 = SS * Math.min(sz, grain * .5) / SB;
+        lg.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1));
+        lg.drawImage(SPR[ai2][((t * 7 + q.ph) | 0) & 1], x - d2 / 2, y - d2 / 2, d2, d2);
       }
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
-      let g = null;
-      for (let b = 0; b < BUCKETS; b++) {
-        const k = b / (BUCKETS - 1);
-        ctx.globalAlpha = lerp(.34, 1, k);
-        if (k < .5) continue;   // déjà dessinées (images pré-dessinées)
-        else { if (!g) { g = ctx.createLinearGradient(X0 + W * .1, 0, X0 + W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`)); } ctx.fillStyle = g; ctx.fill(paths[b]); }
-      }
-      ctx.globalAlpha = 1;
+      lg.globalAlpha = 1; lg.globalCompositeOperation = 'source-in';
+      const g = lg.createLinearGradient(X0 + W * .1, 0, X0 + W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`));
+      lg.fillStyle = g; lg.fillRect(0, 0, VW, VH); lg.globalCompositeOperation = 'source-over';
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.drawImage(layer, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       cv.parentElement.classList.toggle('fx-formed', p > .92);
     }
     const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; lastMove = performance.now(); };
@@ -270,16 +266,22 @@
   // La section reste à l'écran : la vidéo part de la largeur du texte, coins arrondis, et s'agrandit jusqu'à remplir
   // toute la largeur. Une seule transformation (échelle) ; l'arrondi est compensé pour rester constant à l'œil.
   document.querySelectorAll('.fx-zoom').forEach(sec => {
-    const el = sec.querySelector('.fx-zoom-el'), pin = sec.querySelector('.fx-zoom-pin'); if (!el || !pin || reduced) return;
-    const R = 28; let s0 = .8, g0 = -1, last = '';
+    const el = sec.querySelector('.fx-zoom-el'), pin = sec.querySelector('.fx-zoom-pin'), vid = el && el.querySelector('video'); if (!el || !pin || reduced) return;
+    const R = 28; let s0 = .7, g0 = -1, last = '', on = false;
+    const reset = () => { el.style.transform = ''; el.style.backgroundColor = ''; el.style.borderRadius = ''; if (vid) vid.style.borderRadius = ''; last = ''; };
     const frame = () => {
-      if (getComputedStyle(pin).position !== 'sticky') { if (last) { el.style.transform = ''; el.style.borderRadius = ''; last = ''; } return; }
-      if (g0 !== gen) { g0 = gen; const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight); s0 = Math.min(.55, Math.max(.42, cw * .6 / (el.offsetWidth || innerWidth))); }   // départ nettement plus petit : le zoom se voit
-      const r = box(sec), run = Math.max(1, r.height - VH);
-      const p = ease(clamp((-r.top + VH * .15) / (run * .62 + VH * .15)));
-      const s = lerp(s0, 1, p), k = s.toFixed(4); if (k === last) return; last = k;
-      el.style.transform = `scale(${k})`;
-      el.style.borderRadius = `${(R * (1 - p) / s).toFixed(2)}px`;
+      if (g0 !== gen) { g0 = gen; on = getComputedStyle(pin).position === 'sticky';
+        const cw = sec.clientWidth - parseFloat(getComputedStyle(sec).paddingLeft) - parseFloat(getComputedStyle(sec).paddingRight);
+        const vw = Math.min(innerWidth, VH * 16 / 9);   // largeur de la vidéo entière en plein écran
+        s0 = Math.min(.7, Math.max(.4, cw * .85 / vw)); }
+      if (!on) { if (last) reset(); return; }
+      const r = box(sec), run = Math.max(1, r.height - VH), p = clamp(-r.top / run);
+      // 0 → 40 % : la vidéo grandit jusqu'à tout l'écran ; 40 → 62 % : plein écran ; 62 → 95 % : elle revient à sa place
+      const e = ease(clamp(p / .4)) * (1 - ease(clamp((p - .62) / .33)));
+      const s = lerp(s0, 1, e), k = s.toFixed(4) + e.toFixed(3); if (k === last) return; last = k;
+      el.style.transform = `scale(${s.toFixed(4)})`;
+      el.style.backgroundColor = `rgba(11,13,18,${e.toFixed(3)})`;
+      const rad = `${(R * (1 - e) / s).toFixed(2)}px`; el.style.borderRadius = rad; if (vid) vid.style.borderRadius = rad;
     };
     whenVisible(sec, frame, '0px');
   });

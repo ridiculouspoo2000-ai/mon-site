@@ -240,14 +240,14 @@
     const fitH = () => { stepsBox.style.minHeight = Math.max(...steps.map(x => x.offsetHeight)) + 'px'; };
     fitH(); addEventListener('resize', fitH); if (document.fonts) document.fonts.ready.then(fitH);
     // Chaque segment : longueur proportionnelle à la durée de l’étape (cercle découpé en 100).
-    function paint(s, f) { const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }
+    // un segment n’est redessiné que si sa longueur change vraiment (au demi-millième près)
+    function paint(s, f) { const k = f.toFixed(3); if (s._k === k) return; s._k = k; const L = +s.dataset.len, a = +s.dataset.start; s.style.strokeDasharray = `${(L * f).toFixed(3)} 200`; s.style.strokeDashoffset = (-a).toFixed(3); s.style.opacity = f > .002 ? 1 : 0; }
     dial.querySelectorAll('.fx-track').forEach(t => { t.style.strokeDasharray = `${t.dataset.len} 200`; t.style.strokeDashoffset = -t.dataset.start; });
     function frame() {
       const r = box(scene), run = r.height - VH;
       const p = run > 0 ? clamp(-r.top / run) : clamp((VH * .6 - r.top) / (VH * .6));
       segs.forEach((s, i) => paint(s, clamp((p * 1.08 - i / 3) * 3)));
       set(Math.min(2, Math.floor(clamp(p * 1.08) * 3)));
-      dial.style.setProperty('--p', p.toFixed(4));
     }
     if (reduced) { segs.forEach(s => paint(s, 1)); set(0); steps.forEach(s => s.classList.add('on')); dial.classList.add('fx-static'); return; }
     set(0); whenVisible(scene, frame, '0px');
@@ -409,7 +409,7 @@
     // Le tracé de la bifurcation se dessine en arrivant dessus.
     if (!reduced) whenVisible(fork, () => {
       const r = box(fork), p = clamp((VH * .8 - r.top) / (VH * .32));
-      lines.forEach((l, i) => l.style.strokeDashoffset = (100 - clamp(p * 1.6 - (i ? .4 : 0)) * 100).toFixed(2));
+      lines.forEach((l, i) => { const v = (100 - clamp(p * 1.6 - (i ? .4 : 0)) * 100).toFixed(2); if (l._v !== v) { l._v = v; l.style.strokeDashoffset = v; } });
     });
     else lines.forEach(l => l.style.strokeDashoffset = 0);
   }

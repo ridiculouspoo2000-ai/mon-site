@@ -226,7 +226,8 @@ html.theme-verre .nw-feature,html.theme-verre .nw-feature.lg{background:#fff!imp
 
 /* ---------- Téléphone : la page ne dépasse jamais de l’écran (plus de zoom qui « saute ») ---------- */
 html{overflow-x:clip}
-main,.sc-hero2,.page-intro{overflow-x:clip}
+/* le débordement horizontal est coupé par html : surtout pas sur un parent d’élément collant (Safari les fait alors trembler pendant le défilement) */
+.page-intro{overflow-x:clip}
 @media(max-width:760px){
   .page-intro::before{width:100vw;left:0;translate:0 -50%}
   .sc-hero2 .sc-pin::before{left:-10px;width:calc(100vw - 20px)}
@@ -378,7 +379,7 @@ footer .motion-toggle{color:#4b5b6a!important}
    Safari (iPhone) ne les fait glisser parfaitement avec le doigt que s’ils ont leur couche ; sinon leur position
    est recalculée en retard à chaque image et tout ce qui est figé tremble de haut en bas (ex. « Nos actions »). */
 /* panneaux collants : pas de calque forcé (un élément collant mis sur son propre calque saute d’une image pendant le défilement, surtout sur Mac) */
-.bf-seg{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+
 html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidden;backface-visibility:hidden}
 
 /* points d’arrêt de « Nos actions » (écran tactile) : on se cale toujours sur une carte, jamais entre deux */

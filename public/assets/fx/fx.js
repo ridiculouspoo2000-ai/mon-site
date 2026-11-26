@@ -60,7 +60,7 @@
     function zoneH() { const s = sec.getBoundingClientRect(); return Math.min(s.bottom, s.top + innerHeight) - zoneTop.getBoundingClientRect().top; }
     function sizeFly() {
       VW = reduced ? W : document.documentElement.clientWidth; VH = reduced ? H : innerHeight;
-      dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.5 : 2);
+      dpr = Math.min(devicePixelRatio || 1, VW < 600 || coarse ? 1.5 : 2);   // tablette et téléphone : un peu moins de pixels à peindre
       fly.width = Math.round(VW * dpr); fly.height = Math.round(VH * dpr); sprites();
       if (!reduced) { fly.style.width = VW + 'px'; fly.style.height = VH + 'px'; }
     }
@@ -82,7 +82,7 @@
       mask = { data, ow, oh };
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      let n = Math.min(pts.length, W < 600 ? 820 : 1600);
+      let n = Math.min(pts.length, W < 600 ? 1250 : coarse ? 1300 : 1600);
       // places réparties sur une grille régulière (et non tirées au hasard) : le mot est rempli uniformément
       if (pts.length > n) {
         const st2 = step * Math.sqrt(pts.length / n); pts.length = 0;
@@ -184,7 +184,7 @@
     // elle fait demi-tour ; le mot reste donc lisible. Dessin dans le canevas de la page (il défile avec le texte),
     // puis le dégradé de la marque est appliqué d’un coup sur toutes les fourmis.
     const inside = (x, y) => { if (!mask) return true; const X = x | 0, Y = y | 0; if (X < 0 || Y < 0 || X >= mask.ow || Y >= mask.oh) return false; return mask.data[(Y * mask.ow + X) * 4 + 3] > 120; };
-    let liveGrad = null, lb = null; const layer = document.createElement('canvas');
+    let liveGrad = null, lb = null, fb = null; const layer = document.createElement('canvas');
     // Marche d’une fourmi dans sa lettre : cap qui varie doucement ; au bord, elle cherche le cap le plus proche
     // qui reste dans la lettre et longe le bord (pas de demi-tours sur place). L’orientation affichée suit le cap en douceur.
     const TRY = [.35, -.35, .7, -.7, 1.1, -1.1, 1.6, -1.6, 2.2, -2.2, 2.8, -2.8];
@@ -225,7 +225,7 @@
     function frame(now) {
       if (!ready) return;
       const R = reduced ? null : cv.getBoundingClientRect();   // position réelle à l’écran (le canevas est épinglé)
-      const clearFly = () => { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; } };
+      const clearFly = () => { if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, fly.width, fly.height); cleared = true; fb = null; } };
       // Section dépassée (mot sorti par le haut) : plus rien à dessiner.
       if (!reduced && R.bottom < -40) { clearFly(); return; }
       const isPinned = !reduced && pinned();
@@ -245,7 +245,9 @@
       }
       if (!reduced) inPage(false);
       cleared = false;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
+      // on n’efface que la zone où des fourmis ont été dessinées à l’image précédente (et non tout l’écran)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (fb) ctx.clearRect(fb[0], fb[1], fb[2], fb[3]); else ctx.clearRect(0, 0, VW, VH);
+      let wx0 = 1e9, wy0 = 1e9, wx1 = -1e9, wy1 = -1e9;
       // calque des fourmis déjà arrivées (même taille que le calque des promeneuses)
       if (layer.width !== fly.width || layer.height !== fly.height) { layer.width = fly.width; layer.height = fly.height; }
       const lg = layer.getContext('2d'); lg.setTransform(dpr, 0, 0, dpr, 0, 0); lg.globalCompositeOperation = 'source-over';
@@ -273,6 +275,7 @@
           const vis = (q.hid ? clamp((k - .08) / .25) : 1) * lerp(clamp(q.y / 160), 1, k); if (vis <= .01) continue;   // invisibles au départ ; fondu sur le bord haut de la zone
           ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1)) * vis;
           const fr = ((t * 9 + q.ph) | 0) & 1;
+          if (x < wx0) wx0 = x; if (x > wx1) wx1 = x; if (y < wy0) wy0 = y; if (y > wy1) wy1 = y;
           if (d < SS + .6) {   // taille de promenade : copie directe, alignée sur les pixels de l’écran
             const im = SP1[ai][fr], w = im.width;
             ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(im, Math.round((x - SS / 2) * dpr), Math.round((y - SS / 2) * dpr)); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -295,6 +298,10 @@
         const sx = Math.floor(lb[0] * dpr), sy = Math.floor(lb[1] * dpr), sw = Math.min(layer.width - sx, Math.ceil(lb[2] * dpr) + 1), sh = Math.min(layer.height - sy, Math.ceil(lb[3] * dpr) + 1);
         ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; if (sw > 0 && sh > 0) ctx.drawImage(layer, sx, sy, sw, sh, sx, sy, sw, sh); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
+      { let x0 = wx0 - 14, y0 = wy0 - 14, x1 = wx1 + 14, y1 = wy1 + 14;
+        if (lb) { x0 = Math.min(x0, lb[0]); y0 = Math.min(y0, lb[1]); x1 = Math.max(x1, lb[0] + lb[2]); y1 = Math.max(y1, lb[1] + lb[3]); }
+        x0 = Math.max(0, x0 - 2); y0 = Math.max(0, y0 - 2); x1 = Math.min(VW, x1 + 2); y1 = Math.min(VH, y1 + 2);
+        fb = x1 > x0 && y1 > y0 ? [x0, y0, x1 - x0, y1 - y0] : null; }
       cv.parentElement.classList.toggle('fx-formed', p > .92);
     }
     const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; lastMove = performance.now(); };
@@ -473,7 +480,8 @@
   document.querySelectorAll('.tk-in, .h2-photo, .fx-live-img').forEach((el, i) => {
     const host = el.querySelector('.tk-card') || el;
     // sur téléphone, pas de reflet mobile dans les billets découpés (il obligerait à redessiner le billet à chaque image)
-    if (coarse && host !== el) { LIVE.push({ el, g: null, kind: 'tk', ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false }); return; }
+    if (coarse && host !== el) return;   // téléphone, tablette : billets immobiles une fois posés (aucun calcul pendant le défilement)
+    if (coarse) { const kind = el.classList.contains('h2-photo') ? 'hero' : 'img'; LIVE.push({ el, g: null, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false }); return; }   // sans reflet mobile : rien à redessiner
     const g = document.createElement('span'); g.className = 'fx-glare'; g.setAttribute('aria-hidden', 'true'); host.append(g);
     const kind = el.classList.contains('tk-in') ? 'tk' : el.classList.contains('h2-photo') ? 'hero' : 'img';
     LIVE.push({ el, g, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false });
@@ -511,6 +519,12 @@
   // puis la ligne du trajet se trace du premier au dernier jour.
   document.querySelectorAll('.fo-sessions').forEach(wrap => {
     const ts = [...wrap.querySelectorAll('.fo-ticket')]; if (!ts.length || reduced) return;
+    // téléphone : chaque billet entre par une transition CSS (calculée hors du script, donc fluide sur iPhone)
+    if (coarse && 'IntersectionObserver' in window) {
+      wrap.classList.add('fx-deal-css');
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('fx-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
+      ts.forEach(t => io.observe(t)); return;
+    }
     // Le billet entier se déplace d’un bloc (une seule couche, rien n’est redessiné) ; seuls le trait du trajet
     // et la date d’arrivée changent à l’intérieur, directement sur leurs éléments.
     wrap.classList.add('fx-deal'); const last = [];

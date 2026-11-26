@@ -60,7 +60,7 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
 .fo-sessions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:34px}
 .fo-ticket{position:relative}
 .tk-in{height:100%;will-change:transform;transform-origin:50% 50%;position:relative}
-.fo-ticket::before{content:"";position:absolute;inset:6px 4px 0;border-radius:26px;box-shadow:0 22px 34px -6px rgba(20,47,70,.22),0 2px 4px rgba(20,47,70,.08);pointer-events:none}
+.tk-in::before{content:"";position:absolute;inset:2px;z-index:-1;border-radius:26px;box-shadow:0 22px 34px -8px rgba(20,47,70,.22),0 2px 4px rgba(20,47,70,.08);pointer-events:none}
 .tk-card{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;overflow:hidden;
   -webkit-mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);-webkit-mask-composite:source-in;
   mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);mask-composite:intersect}
@@ -515,3 +515,14 @@ html.fx-venn-on .venn-now-m{display:none}
 .fx-halos>i{display:block}
 @media(max-width:760px){.fx-halos{left:calc(50% - 50vw);right:auto;width:100vw;overflow:hidden}}
 @media(max-width:760px){.sc-hero2 .h2-visual{overflow-x:clip}}
+
+/* Mini-billets de l’accueil : le prix et « € » toujours sur la même ligne */
+.bf-mb b{white-space:nowrap}
+/* Téléphone : les billets BAFA arrivent par une transition jouée par le navigateur lui-même (fluide même si la page travaille) */
+html.ap-scenes .fx-deal-css .fo-ticket{transform:translate3d(0,120px,0) rotate(-6deg);opacity:0;transition:transform 1s cubic-bezier(.16,.84,.24,1),opacity .55s ease}
+html.ap-scenes .fx-deal-css .fo-ticket.fx-in{transform:none;opacity:1}
+html.ap-scenes .fx-deal-css .tk-path::before{transform:scaleX(0);transition:transform .8s cubic-bezier(.2,.7,.2,1) .45s}
+html.ap-scenes .fx-deal-css .tk-path i{opacity:0;transition:opacity .4s ease 1.1s}
+html.ap-scenes .fx-deal-css .tk-route > div:last-child{opacity:0;transform:translate3d(-16px,0,0);transition:opacity .5s ease .9s,transform .6s cubic-bezier(.2,.7,.2,1) .9s}
+html.ap-scenes .fx-deal-css .fx-in .tk-path::before{transform:scaleX(1)}
+html.ap-scenes .fx-deal-css .fx-in .tk-path i,html.ap-scenes .fx-deal-css .fx-in .tk-route > div:last-child{opacity:1;transform:none}

@@ -82,7 +82,7 @@
       mask = { data, ow, oh };
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      let n = Math.min(pts.length, W < 600 ? 820 : 1600);
+      let n = Math.min(pts.length, W < 600 ? 1250 : 1600);
       // places réparties sur une grille régulière (et non tirées au hasard) : le mot est rempli uniformément
       if (pts.length > n) {
         const st2 = step * Math.sqrt(pts.length / n); pts.length = 0;
@@ -473,7 +473,7 @@
   document.querySelectorAll('.tk-in, .h2-photo, .fx-live-img').forEach((el, i) => {
     const host = el.querySelector('.tk-card') || el;
     // sur téléphone, pas de reflet mobile dans les billets découpés (il obligerait à redessiner le billet à chaque image)
-    if (coarse && host !== el) { LIVE.push({ el, g: null, kind: 'tk', ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false }); return; }
+    if (coarse && host !== el) return;   // téléphone : billets immobiles une fois posés (aucun calcul pendant le défilement)
     const g = document.createElement('span'); g.className = 'fx-glare'; g.setAttribute('aria-hidden', 'true'); host.append(g);
     const kind = el.classList.contains('tk-in') ? 'tk' : el.classList.contains('h2-photo') ? 'hero' : 'img';
     LIVE.push({ el, g, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false });
@@ -511,6 +511,12 @@
   // puis la ligne du trajet se trace du premier au dernier jour.
   document.querySelectorAll('.fo-sessions').forEach(wrap => {
     const ts = [...wrap.querySelectorAll('.fo-ticket')]; if (!ts.length || reduced) return;
+    // téléphone : chaque billet entre par une transition CSS (calculée hors du script, donc fluide sur iPhone)
+    if (coarse && 'IntersectionObserver' in window) {
+      wrap.classList.add('fx-deal-css');
+      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('fx-in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -12% 0px' });
+      ts.forEach(t => io.observe(t)); return;
+    }
     // Le billet entier se déplace d’un bloc (une seule couche, rien n’est redessiné) ; seuls le trait du trajet
     // et la date d’arrivée changent à l’intérieur, directement sur leurs éléments.
     wrap.classList.add('fx-deal'); const last = [];

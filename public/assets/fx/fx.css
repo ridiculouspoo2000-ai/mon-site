@@ -226,7 +226,8 @@ html.theme-verre .nw-feature,html.theme-verre .nw-feature.lg{background:#fff!imp
 
 /* ---------- Téléphone : la page ne dépasse jamais de l’écran (plus de zoom qui « saute ») ---------- */
 html{overflow-x:clip}
-main,.sc-hero2,.page-intro{overflow-x:clip}
+/* le débordement horizontal est coupé par html : surtout pas sur un parent d’élément collant (Safari les fait alors trembler pendant le défilement) */
+.page-intro{overflow-x:clip}
 @media(max-width:760px){
   .page-intro::before{width:100vw;left:0;translate:0 -50%}
   .sc-hero2 .sc-pin::before{left:-10px;width:calc(100vw - 20px)}
@@ -377,7 +378,8 @@ footer .motion-toggle{color:#4b5b6a!important}
 /* ---------- Éléments figés pendant le défilement : chacun sur sa propre couche graphique ----------
    Safari (iPhone) ne les fait glisser parfaitement avec le doigt que s’ils ont leur couche ; sinon leur position
    est recalculée en retard à chaque image et tout ce qui est figé tremble de haut en bas (ex. « Nos actions »). */
-html.ap-scenes [data-scene="hscroll"] .sc-pin,html.ap-scenes .sc-hero2 .sc-pin,html.ap-scenes .fx-dial-pin,.bf-seg{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+/* panneaux collants : pas de calque forcé (un élément collant mis sur son propre calque saute d’une image pendant le défilement, surtout sur Mac) */
+
 html.ap-scenes [data-scene="hscroll"] .sc-track{-webkit-backface-visibility:hidden;backface-visibility:hidden}
 
 /* points d’arrêt de « Nos actions » (écran tactile) : on se cale toujours sur une carte, jamais entre deux */
@@ -408,3 +410,102 @@ html.ap-reduced .fx-swarm-fly{display:none}
   main h1,main h2,main h3,main .lead{overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 }
 .fx-swarm.fx-inpage{-webkit-mask-image:none!important;mask-image:none!important}
+
+/* Fourmilière façon Apple : la section reste à l’écran le temps que les fourmis se rassemblent */
+html.ap-scenes .fx-swarm-sec{height:250vh;padding:0}
+html.ap-scenes .fx-swarm-pin{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center}
+@media(max-width:760px){html.ap-scenes .fx-swarm-sec{height:220svh}html.ap-scenes .fx-swarm-pin{height:100svh}}
+.fx-swarm-cap{padding:0 20px}
+
+/* Grandes phrases qui s'allument mot à mot au défilement */
+.fx-statement{font-size:clamp(21px,2.3vw,31px)!important;line-height:1.38!important;font-weight:600;letter-spacing:-.012em;color:var(--ink,#142f46)!important;max-width:30em}
+.cj-dark .fx-statement{color:#fff!important}
+
+/* Vidéo qui s'ouvre jusqu'aux bords de l'écran (façon Apple) — ordinateur et tablette :
+   elle grandit jusqu'à occuper tout l'écran (vidéo entière, bandes noires si l'écran est plus allongé), puis revient à sa place */
+.cj-video-after{padding-bottom:20px}
+@media(min-width:761px){
+html.ap-scenes .fx-zoom{height:300vh;padding-top:0;padding-bottom:0}
+html.ap-scenes .fx-zoom-pin{position:sticky;top:0;height:100vh;box-sizing:border-box;padding:0;display:flex;align-items:center;justify-content:center}
+html.ap-scenes .fx-zoom-el{width:100vw;max-width:none;flex:none;height:100vh;aspect-ratio:auto;margin:0 calc(50% - 50vw);transform-origin:50% 50%;will-change:transform;background:transparent;box-shadow:none;border-radius:0;overflow:visible}
+html.ap-scenes .fx-zoom-el video{width:100%;height:100%;object-fit:contain;background:transparent}
+html.ap-scenes .fx-zoom-el{transition:none!important;opacity:1}
+}
+
+.fx-live-plain{box-shadow:none;border-radius:inherit}
+.win > .fx-live-img{height:100%}
+.win > .fx-live-img img{height:100%;object-fit:cover}
+
+/* Billets BAFA distribués au défilement */
+html.ap-scenes .fx-deal .tk-card{transform-origin:30% 100%;transform:translate3d(0,calc((1 - var(--d,1)) * 110px),0) rotate(calc((1 - var(--d,1)) * -8deg)) scale(calc(.9 + var(--d,1) * .1));opacity:calc(.1 + var(--d,1) * .9)}
+html.ap-scenes .fx-deal .tk-path::before{transform-origin:left center;transform:scaleX(var(--dr,1))}
+html.ap-scenes .fx-deal .tk-path i{opacity:var(--dr,1)}
+html.ap-scenes .fx-deal .tk-route > div:last-child{opacity:var(--dr,1);transform:translateX(calc((1 - var(--dr,1)) * -16px))}
+
+/* L’Esprit Fourmi : liste épinglée qui s’allume */
+.fx-spirit-pin{display:contents}
+html.ap-scenes .fx-pinlist li{transition:opacity .45s linear,transform .5s cubic-bezier(.2,.7,.2,1),color .4s;transform-origin:left center}
+html.ap-scenes .fx-pinlist li:not(.on){opacity:.22}
+@media(min-width:901px){
+html.ap-scenes .spirit.fx-pinlist{display:block;height:240vh;padding-top:0;padding-bottom:0}
+html.ap-scenes .fx-pinlist > .fx-spirit-pin{position:sticky;top:0;height:100vh;box-sizing:border-box;padding-top:70px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+html.ap-scenes .fx-pinlist li{font-size:19px}
+html.ap-scenes .fx-pinlist li.cur{transform:scale(1.08);color:var(--ink,#142f46);font-weight:650}
+html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
+}
+/* Grands titres qui se posent */
+.fx-settle{transform-origin:left 60%;will-change:transform}
+/* panneaux collants : jamais de transformation sur eux (sinon ils tremblent pendant le défilement) */
+.fx-spirit-pin,.fx-swarm-pin,.fx-zoom-pin{transform:none!important}
+
+
+
+/* Nos actions — scène façon Apple : cadre fixe à gauche, actions qui défilent à droite (ordinateur) */
+.na-stage{display:none}
+@media(min-width:901px){
+.na-feature{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:76px;width:min(1180px,calc(100% - 64px));margin:0 auto;align-items:start}
+.na-stage{display:block;position:sticky;top:max(96px,calc(50vh - 250px));aspect-ratio:6/5;border-radius:30px;overflow:hidden;background:#e9ecf2;box-shadow:0 40px 90px rgba(20,47,70,.22),0 6px 16px rgba(20,47,70,.08)}
+.na-frame{position:absolute;inset:0;margin:0;opacity:0;transform:scale(1.1);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform 1.8s cubic-bezier(.16,.8,.2,1)}
+.na-frame.past{transform:scale(.94)}
+.na-frame.on{opacity:1;transform:scale(1)}
+.na-frame > img{display:block;width:100%;height:100%;object-fit:cover}
+.na-frame.na-contain{background:#f3f4f8}
+.na-frame.na-contain > img{object-fit:contain;padding:0 18px}
+.na-dots{position:absolute;right:20px;top:50%;margin-top:-40px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.na-dots i{display:block;width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.55);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:height .5s cubic-bezier(.2,.7,.2,1),background .4s}
+.na-dots i.on{height:26px;background:#fff}
+.na-steps .split{display:flex;flex-direction:column;justify-content:center;min-height:84vh;width:auto;max-width:none;margin:0;padding:0}
+.na-steps .split > div:first-child{display:none}
+.na-steps .split > div:last-child{transform:none!important;opacity:.26!important;transition:opacity .7s cubic-bezier(.2,.7,.2,1)!important}
+.na-steps .split.is-active > div:last-child{opacity:1!important}
+}
+html.ap-reduced .na-frame{transition:none}
+/* Les trois types de compétences : les cercles apparaissent un à un pendant le défilement */
+@font-face{font-family:PoppinsV;src:url(../fonts/poppins-500-venn.woff) format("woff");font-weight:500;font-display:swap}
+@font-face{font-family:PoppinsV;src:url(../fonts/poppins-700-venn.woff) format("woff");font-weight:700;font-display:swap}
+.venn{margin:0}
+.venn-link{display:block;background:none!important;box-shadow:none!important;border-radius:0}
+.venn-svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 24px 40px rgba(18,48,71,.12))}
+.venn-svg .vs{transform-box:view-box}
+.venn-now{display:none}
+html.fx-venn-on .venn-now{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:6px 0 18px;padding:9px 18px;border-radius:20px;white-space:pre-line;line-height:1.45;max-width:100%;background:rgba(255,255,255,.8);box-shadow:0 8px 22px -12px rgba(18,48,71,.35);font-size:15px;font-weight:600;color:var(--navy,#123047);transition:opacity .35s ease}
+html.fx-venn-on .venn-now.off{opacity:0}
+html.fx-venn-on .venn-list li{opacity:.32;transition:opacity .45s ease,transform .45s cubic-bezier(.2,.7,.2,1);transform:translateX(0)}
+html.fx-venn-on .venn-list li.on{opacity:1}
+html.fx-venn-on .venn-list li.now{transform:translateX(6px)}
+@media(min-width:761px){
+  html.fx-venn-on .fx-venn{height:340vh}
+  html.fx-venn-on .fx-venn-pin{position:sticky;top:0;height:100vh;min-height:0;box-sizing:border-box;width:min(1400px,calc(100% - 48px));max-width:none;
+    display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;padding-top:142px;padding-bottom:18px}
+  html.fx-venn-on .fx-venn .venn{width:min(100%,calc((100vh - 165px) * 1494 / 1364));margin-inline:auto}
+  html.fx-venn-on .fx-venn-pin h2{font-size:clamp(38px,4vw,60px)}
+}
+html.fx-venn-on .venn-now-m{display:none}
+@media(max-width:760px){
+  .fx-venn .venn{margin-inline:-14px}
+  html.fx-venn-on .fx-venn-pin > div:first-child{height:250vh;transform:none!important;opacity:1!important}
+  html.fx-venn-on .fx-venn .venn{position:sticky;top:max(118px,calc(50vh - 215px));transform:none!important;text-align:center}
+  html.fx-venn-on .fx-venn .venn-now{display:none}
+  html.fx-venn-on .fx-venn .venn-now-m{display:inline-flex;margin:10px auto 0}
+}
+.fx-venn-pin{transform:none!important}

@@ -353,8 +353,13 @@
     const lift = el => { if (el.classList.contains('fx-cur-in')) return; el.classList.add('fx-cur-in'); setTimeout(() => el.classList.add('fx-cur-done'), 1300); };
     curtains.forEach(el => el.classList.add('fx-curtain'));
     if ('IntersectionObserver' in window) {
-      const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { cio.unobserve(e.target); lift(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
-      curtains.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < VH && r.bottom > 0) requestAnimationFrame(() => lift(el)); else cio.observe(el); });
+      // On surveille le parent, pas l'élément : entièrement masqué au départ, l'élément lui-même n'est jamais « vu » entrer à l'écran.
+      const watched = new Map();
+      const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { cio.unobserve(e.target); (watched.get(e.target) || []).forEach(lift); } }), { rootMargin: '0px 0px -8% 0px' });
+      curtains.forEach(el => { const r = el.getBoundingClientRect(); if (r.top < VH && r.bottom > 0) { requestAnimationFrame(() => lift(el)); return; }
+        const host = el.parentElement || el; if (!watched.has(host)) { watched.set(host, []); cio.observe(host); } watched.get(host).push(el); });
+      // filet de sécurité pendant le défilement : toute image dont le haut est déjà dans l'écran se dévoile
+      let cq = 0; addEventListener('scroll', () => { if (cq) return; cq = requestAnimationFrame(() => { cq = 0; curtains.forEach(el => { if (!el.classList.contains('fx-cur-in')) { const g = box(el); if (g.top < VH * .92 && g.bottom > 0) lift(el); } }); }); }, { passive: true });
       addEventListener('pageshow', e => { if (e.persisted) curtains.forEach(lift); });
       setTimeout(() => curtains.forEach(el => { if (el.getBoundingClientRect().top < VH) lift(el); }), 600);   // filet de sécurité (ancre, retour en arrière)
     } else curtains.forEach(lift);

@@ -209,3 +209,4 @@ html.ap-motion .cj-ring:not(.ap-in){transform:rotate(-25deg) scale(.9)}
 .cj-more[open]>summary span::after{content:" −"}
 .cj-more>summary small{color:var(--soft,#6e6e73);font-size:13px}
 .cj-more>summary{margin-left:auto;margin-right:auto}
+.cj-more{border:0!important}

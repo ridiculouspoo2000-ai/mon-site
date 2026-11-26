@@ -133,3 +133,5 @@ html.ap-motion .dg-hub:not(.ap-in) .dg-card{opacity:0;transform:translate(-50%,-
 html.ap-reduced .dg *{animation:none!important;transition:none!important}
 html.ap-reduced .dg{--p:1!important}
 html.ap-reduced .dg-pulse{display:none}
+/* téléphone : l’anneau incliné avant son apparition ne doit pas dépasser de l’écran */
+@media(max-width:760px){html.ap-motion .dg:not(.ap-in) .dg-ring{transform:rotate(-25deg) scale(.66)}}

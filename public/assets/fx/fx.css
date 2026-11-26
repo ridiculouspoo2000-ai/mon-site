@@ -526,3 +526,4 @@ html.ap-scenes .fx-deal-css .tk-path i{opacity:0;transition:opacity .4s ease 1.1
 html.ap-scenes .fx-deal-css .tk-route > div:last-child{opacity:0;transform:translate3d(-16px,0,0);transition:opacity .5s ease .9s,transform .6s cubic-bezier(.2,.7,.2,1) .9s}
 html.ap-scenes .fx-deal-css .fx-in .tk-path::before{transform:scaleX(1)}
 html.ap-scenes .fx-deal-css .fx-in .tk-path i,html.ap-scenes .fx-deal-css .fx-in .tk-route > div:last-child{opacity:1;transform:none}
+@media (hover:none){.ap-glow::before,.ap-glow::after{filter:none}}

@@ -324,8 +324,8 @@
     groups.forEach(g => { g.el.style.transformOrigin = M[g.s].o; });
     const fig = sec.querySelector('.venn') || svg;
     const nows = [...sec.querySelectorAll('.venn-now')], items = [...sec.querySelectorAll('.venn-list li[data-s]')];
-    const CAP = ['', 'Le savoir-être', '+ les savoir-faire', 'Savoir-être + savoir-faire : exécutant', '+ les savoirs',
-      'Avec les savoirs : connaissant et performant', 'Les trois réunis : compétent'];
+    const CAP = ['', 'Le savoir-être', '+ les savoir-faire', 'Savoir-être + savoir-faire = exécutant', '+ les savoirs',
+      'Savoirs + savoir-être = connaissant\nSavoirs + savoir-faire = performant', 'Savoirs + savoir-faire + savoir-être = compétent'];
     let g0 = -1, on = false, cur = -1, figOn = false, figTop = 0;
     const frame = () => {
       if (g0 !== gen) { g0 = gen; on = getComputedStyle(pin).position === 'sticky'; const cs = getComputedStyle(fig); figOn = !on && cs.position === 'sticky'; figTop = parseFloat(cs.top) || 0; }

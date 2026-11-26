@@ -488,7 +488,7 @@ html.ap-reduced .na-frame{transition:none}
 .venn-svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 24px 40px rgba(18,48,71,.12))}
 .venn-svg .vs{transform-box:view-box}
 .venn-now{display:none}
-html.fx-venn-on .venn-now{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:6px 0 18px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.8);box-shadow:0 8px 22px -12px rgba(18,48,71,.35);font-size:15px;font-weight:600;color:var(--navy,#123047);transition:opacity .35s ease}
+html.fx-venn-on .venn-now{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:6px 0 18px;padding:9px 18px;border-radius:20px;white-space:pre-line;line-height:1.45;max-width:100%;background:rgba(255,255,255,.8);box-shadow:0 8px 22px -12px rgba(18,48,71,.35);font-size:15px;font-weight:600;color:var(--navy,#123047);transition:opacity .35s ease}
 html.fx-venn-on .venn-now.off{opacity:0}
 html.fx-venn-on .venn-list li{opacity:.32;transition:opacity .45s ease,transform .45s cubic-bezier(.2,.7,.2,1);transform:translateX(0)}
 html.fx-venn-on .venn-list li.on{opacity:1}

@@ -60,7 +60,7 @@
     function zoneH() { const s = sec.getBoundingClientRect(); return Math.min(s.bottom, s.top + innerHeight) - zoneTop.getBoundingClientRect().top; }
     function sizeFly() {
       VW = reduced ? W : document.documentElement.clientWidth; VH = reduced ? H : innerHeight;
-      dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.75 : 2);
+      dpr = Math.min(devicePixelRatio || 1, VW < 600 ? 1.5 : 2);
       fly.width = Math.round(VW * dpr); fly.height = Math.round(VH * dpr); sprites();
       if (!reduced) { fly.style.width = VW + 'px'; fly.style.height = VH + 'px'; }
     }
@@ -82,7 +82,7 @@
       mask = { data, ow, oh };
       const step = Math.max(W < 600 ? 1.9 : 2.2, Math.round(size / 42));
       for (let y = 0; y < oh; y += step) for (let x = 0; x < ow; x += step) if (data[(y * ow + x) * 4 + 3] > 140) pts.push([x + (Math.random() - .5) * step * .6, y + (Math.random() - .5) * step * .6]);
-      let n = Math.min(pts.length, W < 600 ? 950 : 1600);
+      let n = Math.min(pts.length, W < 600 ? 820 : 1600);
       // places réparties sur une grille régulière (et non tirées au hasard) : le mot est rempli uniformément
       if (pts.length > n) {
         const st2 = step * Math.sqrt(pts.length / n); pts.length = 0;
@@ -124,8 +124,20 @@
       g.moveTo(sz * 1.3, sz * .2); g.lineTo(sz * 2.05, sz * .85);
       g.stroke();
     }
+    // même planche à la taille exacte d’affichage des promeneuses : copie pixel pour pixel, sans mise à l’échelle
+    const SP1 = [];
     function sprites() {
-      SPR.length = 0;
+      SPR.length = 0; SP1.length = 0;
+      for (let i = 0; i < ANG; i++) {
+        const pair = [];
+        for (let f = 0; f < 2; f++) {
+          const c = document.createElement('canvas'); c.width = c.height = Math.ceil(SS * dpr);
+          const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.translate(SS / 2, SS / 2);
+          g.rotate(i / ANG * Math.PI * 2); g.fillStyle = g.strokeStyle = '#142f46';
+          antShape(g, SB, f); pair.push(c);
+        }
+        SP1.push(pair);
+      }
       for (let i = 0; i < ANG; i++) {
         const pair = [];
         for (let f = 0; f < 2; f++) {
@@ -161,7 +173,9 @@
     // Section épinglée : les fourmis se rassemblent tout au long du défilement de la section (sur plus d’une hauteur d’écran),
     // le mot est complet un peu avant la fin, puis reste affiché le temps de lire la phrase.
     const pin = cv.closest('.fx-swarm-pin');
-    const pinned = () => pin && getComputedStyle(pin).position === 'sticky';
+    // épinglage relu seulement quand la page change de mise en page (et non à chaque image)
+    let pinG = -1, pinV = false;
+    const pinned = () => { if (pinG !== gen) { pinG = gen; pinV = !!pin && getComputedStyle(pin).position === 'sticky'; } return pinV; };
     const progress = r => {
       if (pinned()) { const s = box(sec), vh = VH || innerHeight, run = Math.max(1, s.height - vh); return clamp((vh * .35 - s.top) / (run * .78 + vh * .35)); }
       const c = r.top + r.height / 2; return W < 600 ? clamp((innerHeight * .98 - c) / (innerHeight * .73)) : clamp((innerHeight * .92 - c) / (innerHeight * .42));
@@ -170,7 +184,7 @@
     // elle fait demi-tour ; le mot reste donc lisible. Dessin dans le canevas de la page (il défile avec le texte),
     // puis le dégradé de la marque est appliqué d’un coup sur toutes les fourmis.
     const inside = (x, y) => { if (!mask) return true; const X = x | 0, Y = y | 0; if (X < 0 || Y < 0 || X >= mask.ow || Y >= mask.oh) return false; return mask.data[(Y * mask.ow + X) * 4 + 3] > 120; };
-    let liveGrad = null; const layer = document.createElement('canvas');
+    let liveGrad = null, lb = null; const layer = document.createElement('canvas');
     // Marche d’une fourmi dans sa lettre : cap qui varie doucement ; au bord, elle cherche le cap le plus proche
     // qui reste dans la lettre et longe le bord (pas de demi-tours sur place). L’orientation affichée suit le cap en douceur.
     const TRY = [.35, -.35, .7, -.7, 1.1, -1.1, 1.6, -1.6, 2.2, -2.2, 2.8, -2.8];
@@ -234,7 +248,10 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, VW, VH);
       // calque des fourmis déjà arrivées (même taille que le calque des promeneuses)
       if (layer.width !== fly.width || layer.height !== fly.height) { layer.width = fly.width; layer.height = fly.height; }
-      const lg = layer.getContext('2d'); lg.setTransform(dpr, 0, 0, dpr, 0, 0); lg.globalCompositeOperation = 'source-over'; lg.clearRect(0, 0, VW, VH);
+      const lg = layer.getContext('2d'); lg.setTransform(dpr, 0, 0, dpr, 0, 0); lg.globalCompositeOperation = 'source-over';
+      // le calque coloré : on ne traite que le rectangle où des fourmis arrivées ont été dessinées (bien moins de pixels)
+      if (lb) lg.clearRect(lb[0], lb[1], lb[2], lb[3]);
+      let mx0 = 1e9, my0 = 1e9, mx1 = -1e9, my1 = -1e9;
       for (const q of P) {
         // Promenade de fourmi sur tout l’écran : petits changements de cap, rebond sur les bords.
         q.a += (Math.random() - .5) * .35; q.x += Math.cos(q.a) * q.v; q.y += Math.sin(q.a) * q.v;
@@ -255,19 +272,29 @@
           const d = SS * sz / SB;
           const vis = (q.hid ? clamp((k - .08) / .25) : 1) * lerp(clamp(q.y / 160), 1, k); if (vis <= .01) continue;   // invisibles au départ ; fondu sur le bord haut de la zone
           ctx.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1)) * vis;
-          ctx.drawImage(SPR[ai][((t * 9 + q.ph) | 0) & 1], x - d / 2, y - d / 2, d, d);
+          const fr = ((t * 9 + q.ph) | 0) & 1;
+          if (d < SS + .6) {   // taille de promenade : copie directe, alignée sur les pixels de l’écran
+            const im = SP1[ai][fr], w = im.width;
+            ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(im, Math.round((x - SS / 2) * dpr), Math.round((y - SS / 2) * dpr)); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          } else ctx.drawImage(SPR[ai][fr], x - d / 2, y - d / 2, d, d);
           continue;
         }
         // en arrivant dans le mot : la même fourmi (pattes, antennes), sur le calque qui recevra le dégradé
         const ai2 = face(q), d2 = SS * Math.min(sz, grain * .5) / SB;
         lg.globalAlpha = lerp(.34, 1, b / (BUCKETS - 1));
         lg.drawImage(SPR[ai2][((t * 7 + q.ph) | 0) & 1], x - d2 / 2, y - d2 / 2, d2, d2);
+        if (x < mx0) mx0 = x; if (x > mx1) mx1 = x; if (y < my0) my0 = y; if (y > my1) my1 = y;
       }
+      { const M = 14, x0 = Math.max(0, mx0 - M), y0 = Math.max(0, my0 - M), x1 = Math.min(VW, mx1 + M), y1 = Math.min(VH, my1 + M);
+        lb = x1 > x0 && y1 > y0 ? [x0, y0, x1 - x0, y1 - y0] : null; }
       // Couleur : bleu nuit discret quand elles se promènent, dégradé de la marque une fois rassemblées.
-      lg.globalAlpha = 1; lg.globalCompositeOperation = 'source-in';
-      const g = lg.createLinearGradient(X0 + W * .1, 0, X0 + W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`));
-      lg.fillStyle = g; lg.fillRect(0, 0, VW, VH); lg.globalCompositeOperation = 'source-over';
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.drawImage(layer, 0, 0); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (lb) {
+        lg.globalAlpha = 1; lg.globalCompositeOperation = 'source-in';
+        const g = lg.createLinearGradient(X0 + W * .1, 0, X0 + W * .9, 0); GRAD.forEach((c, i) => g.addColorStop(i / (GRAD.length - 1), `rgb(${c})`));
+        lg.fillStyle = g; lg.fillRect(lb[0], lb[1], lb[2], lb[3]); lg.globalCompositeOperation = 'source-over';
+        const sx = Math.floor(lb[0] * dpr), sy = Math.floor(lb[1] * dpr), sw = Math.min(layer.width - sx, Math.ceil(lb[2] * dpr) + 1), sh = Math.min(layer.height - sy, Math.ceil(lb[3] * dpr) + 1);
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; if (sw > 0 && sh > 0) ctx.drawImage(layer, sx, sy, sw, sh, sx, sy, sw, sh); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
       cv.parentElement.classList.toggle('fx-formed', p > .92);
     }
     const setP = e => { const r = cv.getBoundingClientRect(); pointer = { x: e.clientX - r.left, y: e.clientY - r.top }; lastMove = performance.now(); };
@@ -438,6 +465,8 @@
   });
   document.querySelectorAll('.tk-in, .h2-photo, .fx-live-img').forEach((el, i) => {
     const host = el.querySelector('.tk-card') || el;
+    // sur téléphone, pas de reflet mobile dans les billets découpés (il obligerait à redessiner le billet à chaque image)
+    if (coarse && host !== el) { LIVE.push({ el, g: null, kind: 'tk', ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false }); return; }
     const g = document.createElement('span'); g.className = 'fx-glare'; g.setAttribute('aria-hidden', 'true'); host.append(g);
     const kind = el.classList.contains('tk-in') ? 'tk' : el.classList.contains('h2-photo') ? 'hero' : 'img';
     LIVE.push({ el, g, kind, ph: i * 1.7 + Math.random(), x: 0, y: 0, px: null, py: null, on: false });
@@ -465,8 +494,8 @@
       c.x += (ix - c.x) * f; c.y += (iy - c.y) * f;
       const [ay, ax] = AMP[c.kind];
       c.el.style.transform = `perspective(1000px) rotateY(${(c.x * ay).toFixed(2)}deg) rotateX(${(-c.y * ax).toFixed(2)}deg) translateZ(0)`;
-      c.g.style.transform = `translate3d(${(c.x * 32).toFixed(2)}%,${(c.y * 32).toFixed(2)}%,0)`;
-      c.g.style.opacity = c.on ? 1 : .85;
+      if (c.g) { c.g.style.transform = `translate3d(${(c.x * 32).toFixed(2)}%,${(c.y * 32).toFixed(2)}%,0)`;
+        c.g.style.opacity = c.on ? 1 : .85; }
     });
   });
 
@@ -475,14 +504,22 @@
   // puis la ligne du trajet se trace du premier au dernier jour.
   document.querySelectorAll('.fo-sessions').forEach(wrap => {
     const ts = [...wrap.querySelectorAll('.fo-ticket')]; if (!ts.length || reduced) return;
+    // Le billet entier se déplace d’un bloc (une seule couche, rien n’est redessiné) ; seuls le trait du trajet
+    // et la date d’arrivée changent à l’intérieur, directement sur leurs éléments.
     wrap.classList.add('fx-deal'); const last = [];
+    const parts = ts.map(t => ({ path: t.querySelector('.tk-path'), end: t.querySelector('.tk-route > div:last-child') }));
     whenVisible(wrap, () => {
       const tops = ts.map(t => box(t).top), row = Math.abs(tops[0] - tops[tops.length - 1]) < 30;
       ts.forEach((t, i) => {
         const p = clamp((VH * .96 - tops[i]) / (VH * .5) - (row ? i * .2 : 0));
-        const d = ease(clamp(p * 1.15)), dr = ease(clamp(p * 1.7 - .7)), k = d.toFixed(3) + dr.toFixed(3);
-        if (last[i] === k) return; last[i] = k;
-        t.style.setProperty('--d', d.toFixed(3)); t.style.setProperty('--dr', dr.toFixed(3));
+        const d = ease(clamp(p * 1.15)), dr = ease(clamp(p * 1.7 - .7)), kd = d.toFixed(3), kr = dr.toFixed(2);
+        const L = last[i] || (last[i] = {});
+        if (L.d !== kd) { L.d = kd; const u = 1 - d;
+          t.style.transform = u < .001 ? '' : `translate3d(0,${(u * 110).toFixed(1)}px,0) rotate(${(u * -8).toFixed(2)}deg) scale(${(.9 + d * .1).toFixed(4)})`;
+          t.style.opacity = d > .999 ? '' : (.1 + d * .9).toFixed(3); }
+        if (L.r !== kr) { L.r = kr; const { path, end } = parts[i];
+          if (path) path.style.setProperty('--dr', kr);
+          if (end) { end.style.opacity = kr; end.style.transform = `translate3d(${((1 - dr) * -16).toFixed(1)}px,0,0)`; } }
       });
     }, '0px');
   });

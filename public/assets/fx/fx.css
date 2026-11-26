@@ -59,7 +59,8 @@ html.ap-scenes .fx-dial-pin{position:sticky;top:72px;height:calc(100vh - 72px);d
 /* ---------- 3. Billets de session (page Orléans) ---------- */
 .fo-sessions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:34px}
 .fo-ticket{position:relative}
-.tk-in{height:100%;will-change:transform;filter:drop-shadow(0 22px 26px rgba(20,47,70,.2)) drop-shadow(0 2px 3px rgba(20,47,70,.08));transform-origin:50% 50%}
+.tk-in{height:100%;will-change:transform;transform-origin:50% 50%;position:relative}
+.fo-ticket::before{content:"";position:absolute;inset:6px 4px 0;border-radius:26px;box-shadow:0 22px 34px -6px rgba(20,47,70,.22),0 2px 4px rgba(20,47,70,.08);pointer-events:none}
 .tk-card{--cut:196px;position:relative;height:100%;display:flex;flex-direction:column;border-radius:26px;background:#fff;overflow:hidden;
   -webkit-mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);-webkit-mask-composite:source-in;
   mask:radial-gradient(circle 11px at 0 var(--cut),#0000 97%,#000) ,radial-gradient(circle 11px at 100% var(--cut),#0000 97%,#000);mask-composite:intersect}
@@ -437,10 +438,9 @@ html.ap-scenes .fx-zoom-el{transition:none!important;opacity:1}
 .win > .fx-live-img img{height:100%;object-fit:cover}
 
 /* Billets BAFA distribués au défilement */
-html.ap-scenes .fx-deal .tk-card{transform-origin:30% 100%;transform:translate3d(0,calc((1 - var(--d,1)) * 110px),0) rotate(calc((1 - var(--d,1)) * -8deg)) scale(calc(.9 + var(--d,1) * .1));opacity:calc(.1 + var(--d,1) * .9)}
+html.ap-scenes .fx-deal .fo-ticket{transform-origin:30% 100%;will-change:transform,opacity}
 html.ap-scenes .fx-deal .tk-path::before{transform-origin:left center;transform:scaleX(var(--dr,1))}
 html.ap-scenes .fx-deal .tk-path i{opacity:var(--dr,1)}
-html.ap-scenes .fx-deal .tk-route > div:last-child{opacity:var(--dr,1);transform:translateX(calc((1 - var(--dr,1)) * -16px))}
 
 /* L’Esprit Fourmi : liste épinglée qui s’allume */
 .fx-spirit-pin{display:contents}
@@ -485,7 +485,7 @@ html.ap-reduced .na-frame{transition:none}
 @font-face{font-family:PoppinsV;src:url(../fonts/poppins-700-venn.woff) format("woff");font-weight:700;font-display:swap}
 .venn{margin:0}
 .venn-link{display:block;background:none!important;box-shadow:none!important;border-radius:0}
-.venn-svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 24px 40px rgba(18,48,71,.12))}
+.venn-svg{display:block;width:100%;height:auto;overflow:visible}
 .venn-svg .vs{transform-box:view-box}
 .venn-now{display:none}
 html.fx-venn-on .venn-now{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:6px 0 18px;padding:9px 18px;border-radius:20px;white-space:pre-line;line-height:1.45;max-width:100%;background:rgba(255,255,255,.8);box-shadow:0 8px 22px -12px rgba(18,48,71,.35);font-size:15px;font-weight:600;color:var(--navy,#123047);transition:opacity .35s ease}
@@ -509,3 +509,8 @@ html.fx-venn-on .venn-now-m{display:none}
   html.fx-venn-on .fx-venn .venn-now-m{display:inline-flex;margin:10px auto 0}
 }
 .fx-venn-pin{transform:none!important}
+/* Téléphones et tablettes : pas de flou ni d’ombre calculés sur des éléments qui bougent (fluidité sur iPhone) */
+@media (hover:none){
+  html.ap-motion .ap-r.ap-blur-lg,html.ap-motion .ap-r.ap-blur-lg.ap-in{filter:none!important}
+  .dg-sat,.dg-sat2,.dg-pulse,.fx-hub-dot{filter:none!important}
+}

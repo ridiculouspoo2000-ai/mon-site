@@ -323,14 +323,24 @@
       4: { o: '477px 471px', dx: -250, sc: .94 }, 5: { o: '742px 640px', sc: .93 }, 6: { o: '742px 640px', sc: .86 } };
     groups.forEach(g => { g.el.style.transformOrigin = M[g.s].o; });
     const fig = sec.querySelector('.venn') || svg;
-    let g0 = -1, on = false;
+    const nows = [...sec.querySelectorAll('.venn-now')], items = [...sec.querySelectorAll('.venn-list li[data-s]')];
+    const CAP = ['', 'Le savoir-être', '+ les savoir-faire', 'Savoir-être + savoir-faire : exécutant', '+ les savoirs',
+      'Avec les savoirs : connaissant et performant', 'Les trois réunis : compétent'];
+    let g0 = -1, on = false, cur = -1, figOn = false, figTop = 0;
     const frame = () => {
-      if (g0 !== gen) { g0 = gen; on = getComputedStyle(pin).position === 'sticky'; }
+      if (g0 !== gen) { g0 = gen; on = getComputedStyle(pin).position === 'sticky'; const cs = getComputedStyle(fig); figOn = !on && cs.position === 'sticky'; figTop = parseFloat(cs.top) || 0; }
       let p;
-      if (on) { const r = box(sec); p = clamp(-r.top / Math.max(1, r.height - VH)) * 1.12 - .04; }
+      if (figOn) { const r = box(fig.parentElement); p = clamp((figTop - r.top) / Math.max(1, r.height - fig.offsetHeight)) * 1.1 - .03; }
+      else if (on) { const r = box(sec); p = clamp(-r.top / Math.max(1, r.height - VH)) * 1.12 - .04; }
       else { const r = box(fig); p = (VH * .75 - r.top) / (VH * .4 + r.height); }
       const T = k => ease(clamp((p - (k - 1) * .145) / .18));
       const t6 = T(6);
+      // légende : l’étape en cours, et les savoirs déjà présents mis en avant dans la liste
+      let k = 0; for (let i = 1; i <= 6; i++) if (T(i) > .5) k = i;
+      if (k !== cur) { cur = k;
+        nows.forEach(n => { n.classList.toggle('off', !k); if (k) n.textContent = CAP[k]; });
+        items.forEach(li => { const s = +li.dataset.s; li.classList.toggle('on', k >= s); li.classList.toggle('now', k === s); });
+      }
       groups.forEach(g => {
         const t = T(g.s), m = M[g.s], u = 1 - t;
         const op = g.tmp ? t * (1 - t6) : t;

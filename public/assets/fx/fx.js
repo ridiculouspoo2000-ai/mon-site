@@ -315,6 +315,13 @@
     if (!reduced) { live.add(frame); wake(); }
   });
 
+  /* ---------------------------------------------------------------- 0. Halos des titres dans un calque coupé au bord de l’écran */
+  // (dessinés jusqu’ici en pseudo-éléments, ils débordaient de la page sur téléphone et Safari dézoomait tout le site)
+  document.querySelectorAll('.page-intro, .sc-hero2 .sc-pin').forEach(h => {
+    const c = document.createElement('div'); c.className = 'fx-halos'; c.setAttribute('aria-hidden', 'true');
+    c.append(document.createElement('i'), document.createElement('i')); h.prepend(c); h.classList.add('fx-has-halos');
+  });
+
   /* ---------------------------------------------------------------- 1 bis. Vidéo qui s'ouvre jusqu'aux bords de l'écran */
   // La section reste à l'écran : la vidéo part de la largeur du texte, coins arrondis, et s'agrandit jusqu'à remplir
   // toute la largeur. Une seule transformation (échelle) ; l'arrondi est compensé pour rester constant à l'œil.
@@ -515,7 +522,7 @@
         const d = ease(clamp(p * 1.15)), dr = ease(clamp(p * 1.7 - .7)), kd = d.toFixed(3), kr = dr.toFixed(2);
         const L = last[i] || (last[i] = {});
         if (L.d !== kd) { L.d = kd; const u = 1 - d;
-          t.style.transform = u < .001 ? '' : `translate3d(0,${(u * 110).toFixed(1)}px,0) rotate(${(u * -8).toFixed(2)}deg) scale(${(.9 + d * .1).toFixed(4)})`;
+          t.style.transform = u < .001 ? '' : `translate3d(0,${(u * 120).toFixed(1)}px,0) rotate(${(u * -7).toFixed(2)}deg)`;   // pas d’échelle : rien à redessiner
           t.style.opacity = d > .999 ? '' : (.1 + d * .9).toFixed(3); }
         if (L.r !== kr) { L.r = kr; const { path, end } = parts[i];
           if (path) path.style.setProperty('--dr', kr);
@@ -547,7 +554,8 @@
     if (reduced) return; let last = '';
     whenVisible(el, () => {
       const r = box(el), t = ease(clamp((VH * .98 - r.top) / (VH * .55))), k = t.toFixed(3); if (k === last) return; last = k;
-      el.style.transform = `scale(${lerp(coarse ? 1.3 : 1.42, 1, t).toFixed(4)})`; el.style.opacity = lerp(.12, 1, t).toFixed(3);
+      // téléphone : le titre monte et apparaît (un agrandissement redessinerait le texte à chaque image et élargirait la page)
+      el.style.transform = coarse ? `translate3d(0,${((1 - t) * 46).toFixed(1)}px,0)` : `scale(${lerp(1.42, 1, t).toFixed(4)})`; el.style.opacity = lerp(.12, 1, t).toFixed(3);
     }, '0px');
   });
 

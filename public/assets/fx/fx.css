@@ -471,9 +471,6 @@ html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
 .na-frame > img{display:block;width:100%;height:100%;object-fit:cover}
 .na-frame.na-contain{background:#f3f4f8}
 .na-frame.na-contain > img{object-fit:contain;padding:0 18px}
-.na-dom img{width:24px!important;height:24px!important}
-.na-dom{position:absolute;left:20px;bottom:20px;margin:0;padding:9px 15px 9px 11px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 8px 24px rgba(20,47,70,.18);opacity:0;transform:translateY(10px);transition:opacity .6s .35s,transform .8s .35s cubic-bezier(.2,.7,.2,1)}
-.na-frame.on .na-dom{opacity:1;transform:none}
 .na-dots{position:absolute;right:20px;top:50%;margin-top:-40px;display:flex;flex-direction:column;gap:8px;z-index:2}
 .na-dots i{display:block;width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.55);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:height .5s cubic-bezier(.2,.7,.2,1),background .4s}
 .na-dots i.on{height:26px;background:#fff}
@@ -483,3 +480,16 @@ html.ap-scenes .fx-pinlist li.cur::before{background:var(--grad);color:#fff}
 .na-steps .split.is-active > div:last-child{opacity:1!important}
 }
 html.ap-reduced .na-frame{transition:none}
+/* Les trois types de compétences : les cercles apparaissent un à un pendant le défilement */
+@font-face{font-family:PoppinsV;src:url(../fonts/poppins-500-venn.woff) format("woff");font-weight:500;font-display:swap}
+@font-face{font-family:PoppinsV;src:url(../fonts/poppins-700-venn.woff) format("woff");font-weight:700;font-display:swap}
+.venn{margin:0}
+.venn-link{display:block;border-radius:var(--r-l,22px);overflow:hidden;background:#fff;box-shadow:var(--sh,0 10px 30px rgba(18,48,71,.12))}
+.venn-svg{display:block;width:100%;height:auto}
+.venn-svg .vs{transform-box:view-box}
+@media(min-width:761px){
+  html.fx-venn-on .fx-venn{height:240vh}
+  html.fx-venn-on .fx-venn-pin{position:sticky;top:0;min-height:100vh;box-sizing:border-box;align-items:center;padding-top:96px;padding-bottom:32px}
+  html.fx-venn-on .fx-venn .venn{width:min(100%,calc((100vh - 150px) * 1494 / 1364));margin-inline:auto}
+}
+.fx-venn-pin{transform:none!important}

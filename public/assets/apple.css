@@ -356,3 +356,6 @@ header nav .nav-fly a[href$="bafa.html"]:hover{background:rgba(20,47,70,.05);col
 .dom-logo-paper{width:min(150px,40%)}
 .trainer-logo{display:block;width:110px;height:auto;margin:0 0 14px}
 .footer-logo{height:auto!important}
+/* petit logo de domaine au-dessus des intitulés (Nos actions, accueil) */
+.dom-logo.dom-logo-sm{width:min(190px,62%);margin:0 0 12px}
+.dom-logo-sm + .eyebrow{display:block}

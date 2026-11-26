@@ -311,6 +311,39 @@
     whenVisible(sec, frame, '0px');
   });
 
+  /* ---------------------------------------------------------------- 1 ter. Les trois types de compétences */
+  // Au défilement : le savoir-être apparaît, le savoir-faire vient se placer à côté et leur intersection (exécutant)
+  // se dévoile ; puis le savoir arrive, avec le connaissant et le performant, et enfin le compétent au centre.
+  document.querySelectorAll('.fx-venn').forEach(sec => {
+    const svg = sec.querySelector('.venn-svg'), pin = sec.querySelector('.fx-venn-pin'); if (!svg || !pin || reduced) return;
+    root.classList.add('fx-venn-on');
+    const groups = [...svg.querySelectorAll('.vs')].map(el => ({ el, s: +el.dataset.s, tmp: el.classList.contains('vtmp'), last: '' }));
+    // origine et mouvement de chaque étape (unités du dessin)
+    const M = { 1: { o: '1004px 473px', sc: .8 }, 2: { o: '742px 899px', dy: 230, sc: .94 }, 3: { o: '960px 720px', sc: .86 },
+      4: { o: '477px 471px', dx: -250, sc: .94 }, 5: { o: '742px 640px', sc: .93 }, 6: { o: '742px 640px', sc: .86 } };
+    groups.forEach(g => { g.el.style.transformOrigin = M[g.s].o; });
+    const fig = sec.querySelector('.venn') || svg;
+    let g0 = -1, on = false;
+    const frame = () => {
+      if (g0 !== gen) { g0 = gen; on = getComputedStyle(pin).position === 'sticky'; }
+      let p;
+      if (on) { const r = box(sec); p = clamp(-r.top / Math.max(1, r.height - VH)) * 1.12 - .04; }
+      else { const r = box(fig); p = (VH * .75 - r.top) / (VH * .4 + r.height); }
+      const T = k => ease(clamp((p - (k - 1) * .145) / .18));
+      const t6 = T(6);
+      groups.forEach(g => {
+        const t = T(g.s), m = M[g.s], u = 1 - t;
+        const op = g.tmp ? t * (1 - t6) : t;
+        const sc = lerp(m.sc, 1, t);
+        const tf = `translate(${((m.dx || 0) * u).toFixed(1)}px,${((m.dy || 0) * u).toFixed(1)}px) scale(${sc.toFixed(4)})`;
+        const k = op.toFixed(3) + tf; if (k === g.last) return; g.last = k;
+        g.el.style.opacity = op.toFixed(3); g.el.style.transform = tf;
+      });
+    };
+    frame();
+    whenVisible(sec, frame, '200px');
+  });
+
   /* ---------------------------------------------------------------- 2. Le cadran du parcours BAFA */
   document.querySelectorAll('.fx-dial').forEach(dial => {
     root.classList.add('fx-has-dial');
@@ -374,7 +407,6 @@
       const src = img ? (img.getAttribute('src') || '') : '';
       im.src = src; if (/collectif-affiche/.test(src)) f.classList.add('na-contain');   // l’affiche est montrée entière
       f.append(im);
-      const dom = sec.querySelector('.dom'); if (dom) { const d = dom.cloneNode(true); d.classList.add('na-dom'); f.append(d); }
       stage.append(f); col.append(sec); return f;
     });
     const dots = document.createElement('div'); dots.className = 'na-dots'; secs.forEach(() => dots.append(document.createElement('i'))); stage.append(dots);
